@@ -45,7 +45,7 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/firme">
+                            <a class="nav-link active" aria-current="page" href="/clienti/firme">
                                 <i class="fa-solid fa-building me-1"></i>Firme
                             </a>
                         </li>

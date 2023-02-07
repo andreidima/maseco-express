@@ -21,8 +21,8 @@ Route::redirect('/', '/acasa');
 
 
 Route::group(['middleware' => 'auth'], function () {
-    Route::view('/acasa', 'acasa');
+    Route::view('acasa', 'acasa');
 
-    Route::resource('/firme', FirmaController::class,  ['parameters' => ['firme' => 'firma']]);
+    Route::resource('/{tipPartener}/firme', FirmaController::class)->parameters(['firme' => 'firma']);
 });
 

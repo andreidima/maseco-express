@@ -5,8 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-use App\Models\FirmaIstoric;
-
 class Firma extends Model
 {
     use HasFactory;
@@ -16,7 +14,7 @@ class Firma extends Model
 
     public function path()
     {
-        return "/firme/{$this->id}";
+        return "/{tipPartener}/firme/{$this->id}";
     }
 
     // public function user()

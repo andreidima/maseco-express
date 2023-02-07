@@ -8,9 +8,11 @@
                     <i class="fa-solid fa-building me-1"></i>Firme
                 </span>
             </div>
-
+@php
+    // dd(Route::current(), url()->current());
+@endphp
             <div class="col-lg-6">
-                <form class="needs-validation" novalidate method="GET" action="{{ route(Route::currentRouteName())  }}">
+                <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form justify-content-center">
                         <div class="col-lg-4">
@@ -27,14 +29,14 @@
                         <button class="btn btn-sm btn-primary text-white col-md-4 me-3 border border-dark rounded-3" type="submit">
                             <i class="fas fa-search text-white me-1"></i>Caută
                         </button>
-                        <a class="btn btn-sm btn-secondary text-white col-md-4 border border-dark rounded-3" href="{{ route(Route::currentRouteName())  }}" role="button">
+                        <a class="btn btn-sm btn-secondary text-white col-md-4 border border-dark rounded-3" href="{{ url()->current() }}" role="button">
                             <i class="far fa-trash-alt text-white me-1"></i>Resetează căutarea
                         </a>
                     </div>
                 </form>
             </div>
             <div class="col-lg-3 text-end">
-                <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ route(Route::currentRouteName())  }}/adauga" role="button">
+                <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ url()->current() }}/adauga" role="button">
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă firmă
                 </a>
             </div>

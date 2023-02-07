@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Firma;
 use App\Models\FirmaIstoric;
+use App\Models\Tara;
 
 class FirmaController extends Controller
 {
@@ -44,11 +45,13 @@ class FirmaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create(Request $request, $tipPartener = null)
     {
+        $tari = Tara::select('id', 'nume')->orderBy('nume')->get();
+
         $request->session()->get('firma_return_url') ?? $request->session()->put('firma_return_url', url()->previous());
 
-        return view('firme.create');
+        return view('firme.create', compact('tipPartener', 'tari'));
     }
 
     /**
@@ -167,19 +170,27 @@ class FirmaController extends Controller
         return $request->validate(
             [
                 'nume' => 'required|max:500',
-                'telefon' => 'nullable|max:500',
+                'tip_partener' => 'required',
+                'tara_id' => 'required|numeric',
+                'cui' => 'nullable|max:500',
+                'reg_com' => 'nullable|max:500',
+                'oras' => 'nullable|max:500',
+                'judet' => 'nullable|max:500',
                 'adresa' => 'nullable|max:500',
-                'status' => 'nullable|max:500',
-                'intrare' => '',
-                'lansare' => '',
-                'oferta_pret' => 'nullable|integer',
-                'avans' => 'nullable|integer',
+                'cod_postal' => 'nullable|max:500',
+                'banca' => 'nullable|max:500',
+                'cont_iban' => 'nullable|max:500',
+                'banca_eur' => 'nullable|max:500',
+                'cont_iban_eur' => 'nullable|max:500',
+                'zile_scadenta' => 'nullable|numeric',
+                'email' => 'nullable|max:500',
+                'telefon' => 'nullable|max:500',
+                'fax' => 'nullable|max:500',
+                'website' => 'nullable|max:500',
                 'observatii' => '',
-                'user_id' => '',
-                // 'cheie_unica' => ''
             ],
             [
-
+                'tara_id.required' => 'Câmpul țara este obligatoriu'
             ]
         );
     }
