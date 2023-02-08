@@ -12,15 +12,20 @@ class Firma extends Model
     protected $table = 'firme';
     protected $guarded = [];
 
-    public function path()
+    public function path($tipPartener = null)
     {
-        return "/{tipPartener}/firme/{$this->id}";
+        return "/firme/$tipPartener/{$this->id}";
     }
 
     // public function user()
     // {
     //     return $this->belongsTo(User::class);
     // }
+
+    public function tara()
+    {
+        return $this->belongsTo(Tara::class);
+    }
 
     public function istoricuri()
     {

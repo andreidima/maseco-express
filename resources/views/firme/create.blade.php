@@ -18,7 +18,7 @@
                 <div class="card-body py-2 border border-secondary"
                     style="border-radius: 0px 0px 40px 40px;"
                 >
-                    <form  class="needs-validation" novalidate method="POST" action="/{{ $tipPartener }}/firme">
+                    <form  class="needs-validation" novalidate method="POST" action="/firme/{{ $tipPartener }}">
 
                                 @include ('firme.form', [
                                     'firma' => new App\Models\Firma,

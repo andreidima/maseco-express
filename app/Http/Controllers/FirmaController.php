@@ -15,7 +15,7 @@ class FirmaController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, $tipPartener = null)
     {
         $request->session()->forget('firma_return_url');
 
@@ -23,7 +23,7 @@ class FirmaController extends Controller
         $search_telefon = $request->search_telefon;
         $search_email = $request->search_email;
 
-        $query = Firma::with('user', 'istoricuri')
+        $query = Firma::with('tara')
             ->when($search_nume, function ($query, $search_nume) {
                 return $query->where('nume', 'like', '%' . $search_nume . '%');
             })
@@ -33,11 +33,12 @@ class FirmaController extends Controller
             ->when($search_email, function ($query, $search_email) {
                 return $query->where('email', 'like', '%' . $search_email . '%');
             })
+            ->where('tip_partener' , (($tipPartener === 'clienti') ? 1 : (($tipPartener === 'transportatori') ? 2 : '')))
             ->latest();
 
         $firme = $query->simplePaginate(25);
 
-        return view('firme.index', compact('firme', 'search_nume', 'search_telefon', 'search_email'));
+        return view('firme.index', compact('firme', 'search_nume', 'search_telefon', 'search_email', 'tipPartener'));
     }
 
     /**
@@ -60,15 +61,15 @@ class FirmaController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(Request $request, $tipPartener = null)
     {
         $firma = Firma::create($this->validateRequest($request));
 
         // Salvare in istoric
         $firma_istoric = new FirmaIstoric;
         $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $firma_istoric->operatie = 'Adaugare';
         $firma_istoric->operatie_user_id = auth()->user()->id ?? null;
+        $firma_istoric->operatie = 'Adaugare';
         $firma_istoric->save();
 
         return redirect($request->session()->get('firma_return_url') ?? ('/firme'))->with('status', 'Firma „' . ($firma->nume ?? '') . '” a fost adăugată cu succes!');
@@ -80,7 +81,7 @@ class FirmaController extends Controller
      * @param  \App\Firma  $firma
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, Firma $firma)
+    public function show(Request $request, $tipPartener = null, Firma $firma)
     {
         $this->authorize('update', $firma);
 
@@ -95,13 +96,13 @@ class FirmaController extends Controller
      * @param  \App\Firma  $firma
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, Firma $firma)
+    public function edit(Request $request, $tipPartener = null, Firma $firma)
     {
-        $this->authorize('update', $firma);
+        $tari = Tara::select('id', 'nume')->orderBy('nume')->get();
 
         $request->session()->get('firma_return_url') ?? $request->session()->put('firma_return_url', url()->previous());
 
-        return view('firme.edit', compact('firma'));
+        return view('firme.edit', compact('tipPartener', 'tari', 'firma'));
     }
 
     /**
@@ -111,18 +112,16 @@ class FirmaController extends Controller
      * @param  \App\Firma  $firma
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Firma $firma)
+    public function update(Request $request, $tipPartener = null, Firma $firma)
     {
-        $this->authorize('update', $firma);
-
         $firma->update($this->validateRequest($request));
 
         // Salvare in istoric
         if ($firma->wasChanged()){
             $firma_istoric = new FirmaIstoric;
             $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-            $firma_istoric->operatie = 'Modificare';
             $firma_istoric->operatie_user_id = auth()->user()->id ?? null;
+            $firma_istoric->operatie = 'Modificare';
             $firma_istoric->save();
         }
 
@@ -135,20 +134,18 @@ class FirmaController extends Controller
      * @param  \App\Firma  $firma
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, Firma $firma)
+    public function destroy(Request $request, $tipPartener = null, Firma $firma)
     {
-        $this->authorize('update', $firma);
-
         // Salvare in istoric
         $firma_istoric = new FirmaIstoric;
         $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $firma_istoric->operatie = 'Stergere';
         $firma_istoric->operatie_user_id = auth()->user()->id ?? null;
+        $firma_istoric->operatie = 'Stergere';
         $firma_istoric->save();
 
         $firma->delete();
 
-        return back()->with('status', 'Firma „' . ($firma->nume ?? '') . '” a fost șters cu succes!');
+        return back()->with('status', 'Firma „' . ($firma->nume ?? '') . '” a fost ștearsă cu succes!');
     }
 
     /**
@@ -159,9 +156,9 @@ class FirmaController extends Controller
     protected function validateRequest(Request $request)
     {
         // Se adauga userul doar la adaugare, iar la modificare nu se schimba
-        if ($request->isMethod('post')) {
-            $request->request->add(['user_id' => $request->user()->id]);
-        }
+        // if ($request->isMethod('post')) {
+        //     $request->request->add(['user_id' => $request->user()->id]);
+        // }
 
         // if ($request->isMethod('post')) {
         //     $request->request->add(['cheie_unica' => uniqid()]);
@@ -182,7 +179,7 @@ class FirmaController extends Controller
                 'cont_iban' => 'nullable|max:500',
                 'banca_eur' => 'nullable|max:500',
                 'cont_iban_eur' => 'nullable|max:500',
-                'zile_scadenta' => 'nullable|numeric',
+                'zile_scadente' => 'nullable|numeric',
                 'email' => 'nullable|max:500',
                 'telefon' => 'nullable|max:500',
                 'fax' => 'nullable|max:500',

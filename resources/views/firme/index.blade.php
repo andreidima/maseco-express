@@ -5,12 +5,20 @@
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
             <div class="col-lg-3">
                 <span class="badge culoare1 fs-5">
-                    <i class="fa-solid fa-building me-1"></i>Firme
+                    @switch($tipPartener)
+                        @case('clienti')
+                            <i class="fa-solid fa-handshake me-1"></i>Clienți
+                            @break
+                        @case('transportatori')
+                            <i class="fa-solid fa-truck me-1"></i>Transportatori
+                            @break
+
+                        @default
+
+                    @endswitch
+                    {{-- <i class="fa-solid fa-building me-1"></i>Firme --}}
                 </span>
             </div>
-@php
-    // dd(Route::current(), url()->current());
-@endphp
             <div class="col-lg-6">
                 <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
@@ -55,11 +63,12 @@
                             <th class="">Nume</th>
                             <th class="">Telefon</th>
                             <th class="">Email</th>
+                            <th class="">Țara</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($firme as $client)
+                        @forelse ($firme as $firma)
                             <tr>
                                 <td align="">
                                     {{ ($firme ->currentpage()-1) * $firme ->perpage() + $loop->index + 1 }}
@@ -73,9 +82,12 @@
                                 <td class="">
                                     {{ $firma->email }}
                                 </td>
+                                <td class="">
+                                    {{ $firma->tara->nume ?? '' }}
+                                </td>
                                 <td>
                                     <div class="d-flex justify-content-end">
-                                        <a href="{{ $firma->path() }}/modifica" class="flex me-1">
+                                        <a href="{{ $firma->path($tipPartener) }}/modifica" class="flex me-1">
                                             <span class="badge bg-primary">Modifică</span>
                                         </a>
                                         <div style="flex" class="">
@@ -112,7 +124,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                 <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white" id="exampleModalLabel">Firma: <b>{{ $firma->titlu }}</b></h5>
+                    <h5 class="modal-title text-white" id="exampleModalLabel">Firma: <b>{{ $firma->nume }}</b></h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="text-align:left;">
@@ -121,7 +133,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
 
-                    <form method="POST" action="{{ $firma->path() }}">
+                    <form method="POST" action="{{ $firma->path($tipPartener) }}">
                         @method('DELETE')
                         @csrf
                         <button

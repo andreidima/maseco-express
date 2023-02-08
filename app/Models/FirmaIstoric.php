@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ClientIstoric extends Model
+class FirmaIstoric extends Model
 {
     use HasFactory;
 
