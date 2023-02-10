@@ -46,12 +46,17 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/firme/clienti">
-                                <i class="fa-solid fa-handshake me-1"></i>Clienți
+                                <i class="fa-solid fa-users me-1"></i>Clienți
                             </a>
                         </li>
                         <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/firme/transportatori">
-                                <i class="fa-solid fa-truck me-1"></i>Transportatori
+                                <i class="fa-solid fa-people-carry-box me-1"></i>Transportatori
+                            </a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="nav-link active" aria-current="page" href="/camioane">
+                                <i class="fa-solid fa-truck me-1"></i>Camioane
                             </a>
                         </li>
                         {{-- <li class="nav-item me-3 dropdown">

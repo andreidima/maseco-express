@@ -20,7 +20,7 @@ import { createApp } from 'vue';
 const app = createApp({});
 
 import ExampleComponent from './components/ExampleComponent.vue';
-app.component('example-component', ExampleComponent);
+// app.component('example-component', ExampleComponent);
 
 /**
  * The following block of code may be used to automatically register your
@@ -40,4 +40,35 @@ app.component('example-component', ExampleComponent);
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
 
-app.mount('#app');
+// app.mount('#app');
+
+
+
+const camion = createApp({
+    el: '#camion',
+    data() {
+        return {
+            firme: firme,
+            tipuriCamioane: tipuriCamioane,
+
+            tipuriCamioaneListaAutocomplete: [],
+            tip_camion: tipCamionVechi,
+        }
+    },
+    created: function () {
+    },
+    methods: {
+        autocompleteTipuriCamioane() {
+            this.tipuriCamioaneListaAutocomplete = [];
+            if (this.tip_camion.length > 0) {
+                for (var i = 0; i < this.tipuriCamioane.length; i++) {
+                    if (this.tipuriCamioane[i].tip_camion.toLowerCase().includes(this.tip_camion.toLowerCase())) {
+                        this.tipuriCamioaneListaAutocomplete.push(this.tipuriCamioane[i]);
+                    }
+                }
+            }
+        },
+    }
+});
+
+camion.mount('#camion');

@@ -5,18 +5,7 @@
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
             <div class="col-lg-3">
                 <span class="badge culoare1 fs-5">
-                    @switch($tipPartener)
-                        @case('clienti')
-                            <i class="fa-solid fa-users me-1"></i>Clienți
-                            @break
-                        @case('transportatori')
-                            <i class="fa-solid fa-people-carry-box me-1"></i>Transportatori
-                            @break
-
-                        @default
-
-                    @endswitch
-                    {{-- <i class="fa-solid fa-building me-1"></i>Firme --}}
+                    <i class="fa-solid fa-truck me-1"></i>Camioane
                 </span>
             </div>
             <div class="col-lg-6">
@@ -24,13 +13,13 @@
                     @csrf
                     <div class="row mb-1 custom-search-form justify-content-center">
                         <div class="col-lg-4">
-                            <input type="text" class="form-control rounded-3" id="search_nume" name="search_nume" placeholder="Nume" value="{{ $search_nume }}">
+                            <input type="text" class="form-control rounded-3" id="search_numar_inmatriculare" name="search_numar_inmatriculare" placeholder="Număr înmatriculare" value="{{ $search_numar_inmatriculare }}">
                         </div>
                         <div class="col-lg-4">
-                            <input type="text" class="form-control rounded-3" id="search_telefon" name="search_telefon" placeholder="Telefon" value="{{ $search_telefon }}">
+                            <input type="text" class="form-control rounded-3" id="search_nume_sofer" name="search_nume_sofer" placeholder="Nume șofer" value="{{ $search_nume_sofer }}">
                         </div>
                         <div class="col-lg-4">
-                            <input type="text" class="form-control rounded-3" id="search_email" name="search_email" placeholder="Email" value="{{ $search_email }}">
+                            <input type="text" class="form-control rounded-3" id="search_telefon_sofer" name="search_telefon_sofer" placeholder="Telefon șofer" value="{{ $search_telefon_sofer }}">
                         </div>
                     </div>
                     <div class="row custom-search-form justify-content-center">
@@ -45,7 +34,7 @@
             </div>
             <div class="col-lg-3 text-end">
                 <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ url()->current() }}/adauga" role="button">
-                    <i class="fas fa-plus-square text-white me-1"></i>Adaugă firmă
+                    <i class="fas fa-plus-square text-white me-1"></i>Adaugă camion
                 </a>
             </div>
         </div>
@@ -60,42 +49,46 @@
                     {{-- <thead class="text-white rounded" style="background-color: #69A1B1"> --}}
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
-                            <th class="">Nume</th>
-                            <th class="">Telefon</th>
-                            <th class="">Email</th>
-                            <th class="">Țara</th>
+                            <th class="">Nr. înmatriculare</th>
+                            <th class="">Tip camion</th>
+                            <th class="">Nume șofer</th>
+                            <th class="">Telefon șofer</th>
+                            <th class="">Firma</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($firme as $firma)
+                        @forelse ($camioane as $camion)
                             <tr>
                                 <td align="">
-                                    {{ ($firme ->currentpage()-1) * $firme ->perpage() + $loop->index + 1 }}
+                                    {{ ($camioane ->currentpage()-1) * $camioane ->perpage() + $loop->index + 1 }}
                                 </td>
                                 <td class="">
-                                    {{ $firma->nume }}
+                                    {{ $camion->numar_inmatriculare }}
                                 </td>
                                 <td class="">
-                                    {{ $firma->telefon }}
+                                    {{ $camion->tip }}
                                 </td>
                                 <td class="">
-                                    {{ $firma->email }}
+                                    {{ $camion->nume_sofer }}
                                 </td>
                                 <td class="">
-                                    {{ $firma->tara->nume ?? '' }}
+                                    {{ $camion->telefon_sofer }}
+                                </td>
+                                <td class="">
+                                    {{ $camion->firma->nume ?? '' }}
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-end">
-                                        <a href="{{ $firma->path($tipPartener) }}/modifica" class="flex me-1">
+                                        <a href="{{ $camion->path() }}/modifica" class="flex me-1">
                                             <span class="badge bg-primary">Modifică</span>
                                         </a>
                                         <div style="flex" class="">
                                             <a
                                                 href="#"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#stergeFirma{{ $firma->id }}"
-                                                title="Șterge Firma"
+                                                data-bs-target="#stergeCamion{{ $camion->id }}"
+                                                title="Șterge Camion"
                                                 >
                                                 <span class="badge bg-danger">Șterge</span>
                                             </a>
@@ -112,35 +105,35 @@
 
                 <nav>
                     <ul class="pagination justify-content-center">
-                        {{$firme->appends(Request::except('page'))->links()}}
+                        {{$camioane->appends(Request::except('page'))->links()}}
                     </ul>
                 </nav>
         </div>
     </div>
 
-    {{-- Modalele pentru stergere firma --}}
-    @foreach ($firme as $firma)
-        <div class="modal fade text-dark" id="stergeFirma{{ $firma->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    {{-- Modalele pentru stergere camion --}}
+    @foreach ($camioane as $camion)
+        <div class="modal fade text-dark" id="stergeCamion{{ $camion->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                 <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white" id="exampleModalLabel">Firma: <b>{{ $firma->nume }}</b></h5>
+                    <h5 class="modal-title text-white" id="exampleModalLabel">Camion: <b>{{ $camion->nume }}</b></h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="text-align:left;">
-                    Ești sigur ca vrei să ștergi Firma?
+                    Ești sigur ca vrei să ștergi Camionul?
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
 
-                    <form method="POST" action="{{ $firma->path($tipPartener) }}">
+                    <form method="POST" action="{{ $camion->path() }}">
                         @method('DELETE')
                         @csrf
                         <button
                             type="submit"
                             class="btn btn-danger text-white"
                             >
-                            Șterge Firma
+                            Șterge Camionul
                         </button>
                     </form>
 
