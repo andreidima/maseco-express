@@ -48,11 +48,12 @@ const camion = createApp({
     el: '#camion',
     data() {
         return {
-            firme: firme,
-            tipuriCamioane: tipuriCamioane,
-
-            tipuriCamioaneListaAutocomplete: [],
             tip_camion: tipCamionVechi,
+            tipuriCamioane: tipuriCamioane,
+            tipuriCamioaneListaAutocomplete: [],
+
+            firma_id: firmaIdVechi,
+            firme: firme,
         }
     },
     created: function () {
@@ -60,11 +61,29 @@ const camion = createApp({
     methods: {
         autocompleteTipuriCamioane() {
             this.tipuriCamioaneListaAutocomplete = [];
-            if (this.tip_camion.length > 0) {
-                for (var i = 0; i < this.tipuriCamioane.length; i++) {
-                    if (this.tipuriCamioane[i].tip_camion.toLowerCase().includes(this.tip_camion.toLowerCase())) {
-                        this.tipuriCamioaneListaAutocomplete.push(this.tipuriCamioane[i]);
-                    }
+
+            var numarMaximDeElemente = 0;
+            for (var i = 0; i < this.tipuriCamioane.length; i++) {
+                if (this.tipuriCamioane[i].tip_camion.toLowerCase().includes(this.tip_camion.toLowerCase())) {
+                    this.tipuriCamioaneListaAutocomplete.push(this.tipuriCamioane[i]);
+                    numarMaximDeElemente++;
+                }
+                if (numarMaximDeElemente >= 5){
+                    break;
+                }
+            }
+        },
+        autocompleteFirme() {
+            this.firmeListaAutocomplete = [];
+
+            var numarMaximDeElemente = 0;
+            for (var i = 0; i < this.firme.length; i++) {
+                if (this.firme[i].tip_camion.toLowerCase().includes(this.firma.toLowerCase())) {
+                    this.firmeListaAutocomplete.push(this.firme[i]);
+                    numarMaximDeElemente++;
+                }
+                if (numarMaximDeElemente >= 5) {
+                    break;
                 }
             }
         },
