@@ -23,8 +23,8 @@ class CamionController extends Controller
         $search_nume_sofer = $request->search_nume_sofer;
         $search_telefon_sofer = $request->search_telefon_sofer;
 
-        $query = Camion::with('tara')
-            ->when($search_numar_inmatriculare, function ($query, $search_numar_inmatriculare) {
+        $query = Camion::
+            when($search_numar_inmatriculare, function ($query, $search_numar_inmatriculare) {
                 return $query->where('nume', 'like', '%' . $search_numar_inmatriculare . '%');
             })
             ->when($search_nume_sofer, function ($query, $search_nume_sofer) {
@@ -37,7 +37,7 @@ class CamionController extends Controller
 
         $camioane = $query->simplePaginate(25);
 
-        return view('camioane.index', compact('camioane', 'firme', 'search_numar_inmatriculare', 'search_nume_sofer', 'search_telefon_sofer'));
+        return view('camioane.index', compact('camioane', 'search_numar_inmatriculare', 'search_nume_sofer', 'search_telefon_sofer'));
     }
 
     /**
@@ -47,8 +47,8 @@ class CamionController extends Controller
      */
     public function create(Request $request)
     {
-        $firme = Firma::select('id', 'nume')->orderBy('nume')->get();
-        $tipuriCamioane = Camion::select('tip_camion')->orderBy('tip_camion')->get();
+        $firme = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+        $tipuriCamioane = Camion::select('tip_camion')->distinct()->orderBy('tip_camion')->get();
 
         $request->session()->get('camion_return_url') ?? $request->session()->put('camion_return_url', url()->previous());
 
@@ -68,11 +68,11 @@ class CamionController extends Controller
         // Salvare in istoric
         $camion_istoric = new CamionIstoric;
         $camion_istoric->fill($camion->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $camion_istoric->operatie_user_id = auth()->user()->id ?? null;
-        $camion_istoric->operatie = 'Adaugare';
+        $camion_istoric->operare_user_id = auth()->user()->id ?? null;
+        $camion_istoric->operare_descriere = 'Adaugare';
         $camion_istoric->save();
 
-        return redirect($request->session()->get('camion_return_url') ?? ('/camioane'))->with('status', 'Camion „' . ($camion->nume ?? '') . '” a fost adăugată cu succes!');
+        return redirect($request->session()->get('camion_return_url') ?? ('/camioane'))->with('status', 'Camionul „' . ($camion->numar_inmatriculare ?? '') . '” a fost adăugat cu succes!');
     }
 
     /**
@@ -98,11 +98,12 @@ class CamionController extends Controller
      */
     public function edit(Request $request, Camion $camion)
     {
-        $tari = Tara::select('id', 'nume')->orderBy('nume')->get();
+        $firme = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+        $tipuriCamioane = Camion::select('tip_camion')->distinct()->orderBy('tip_camion')->get();
 
         $request->session()->get('camion_return_url') ?? $request->session()->put('camion_return_url', url()->previous());
 
-        return view('camioane.edit', compact('tipPartener', 'tari', 'camion'));
+        return view('camioane.edit', compact('camion', 'firme', 'tipuriCamioane'));
     }
 
     /**
@@ -120,12 +121,12 @@ class CamionController extends Controller
         if ($camion->wasChanged()){
             $camion_istoric = new CamionIstoric;
             $camion_istoric->fill($camion->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-            $camion_istoric->operatie_user_id = auth()->user()->id ?? null;
-            $camion_istoric->operatie = 'Modificare';
+            $camion_istoric->operare_user_id = auth()->user()->id ?? null;
+            $camion_istoric->operare_descriere = 'Modificare';
             $camion_istoric->save();
         }
 
-        return redirect($request->session()->get('camion_return_url') ?? ('/camioane'))->with('status', 'Camion „' . ($camion->nume ?? '') . '” a fost modificată cu succes!');
+        return redirect($request->session()->get('camion_return_url') ?? ('/camioane'))->with('status', 'Camionul „' . ($camion->numar_inmatriculare ?? '') . '” a fost modificat cu succes!');
     }
 
     /**
@@ -139,13 +140,13 @@ class CamionController extends Controller
         // Salvare in istoric
         $camion_istoric = new CamionIstoric;
         $camion_istoric->fill($camion->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $camion_istoric->operatie_user_id = auth()->user()->id ?? null;
-        $camion_istoric->operatie = 'Stergere';
+        $camion_istoric->operare_user_id = auth()->user()->id ?? null;
+        $camion_istoric->operare_descriere = 'Stergere';
         $camion_istoric->save();
 
         $camion->delete();
 
-        return back()->with('status', 'Camion „' . ($camion->nume ?? '') . '” a fost ștearsă cu succes!');
+        return back()->with('status', 'Camionul „' . ($camion->numar_inmatriculare ?? '') . '” a fost șters cu succes!');
     }
 
     /**
@@ -166,25 +167,12 @@ class CamionController extends Controller
 
         return $request->validate(
             [
-                'nume' => 'required|max:500',
-                'tip_partener' => 'required',
-                'tara_id' => 'required|numeric',
-                'cui' => 'nullable|max:500',
-                'reg_com' => 'nullable|max:500',
-                'oras' => 'nullable|max:500',
-                'judet' => 'nullable|max:500',
-                'adresa' => 'nullable|max:500',
-                'cod_postal' => 'nullable|max:500',
-                'banca' => 'nullable|max:500',
-                'cont_iban' => 'nullable|max:500',
-                'banca_eur' => 'nullable|max:500',
-                'cont_iban_eur' => 'nullable|max:500',
-                'zile_scadente' => 'nullable|numeric',
-                'email' => 'nullable|max:500',
-                'telefon' => 'nullable|max:500',
-                'fax' => 'nullable|max:500',
-                'website' => 'nullable|max:500',
-                'observatii' => '',
+                'tip_camion' => 'required|max:500',
+                'numar_inmatriculare' => 'nullable|max:500',
+                'nume_sofer' => 'nullable|max:500',
+                'telefon_sofer' => 'nullable|max:500',
+                'firma_id' => '',
+                'observatii' => 'nullable|max:2000',
             ],
             [
                 'tara_id.required' => 'Câmpul țara este obligatoriu'

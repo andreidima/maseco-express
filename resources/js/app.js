@@ -53,41 +53,54 @@ const camion = createApp({
             tipuriCamioaneListaAutocomplete: [],
 
             firma_id: firmaIdVechi,
+            firma_nume: '',
             firme: firme,
+            firmeListaAutocomplete: []
         }
     },
     created: function () {
+        if (this.firma_id) {
+            for (var i = 0; i < this.firme.length; i++) {
+                if (this.firme[i].id == this.firma_id) {
+                    this.firma_nume = this.firme[i].nume;
+                    break;
+                }
+            }
+        }
     },
     methods: {
         autocompleteTipuriCamioane() {
             this.tipuriCamioaneListaAutocomplete = [];
 
-            var numarMaximDeElemente = 0;
+            // var numarMaximDeElemente = 0;
             for (var i = 0; i < this.tipuriCamioane.length; i++) {
-                if (this.tipuriCamioane[i].tip_camion.toLowerCase().includes(this.tip_camion.toLowerCase())) {
+                if (this.tipuriCamioane[i].tip_camion && this.tipuriCamioane[i].tip_camion.toLowerCase().includes(this.tip_camion.toLowerCase())) {
                     this.tipuriCamioaneListaAutocomplete.push(this.tipuriCamioane[i]);
-                    numarMaximDeElemente++;
+                    // numarMaximDeElemente++;
                 }
-                if (numarMaximDeElemente >= 5){
-                    break;
-                }
+                // if (numarMaximDeElemente >= 5){
+                //     break;
+                // }
             }
         },
         autocompleteFirme() {
             this.firmeListaAutocomplete = [];
 
-            var numarMaximDeElemente = 0;
+            // var numarMaximDeElemente = 0;
             for (var i = 0; i < this.firme.length; i++) {
-                if (this.firme[i].tip_camion.toLowerCase().includes(this.firma.toLowerCase())) {
+                if (this.firme[i].nume && this.firme[i].nume.toLowerCase().includes(this.firma_nume.toLowerCase())) {
                     this.firmeListaAutocomplete.push(this.firme[i]);
-                    numarMaximDeElemente++;
+                    // numarMaximDeElemente++;
                 }
-                if (numarMaximDeElemente >= 5) {
-                    break;
-                }
+                // if (numarMaximDeElemente >= 5) {
+                //     break;
+                // }
             }
         },
     }
 });
 
-camion.mount('#camion');
+if (document.getElementById('camion') != null) {
+    camion.mount('#camion');
+}
+

@@ -27,6 +27,16 @@ class Firma extends Model
         return $this->belongsTo(Tara::class);
     }
 
+    /**
+     * Get all of the camioane for the Firma
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function camioane()
+    {
+        return $this->hasMany(Camion::class);
+    }
+
     public function istoricuri()
     {
         return $this->hasMany(FirmaIstoric::class, 'id');

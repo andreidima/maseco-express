@@ -67,7 +67,7 @@
                                     {{ $camion->numar_inmatriculare }}
                                 </td>
                                 <td class="">
-                                    {{ $camion->tip }}
+                                    {{ $camion->tip_camion }}
                                 </td>
                                 <td class="">
                                     {{ $camion->nume_sofer }}

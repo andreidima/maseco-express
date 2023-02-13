@@ -64,6 +64,7 @@
                             <th class="">Telefon</th>
                             <th class="">Email</th>
                             <th class="">Țara</th>
+                            <th class="">Camioane</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -84,6 +85,12 @@
                                 </td>
                                 <td class="">
                                     {{ $firma->tara->nume ?? '' }}
+                                </td>
+                                <td>
+                                    @foreach ($firma->camioane as $camion)
+                                        {{ $camion->tip_camion }}
+                                        <br>
+                                    @endforeach
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-end">

@@ -22,6 +22,11 @@ class Camion extends Model
     //     return $this->belongsTo(User::class);
     // }
 
+    public function firma()
+    {
+        return $this->belongsTo(Firma::class);
+    }
+
     public function istoricuri()
     {
         return $this->hasMany(CamionIstoric::class, 'id');

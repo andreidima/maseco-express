@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Firma;
 use App\Models\FirmaIstoric;
 use App\Models\Tara;
+use App\Models\Camion;
 
 class FirmaController extends Controller
 {
@@ -37,7 +38,7 @@ class FirmaController extends Controller
             ->latest();
 
         $firme = $query->simplePaginate(25);
-
+// dd($firme);
         return view('firme.index', compact('firme', 'search_nume', 'search_telefon', 'search_email', 'tipPartener'));
     }
 
@@ -68,8 +69,8 @@ class FirmaController extends Controller
         // Salvare in istoric
         $firma_istoric = new FirmaIstoric;
         $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $firma_istoric->operatie_user_id = auth()->user()->id ?? null;
-        $firma_istoric->operatie = 'Adaugare';
+        $firma_istoric->operare_user_id = auth()->user()->id ?? null;
+        $firma_istoric->operare_descriere = 'Adaugare';
         $firma_istoric->save();
 
         return redirect($request->session()->get('firma_return_url') ?? ('/firme/clienti'))->with('status', 'Firma „' . ($firma->nume ?? '') . '” a fost adăugată cu succes!');
@@ -120,8 +121,8 @@ class FirmaController extends Controller
         if ($firma->wasChanged()){
             $firma_istoric = new FirmaIstoric;
             $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-            $firma_istoric->operatie_user_id = auth()->user()->id ?? null;
-            $firma_istoric->operatie = 'Modificare';
+            $firma_istoric->operare_user_id = auth()->user()->id ?? null;
+            $firma_istoric->operare_descriere = 'Modificare';
             $firma_istoric->save();
         }
 
@@ -136,11 +137,15 @@ class FirmaController extends Controller
      */
     public function destroy(Request $request, $tipPartener = null, Firma $firma)
     {
+        if (count($firma->camioane) > 0){
+            return back()->with('error', 'Nu puteți șterge firma „' . ($firma->nume ?? '') . '” pentru că are camioane atașate! Ștergeți mai întâi camioanele');
+        }
+
         // Salvare in istoric
         $firma_istoric = new FirmaIstoric;
         $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $firma_istoric->operatie_user_id = auth()->user()->id ?? null;
-        $firma_istoric->operatie = 'Stergere';
+        $firma_istoric->operare_user_id = auth()->user()->id ?? null;
+        $firma_istoric->operare_descriere = 'Stergere';
         $firma_istoric->save();
 
         $firma->delete();
