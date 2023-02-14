@@ -3,7 +3,7 @@ import DatePicker from 'vue-datepicker-next';
 import 'vue-datepicker-next/index.css';
 
 // import 'vue-datepicker-next/locale/ro';
-import moment from 'moment';
+// import moment from 'moment';
 
 export default {
   components: { DatePicker },

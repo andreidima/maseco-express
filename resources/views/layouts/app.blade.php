@@ -59,6 +59,16 @@
                                 <i class="fa-solid fa-truck me-1"></i>Camioane
                             </a>
                         </li>
+                        <li class="nav-item me-3">
+                            <a class="nav-link active" aria-current="page" href="/locuri-operare">
+                                <i class="fa-solid fa-location-dot me-1"></i>Locuri de operare
+                            </a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <a class="nav-link active" aria-current="page" href="/comenzi">
+                                <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
+                            </a>
+                        </li>
                         {{-- <li class="nav-item me-3 dropdown">
                             <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fa-solid fa-calendar-check me-1"></i>

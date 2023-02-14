@@ -74,6 +74,17 @@
                     required>
             </div>
             <div class="col-lg-6 mb-5 mx-auto">
+                <label for="skype_sofer" class="mb-0 ps-3">Skype șofer</label>
+                <input
+                    type="text"
+                    v-on:focus="tipuriCamioaneListaAutocomplete = ''; firmeListaAutocomplete = ''"
+                    class="form-control bg-white rounded-3 {{ $errors->has('skype_sofer') ? 'is-invalid' : '' }}"
+                    name="skype_sofer"
+                    placeholder=""
+                    value="{{ old('skype_sofer', $camion->skype_sofer) }}"
+                    required>
+            </div>
+            <div class="col-lg-6 mb-5 mx-auto">
                 <label for="firma_id" class="mb-0 ps-3">Firmă proprietar</label>
                 <input
                     type="hidden"
@@ -114,7 +125,8 @@
                         </button>
                     </div>
                 </div>
-                <small class="ps-3">* Alegeți un proprietar</small>
+                <small v-if="!firma_id" class="ps-3">* Selectați un proprietar</small>
+                <small v-else class="ps-3 text-success">* Ați selectat un proprietar</small>
             </div>
             <div class="col-lg-6 mb-2">
                 <label for="observatii" class="form-label mb-0 ps-3">Observații</label>

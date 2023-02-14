@@ -22,6 +22,9 @@ const app = createApp({});
 import ExampleComponent from './components/ExampleComponent.vue';
 // app.component('example-component', ExampleComponent);
 
+import VueDatepickerNext from './components/DatePicker.vue';
+// app.component('vue-datepicker-next', VueDatepickerNext);
+
 /**
  * The following block of code may be used to automatically register your
  * Vue components. It will recursively scan this directory for the Vue
@@ -40,7 +43,9 @@ import ExampleComponent from './components/ExampleComponent.vue';
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
 
-// app.mount('#app');
+if (document.getElementById('app') != null) {
+    app.mount('#app');
+}
 
 
 
@@ -102,5 +107,25 @@ const camion = createApp({
 
 if (document.getElementById('camion') != null) {
     camion.mount('#camion');
+}
+
+
+
+const formularComanda = createApp({
+    el: '#formularComanda',
+    data() {
+        return {
+        }
+    },
+    created: function () {
+    },
+    methods: {
+    }
+});
+
+formularComanda.component('vue-datepicker-next', VueDatepickerNext);
+
+if (document.getElementById('formularComanda') != null) {
+    formularComanda.mount('#formularComanda');
 }
 

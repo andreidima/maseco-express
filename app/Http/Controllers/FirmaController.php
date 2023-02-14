@@ -38,7 +38,7 @@ class FirmaController extends Controller
             ->latest();
 
         $firme = $query->simplePaginate(25);
-// dd($firme);
+
         return view('firme.index', compact('firme', 'search_nume', 'search_telefon', 'search_email', 'tipPartener'));
     }
 
@@ -185,6 +185,8 @@ class FirmaController extends Controller
                 'banca_eur' => 'nullable|max:500',
                 'cont_iban_eur' => 'nullable|max:500',
                 'zile_scadente' => 'nullable|numeric',
+                'persoana_contact' => 'nullable|max:500',
+                'skype' => 'nullable|max:500',
                 'email' => 'nullable|max:500',
                 'telefon' => 'nullable|max:500',
                 'fax' => 'nullable|max:500',

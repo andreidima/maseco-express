@@ -171,6 +171,7 @@ class CamionController extends Controller
                 'numar_inmatriculare' => 'nullable|max:500',
                 'nume_sofer' => 'nullable|max:500',
                 'telefon_sofer' => 'nullable|max:500',
+                'skype_sofer' => 'nullable|max:500',
                 'firma_id' => '',
                 'observatii' => 'nullable|max:2000',
             ],

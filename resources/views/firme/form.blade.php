@@ -102,7 +102,7 @@
                     class="form-control bg-white rounded-3 {{ $errors->has('cod_postal') ? 'is-invalid' : '' }}"
                     name="cod_postal"
                     placeholder=""
-                    value="{{ old('cod_postal', $firma->telefon) }}">
+                    value="{{ old('cod_postal', $firma->cod_postal) }}">
             </div>
         </div>
         <div class="row px-2 py-4" style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
@@ -122,7 +122,7 @@
                     class="form-control bg-white rounded-3 {{ $errors->has('cont_iban') ? 'is-invalid' : '' }}"
                     name="cont_iban"
                     placeholder=""
-                    value="{{ old('cont_iban', $firma->telefon) }}">
+                    value="{{ old('cont_iban', $firma->cont_iban) }}">
             </div>
             <div class="col-lg-2 mb-2">
                 <label for="banca_eur" class="mb-0 ps-3">Banca(EUR)</label>
@@ -153,7 +153,16 @@
             </div>
         </div>
         <div class="row px-2 pt-4 pb-2 mb-0" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
-            <div class="col-lg-3 mb-2">
+            <div class="col-lg-2 mb-2">
+                <label for="persoana_contact" class="mb-0 ps-3">Persoană de contact</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('persoana_contact') ? 'is-invalid' : '' }}"
+                    name="persoana_contact"
+                    placeholder=""
+                    value="{{ old('persoana_contact', $firma->persoana_contact) }}">
+            </div>
+            <div class="col-lg-2 mb-2">
                 <label for="email" class="mb-0 ps-3">Email</label>
                 <input
                     type="text"
@@ -162,7 +171,7 @@
                     placeholder=""
                     value="{{ old('email', $firma->email) }}">
             </div>
-            <div class="col-lg-3 mb-2">
+            <div class="col-lg-2 mb-2">
                 <label for="telefon" class="mb-0 ps-3">Telefon</label>
                 <input
                     type="text"
@@ -171,7 +180,16 @@
                     placeholder=""
                     value="{{ old('telefon', $firma->telefon) }}">
             </div>
-            <div class="col-lg-3 mb-2">
+            <div class="col-lg-2 mb-2">
+                <label for="skype" class="mb-0 ps-3">Skype</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('skype') ? 'is-invalid' : '' }}"
+                    name="skype"
+                    placeholder=""
+                    value="{{ old('skype', $firma->skype) }}">
+            </div>
+            <div class="col-lg-2 mb-2">
                 <label for="fax" class="mb-0 ps-3">Fax</label>
                 <input
                     type="text"
@@ -180,14 +198,14 @@
                     placeholder=""
                     value="{{ old('fax', $firma->fax) }}">
             </div>
-            <div class="col-lg-3 mb-2">
+            <div class="col-lg-2 mb-2">
                 <label for="website" class="mb-0 ps-3">Website</label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('website') ? 'is-invalid' : '' }}"
                     name="website"
                     placeholder=""
-                    value="{{ old('website', $firma->telefon) }}">
+                    value="{{ old('website', $firma->website) }}">
             </div>
         </div>
         <div class="row px-2 py-2 mb-4" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
