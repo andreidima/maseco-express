@@ -5,7 +5,7 @@
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
             <div class="col-lg-3">
                 <span class="badge culoare1 fs-5">
-                    <i class="fa-solid fa-clipboard-list me-1"></i>Firme
+                    <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
                 </span>
             </div>
             <div class="col-lg-6">
