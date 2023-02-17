@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Comanda;
 use App\Models\ComandaIstoric;
 use App\Models\Firma;
+use App\Models\Limba;
 
 class ComandaController extends Controller
 {
@@ -49,11 +50,17 @@ class ComandaController extends Controller
      */
     public function create(Request $request)
     {
-        $firme = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+        // $comanda = new Comanda;
+        // $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::latest()->first()->transportator_contract ?? '0') ) + 1);
+        // $comanda->save();
+
+        $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
+        $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+        $limbi = Limba::select('id', 'nume')->get();
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        return view('comenzi.create', compact('firme'));
+        return view('comenzi.create', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi'));
     }
 
     /**

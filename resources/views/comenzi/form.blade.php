@@ -2,7 +2,7 @@
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="formularComanda">
     <div class="col-lg-12 px-4 py-2 mb-0">
-        <div class="row px-2 py-2 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
+        <div class="row px-2 py-4 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
             <div class="col-lg-3 mb-2">
                 <label for="data_creare" class="mb-0 ps-3">Dată creare<span class="text-danger">*</span></label>
                 <vue-datepicker-next
@@ -16,19 +16,37 @@
             </div>
         </div>
         <div class="row px-2 py-4" style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
-            <div class="col-lg-2 mb-2">
-                <label for="zile_scadente" class="mb-0 ps-3">Zile scadențe</label>
+            <div class="col-lg-3 mb-2">
+                <label for="transportator_contract" class="mb-0 ps-3">Contract</label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('zile_scadente') ? 'is-invalid' : '' }}"
-                    name="zile_scadente"
+                    class="form-control bg-white rounded-3 {{ $errors->has('transportator_contract') ? 'is-invalid' : '' }}"
+                    name="transportator_contract"
                     placeholder=""
-                    value="{{ old('zile_scadente', $comanda->zile_scadente) }}">
+                    value="{{ old('transportator_contract', $comanda->transportator_contract) }}">
+            </div>
+            <div class="col-lg-3 mb-2">
+                <label for="transportator_limba_id" class="mb-0 ps-3">Limba</label>
+                <select name="transportator_limba_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_limba_id') ? 'is-invalid' : '' }}">
+                    <option selected></option>
+                    @foreach ($limbi as $limba)
+                        <option value="{{ $limba->id }}" {{ ($limba->id === intval(old('transportator_limba_id', $comanda->transportator_limba_id ?? ''))) ? 'selected' : '' }}>{{ $limba->nume }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-lg-6 mb-2">
+                <label for="transportator_transportator_id" class="mb-0 ps-3">Transportator</label>
+                <select name="transportator_transportator_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_transportator_id') ? 'is-invalid' : '' }}">
+                    <option selected></option>
+                    @foreach ($firmeTransportatori as $firmaTransportator)
+                        <option value="{{ $firmaTransportator->id }}" {{ ($firmaTransportator->id === intval(old('transportator_transportator_id', $comanda->transportator_transportator_id ?? ''))) ? 'selected' : '' }}>{{ $firmaTransportator->nume }}</option>
+                    @endforeach
+                </select>
             </div>
         </div>
         <div class="row px-2 pt-4 pb-2 mb-0" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
             <div class="col-lg-2 mb-2">
-                <label for="persoana_contact" class="mb-0 ps-3">Persoană de contact</label>
+                <label for="persoana_contact" class="mb-0 ps-3">Transportator</label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('persoana_contact') ? 'is-invalid' : '' }}"
