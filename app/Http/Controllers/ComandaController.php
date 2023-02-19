@@ -51,9 +51,11 @@ class ComandaController extends Controller
     public function create(Request $request)
     {
         // dd($request);
-        // $comanda = new Comanda;
-        // $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::latest()->first()->transportator_contract ?? '0') ) + 1);
-        // $comanda->save();
+        $comanda = new Comanda;
+        $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::latest()->first()->transportator_contract ?? '0') ) + 1);
+        $comanda->save();
+
+        return redirect('comenzi/' . $comanda->id . '/modifica');
 
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
@@ -107,6 +109,7 @@ class ComandaController extends Controller
      */
     public function edit(Request $request, Comanda $comanda)
     {
+        dd($comanda->id);
         $firme = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $tipuriCamioane = Comanda::select('tip_comanda')->distinct()->orderBy('tip_comanda')->get();
 
