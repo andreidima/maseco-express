@@ -24,7 +24,7 @@ class ComandaController extends Controller
         $searchTransportatorContract = $request->searchTransportatorContract;
         $searchTransportatorNume = $request->searchTransportatorNume;
 
-        $query = Comanda::with('firme')
+        $query = Comanda::with('firma')
             ->when($searchDataCreare, function ($query, $searchDataCreare) {
                 return $query->where('data_creare', 'like', '%' . $searchDataCreare . '%');
             })
@@ -50,6 +50,7 @@ class ComandaController extends Controller
      */
     public function create(Request $request)
     {
+        // dd($request);
         // $comanda = new Comanda;
         // $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::latest()->first()->transportator_contract ?? '0') ) + 1);
         // $comanda->save();
@@ -60,7 +61,7 @@ class ComandaController extends Controller
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        return view('comenzi.create', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi'));
+        return view('comenzi.create', compact('firmeClienti', 'firmeTransportatori', 'limbi'));
     }
 
     /**

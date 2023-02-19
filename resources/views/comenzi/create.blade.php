@@ -19,7 +19,7 @@
                     <form  class="needs-validation" novalidate method="POST" action="/comenzi">
 
                                 @include ('comenzi.form', [
-                                    // 'comanda' => new App\Models\Comanda,
+                                    'comanda' => new App\Models\Comanda,
                                     'buttonText' => 'Adaugă Comanda'
                                 ])
                     </form>

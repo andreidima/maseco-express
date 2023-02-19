@@ -4,7 +4,12 @@
     <div class="col-lg-12 px-4 py-2 mb-0">
         <div class="row px-2 py-4 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
             <div class="col-lg-3 mb-2">
-                <label for="data_creare" class="mb-0 ps-3">Dată creare<span class="text-danger">*</span></label>
+                    @if (old('data_creare', ($comanda->data_creare)))
+                        DA
+                    @else
+                        NU
+                    @endif
+                <label for="data_creare" class="mb-0 ps-3">Dată creare{{ (Route::currentRouteName() === "comenzi.create") ? \Carbon\Carbon::today() : ''  }}<span class="text-danger">*</span></label>
                 <vue-datepicker-next
                     data-veche="{{ old('data_creare', ($comanda->data_creare ? $comanda->data_creare : ((Route::currentRouteName() === "comenzi.create") ? \Carbon\Carbon::today() : '' ))) }}"
                     nume-camp-db="data_creare"
@@ -22,8 +27,12 @@
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('transportator_contract') ? 'is-invalid' : '' }}"
                     name="transportator_contract"
-                    placeholder=""
-                    value="{{ old('transportator_contract', $comanda->transportator_contract) }}">
+                    placeholder="MSX-XXXXX"
+                    value="{{ old('transportator_contract', $comanda->transportator_contract) }}"
+                    disabled>
+                <small>
+                    * Se generează automat la salvare
+                </small>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="transportator_limba_id" class="mb-0 ps-3">Limba</label>
@@ -65,7 +74,7 @@
         <div class="row">
             <div class="col-lg-12 mb-2 d-flex justify-content-center">
                 <button type="submit" ref="submit" class="btn btn-lg btn-primary text-white me-3 rounded-3">{{ $buttonText }}</button>
-                <a class="btn btn-lg btn-secondary rounded-3" href="{{ Session::get('firma_return_url') }}">Renunță</a>
+                <a class="btn btn-lg btn-secondary rounded-3" href="{{ Session::get('ComandaReturnUrl') }}">Renunță</a>
             </div>
         </div>
     </div>
