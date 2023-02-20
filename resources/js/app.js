@@ -130,6 +130,14 @@ const formularComanda = createApp({
             camionTipCamion: '',
             camioane: camioane,
             camioaneListaAutocomplete: [],
+
+            numarIncarcari: ((typeof numarIncarcari !== 'undefined') ? numarIncarcari : ''),
+            incarcariNume: ((typeof incarcariNume !== 'undefined') ? incarcariNume : []),
+            incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
+            // medicamente_dimineata: ((typeof medicamenteDimineataVechi !== 'undefined') ? medicamenteDimineataVechi : ''),
+            // medicamente_pranz: ((typeof medicamentePranzVechi !== 'undefined') ? medicamentePranzVechi : ''),
+            // medicamente_seara: ((typeof medicamenteSearaVechi !== 'undefined') ? medicamenteSearaVechi : ''),
+
         }
     },
     created: function () {

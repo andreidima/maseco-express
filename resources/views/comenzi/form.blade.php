@@ -378,9 +378,44 @@
                     disabled>
             </div>
         </div>
-        <div class="row px-2 pt-4 pb-2 mb-0" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
-            <div class="col-lg-3 mb-4">
+        <div class="row px-2 pt-4 pb-1 d-flex justify-content-center" style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
+            <div class="col-lg-12 mb-4 text-center">
+                <span class="fs-4 badge text-white" style="background-color:#2196F3;">Incărcări</span>
+            </div>
+            <div class="col-lg-12 mb-4">
+                <div class="row align-items-start mb-0" v-for="incarcare in numarIncarcari" :key="incarcare">
+                    <div class="col-lg-5 mb-2">
+                        <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
+                            :name="'incarcari[nume][' + incarcare + ']'"
+                            v-model="incarcariNume[incarcare-1]">
+                    </div>
+                    <div class="col-lg-3 mb-2">
+                        <label for="oras" class="mb-0 ps-3">Oraș</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
+                            :name="'incarcari[oras][' + incarcare + ']'"
+                            v-model="incarcariOras[incarcare-1]">
+                    </div>
+                    {{-- <div class="col-lg-1 d-flex align-items-center border border-dark border-1">
+                        <button  type="button" class="btn m-0 p-0 mb-1" @click="stergeMedicament(medicament-1)">
+                            <span class="px-1 badge" style="background-color:red; color:white; border-radius:20px">
+                                Șterge
+                            </span>
+                        </button>
+                    </div> --}}
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 d-flex justify-content-center py-1">
+                        <input type="hidden" name="numarIncarcari" v-model="numarIncarcari">
+                        <button type="button" class="btn btn-success text-white" @click="numarIncarcari++">Adaugă încărcare</button>
+                    </div>
+                </div>
 
+                </div>
             </div>
         </div>
         {{-- <div class="row px-2 pt-4 pb-2 mb-0" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
