@@ -4,14 +4,9 @@
     <div class="col-lg-12 px-4 py-2 mb-0">
         <div class="row px-2 py-4 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
             <div class="col-lg-3 mb-2">
-                    @if (old('data_creare', ($comanda->data_creare)))
-                        DA
-                    @else
-                        NU
-                    @endif
                 <label for="data_creare" class="mb-0 ps-3">Dată creare{{ (Route::currentRouteName() === "comenzi.create") ? \Carbon\Carbon::today() : ''  }}<span class="text-danger">*</span></label>
                 <vue-datepicker-next
-                    data-veche="{{ old('data_creare', ($comanda->data_creare ? $comanda->data_creare : ((Route::currentRouteName() === "comenzi.create") ? \Carbon\Carbon::today() : '' ))) }}"
+                    data-veche="{{ old('data_creare', $comanda->data_creare) }}"
                     nume-camp-db="data_creare"
                     tip="date"
                     value-type="YYYY-MM-DD"
@@ -27,12 +22,9 @@
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('transportator_contract') ? 'is-invalid' : '' }}"
                     name="transportator_contract"
-                    placeholder="MSX-XXXXX"
+                    placeholder=""
                     value="{{ old('transportator_contract', $comanda->transportator_contract) }}"
                     disabled>
-                <small>
-                    * Se generează automat la salvare
-                </small>
             </div>
             <div class="col-lg-3 mb-2">
                 <label for="transportator_limba_id" class="mb-0 ps-3">Limba</label>
@@ -49,6 +41,33 @@
                     <option selected></option>
                     @foreach ($firmeTransportatori as $firmaTransportator)
                         <option value="{{ $firmaTransportator->id }}" {{ ($firmaTransportator->id === intval(old('transportator_transportator_id', $comanda->transportator_transportator_id ?? ''))) ? 'selected' : '' }}>{{ $firmaTransportator->nume }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-lg-3 mb-2">
+                <label for="transportator_valoare_contract" class="mb-0 ps-3">Valoare contract</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('transportator_valoare_contract') ? 'is-invalid' : '' }}"
+                    name="transportator_valoare_contract"
+                    placeholder=""
+                    value="{{ old('transportator_valoare_contract', $comanda->transportator_valoare_contract) }}">
+            </div>
+            <div class="col-lg-3 mb-2">
+                <label for="transportator_moneda_id" class="mb-0 ps-3">Monedă</label>
+                <select name="transportator_moneda_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_moneda_id') ? 'is-invalid' : '' }}">
+                    <option selected></option>
+                    @foreach ($monede as $moneda)
+                        <option value="{{ $moneda->id }}" {{ ($moneda->id === intval(old('transportator_moneda_id', $comanda->transportator_moneda_id ?? ''))) ? 'selected' : '' }}>{{ $limba->nume }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-lg-3 mb-2">
+                <label for="transportator_procent_tva_id" class="mb-0 ps-3">Procent TVA</label>
+                <select name="transportator_procent_tva_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_procent_tva_id') ? 'is-invalid' : '' }}">
+                    <option selected></option>
+                    @foreach ($procenteTVA as $procentTVA)
+                        <option value="{{ $procentTVA->id }}" {{ ($procentTVA->id === intval(old('transportator_procent_tva_id', $comanda->transportator_moneda_id ?? ''))) ? 'selected' : '' }}>{{ $limba->nume }}</option>
                     @endforeach
                 </select>
             </div>

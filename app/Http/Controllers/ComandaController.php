@@ -8,6 +8,10 @@ use App\Models\Comanda;
 use App\Models\ComandaIstoric;
 use App\Models\Firma;
 use App\Models\Limba;
+use App\Models\Moneda;
+use App\Models\ProcentTVA;
+
+use Carbon\Carbon;
 
 class ComandaController extends Controller
 {
@@ -50,20 +54,20 @@ class ComandaController extends Controller
      */
     public function create(Request $request)
     {
-        // dd($request);
         $comanda = new Comanda;
         $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::latest()->first()->transportator_contract ?? '0') ) + 1);
+        $comanda->data_creare = Carbon::today();
         $comanda->save();
 
-        return redirect('comenzi/' . $comanda->id . '/modifica');
+        return redirect( $comanda->path() . '/modifica');
 
-        $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
-        $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
-        $limbi = Limba::select('id', 'nume')->get();
+        // $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
+        // $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+        // $limbi = Limba::select('id', 'nume')->get();
 
-        $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
+        // $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        return view('comenzi.create', compact('firmeClienti', 'firmeTransportatori', 'limbi'));
+        // return view('comenzi.create', compact('firmeClienti', 'firmeTransportatori', 'limbi'));
     }
 
     /**
@@ -109,13 +113,15 @@ class ComandaController extends Controller
      */
     public function edit(Request $request, Comanda $comanda)
     {
-        dd($comanda->id);
-        $firme = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
-        $tipuriCamioane = Comanda::select('tip_comanda')->distinct()->orderBy('tip_comanda')->get();
+        $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
+        $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+        $limbi = Limba::select('id', 'nume')->get();
+        $monede = Moneda::select('id', 'nume')->get();
+        $procenteTVA = ProcentTVA::select('id', 'nume')->get();
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        return view('comenzi.edit', compact('comanda', 'firme', 'tipuriCamioane'));
+        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA'));
     }
 
     /**
@@ -180,7 +186,7 @@ class ComandaController extends Controller
         return $request->validate(
             [
                 'data_creare' => 'required',
-                'transportator_contract' => 'required|max:20',
+                // 'transportator_contract' => 'required|max:20',
                 'transportator_limba_id' => 'required',
                 'transportator_valoare_contract' => 'numeric|between:-9999999,9999999',
                 'transportator_moneda_id' => 'required',
