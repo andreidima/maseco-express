@@ -115,11 +115,80 @@ const formularComanda = createApp({
     el: '#formularComanda',
     data() {
         return {
+            firmaTransportatorId: firmaTransportatorIdVechi,
+            firmaTransportatorNume: '',
+            firmeTransportatori: firmeTransportatori,
+            firmeTransportatoriListaAutocomplete: [],
+
+            firmaClientId: firmaClientIdVechi,
+            firmaClientNume: '',
+            firmeClienti: firmeClienti,
+            firmeClientiListaAutocomplete: [],
+
+            camionId: camionIdVechi,
+            camionNumarInmatriculare: '',
+            camionTipCamion: '',
+            camioane: camioane,
+            camioaneListaAutocomplete: [],
         }
     },
     created: function () {
+        if (this.firmaTransportatorId) {
+            for (var i = 0; i < this.firmeTransportatori.length; i++) {
+                if (this.firmeTransportatori[i].id == this.firmaTransportatorId) {
+                    this.firmaTransportatorNume = this.firmeTransportatori[i].nume;
+                }
+            }
+        }
+        if (this.firmaClientId) {
+            for (var i = 0; i < this.firmeClienti.length; i++) {
+                if (this.firmeClienti[i].id == this.firmaClientId) {
+                    this.firmaClientNume = this.firmeClienti[i].nume;
+                }
+            }
+        }
+        if (this.camionId) {
+            for (var i = 0; i < this.camioane.length; i++) {
+                if (this.camioane[i].id == this.camionId) {
+                    this.camionNumarInmatriculare = this.camioane[i].numar_inmatriculare;
+                    this.camionTipCamion = this.camioane[i].tip_camion;
+                }
+            }
+        }
     },
     methods: {
+        autocompleteFirmeTransportatori() {
+            this.firmeTransportatoriListaAutocomplete = [];
+
+            for (var i = 0; i < this.firmeTransportatori.length; i++) {
+                if (this.firmeTransportatori[i].nume && this.firmeTransportatori[i].nume.toLowerCase().includes(this.firmaTransportatorNume.toLowerCase())) {
+                    this.firmeTransportatoriListaAutocomplete.push(this.firmeTransportatori[i]);
+                }
+            }
+        },
+        autocompleteFirmeClienti() {
+            this.firmeClientiListaAutocomplete = [];
+
+            for (var i = 0; i < this.firmeClienti.length; i++) {
+                if (this.firmeClienti[i].nume && this.firmeClienti[i].nume.toLowerCase().includes(this.firmaClientNume.toLowerCase())) {
+                    this.firmeClientiListaAutocomplete.push(this.firmeClienti[i]);
+                }
+            }
+        },
+        autocompleteCamioane() {
+            this.camioaneListaAutocomplete = [];
+
+            for (var i = 0; i < this.camioane.length; i++) {
+                if (this.camioane[i].numar_inmatriculare && this.camioane[i].numar_inmatriculare.toLowerCase().includes(this.camionNumarInmatriculare.toLowerCase())) {
+                    this.camioaneListaAutocomplete.push(this.camioane[i]);
+                }
+            }
+        },
+        golireListe() {
+            this.firmeTransportatoriListaAutocomplete = [];
+            this.firmeClientiListaAutocomplete = [];
+            this.camioaneListaAutocomplete = [];
+        }
     }
 });
 

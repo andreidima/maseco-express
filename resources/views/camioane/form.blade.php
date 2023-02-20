@@ -91,7 +91,7 @@
                     v-model="firma_id"
                     name="firma_id">
 
-                <div class="input-group">
+                <div v-on:focus="autocompleteFirme();" class="input-group">
                     <div class="input-group-prepend d-flex align-items-center">
                         <span v-if="!firma_id" class="input-group-text" id="firma_nume">?</span>
                         <span v-if="firma_id" class="input-group-text bg-success text-white" id="firma_nume"><i class="fa-solid fa-check"></i></span>

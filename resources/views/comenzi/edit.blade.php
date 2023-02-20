@@ -7,7 +7,7 @@
             <div class="shadow-lg" style="border-radius: 40px 40px 40px 40px;">
                 <div class="border border-secondary p-2 culoare2" style="border-radius: 40px 40px 0px 0px;">
                     <span class="badge text-light fs-5">
-                        <i class="fa-solid fa-clipboard-list me-1"></i>Modificare comandă
+                        <i class="fa-solid fa-clipboard-list me-1"></i>Comanda {{ $comanda->transportator_contract }}
                     </span>
                 </div>
 

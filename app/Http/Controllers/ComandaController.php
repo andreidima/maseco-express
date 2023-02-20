@@ -10,6 +10,9 @@ use App\Models\Firma;
 use App\Models\Limba;
 use App\Models\Moneda;
 use App\Models\ProcentTVA;
+use App\Models\MetodaDePlata;
+use App\Models\TermenDePlata;
+use App\Models\Camion;
 
 use Carbon\Carbon;
 
@@ -57,6 +60,10 @@ class ComandaController extends Controller
         $comanda = new Comanda;
         $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::latest()->first()->transportator_contract ?? '0') ) + 1);
         $comanda->data_creare = Carbon::today();
+        $comanda->transportator_limba_id = 1; // Romana
+        $comanda->transportator_tarif_pe_km = 0;
+        $comanda->client_limba_id = 1; // Romana
+        $comanda->client_tarif_pe_km = 0;
         $comanda->save();
 
         return redirect( $comanda->path() . '/modifica');
@@ -87,7 +94,7 @@ class ComandaController extends Controller
         $comanda_istoric->operare_descriere = 'Adaugare';
         $comanda_istoric->save();
 
-        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comandaul „' . ($comanda->numar_inmatriculare ?? '') . '” a fost adăugat cu succes!');
+        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . ($comanda->numar ?? '') . '” a fost adăugat cu succes!');
     }
 
     /**
@@ -118,10 +125,13 @@ class ComandaController extends Controller
         $limbi = Limba::select('id', 'nume')->get();
         $monede = Moneda::select('id', 'nume')->get();
         $procenteTVA = ProcentTVA::select('id', 'nume')->get();
+        $metodeDePlata = MetodaDePlata::select('id', 'nume')->get();
+        $termeneDePlata = TermenDePlata::select('id', 'nume')->get();
+        $camioane = Camion::select('id', 'numar_inmatriculare', 'tip_camion')->orderBy('numar_inmatriculare')->get();
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA'));
+        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane'));
     }
 
     /**
@@ -136,15 +146,15 @@ class ComandaController extends Controller
         $comanda->update($this->validateRequest($request));
 
         // Salvare in istoric
-        if ($comanda->wasChanged()){
-            $comanda_istoric = new ComandaIstoric;
-            $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-            $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
-            $comanda_istoric->operare_descriere = 'Modificare';
-            $comanda_istoric->save();
-        }
+        // if ($comanda->wasChanged()){
+        //     $comanda_istoric = new ComandaIstoric;
+        //     $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+        //     $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+        //     $comanda_istoric->operare_descriere = 'Modificare';
+        //     $comanda_istoric->save();
+        // }
 
-        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comandaul „' . ($comanda->numar_inmatriculare ?? '') . '” a fost modificat cu succes!');
+        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . ($comanda->numar ?? '') . '” a fost salvată cu succes!');
     }
 
     /**
@@ -187,19 +197,32 @@ class ComandaController extends Controller
             [
                 'data_creare' => 'required',
                 // 'transportator_contract' => 'required|max:20',
-                'transportator_limba_id' => 'required',
-                'transportator_valoare_contract' => 'numeric|between:-9999999,9999999',
-                'transportator_moneda_id' => 'required',
-                'transportator_zile_scadente' => 'nullable|numeric',
+                'transportator_limba_id' => '',
+                'transportator_valoare_contract' => 'nullable|numeric|min:-9999999|max:9999999',
+                'transportator_moneda_id' => '',
+                'transportator_zile_scadente' => 'nullable|numeric|min:-100|max:300',
                 'transportator_termen_plata_id' => '',
-                'transportator_transportator_id' => '',
+                'transportator_transportator_id' => 'required',
                 'transportator_procent_tva_id' => '',
-                'transportator_metoda_de_plata' => '',
+                'transportator_metoda_de_plata_id' => '',
                 'transportator_tarif_pe_km' => '',
+                'client_contract' => 'nullable|max:20',
+                'client_limba_id' => '',
+                'client_valoare_contract' => 'nullable|numeric|min:-9999999|max:9999999',
+                'client_moneda_id' => '',
+                'client_zile_scadente' => 'nullable|numeric|min:-100|max:300',
+                'client_termen_plata_id' => '',
+                'client_client_id' => 'required',
+                'client_procent_tva_id' => '',
+                'client_metoda_de_plata_id' => '',
+                'client_tarif_pe_km' => '',
+                'descriere_marfa' => 'nullable|max:500',
+                'camion_id' => '',
                 // 'observatii' => 'nullable|max:2000',
             ],
             [
-                // 'tara_id.required' => 'Câmpul țara este obligatoriu'
+                'transportator_transportator_id.required' => 'Câmpul Transportator este obligatoriu',
+                'client_client_id.required' => 'Câmpul Client este obligatoriu'
             ]
         );
     }
