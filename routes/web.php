@@ -30,4 +30,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/camioane', CamionController::class)->parameters(['camioane' => 'camion']);
     Route::resource('/locuri-operare', LocOperareController::class)->parameters(['locuri-operare' => 'locOperare']);
     Route::resource('/comenzi', ComandaController::class)->parameters(['comenzi' => 'comanda']);
+
+    // Extras date cu Axios
+    Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);
 });

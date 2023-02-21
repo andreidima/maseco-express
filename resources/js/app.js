@@ -43,6 +43,8 @@ import VueDatepickerNext from './components/DatePicker.vue';
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
 
+app.component('vue-datepicker-next', VueDatepickerNext);
+
 if (document.getElementById('app') != null) {
     app.mount('#app');
 }
@@ -131,13 +133,14 @@ const formularComanda = createApp({
             camioane: camioane,
             camioaneListaAutocomplete: [],
 
-            numarIncarcari: ((typeof numarIncarcari !== 'undefined') ? numarIncarcari : ''),
+            locuriOperare: locuriOperare,
+
+            numarIncarcari: ((typeof numarIncarcari !== 'undefined') ? numarIncarcari : 0),
             incarcariNume: ((typeof incarcariNume !== 'undefined') ? incarcariNume : []),
             incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
             // medicamente_dimineata: ((typeof medicamenteDimineataVechi !== 'undefined') ? medicamenteDimineataVechi : ''),
             // medicamente_pranz: ((typeof medicamentePranzVechi !== 'undefined') ? medicamentePranzVechi : ''),
             // medicamente_seara: ((typeof medicamenteSearaVechi !== 'undefined') ? medicamenteSearaVechi : ''),
-
         }
     },
     created: function () {
@@ -192,14 +195,29 @@ const formularComanda = createApp({
                 }
             }
         },
-        golireListe() {
-            this.firmeTransportatoriListaAutocomplete = [];
-            this.firmeClientiListaAutocomplete = [];
-            this.camioaneListaAutocomplete = [];
-        }
+        // golireListe() {
+        //     this.firmeTransportatoriListaAutocomplete = [];
+        //     this.firmeClientiListaAutocomplete = [];
+        //     this.camioaneListaAutocomplete = [];
+        // },
     }
 });
 
+const clickOutside = {
+    beforeMount: (el, binding) => {
+        el.clickOutsideEvent = event => {
+            if (!(el == event.target || el.contains(event.target))) {
+                binding.value();
+            }
+        };
+        document.addEventListener("click", el.clickOutsideEvent);
+    },
+    unmounted: el => {
+        document.removeEventListener("click", el.clickOutsideEvent);
+    },
+};
+
+formularComanda.directive("clickOut", clickOutside);
 formularComanda.component('vue-datepicker-next', VueDatepickerNext);
 
 if (document.getElementById('formularComanda') != null) {

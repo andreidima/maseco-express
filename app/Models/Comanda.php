@@ -22,9 +22,14 @@ class Comanda extends Model
     //     return $this->belongsTo(User::class);
     // }
 
-    public function firma()
+    public function client()
     {
-        return $this->belongsTo(Firma::class);
+        return $this->belongsTo(Firma::class, 'client_client_id');
+    }
+
+    public function transportator()
+    {
+        return $this->belongsTo(Firma::class, 'transportator_transportator_id');
     }
 
     public function istoricuri()

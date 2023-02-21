@@ -16,7 +16,7 @@
                             <input type="text" class="form-control rounded-3" id="searchNume" name="searchNume" placeholder="Nume" value="{{ $searchNume }}">
                         </div>
                         <div class="col-lg-4">
-                            <input type="text" class="form-control rounded-3" id="searchPersoanaContact" name="searchPersoanaContact" placeholder="Email" value="{{ $searchPersoanaContact }}">
+                            <input type="text" class="form-control rounded-3" id="searchPersoanaContact" name="searchPersoanaContact" placeholder="Persoană contact" value="{{ $searchPersoanaContact }}">
                         </div>
                         <div class="col-lg-4">
                             <input type="text" class="form-control rounded-3" id="searchTelefon" name="searchTelefon" placeholder="Telefon" value="{{ $searchTelefon }}">

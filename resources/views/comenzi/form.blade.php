@@ -7,6 +7,8 @@
     firmaClientIdVechi = {!! json_encode(old('client_client_id', ($comanda->client_client_id ?? "")) ?? "") !!}
     camioane = {!! json_encode($camioane) !!}
     camionIdVechi = {!! json_encode(old('camion_id', ($comanda->camion_id ?? "")) ?? "") !!}
+
+    locuriOperare = {!! json_encode($locuriOperare) !!}
 </script>
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="formularComanda">
@@ -40,7 +42,7 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="transportator_limba_id" class="mb-0 ps-3">Limba</label>
-                <select name="transportator_limba_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_limba_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="transportator_limba_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_limba_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($limbi as $limba)
                         <option value="{{ $limba->id }}" {{ ($limba->id === intval(old('transportator_limba_id', $comanda->transportator_limba_id ?? ''))) ? 'selected' : '' }}>{{ $limba->nume }}</option>
@@ -56,7 +58,7 @@
                     @endforeach
                 </select>
             </div> --}}
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-3 mb-4" style="position:relative;" v-click-out="() => firmeTransportatoriListaAutocomplete = ''">
                 <label for="transportator_transportator_id" class="mb-0 ps-3">Transportator<span class="text-danger">*</span></label>
                 <input
                     type="hidden"
@@ -71,7 +73,7 @@
                     <input
                         type="text"
                         v-model="firmaTransportatorNume"
-                        v-on:focus="golireListe(); autocompleteFirmeTransportatori();"
+                        v-on:focus="autocompleteFirmeTransportatori();"
                         v-on:keyup="autocompleteFirmeTransportatori(); this.firmaTransportatorId = '';"
                         class="form-control bg-white rounded-3 {{ $errors->has('firmaTransportatorNume') ? 'is-invalid' : '' }}"
                         name="firmaTransportatorNume"
@@ -83,9 +85,9 @@
                         <div v-if="firmaTransportatorId" class="input-group-text p-2 text-danger" id="firmaTransportatorNume" v-on:click="firmaTransportatorId = null; firmaTransportatorNume = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
                 </div>
-                <div v-cloak v-if="firmeTransportatoriListaAutocomplete && firmeTransportatoriListaAutocomplete.length" class="panel-footer">
+                <div v-cloak v-if="firmeTransportatoriListaAutocomplete && firmeTransportatoriListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                     <div class="list-group" style="max-height: 130px; overflow:auto;">
-                        <button class="list-group-item list-group-item list-group-item-action py-0"
+                        <button class="list-group-item list-group-item-action py-0"
                             v-for="firma in firmeTransportatoriListaAutocomplete"
                             v-on:click="
                                 firmaTransportatorId = firma.id;
@@ -104,7 +106,6 @@
                 <label for="transportator_valoare_contract" class="mb-0 ps-3">Valoare contract</label>
                 <input
                     type="text"
-                    v-on:focus="golireListe();"
                     class="form-control bg-white rounded-3 {{ $errors->has('transportator_valoare_contract') ? 'is-invalid' : '' }}"
                     name="transportator_valoare_contract"
                     placeholder=""
@@ -113,7 +114,7 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="transportator_moneda_id" class="mb-0 ps-3">Monedă</label>
-                <select name="transportator_moneda_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_moneda_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="transportator_moneda_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_moneda_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($monede as $moneda)
                         <option value="{{ $moneda->id }}" {{ ($moneda->id === intval(old('transportator_moneda_id', $comanda->transportator_moneda_id ?? ''))) ? 'selected' : '' }}>{{ $moneda->nume }}</option>
@@ -122,7 +123,7 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="transportator_procent_tva_id" class="mb-0 ps-3">Procent TVA</label>
-                <select name="transportator_procent_tva_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_procent_tva_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="transportator_procent_tva_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_procent_tva_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($procenteTVA as $procentTVA)
                         <option value="{{ $procentTVA->id }}" {{ ($procentTVA->id === intval(old('transportator_procent_tva_id', $comanda->transportator_procent_tva_id ?? ''))) ? 'selected' : '' }}>{{ $procentTVA->nume }}</option>
@@ -131,7 +132,7 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="transportator_metoda_de_plata_id" class="mb-0 ps-3">Metodă de plată</label>
-                <select name="transportator_metoda_de_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_metoda_de_plata_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="transportator_metoda_de_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_metoda_de_plata_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($metodeDePlata as $metodaDePlata)
                         <option value="{{ $metodaDePlata->id }}" {{ ($metodaDePlata->id === intval(old('transportator_metoda_de_plata_id', $comanda->transportator_metoda_de_plata_id ?? ''))) ? 'selected' : '' }}>{{ $metodaDePlata->nume }}</option>
@@ -140,7 +141,7 @@
             </div>
             <div class="col-lg-3 mb-4">
                 <label for="transportator_termen_plata_id" class="mb-0 ps-3">Termen de plată</label>
-                <select name="transportator_termen_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_termen_plata_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="transportator_termen_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_termen_plata_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($termeneDePlata as $termenDePlata)
                         <option value="{{ $termenDePlata->id }}" {{ ($termenDePlata->id === intval(old('transportator_termen_plata_id', $comanda->transportator_termen_plata_id ?? ''))) ? 'selected' : '' }}>{{ $termenDePlata->nume }}</option>
@@ -151,7 +152,6 @@
                 <label for="transportator_zile_scadente" class="mb-0 ps-3">Zile scadente</label>
                 <input
                     type="text"
-                    v-on:focus="golireListe();"
                     class="form-control bg-white rounded-3 {{ $errors->has('transportator_zile_scadente') ? 'is-invalid' : '' }}"
                     name="transportator_zile_scadente"
                     placeholder=""
@@ -191,14 +191,14 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="client_limba_id" class="mb-0 ps-3">Limba</label>
-                <select name="client_limba_id" class="form-select bg-white rounded-3 {{ $errors->has('client_limba_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="client_limba_id" class="form-select bg-white rounded-3 {{ $errors->has('client_limba_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($limbi as $limba)
                         <option value="{{ $limba->id }}" {{ ($limba->id === intval(old('client_limba_id', $comanda->client_limba_id ?? ''))) ? 'selected' : '' }}>{{ $limba->nume }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-3 mb-4" style="position:relative;" v-click-out="() => firmeClientiListaAutocomplete = ''">
                 <label for="client_client_id" class="mb-0 ps-3">Client<span class="text-danger">*</span></label>
                 <input
                     type="hidden"
@@ -213,7 +213,7 @@
                     <input
                         type="text"
                         v-model="firmaClientNume"
-                        v-on:focus="golireListe(); autocompleteFirmeClienti();"
+                        v-on:focus="autocompleteFirmeClienti();"
                         v-on:keyup="autocompleteFirmeClienti(); this.firmaClientId = '';"
                         class="form-control bg-white rounded-3 {{ $errors->has('firmaClientNume') ? 'is-invalid' : '' }}"
                         name="firmaClientNume"
@@ -225,7 +225,7 @@
                         <div v-if="firmaClientId" class="input-group-text p-2 text-danger" id="firmaClientNume" v-on:click="firmaClientId = null; firmaClientNume = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
                 </div>
-                <div v-cloak v-if="firmeClientiListaAutocomplete && firmeClientiListaAutocomplete.length" class="panel-footer">
+                <div v-cloak v-if="firmeClientiListaAutocomplete && firmeClientiListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                     <div class="list-group" style="max-height: 130px; overflow:auto;">
                         <button class="list-group-item list-group-item list-group-item-action py-0"
                             v-for="firma in firmeClientiListaAutocomplete"
@@ -246,7 +246,6 @@
                 <label for="client_valoare_contract" class="mb-0 ps-3">Valoare contract</label>
                 <input
                     type="text"
-                    v-on:focus="golireListe();"
                     class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract') ? 'is-invalid' : '' }}"
                     name="client_valoare_contract"
                     placeholder=""
@@ -255,7 +254,7 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="client_moneda_id" class="mb-0 ps-3">Monedă</label>
-                <select name="client_moneda_id" class="form-select bg-white rounded-3 {{ $errors->has('client_moneda_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="client_moneda_id" class="form-select bg-white rounded-3 {{ $errors->has('client_moneda_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($monede as $moneda)
                         <option value="{{ $moneda->id }}" {{ ($moneda->id === intval(old('client_moneda_id', $comanda->client_moneda_id ?? ''))) ? 'selected' : '' }}>{{ $moneda->nume }}</option>
@@ -264,7 +263,7 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="client_procent_tva_id" class="mb-0 ps-3">Procent TVA</label>
-                <select name="client_procent_tva_id" class="form-select bg-white rounded-3 {{ $errors->has('client_procent_tva_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="client_procent_tva_id" class="form-select bg-white rounded-3 {{ $errors->has('client_procent_tva_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($procenteTVA as $procentTVA)
                         <option value="{{ $procentTVA->id }}" {{ ($procentTVA->id === intval(old('client_procent_tva_id', $comanda->client_procent_tva_id ?? ''))) ? 'selected' : '' }}>{{ $procentTVA->nume }}</option>
@@ -273,7 +272,7 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="client_metoda_de_plata_id" class="mb-0 ps-3">Metodă de plată</label>
-                <select name="client_metoda_de_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('client_metoda_de_plata_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="client_metoda_de_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('client_metoda_de_plata_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($metodeDePlata as $metodaDePlata)
                         <option value="{{ $metodaDePlata->id }}" {{ ($metodaDePlata->id === intval(old('client_metoda_de_plata_id', $comanda->client_metoda_de_plata_id ?? ''))) ? 'selected' : '' }}>{{ $metodaDePlata->nume }}</option>
@@ -282,7 +281,7 @@
             </div>
             <div class="col-lg-3 mb-4">
                 <label for="client_termen_plata_id" class="mb-0 ps-3">Termen de plată</label>
-                <select name="client_termen_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('client_termen_plata_id') ? 'is-invalid' : '' }}" v-on:focus="golireListe();">
+                <select name="client_termen_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('client_termen_plata_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($termeneDePlata as $termenDePlata)
                         <option value="{{ $termenDePlata->id }}" {{ ($termenDePlata->id === intval(old('client_termen_plata_id', $comanda->client_termen_plata_id ?? ''))) ? 'selected' : '' }}>{{ $termenDePlata->nume }}</option>
@@ -293,7 +292,6 @@
                 <label for="client_zile_scadente" class="mb-0 ps-3">Zile scadente</label>
                 <input
                     type="text"
-                    v-on:focus="golireListe();"
                     class="form-control bg-white rounded-3 {{ $errors->has('client_zile_scadente') ? 'is-invalid' : '' }}"
                     name="client_zile_scadente"
                     placeholder=""
@@ -321,10 +319,10 @@
         <div class="row px-2 pt-4 pb-1 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
             <div class="col-lg-6 mb-4">
                 <label for="descriere_marfa" class="form-label mb-0 ps-3">Descriere marfă</label>
-                <textarea class="form-control bg-white {{ $errors->has('descriere_marfa') ? 'is-invalid' : '' }}" v-on:focus="golireListe();"
+                <textarea class="form-control bg-white {{ $errors->has('descriere_marfa') ? 'is-invalid' : '' }}"
                     name="descriere_marfa" rows="3">{{ old('descriere_marfa', $comanda->descriere_marfa) }}</textarea>
             </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-3 mb-4" style="position:relative;" v-click-out="() => camioaneListaAutocomplete = ''">
                 <label for="camion_id" class="mb-0 ps-3">Camion</label>
                 <input
                     type="hidden"
@@ -339,7 +337,7 @@
                     <input
                         type="text"
                         v-model="camionNumarInmatriculare"
-                        v-on:focus="golireListe(); autocompleteCamioane();"
+                        v-on:focus="autocompleteCamioane();"
                         v-on:keyup="autocompleteCamioane(); this.camionId = '';"
                         class="form-control bg-white rounded-3 {{ $errors->has('camionNumarInmatriculare') ? 'is-invalid' : '' }}"
                         name="camionNumarInmatriculare"
@@ -351,7 +349,7 @@
                         <div v-if="camionId" class="input-group-text p-2 text-danger" id="camionNumarInmatriculare" v-on:click="camionId = null; camionNumarInmatriculare = ''; camionTipCamion = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
                 </div>
-                <div v-cloak v-if="camioaneListaAutocomplete && camioaneListaAutocomplete.length" class="panel-footer">
+                <div v-cloak v-if="camioaneListaAutocomplete && camioaneListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                     <div class="list-group" style="max-height: 130px; overflow:auto;">
                         <button class="list-group-item list-group-item list-group-item-action py-0"
                             v-for="camion in camioaneListaAutocomplete"
@@ -387,10 +385,41 @@
                     <div class="col-lg-5 mb-2">
                         <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
                         <input
-                            type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
-                            :name="'incarcari[nume][' + incarcare + ']'"
-                            v-model="incarcariNume[incarcare-1]">
+                            type="hidden"
+                            v-model="incarcariId[incarcare-1]"
+                            :name="'incarcari[id][' + incarcare + ']'">
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
+                                :name="'incarcari[nume][' + incarcare + ']'"
+                                v-model="incarcariNume[incarcare-1]"
+                                v-on:focus="autocompleteLocuriOperare();"
+                                v-on:keyup="autocompleteLocuriOperare();"
+                                placeholder=""
+                                autocomplete="off"
+                                aria-describedby=""
+                                required>
+                                <div class="input-group-prepend d-flex align-items-center">
+                                    {{-- <div v-if="camionId" class="input-group-text p-2 text-danger" id="" v-on:click="camionId = null; camionNumarInmatriculare = ''; camionTipCamion = ''"><i class="fa-solid fa-xmark"></i></div> --}}
+                                </div>
+                        </div>
+                        <div v-cloak v-if="locuriOperareListaAutocomplete && locuriOperareListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                            <div class="list-group" style="max-height: 130px; overflow:auto;">
+                                <button class="list-group-item list-group-item list-group-item-action py-0"
+                                    v-for="locOperare in locuriOperareListaAutocomplete"
+                                    v-on:click="
+                                        incarcariId[incarcare-1] = locOperare.id;
+                                        incarcariNume[incarcare-1] = locOperare.nume;
+
+                                        locuriOperareListaAutocomplete = ''
+                                    ">
+                                        @{{ locOperare.nume }}
+                                </button>
+                            </div>
+                        </div>
+                        {{-- <small v-if="!camionId" class="ps-3">*Selectați un camion</small>
+                        <small v-else class="ps-3 text-success">*Ați selectat camionul</small> --}}
                     </div>
                     <div class="col-lg-3 mb-2">
                         <label for="oras" class="mb-0 ps-3">Oraș</label>

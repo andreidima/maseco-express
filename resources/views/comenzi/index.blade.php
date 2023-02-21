@@ -1,25 +1,122 @@
+<script type="application/javascript">
+    firmeTransportatori = {!! json_encode($firmeTransportatori ?? "") !!}
+    firmaTransportatorIdVechi = {!! json_encode($searchTransportatorId ?? "") !!}
+    firmeClienti = {!! json_encode($firmeClienti ?? "") !!}
+    firmaClientIdVechi = {!! json_encode($searchClientId ?? "") !!}
+    camioane = {!! json_encode($camioane ?? "") !!}
+    camionIdVechi = {!! json_encode(old('camion_id', ($comanda->camion_id ?? "")) ?? "") !!}
+</script>
+
 @extends ('layouts.app')
 
 @section('content')
-<div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
+<div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;" id="formularComanda">
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-            <div class="col-lg-3">
+            <div class="col-lg-2 mb-2">
                 <span class="badge culoare1 fs-5">
                     <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
                 </span>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-8 mb-2">
                 <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
-                    <div class="row mb-1 custom-search-form justify-content-center">
-                        <div class="col-lg-4">
-                            <input type="text" class="form-control rounded-3" id="searchDataCreare" name="searchDataCreare" placeholder="Data" value="{{ $searchDataCreare }}">
+                    <div class="row mb-1 custom-search-form d-flex justify-content-center">
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control rounded-3" id="searchTransportatorContract" name="searchTransportatorContract" placeholder="Ctr. transp." value="{{ $searchTransportatorContract }}">
                         </div>
-                        <div class="col-lg-4">
-                            <input type="text" class="form-control rounded-3" id="searchTransportatorContract" name="searchTransportatorContract" placeholder="Telefon" value="{{ $searchTransportatorContract }}">
+                        <div class="col-lg-4 d-flex justify-content-center align-items-center">
+                            <label for="searchDataCreare" class="mb-0 align-self-center me-1"><small>Dată creare:</small></label>
+                            <vue-datepicker-next
+                                data-veche="{{ $searchDataCreare }}"
+                                nume-camp-db="searchDataCreare"
+                                tip="date"
+                                value-type="YYYY-MM-DD"
+                                format="DD.MM.YYYY"
+                                :latime="{ width: '125px' }"
+                                style="margin-right: 20px;"
+                            ></vue-datepicker-next>
                         </div>
-                        <div class="col-lg-4">
-                            <input type="text" class="form-control rounded-3" id="searchTransportatorNume" name="searchTransportatorNume" placeholder="Email" value="{{ $searchTransportatorNume }}">
+                        <div class="col-lg-3" style="position:relative;" v-click-out="() => firmeTransportatoriListaAutocomplete = ''">
+                            <input
+                                type="hidden"
+                                v-model="firmaTransportatorId"
+                                name="searchTransportatorId">
+
+                            <div class="input-group">
+                                <div class="input-group-prepend d-flex align-items-center">
+                                    <div v-if="!firmaTransportatorId" class="input-group-text" id="firmaTransportatorNume">?</div>
+                                    <div v-if="firmaTransportatorId" class="input-group-text p-2 bg-success text-white" id="firmaTransportatorNume"><i class="fa-solid fa-check" style="height:100%"></i></div>
+                                </div>
+                                <input
+                                    type="text"
+                                    v-model="firmaTransportatorNume"
+                                    v-on:focus="autocompleteFirmeTransportatori();"
+                                    v-on:keyup="autocompleteFirmeTransportatori(); this.firmaTransportatorId = '';"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('firmaTransportatorNume') ? 'is-invalid' : '' }}"
+                                    name="firmaTransportatorNume"
+                                    placeholder="Transportator"
+                                    autocomplete="off"
+                                    aria-describedby="firmaTransportatorNume"
+                                    required>
+                                <div class="input-group-prepend d-flex align-items-center">
+                                    <div v-if="firmaTransportatorId" class="input-group-text p-2 text-danger" id="firmaTransportatorNume" v-on:click="firmaTransportatorId = null; firmaTransportatorNume = ''"><i class="fa-solid fa-xmark"></i></div>
+                                </div>
+                            </div>
+                            <div v-cloak v-if="firmeTransportatoriListaAutocomplete && firmeTransportatoriListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                                <div class="list-group" style="max-height: 130px; overflow:auto;">
+                                    <button class="list-group-item list-group-item-action py-0"
+                                        v-for="firma in firmeTransportatoriListaAutocomplete"
+                                        v-on:click="
+                                            firmaTransportatorId = firma.id;
+                                            firmaTransportatorNume = firma.nume;
+
+                                            firmeTransportatoriListaAutocomplete = ''
+                                        ">
+                                            @{{ firma.nume }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3" style="position:relative;" v-click-out="() => firmeClientiListaAutocomplete = ''">
+                            <input
+                                type="hidden"
+                                v-model="firmaClientId"
+                                name="searchClientId">
+
+                            <div class="input-group">
+                                <div class="input-group-prepend d-flex align-items-center">
+                                    <div v-if="!firmaClientId" class="input-group-text" id="firmaClientNume">?</div>
+                                    <div v-if="firmaClientId" class="input-group-text p-2 bg-success text-white" id="firmaClientNume"><i class="fa-solid fa-check" style="height:100%"></i></div>
+                                </div>
+                                <input
+                                    type="text"
+                                    v-model="firmaClientNume"
+                                    v-on:focus="autocompleteFirmeClienti();"
+                                    v-on:keyup="autocompleteFirmeClienti(); this.firmaClientId = '';"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('firmaClientNume') ? 'is-invalid' : '' }}"
+                                    name="firmaClientNume"
+                                    placeholder="Client"
+                                    autocomplete="off"
+                                    aria-describedby="firmaClientNume"
+                                    required>
+                                <div class="input-group-prepend d-flex align-items-center">
+                                    <div v-if="firmaClientId" class="input-group-text p-2 text-danger" id="firmaClientNume" v-on:click="firmaClientId = null; firmaClientNume = ''"><i class="fa-solid fa-xmark"></i></div>
+                                </div>
+                            </div>
+                            <div v-cloak v-if="firmeClientiListaAutocomplete && firmeClientiListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                                <div class="list-group" style="max-height: 130px; overflow:auto;">
+                                    <button class="list-group-item list-group-item list-group-item-action py-0"
+                                        v-for="firma in firmeClientiListaAutocomplete"
+                                        v-on:click="
+                                            firmaClientId = firma.id;
+                                            firmaClientNume = firma.nume;
+
+                                            firmeClientiListaAutocomplete = ''
+                                        ">
+                                            @{{ firma.nume }}
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="row custom-search-form justify-content-center">
@@ -32,8 +129,8 @@
                     </div>
                 </form>
             </div>
-            <div class="col-lg-3 text-end">
-                <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ url()->current() }}/adauga" role="button">
+            <div class="col-lg-2 text-lg-end">
+                <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ url()->current() }}/adauga" role="button">
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă comandă
                 </a>
             </div>
@@ -49,9 +146,11 @@
                     {{-- <thead class="text-white rounded" style="background-color: #69A1B1"> --}}
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
+                            <th class="">Contract transportator</th>
                             <th class="">Dată creare</th>
-                            <th class="">Client</th>
                             <th class="">Transportator</th>
+                            <th class="">Client</th>
+                            <th class="">Zile scadente Ctr. Client</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -62,10 +161,19 @@
                                     {{ ($comenzi ->currentpage()-1) * $comenzi ->perpage() + $loop->index + 1 }}
                                 </td>
                                 <td class="">
+                                    {{ $comanda->transportator_contract }}
                                 </td>
                                 <td class="">
+                                    {{ $comanda->data_creare ? \Carbon\Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY') : '' }}
                                 </td>
                                 <td class="">
+                                    {{ $comanda->transportator->nume ?? ''}}
+                                </td>
+                                <td class="">
+                                    {{ $comanda->client->nume ?? ''}}
+                                </td>
+                                <td class="">
+                                    {{ $comanda->client_zile_scadente }}
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-end">

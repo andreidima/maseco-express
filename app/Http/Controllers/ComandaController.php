@@ -13,6 +13,7 @@ use App\Models\ProcentTVA;
 use App\Models\MetodaDePlata;
 use App\Models\TermenDePlata;
 use App\Models\Camion;
+use App\Models\LocOperare;
 
 use Carbon\Carbon;
 
@@ -29,25 +30,34 @@ class ComandaController extends Controller
 
         $searchDataCreare = $request->searchDataCreare;
         $searchTransportatorContract = $request->searchTransportatorContract;
-        $searchTransportatorNume = $request->searchTransportatorNume;
+        $searchTransportatorId = $request->searchTransportatorId;
+        $searchClientId = $request->searchClientId;
 
-        $query = Comanda::with('firma')
+        $query = Comanda::with('client')
             ->when($searchDataCreare, function ($query, $searchDataCreare) {
-                return $query->where('data_creare', 'like', '%' . $searchDataCreare . '%');
+                return $query->whereDate('data_creare', $searchDataCreare);
             })
             ->when($searchTransportatorContract, function ($query, $searchTransportatorContract) {
-                return $query->where('telefon', 'like', '%' . $searchTransportatorContract . '%');
+                return $query->where('transportator_contract', 'like', '%' . $searchTransportatorContract . '%');
             })
-            ->when($searchTransportatorNume, function ($query, $searchTransportatorNume) {
-                return $query->whereHas('firme', function ($query, $searchTransportatorNume) {
-                    $query->where('nume', 'like', '%' . $searchTransportatorNume . '%');
+            ->when($searchTransportatorId, function ($query, $searchTransportatorId) {
+                return $query->whereHas('transportator', function ($query) use ($searchTransportatorId) {
+                    $query->where('id', $searchTransportatorId);
+                });
+            })
+            ->when($searchClientId, function ($query, $searchClientId) {
+                return $query->whereHas('client', function ($query) use ($searchClientId) {
+                    $query->where('id', $searchClientId);
                 });
             })
             ->latest();
 
         $comenzi = $query->simplePaginate(25);
 
-        return view('comenzi.index', compact('comenzi', 'searchDataCreare', 'searchTransportatorContract', 'searchTransportatorNume'));
+        $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
+        $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+
+        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'searchDataCreare', 'searchTransportatorContract', 'searchTransportatorId', 'searchClientId'));
     }
 
     /**
@@ -94,7 +104,7 @@ class ComandaController extends Controller
         $comanda_istoric->operare_descriere = 'Adaugare';
         $comanda_istoric->save();
 
-        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . ($comanda->numar ?? '') . '” a fost adăugat cu succes!');
+        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost adăugată cu succes!');
     }
 
     /**
@@ -128,10 +138,11 @@ class ComandaController extends Controller
         $metodeDePlata = MetodaDePlata::select('id', 'nume')->get();
         $termeneDePlata = TermenDePlata::select('id', 'nume')->get();
         $camioane = Camion::select('id', 'numar_inmatriculare', 'tip_camion')->orderBy('numar_inmatriculare')->get();
+        $locuriOperare = LocOperare::select('id', 'nume')->orderBy('nume')->get();
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane'));
+        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane', 'locuriOperare'));
     }
 
     /**
@@ -154,7 +165,7 @@ class ComandaController extends Controller
         //     $comanda_istoric->save();
         // }
 
-        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . ($comanda->numar ?? '') . '” a fost salvată cu succes!');
+        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost salvată cu succes!');
     }
 
     /**
@@ -166,15 +177,15 @@ class ComandaController extends Controller
     public function destroy(Request $request, Comanda $comanda)
     {
         // Salvare in istoric
-        $comanda_istoric = new ComandaIstoric;
-        $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
-        $comanda_istoric->operare_descriere = 'Stergere';
-        $comanda_istoric->save();
+        // $comanda_istoric = new ComandaIstoric;
+        // $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+        // $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+        // $comanda_istoric->operare_descriere = 'Stergere';
+        // $comanda_istoric->save();
 
         $comanda->delete();
 
-        return back()->with('status', 'Comandaul „' . ($comanda->numar_inmatriculare ?? '') . '” a fost șters cu succes!');
+        return back()->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost ștearsă cu succes!');
     }
 
     /**

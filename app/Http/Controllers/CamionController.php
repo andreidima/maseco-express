@@ -25,13 +25,13 @@ class CamionController extends Controller
 
         $query = Camion::
             when($search_numar_inmatriculare, function ($query, $search_numar_inmatriculare) {
-                return $query->where('nume', 'like', '%' . $search_numar_inmatriculare . '%');
+                return $query->where('numar_inmatriculare', 'like', '%' . $search_numar_inmatriculare . '%');
             })
             ->when($search_nume_sofer, function ($query, $search_nume_sofer) {
-                return $query->where('telefon', 'like', '%' . $search_nume_sofer . '%');
+                return $query->where('nume_sofer', 'like', '%' . $search_nume_sofer . '%');
             })
             ->when($search_telefon_sofer, function ($query, $search_telefon_sofer) {
-                return $query->where('email', 'like', '%' . $search_telefon_sofer . '%');
+                return $query->where('telefon_sofer', 'like', '%' . $search_telefon_sofer . '%');
             })
             ->latest();
 
