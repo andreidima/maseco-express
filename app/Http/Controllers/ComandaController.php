@@ -138,7 +138,8 @@ class ComandaController extends Controller
         $metodeDePlata = MetodaDePlata::select('id', 'nume')->get();
         $termeneDePlata = TermenDePlata::select('id', 'nume')->get();
         $camioane = Camion::select('id', 'numar_inmatriculare', 'tip_camion')->orderBy('numar_inmatriculare')->get();
-        $locuriOperare = LocOperare::select('id', 'nume')->orderBy('nume')->get();
+        // $locuriOperare = LocOperare::select('id', 'nume')->orderBy('nume')->get();
+        $locuriOperare = LocOperare::select('*')->orderBy('nume')->get();
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 

@@ -86,7 +86,7 @@
                     </div>
                 </div>
                 <div v-cloak v-if="firmeTransportatoriListaAutocomplete && firmeTransportatoriListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
-                    <div class="list-group" style="max-height: 130px; overflow:auto;">
+                    <div class="list-group" style="max-height: 218px; overflow:auto;">
                         <button class="list-group-item list-group-item-action py-0"
                             v-for="firma in firmeTransportatoriListaAutocomplete"
                             v-on:click="
@@ -226,7 +226,7 @@
                     </div>
                 </div>
                 <div v-cloak v-if="firmeClientiListaAutocomplete && firmeClientiListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
-                    <div class="list-group" style="max-height: 130px; overflow:auto;">
+                    <div class="list-group" style="max-height: 218px; overflow:auto;">
                         <button class="list-group-item list-group-item list-group-item-action py-0"
                             v-for="firma in firmeClientiListaAutocomplete"
                             v-on:click="
@@ -350,7 +350,7 @@
                     </div>
                 </div>
                 <div v-cloak v-if="camioaneListaAutocomplete && camioaneListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
-                    <div class="list-group" style="max-height: 130px; overflow:auto;">
+                    <div class="list-group" style="max-height: 218px; overflow:auto;">
                         <button class="list-group-item list-group-item list-group-item-action py-0"
                             v-for="camion in camioaneListaAutocomplete"
                             v-on:click="
@@ -382,8 +382,11 @@
             </div>
             <div class="col-lg-12 mb-4">
                 <div class="row align-items-start mb-0" v-for="incarcare in numarIncarcari" :key="incarcare">
-                    <div class="col-lg-5 mb-2">
+                    <div class="col-lg-5 mb-2" style="position:relative;"
+                        v-click-out="() => locuriOperareListaAutocomplete[incarcare] = ''"
+                        >
                         <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
+                        <small v-if="locuriOperareListaAutocomplete[incarcare] && locuriOperareListaAutocomplete[incarcare].length >= 100" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
                         <input
                             type="hidden"
                             v-model="incarcariId[incarcare-1]"
@@ -394,23 +397,25 @@
                                 class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
                                 :name="'incarcari[nume][' + incarcare + ']'"
                                 v-model="incarcariNume[incarcare-1]"
-                                v-on:focus="autocompleteLocuriOperare();"
-                                v-on:keyup="autocompleteLocuriOperare();"
+                                v-on:focus="autocompleteLocuriOperare(incarcare, $event.target.value);"
+                                v-on:keyup="autocompleteLocuriOperare(incarcare, $event.target.value);"
                                 placeholder=""
                                 autocomplete="off"
                                 aria-describedby=""
                                 required>
                                 <div class="input-group-prepend d-flex align-items-center">
-                                    {{-- <div v-if="camionId" class="input-group-text p-2 text-danger" id="" v-on:click="camionId = null; camionNumarInmatriculare = ''; camionTipCamion = ''"><i class="fa-solid fa-xmark"></i></div> --}}
+                                    <div v-if="incarcariId[incarcare-1]" class="input-group-text p-2 text-danger" id="" v-on:click="golireCampuriIncarcari(incarcare-1);"><i class="fa-solid fa-xmark"></i></div>
                                 </div>
                         </div>
-                        <div v-cloak v-if="locuriOperareListaAutocomplete && locuriOperareListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
-                            <div class="list-group" style="max-height: 130px; overflow:auto;">
+                        <div v-cloak v-if="locuriOperareListaAutocomplete[incarcare] && locuriOperareListaAutocomplete[incarcare].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                            <div class="list-group" style="max-height: 218px; overflow:auto;">
                                 <button class="list-group-item list-group-item list-group-item-action py-0"
-                                    v-for="locOperare in locuriOperareListaAutocomplete"
+                                    v-for="locOperare in locuriOperareListaAutocomplete[incarcare]"
                                     v-on:click="
                                         incarcariId[incarcare-1] = locOperare.id;
                                         incarcariNume[incarcare-1] = locOperare.nume;
+                                        incarcariJudet[incarcare-1] = locOperare.judet;
+                                        incarcariOras[incarcare-1] = locOperare.oras;
 
                                         locuriOperareListaAutocomplete = ''
                                     ">
@@ -418,6 +423,7 @@
                                 </button>
                             </div>
                         </div>
+                        <small v-if="!incarcariNume[incarcare-1] || (incarcariNume[incarcare-1].length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
                         {{-- <small v-if="!camionId" class="ps-3">*Selectați un camion</small>
                         <small v-else class="ps-3 text-success">*Ați selectat camionul</small> --}}
                     </div>

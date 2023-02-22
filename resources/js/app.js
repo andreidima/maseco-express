@@ -113,6 +113,8 @@ if (document.getElementById('camion') != null) {
 
 
 
+
+
 const formularComanda = createApp({
     el: '#formularComanda',
     data() {
@@ -134,13 +136,17 @@ const formularComanda = createApp({
             camioaneListaAutocomplete: [],
 
             locuriOperare: locuriOperare,
+            locuriOperareListaAutocomplete: [],
 
+            // Incarcari
             numarIncarcari: ((typeof numarIncarcari !== 'undefined') ? numarIncarcari : 0),
-            incarcariNume: ((typeof incarcariNume !== 'undefined') ? incarcariNume : []),
+            incarcariId: ((typeof incarcariNume !== 'undefined') ? incarcariNume : []),
+            incarcariNume: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
+            incarcariJudet: ((typeof incarcariJudet !== 'undefined') ? incarcariJudet : []),
             incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
-            // medicamente_dimineata: ((typeof medicamenteDimineataVechi !== 'undefined') ? medicamenteDimineataVechi : ''),
-            // medicamente_pranz: ((typeof medicamentePranzVechi !== 'undefined') ? medicamentePranzVechi : ''),
-            // medicamente_seara: ((typeof medicamenteSearaVechi !== 'undefined') ? medicamenteSearaVechi : ''),
+            // incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
+            // incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
+            // incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
         }
     },
     created: function () {
@@ -166,6 +172,9 @@ const formularComanda = createApp({
                 }
             }
         }
+
+        // Incarcari
+        // this.incarcari[1] = ['a'];
     },
     methods: {
         autocompleteFirmeTransportatori() {
@@ -195,6 +204,34 @@ const formularComanda = createApp({
                 }
             }
         },
+        autocompleteLocuriOperare(incarcare, value) {
+            if (value.length <= 2) {
+                this.locuriOperareListaAutocomplete = [];
+            } else if (value.length > 2){
+                this.locuriOperareListaAutocomplete = [];
+                let locuriOperareListaAutocomplete = [];
+
+                for (var i = 0; i < this.locuriOperare.length; i++) {
+                    if (this.locuriOperare[i].nume && this.locuriOperare[i].nume.toLowerCase().includes(value.toLowerCase())) {
+                        locuriOperareListaAutocomplete.push(this.locuriOperare[i]);
+                    }
+                    if (locuriOperareListaAutocomplete.length >= 100){
+                        break;
+                    }
+                }
+                this.locuriOperareListaAutocomplete[incarcare] = locuriOperareListaAutocomplete;
+            }
+        },
+        golireCampuriIncarcari(incarcare) {
+            delete this.incarcariId[incarcare];
+            delete this.incarcariNume[incarcare];
+            delete this.incarcariJudet[incarcare];
+            delete this.incarcariOras[incarcare];
+            // delete this.incarcariAdresa[incarcare];
+            // delete this.incarcariCodPostal[incarcare];
+            // delete this.incarcariPersoanaContact[incarcare];
+            // console.log(this.incarcariId[incarcare]);
+        }
         // golireListe() {
         //     this.firmeTransportatoriListaAutocomplete = [];
         //     this.firmeClientiListaAutocomplete = [];
