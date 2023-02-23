@@ -36,4 +36,19 @@ class Comanda extends Model
     {
         return $this->hasMany(ComandaIstoric::class, 'id');
     }
+
+    public function locuriOperare()
+    {
+        return $this->belongsToMany(LocOperare::class, 'comenzi_locuri_operare', 'comanda_id', 'loc_operare_id');
+    }
+
+    public function locuriOperareIncarcari()
+    {
+        return $this->locuriOperare()->where('tip', '1');
+    }
+
+    public function locuriOperareDescarcari()
+    {
+        return $this->locuriOperare()->where('tip', '2');
+    }
 }

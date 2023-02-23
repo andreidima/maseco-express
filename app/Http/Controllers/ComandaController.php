@@ -140,10 +140,11 @@ class ComandaController extends Controller
         $camioane = Camion::select('id', 'numar_inmatriculare', 'tip_camion')->orderBy('numar_inmatriculare')->get();
         // $locuriOperare = LocOperare::select('id', 'nume')->orderBy('nume')->get();
         $locuriOperare = LocOperare::select('*')->orderBy('nume')->get();
-
+        $incarcari = $comanda->locuriOperareIncarcari()->get();
+// dd($incarcari);
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane', 'locuriOperare'));
+        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane', 'locuriOperare', 'incarcari'));
     }
 
     /**
@@ -156,6 +157,12 @@ class ComandaController extends Controller
     public function update(Request $request, Comanda $comanda)
     {
         $comanda->update($this->validateRequest($request));
+
+        // Sincronizarea incarcarilor
+        for ($i = 1; $i <= count($request->incarcari['id']); $i++) {
+            $incarcari_id_array[$request->incarcari['id'][$i]] = ['tip' => 1, 'ordine' => $i];
+        }
+        $comanda->locuriOperare()->sync($incarcari_id_array);
 
         // Salvare in istoric
         // if ($comanda->wasChanged()){
@@ -230,6 +237,11 @@ class ComandaController extends Controller
                 'client_tarif_pe_km' => '',
                 'descriere_marfa' => 'nullable|max:500',
                 'camion_id' => '',
+
+                'intrari.id.*' => '',
+                'intrari.nume.*' => 'required|max:500',
+                'intrari.oras.*' => 'nullable|max:500',
+
                 // 'observatii' => 'nullable|max:2000',
             ],
             [

@@ -135,13 +135,14 @@ const formularComanda = createApp({
             camioane: camioane,
             camioaneListaAutocomplete: [],
 
-            locuriOperare: locuriOperare,
+            locuriOperare: ((typeof locuriOperare !== 'undefined') ? locuriOperare : []),
             locuriOperareListaAutocomplete: [],
 
             // Incarcari
+            incarcari: ((typeof incarcari !== 'undefined') ? incarcari : []),
             numarIncarcari: ((typeof numarIncarcari !== 'undefined') ? numarIncarcari : 0),
-            incarcariId: ((typeof incarcariNume !== 'undefined') ? incarcariNume : []),
-            incarcariNume: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
+            incarcariId: ((typeof incarcariId !== 'undefined') ? incarcariId : []),
+            incarcariNume: ((typeof incarcariNume !== 'undefined') ? incarcariNume : []),
             incarcariJudet: ((typeof incarcariJudet !== 'undefined') ? incarcariJudet : []),
             incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
             // incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),

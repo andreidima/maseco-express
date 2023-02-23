@@ -1,5 +1,7 @@
 @csrf
-
+@php
+    // dd($incarcari);
+@endphp
 <script type="application/javascript">
     firmeTransportatori = {!! json_encode($firmeTransportatori) !!}
     firmaTransportatorIdVechi = {!! json_encode(old('transportator_transportator_id', ($comanda->transportator_transportator_id ?? "")) ?? "") !!}
@@ -9,6 +11,9 @@
     camionIdVechi = {!! json_encode(old('camion_id', ($comanda->camion_id ?? "")) ?? "") !!}
 
     locuriOperare = {!! json_encode($locuriOperare) !!}
+    incarcari =  {!! json_encode($incarcari) !!}
+    // incarcariId={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.id', ($comanda->locuriOperare['id'] ?? [])))) !!}
+    // incarcariNume={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.nume', ($comanda->locuriOperare['nume'] ?? [])))) !!}
 </script>
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="formularComanda">
@@ -424,8 +429,6 @@
                             </div>
                         </div>
                         <small v-if="!incarcariNume[incarcare-1] || (incarcariNume[incarcare-1].length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
-                        {{-- <small v-if="!camionId" class="ps-3">*Selectați un camion</small>
-                        <small v-else class="ps-3 text-success">*Ați selectat camionul</small> --}}
                     </div>
                     <div class="col-lg-3 mb-2">
                         <label for="oras" class="mb-0 ps-3">Oraș</label>
@@ -435,18 +438,84 @@
                             :name="'incarcari[oras][' + incarcare + ']'"
                             v-model="incarcariOras[incarcare-1]">
                     </div>
-                    {{-- <div class="col-lg-1 d-flex align-items-center border border-dark border-1">
-                        <button  type="button" class="btn m-0 p-0 mb-1" @click="stergeMedicament(medicament-1)">
-                            <span class="px-1 badge" style="background-color:red; color:white; border-radius:20px">
-                                Șterge
-                            </span>
-                        </button>
-                    </div> --}}
                 </div>
                 <div class="row">
                     <div class="col-lg-12 d-flex justify-content-center py-1">
                         <input type="hidden" name="numarIncarcari" v-model="numarIncarcari">
                         <button type="button" class="btn btn-success text-white" @click="numarIncarcari++">Adaugă încărcare</button>
+                    </div>
+                </div>
+
+                </div>
+            </div>
+            <div class="col-lg-12 mb-4">
+                <div class="row align-items-start mb-0" v-for="(incarcare, index) in incarcari" :key="incarcare">
+                    <div class="col-lg-5 mb-2" style="position:relative;"
+                        v-click-out="() => locuriOperareListaAutocomplete[index] = ''"
+                        >
+                        <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
+                        <small v-if="locuriOperareListaAutocomplete[index] && locuriOperareListaAutocomplete[index].length >= 100" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
+                        <input
+                            type="hidden"
+                            :name="'incarcari[id][' + incarcare + ']'"
+                            v-model="incarcari[index].nume"
+                            >
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
+                                :name="'incarcari[nume][' + incarcare + ']'"
+                                v-model="incarcari[index].nume"
+                                v-on:focus="autocompleteLocuriOperare(index, $event.target.value);"
+                                v-on:keyup="autocompleteLocuriOperare(index, $event.target.value);"
+                                placeholder=""
+                                autocomplete="off"
+                                aria-describedby=""
+                                required>
+                                <div class="input-group-prepend d-flex align-items-center">
+                                    {{-- <div v-if="incarcariId[incarcare-1]" class="input-group-text p-2 text-danger" id="" v-on:click="golireCampuriIncarcari(incarcare-1);"><i class="fa-solid fa-xmark"></i></div> --}}
+                                </div>
+                        </div>
+                        <div v-cloak v-if="locuriOperareListaAutocomplete[index] && locuriOperareListaAutocomplete[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                            <div class="list-group" style="max-height: 218px; overflow:auto;">
+                                <button class="list-group-item list-group-item list-group-item-action py-0"
+                                    v-for="locOperare in locuriOperareListaAutocomplete[index]"
+                                    v-on:click="
+                                        incarcari[index].id = locOperare.id;
+                                        incarcari[index].nume = locOperare.nume;
+                                        incarcari[index].judet = locOperare.judet;
+                                        incarcari[index].oras = locOperare.oras;
+
+                                        locuriOperareListaAutocomplete = ''
+                                    ">
+                                        @{{ locOperare.nume }}
+                                </button>
+                            </div>
+                        </div>
+                        <small v-if="!incarcari[index].nume || (incarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
+                        {{-- <small v-if="!camionId" class="ps-3">*Selectați un camion</small>
+                        <small v-else class="ps-3 text-success">*Ați selectat camionul</small> --}}
+                    </div>
+                    <div class="col-lg-3 mb-2">
+                        <label for="oras" class="mb-0 ps-3">Oraș</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
+                            :name="'incarcari[oras][' + incarcare + ']'"
+                            v-model="incarcari[index].oras">
+                    </div>
+                    <div class="col-lg-1 d-flex align-items-center border border-dark border-1">
+                        <button  type="button" class="btn m-0 p-0 mb-1" @click="this.incarcari.splice(index, 1);">
+                            <span class="px-1 badge" style="background-color:red; color:white; border-radius:20px">
+                                Șterge
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 d-flex justify-content-center py-1">
+                        <input type="hidden" name="numarIncarcari" v-model="numarIncarcari">
+                        <button type="button" class="btn btn-success text-white" @click="incarcari.push(index+1)">Adaugă încărcare</button>
                     </div>
                 </div>
 
