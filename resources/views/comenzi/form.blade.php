@@ -515,7 +515,7 @@
                 <div class="row">
                     <div class="col-lg-12 d-flex justify-content-center py-1">
                         <input type="hidden" name="numarIncarcari" v-model="numarIncarcari">
-                        <button type="button" class="btn btn-success text-white" @click="incarcari.push(index+1)">Adaugă încărcare</button>
+                        <button type="button" class="btn btn-success text-white" @click="adaugaLocOperareGol()">Adaugă încărcare</button>
                     </div>
                 </div>
 

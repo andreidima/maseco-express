@@ -232,6 +232,17 @@ const formularComanda = createApp({
             // delete this.incarcariCodPostal[incarcare];
             // delete this.incarcariPersoanaContact[incarcare];
             // console.log(this.incarcariId[incarcare]);
+        },
+        adaugaLocOperareGol() {
+            let locOperare = [
+                {id : 1,
+                nume: 2
+                }
+            ];
+            // locOperare.id = '';
+            // locOperare.nume = '';
+            console.log (locOperare);
+            this.incarcari.push(locOperare);
         }
         // golireListe() {
         //     this.firmeTransportatoriListaAutocomplete = [];
