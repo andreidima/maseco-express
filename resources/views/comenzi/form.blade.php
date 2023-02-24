@@ -1,6 +1,6 @@
 @csrf
 @php
-    // dd($incarcari);
+    // dd(old('incarcari'), $incarcari);
 @endphp
 <script type="application/javascript">
     firmeTransportatori = {!! json_encode($firmeTransportatori) !!}
@@ -11,7 +11,7 @@
     camionIdVechi = {!! json_encode(old('camion_id', ($comanda->camion_id ?? "")) ?? "") !!}
 
     locuriOperare = {!! json_encode($locuriOperare) !!}
-    incarcari =  {!! json_encode($incarcari) !!}
+    incarcari =  {!! json_encode(old('incarcari',$incarcari)) !!}
     // incarcariId={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.id', ($comanda->locuriOperare['id'] ?? [])))) !!}
     // incarcariNume={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.nume', ($comanda->locuriOperare['nume'] ?? [])))) !!}
 </script>
@@ -385,7 +385,7 @@
             <div class="col-lg-12 mb-4 text-center">
                 <span class="fs-4 badge text-white" style="background-color:#2196F3;">Incărcări</span>
             </div>
-            <div class="col-lg-12 mb-4">
+            {{-- <div class="col-lg-12 mb-4">
                 <div class="row align-items-start mb-0" v-for="incarcare in numarIncarcari" :key="incarcare">
                     <div class="col-lg-5 mb-2" style="position:relative;"
                         v-click-out="() => locuriOperareListaAutocomplete[incarcare] = ''"
@@ -447,7 +447,7 @@
                 </div>
 
                 </div>
-            </div>
+            </div> --}}
             <div class="col-lg-12 mb-4">
                 <div class="row align-items-start mb-0" v-for="(incarcare, index) in incarcari" :key="incarcare">
                     <div class="col-lg-5 mb-2" style="position:relative;"
@@ -457,14 +457,14 @@
                         <small v-if="locuriOperareListaAutocomplete[index] && locuriOperareListaAutocomplete[index].length >= 100" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
                         <input
                             type="hidden"
-                            :name="'incarcari[id][' + incarcare + ']'"
-                            v-model="incarcari[index].nume"
+                            :name="'incarcari[' + index + '][id]'"
+                            v-model="incarcari[index].id"
                             >
                         <div class="input-group">
                             <input
                                 type="text"
                                 class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
-                                :name="'incarcari[nume][' + incarcare + ']'"
+                                :name="'incarcari[' + index + '][nume]'"
                                 v-model="incarcari[index].nume"
                                 v-on:focus="autocompleteLocuriOperare(index, $event.target.value);"
                                 v-on:keyup="autocompleteLocuriOperare(index, $event.target.value);"
@@ -501,9 +501,20 @@
                         <input
                             type="text"
                             class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
-                            :name="'incarcari[oras][' + incarcare + ']'"
+                            :name="'incarcari[' + index + '][oras]'"
                             v-model="incarcari[index].oras">
                     </div>
+                    {{-- <div class="col-lg-3 mb-2 text-center mx-auto">
+                        <label for="data_ora" class="mb-0 ps-3">Data și ora<span class="text-danger">*</span></label>
+                        <vue-datepicker-next
+                            data-veche="{{ old('data_creare', $comanda->data_creare) }}"
+                            nume-camp-db="data_creare"
+                            tip="date"
+                            value-type="YYYY-MM-DD"
+                            format="DD.MM.YYYY"
+                            :latime="{ width: '125px' }"
+                        ></vue-datepicker-next>
+                    </div> --}}
                     <div class="col-lg-1 d-flex align-items-center border border-dark border-1">
                         <button  type="button" class="btn m-0 p-0 mb-1" @click="this.incarcari.splice(index, 1);">
                             <span class="px-1 badge" style="background-color:red; color:white; border-radius:20px">

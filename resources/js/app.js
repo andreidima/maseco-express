@@ -234,14 +234,14 @@ const formularComanda = createApp({
             // console.log(this.incarcariId[incarcare]);
         },
         adaugaLocOperareGol() {
-            let locOperare = [
-                {id : 1,
-                nume: 2
+            let locOperare =
+                {id : '',
+                nume: ''
                 }
-            ];
+            ;
             // locOperare.id = '';
             // locOperare.nume = '';
-            console.log (locOperare);
+            // console.log (locOperare);
             this.incarcari.push(locOperare);
         }
         // golireListe() {

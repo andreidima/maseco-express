@@ -156,13 +156,40 @@ class ComandaController extends Controller
      */
     public function update(Request $request, Comanda $comanda)
     {
+        // dd($request->request);
         $comanda->update($this->validateRequest($request));
-
+// dd('stop');
         // Sincronizarea incarcarilor
-        for ($i = 1; $i <= count($request->incarcari['id']); $i++) {
-            $incarcari_id_array[$request->incarcari['id'][$i]] = ['tip' => 1, 'ordine' => $i];
+        // dd(count($request->incarcari), $request->incarcari['id']);
+
+        // Se verifica daca exista locatii duplicate
+        for ($i = 0; $i < count($request->incarcari); $i++) {
+            $temp_array[$i] = ($request->incarcari[$i]['id']);
         }
+        $temp_array = array_unique($temp_array);
+        $existaLocatiiDuplicate = sizeof($temp_array) != sizeof($request->incarcari);
+
+        if ($existaLocatiiDuplicate) {
+// dd($temp_array, sizeof($temp_array), sizeof($request->incarcari), $existaDuplicate);
+        // $comanda->locuriOperare()->detach();
+            for ($i = 0; $i < count($request->incarcari); $i++) {
+                // $incarcari_id_array[$request->incarcari['id'][$i]] = ['tip' => 1, 'ordine' => $i+1];
+                $incarcari_id_array[$i] = ['loc_operare_id' => intval($request->incarcari[$i]['id']), 'tip' => 1, 'ordine' => $i+1, 'data_ora' => '2022-10-10', 'observatii' => 'a'];
+            }
+        } else {
+            for ($i = 0; $i < count($request->incarcari); $i++) {
+                $incarcari_id_array[$request->incarcari[$i]['id']] = ['tip' => 1, 'ordine' => $i+1];
+            }
+        }
+        // dd($request->incarcari['id'], $incarcari_id_array);
         $comanda->locuriOperare()->sync($incarcari_id_array);
+
+
+
+        // for ($i = 0; $i < count($request->incarcari['id']); $i++) {
+        //     $comanda->locuriOperare()->sync($request->incarcari['id'][$i], ['tip' => 1, 'ordine' => $i+1]);
+        // }
+
 
         // Salvare in istoric
         // if ($comanda->wasChanged()){
@@ -238,9 +265,9 @@ class ComandaController extends Controller
                 'descriere_marfa' => 'nullable|max:500',
                 'camion_id' => '',
 
-                'intrari.id.*' => '',
-                'intrari.nume.*' => 'required|max:500',
-                'intrari.oras.*' => 'nullable|max:500',
+                'intrari.*.id' => '',
+                'intrari.*.nume' => 'required|max:500',
+                'intrari.*.oras' => 'nullable|max:500',
 
                 // 'observatii' => 'nullable|max:2000',
             ],
