@@ -139,12 +139,12 @@ class ComandaController extends Controller
         $termeneDePlata = TermenDePlata::select('id', 'nume')->get();
         $camioane = Camion::select('id', 'numar_inmatriculare', 'tip_camion')->orderBy('numar_inmatriculare')->get();
         // $locuriOperare = LocOperare::select('id', 'nume')->orderBy('nume')->get();
-        $locuriOperare = LocOperare::select('*')->orderBy('nume')->get();
+        // $locuriOperare = LocOperare::select('*')->orderBy('nume')->get();
         $incarcari = $comanda->locuriOperareIncarcari()->get();
-// dd($incarcari);
+// dd($comanda->locuriOperareIncarcari()->get());
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane', 'locuriOperare', 'incarcari'));
+        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane', 'incarcari'));
     }
 
     /**
@@ -156,33 +156,36 @@ class ComandaController extends Controller
      */
     public function update(Request $request, Comanda $comanda)
     {
-        // dd($request->request);
         $comanda->update($this->validateRequest($request));
-// dd('stop');
-        // Sincronizarea incarcarilor
-        // dd(count($request->incarcari), $request->incarcari['id']);
 
-        // Se verifica daca exista locatii duplicate
-        for ($i = 0; $i < count($request->incarcari); $i++) {
-            $temp_array[$i] = ($request->incarcari[$i]['id']);
-        }
-        $temp_array = array_unique($temp_array);
-        $existaLocatiiDuplicate = sizeof($temp_array) != sizeof($request->incarcari);
 
-        if ($existaLocatiiDuplicate) {
-// dd($temp_array, sizeof($temp_array), sizeof($request->incarcari), $existaDuplicate);
-        // $comanda->locuriOperare()->detach();
-            for ($i = 0; $i < count($request->incarcari); $i++) {
-                // $incarcari_id_array[$request->incarcari['id'][$i]] = ['tip' => 1, 'ordine' => $i+1];
-                $incarcari_id_array[$i] = ['loc_operare_id' => intval($request->incarcari[$i]['id']), 'tip' => 1, 'ordine' => $i+1, 'data_ora' => '2022-10-10', 'observatii' => 'a'];
+        // Incarcari
+            // Se verifica daca exista duplicate in locatiile vechi din baza de date
+            foreach ($comanda->locuriOperareIncarcari()->get() as $key=>$locOperare){
+                $temp_array[$key] = $locOperare->id;
             }
-        } else {
+            $temp_array = array_unique($temp_array);
+            $existaDuplicateInLocatiileVechi = sizeof($temp_array) != sizeof($comanda->locuriOperare()->get());
+
+            // Se verifica daca exista duplicate in locatiile noi
             for ($i = 0; $i < count($request->incarcari); $i++) {
-                $incarcari_id_array[$request->incarcari[$i]['id']] = ['tip' => 1, 'ordine' => $i+1];
+                $temp_array[$i] = ($request->incarcari[$i]['id']);
             }
-        }
-        // dd($request->incarcari['id'], $incarcari_id_array);
-        $comanda->locuriOperare()->sync($incarcari_id_array);
+            $temp_array = array_unique($temp_array);
+            $existaDuplicateInLocatiileNoi = sizeof($temp_array) != sizeof($request->incarcari);
+
+            // Daca exista duplicate, in locatiile vechi sau noi, se creaza un array, cu index incepand cu 0, care la sync va sterge toate lociile vechi si apoi va readauga toate locatiile noi
+            // Daca nu exista duplicate, se creaza un array, cu index id-ul locatiilor, care la sync va face update doar daca este cazul
+            if ($existaDuplicateInLocatiileVechi || $existaDuplicateInLocatiileNoi) {
+                for ($i = 0; $i < count($request->incarcari); $i++) {
+                    $incarcari_id_array[$i] = ['loc_operare_id' => intval($request->incarcari[$i]['id']), 'tip' => 1, 'ordine' => $i+1];
+                }
+            } else {
+                for ($i = 0; $i < count($request->incarcari); $i++) {
+                    $incarcari_id_array[$request->incarcari[$i]['id']] = ['tip' => 1, 'ordine' => $i+1];
+                }
+            }
+            $comanda->locuriOperareIncarcari()->sync($incarcari_id_array);
 
 
 

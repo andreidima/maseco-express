@@ -135,7 +135,8 @@ const formularComanda = createApp({
             camioane: camioane,
             camioaneListaAutocomplete: [],
 
-            locuriOperare: ((typeof locuriOperare !== 'undefined') ? locuriOperare : []),
+            // locuriOperare: ((typeof locuriOperare !== 'undefined') ? locuriOperare : []),
+            locuriOperare: [],
             locuriOperareListaAutocomplete: [],
 
             // Incarcari
@@ -205,22 +206,36 @@ const formularComanda = createApp({
                 }
             }
         },
-        autocompleteLocuriOperare(incarcare, value) {
-            if (value.length <= 2) {
-                this.locuriOperareListaAutocomplete = [];
-            } else if (value.length > 2){
-                this.locuriOperareListaAutocomplete = [];
-                let locuriOperareListaAutocomplete = [];
+        // autocompleteLocuriOperare(incarcare, value) {
+        //     if (value.length <= 2) {
+        //         this.locuriOperareListaAutocomplete = [];
+        //     } else if (value.length > 2){
+        //         this.locuriOperareListaAutocomplete = [];
+        //         let locuriOperareListaAutocomplete = [];
 
-                for (var i = 0; i < this.locuriOperare.length; i++) {
-                    if (this.locuriOperare[i].nume && this.locuriOperare[i].nume.toLowerCase().includes(value.toLowerCase())) {
-                        locuriOperareListaAutocomplete.push(this.locuriOperare[i]);
+        //         for (var i = 0; i < this.locuriOperare.length; i++) {
+        //             if (this.locuriOperare[i].nume && this.locuriOperare[i].nume.toLowerCase().includes(value.toLowerCase())) {
+        //                 locuriOperareListaAutocomplete.push(this.locuriOperare[i]);
+        //             }
+        //             if (locuriOperareListaAutocomplete.length >= 100){
+        //                 break;
+        //             }
+        //         }
+        //         this.locuriOperareListaAutocomplete[incarcare] = locuriOperareListaAutocomplete;
+        //     }
+        // },
+        getLocuriOperare(incarcare, value) {
+            this.locuriOperare = [];
+            if (value.length > 2) {
+                axios.get('/axios/locuri-operare', {
+                    params: {
+                        request: 'locuriOperare',
+                        nume: value,
                     }
-                    if (locuriOperareListaAutocomplete.length >= 100){
-                        break;
-                    }
-                }
-                this.locuriOperareListaAutocomplete[incarcare] = locuriOperareListaAutocomplete;
+                })
+                .then(
+                    response => (this.locuriOperare[incarcare] = response.data.raspuns)
+                );
             }
         },
         golireCampuriIncarcari(incarcare) {
@@ -243,7 +258,7 @@ const formularComanda = createApp({
             // locOperare.nume = '';
             // console.log (locOperare);
             this.incarcari.push(locOperare);
-        }
+        },
         // golireListe() {
         //     this.firmeTransportatoriListaAutocomplete = [];
         //     this.firmeClientiListaAutocomplete = [];

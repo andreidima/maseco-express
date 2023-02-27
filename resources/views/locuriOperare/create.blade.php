@@ -18,10 +18,10 @@
                 >
                     <form  class="needs-validation" novalidate method="POST" action="/locuri-operare">
 
-                                @include ('locuriOperare.form', [
-                                    'locOperare' => new App\Models\LocOperare,
-                                    'buttonText' => 'Adaugă Loc Operare'
-                                ])
+                            @include ('locuriOperare.form', [
+                                'locOperare' => new App\Models\LocOperare,
+                                'buttonText' => 'Adaugă Loc Operare'
+                            ])
                     </form>
                 </div>
             </div>

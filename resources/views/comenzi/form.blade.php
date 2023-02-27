@@ -1,6 +1,6 @@
 @csrf
 @php
-    // dd(old('incarcari'), $incarcari);
+    // dd($comanda->locuriOperareIncarcari()->get());
 @endphp
 <script type="application/javascript">
     firmeTransportatori = {!! json_encode($firmeTransportatori) !!}
@@ -10,8 +10,9 @@
     camioane = {!! json_encode($camioane) !!}
     camionIdVechi = {!! json_encode(old('camion_id', ($comanda->camion_id ?? "")) ?? "") !!}
 
-    locuriOperare = {!! json_encode($locuriOperare) !!}
-    incarcari =  {!! json_encode(old('incarcari',$incarcari)) !!}
+    // locuriOperare = {!! json_encode($locuriOperare ?? "") !!}
+    // incarcari =  {!! json_encode(old('incarcari',$incarcari)) !!}
+    incarcari =  {!! json_encode(old('incarcari', $comanda->locuriOperareIncarcari()->get())) !!}
     // incarcariId={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.id', ($comanda->locuriOperare['id'] ?? [])))) !!}
     // incarcariNume={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.nume', ($comanda->locuriOperare['nume'] ?? [])))) !!}
 </script>
@@ -451,10 +452,11 @@
             <div class="col-lg-12 mb-4">
                 <div class="row align-items-start mb-0" v-for="(incarcare, index) in incarcari" :key="incarcare">
                     <div class="col-lg-5 mb-2" style="position:relative;"
-                        v-click-out="() => locuriOperareListaAutocomplete[index] = ''"
+                        v-click-out="() => locuriOperare[index] = ''"
                         >
                         <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
-                        <small v-if="locuriOperareListaAutocomplete[index] && locuriOperareListaAutocomplete[index].length >= 100" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
+                        <small v-if="(locuriOperare[index]) && (locuriOperare[index].length >= 100)" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
+                        {{-- <small v-if="(incarcari[index].nume.length > 2) && !locuriOperare.nume" class="ps-3 text-danger">Căutarea dvs. nu returnează înregistrări. Vă rugăm să incercați alt set de caractere pentru a regăsi înregistrările dorite!</small> --}}
                         <input
                             type="hidden"
                             :name="'incarcari[' + index + '][id]'"
@@ -466,8 +468,8 @@
                                 class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
                                 :name="'incarcari[' + index + '][nume]'"
                                 v-model="incarcari[index].nume"
-                                v-on:focus="autocompleteLocuriOperare(index, $event.target.value);"
-                                v-on:keyup="autocompleteLocuriOperare(index, $event.target.value);"
+                                v-on:focus="getLocuriOperare(index, $event.target.value);"
+                                v-on:keyup="getLocuriOperare(index, $event.target.value);"
                                 placeholder=""
                                 autocomplete="off"
                                 aria-describedby=""
@@ -476,17 +478,17 @@
                                     {{-- <div v-if="incarcariId[incarcare-1]" class="input-group-text p-2 text-danger" id="" v-on:click="golireCampuriIncarcari(incarcare-1);"><i class="fa-solid fa-xmark"></i></div> --}}
                                 </div>
                         </div>
-                        <div v-cloak v-if="locuriOperareListaAutocomplete[index] && locuriOperareListaAutocomplete[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                        <div v-cloak v-if="locuriOperare[index] && locuriOperare[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                             <div class="list-group" style="max-height: 218px; overflow:auto;">
                                 <button class="list-group-item list-group-item list-group-item-action py-0"
-                                    v-for="locOperare in locuriOperareListaAutocomplete[index]"
+                                    v-for="locOperare in locuriOperare[index]"
                                     v-on:click="
                                         incarcari[index].id = locOperare.id;
                                         incarcari[index].nume = locOperare.nume;
                                         incarcari[index].judet = locOperare.judet;
                                         incarcari[index].oras = locOperare.oras;
 
-                                        locuriOperareListaAutocomplete = ''
+                                        locuriOperare = ''
                                     ">
                                         @{{ locOperare.nume }}
                                 </button>
@@ -504,6 +506,14 @@
                             :name="'incarcari[' + index + '][oras]'"
                             v-model="incarcari[index].oras">
                     </div>
+                    {{-- <div class="col-lg-3 mb-2">
+                        <label for="oras" class="mb-0 ps-3">Țara</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
+                            :name="'incarcari[' + index + '][oras]'"
+                            v-model="incarcari[index].oras">
+                    </div> --}}
                     {{-- <div class="col-lg-3 mb-2 text-center mx-auto">
                         <label for="data_ora" class="mb-0 ps-3">Data și ora<span class="text-danger">*</span></label>
                         <vue-datepicker-next
@@ -529,6 +539,16 @@
                         <button type="button" class="btn btn-success text-white" @click="adaugaLocOperareGol()">Adaugă încărcare</button>
                     </div>
                 </div>
+                {{-- <div style="flex" class="">
+                    <a
+                        href="#"
+                        data-bs-toggle="modal"
+                        data-bs-target="#adaugaLocOperareNou"
+                        title="Adaugă Loc Operare Nou"
+                        >
+                        <span class="badge bg-danger">Adaugă loc de operare nou</span>
+                    </a>
+                </div> --}}
 
                 </div>
             </div>
@@ -559,3 +579,4 @@
         </div>
     </div>
 </div>
+

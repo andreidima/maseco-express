@@ -6,6 +6,7 @@ use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\CamionController;
 use App\Http\Controllers\LocOperareController;
 use App\Http\Controllers\ComandaController;
+use App\Http\Controllers\AxiosController;
 
 /*
 |--------------------------------------------------------------------------

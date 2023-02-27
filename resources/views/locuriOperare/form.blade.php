@@ -1,5 +1,9 @@
 @csrf
 
+@php
+    $tari = App\Models\Tara::select('id', 'nume')->orderBy('nume')->get();
+@endphp
+
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="client">
     <div class="col-lg-12 px-4 py-2 mb-0">
         <div class="row px-2 py-4 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">

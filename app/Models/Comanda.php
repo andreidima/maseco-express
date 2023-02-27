@@ -44,11 +44,11 @@ class Comanda extends Model
 
     public function locuriOperareIncarcari()
     {
-        return $this->locuriOperare()->where('tip', '1');
+        return $this->locuriOperare()->where('tip', '1')->orderBy('ordine');
     }
 
     public function locuriOperareDescarcari()
     {
-        return $this->locuriOperare()->where('tip', '2');
+        return $this->locuriOperare()->where('tip', '2')->orderBy('ordine');
     }
 }
