@@ -136,18 +136,17 @@ const formularComanda = createApp({
             camioaneListaAutocomplete: [],
 
             // locuriOperare: ((typeof locuriOperare !== 'undefined') ? locuriOperare : []),
-            locuriOperare: [],
-            locuriOperareListaAutocomplete: [],
+            locuriOperareIncarcari: [],
+            locuriOperareDescarcari: [],
+            // locuriOperareListaAutocomplete: [],
 
             // Incarcari
             incarcari: ((typeof incarcari !== 'undefined') ? incarcari : []),
-            numarIncarcari: ((typeof numarIncarcari !== 'undefined') ? numarIncarcari : 0),
-            incarcariId: ((typeof incarcariId !== 'undefined') ? incarcariId : []),
-            incarcariNume: ((typeof incarcariNume !== 'undefined') ? incarcariNume : []),
-            incarcariJudet: ((typeof incarcariJudet !== 'undefined') ? incarcariJudet : []),
-            incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
-            // incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
-            // incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
+            descarcari: ((typeof descarcari !== 'undefined') ? descarcari : []),
+            // numarIncarcari: ((typeof numarIncarcari !== 'undefined') ? numarIncarcari : 0),
+            // incarcariId: ((typeof incarcariId !== 'undefined') ? incarcariId : []),
+            // incarcariNume: ((typeof incarcariNume !== 'undefined') ? incarcariNume : []),
+            // incarcariJudet: ((typeof incarcariJudet !== 'undefined') ? incarcariJudet : []),
             // incarcariOras: ((typeof incarcariOras !== 'undefined') ? incarcariOras : []),
         }
     },
@@ -224,8 +223,8 @@ const formularComanda = createApp({
         //         this.locuriOperareListaAutocomplete[incarcare] = locuriOperareListaAutocomplete;
         //     }
         // },
-        getLocuriOperare(incarcare, value) {
-            this.locuriOperare = [];
+        getLocuriOperareIncarcari(incarcare, value) {
+            this.locuriOperareIncarcari = [];
             if (value.length > 2) {
                 axios.get('/axios/locuri-operare', {
                     params: {
@@ -234,30 +233,52 @@ const formularComanda = createApp({
                     }
                 })
                 .then(
-                    response => (this.locuriOperare[incarcare] = response.data.raspuns)
+                    response => (this.locuriOperareIncarcari[incarcare] = response.data.raspuns)
                 );
             }
         },
-        golireCampuriIncarcari(incarcare) {
-            delete this.incarcariId[incarcare];
-            delete this.incarcariNume[incarcare];
-            delete this.incarcariJudet[incarcare];
-            delete this.incarcariOras[incarcare];
-            // delete this.incarcariAdresa[incarcare];
-            // delete this.incarcariCodPostal[incarcare];
-            // delete this.incarcariPersoanaContact[incarcare];
-            // console.log(this.incarcariId[incarcare]);
+        getLocuriOperareDescarcari(descarcare, value) {
+            this.locuriOperareDescarcari = [];
+            if (value.length > 2) {
+                axios.get('/axios/locuri-operare', {
+                    params: {
+                        request: 'locuriOperare',
+                        nume: value,
+                    }
+                })
+                    .then(
+                        response => (this.locuriOperareDescarcari[descarcare] = response.data.raspuns)
+                    );
+            }
         },
-        adaugaLocOperareGol() {
+        // golireCampuriIncarcari(incarcare) {
+        //     delete this.incarcariId[incarcare];
+        //     delete this.incarcariNume[incarcare];
+        //     delete this.incarcariJudet[incarcare];
+        //     delete this.incarcariOras[incarcare];
+        // },
+        adaugaIncarcareGoala() {
             let locOperare =
-                {id : '',
-                nume: ''
-                }
-            ;
-            // locOperare.id = '';
-            // locOperare.nume = '';
-            // console.log (locOperare);
+                {
+                    // id : '',
+                    // nume: '',
+                    // oras: '',
+                    // tara: { id: '', nume: '' },
+                    tara: {},
+                    pivot: {},
+                };
             this.incarcari.push(locOperare);
+        },
+        adaugaDescarcareGoala() {
+            let locOperare =
+                {
+                    // id : '',
+                    // nume: '',
+                    // oras: '',
+                    tara: { id: '', nume: '' },
+                    pivot: {}
+                };
+            this.descarcari.push(locOperare);
         },
         // golireListe() {
         //     this.firmeTransportatoriListaAutocomplete = [];

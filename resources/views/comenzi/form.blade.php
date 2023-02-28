@@ -1,6 +1,6 @@
 @csrf
 @php
-    // dd($comanda->locuriOperareIncarcari()->get());
+    // dd(old('incarcari'));
 @endphp
 <script type="application/javascript">
     firmeTransportatori = {!! json_encode($firmeTransportatori) !!}
@@ -13,6 +13,7 @@
     // locuriOperare = {!! json_encode($locuriOperare ?? "") !!}
     // incarcari =  {!! json_encode(old('incarcari',$incarcari)) !!}
     incarcari =  {!! json_encode(old('incarcari', $comanda->locuriOperareIncarcari()->get())) !!}
+    descarcari =  {!! json_encode(old('descarcari', $comanda->locuriOperareDescarcari()->get())) !!}
     // incarcariId={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.id', ($comanda->locuriOperare['id'] ?? [])))) !!}
     // incarcariNume={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.nume', ($comanda->locuriOperare['nume'] ?? [])))) !!}
 </script>
@@ -81,7 +82,7 @@
                         v-model="firmaTransportatorNume"
                         v-on:focus="autocompleteFirmeTransportatori();"
                         v-on:keyup="autocompleteFirmeTransportatori(); this.firmaTransportatorId = '';"
-                        class="form-control bg-white rounded-3 {{ $errors->has('firmaTransportatorNume') ? 'is-invalid' : '' }}"
+                        class="form-control bg-white rounded-3 {{ $errors->has('transportator_transportator_id') ? 'is-invalid' : '' }}"
                         name="firmaTransportatorNume"
                         placeholder=""
                         autocomplete="off"
@@ -221,7 +222,7 @@
                         v-model="firmaClientNume"
                         v-on:focus="autocompleteFirmeClienti();"
                         v-on:keyup="autocompleteFirmeClienti(); this.firmaClientId = '';"
-                        class="form-control bg-white rounded-3 {{ $errors->has('firmaClientNume') ? 'is-invalid' : '' }}"
+                        class="form-control bg-white rounded-3 {{ $errors->has('client_client_id') ? 'is-invalid' : '' }}"
                         name="firmaClientNume"
                         placeholder=""
                         autocomplete="off"
@@ -386,77 +387,13 @@
             <div class="col-lg-12 mb-4 text-center">
                 <span class="fs-4 badge text-white" style="background-color:#2196F3;">Incărcări</span>
             </div>
-            {{-- <div class="col-lg-12 mb-4">
-                <div class="row align-items-start mb-0" v-for="incarcare in numarIncarcari" :key="incarcare">
-                    <div class="col-lg-5 mb-2" style="position:relative;"
-                        v-click-out="() => locuriOperareListaAutocomplete[incarcare] = ''"
-                        >
-                        <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
-                        <small v-if="locuriOperareListaAutocomplete[incarcare] && locuriOperareListaAutocomplete[incarcare].length >= 100" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
-                        <input
-                            type="hidden"
-                            v-model="incarcariId[incarcare-1]"
-                            :name="'incarcari[id][' + incarcare + ']'">
-                        <div class="input-group">
-                            <input
-                                type="text"
-                                class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
-                                :name="'incarcari[nume][' + incarcare + ']'"
-                                v-model="incarcariNume[incarcare-1]"
-                                v-on:focus="autocompleteLocuriOperare(incarcare, $event.target.value);"
-                                v-on:keyup="autocompleteLocuriOperare(incarcare, $event.target.value);"
-                                placeholder=""
-                                autocomplete="off"
-                                aria-describedby=""
-                                required>
-                                <div class="input-group-prepend d-flex align-items-center">
-                                    <div v-if="incarcariId[incarcare-1]" class="input-group-text p-2 text-danger" id="" v-on:click="golireCampuriIncarcari(incarcare-1);"><i class="fa-solid fa-xmark"></i></div>
-                                </div>
-                        </div>
-                        <div v-cloak v-if="locuriOperareListaAutocomplete[incarcare] && locuriOperareListaAutocomplete[incarcare].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
-                            <div class="list-group" style="max-height: 218px; overflow:auto;">
-                                <button class="list-group-item list-group-item list-group-item-action py-0"
-                                    v-for="locOperare in locuriOperareListaAutocomplete[incarcare]"
-                                    v-on:click="
-                                        incarcariId[incarcare-1] = locOperare.id;
-                                        incarcariNume[incarcare-1] = locOperare.nume;
-                                        incarcariJudet[incarcare-1] = locOperare.judet;
-                                        incarcariOras[incarcare-1] = locOperare.oras;
-
-                                        locuriOperareListaAutocomplete = ''
-                                    ">
-                                        @{{ locOperare.nume }}
-                                </button>
-                            </div>
-                        </div>
-                        <small v-if="!incarcariNume[incarcare-1] || (incarcariNume[incarcare-1].length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
-                    </div>
-                    <div class="col-lg-3 mb-2">
-                        <label for="oras" class="mb-0 ps-3">Oraș</label>
-                        <input
-                            type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
-                            :name="'incarcari[oras][' + incarcare + ']'"
-                            v-model="incarcariOras[incarcare-1]">
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-lg-12 d-flex justify-content-center py-1">
-                        <input type="hidden" name="numarIncarcari" v-model="numarIncarcari">
-                        <button type="button" class="btn btn-success text-white" @click="numarIncarcari++">Adaugă încărcare</button>
-                    </div>
-                </div>
-
-                </div>
-            </div> --}}
             <div class="col-lg-12 mb-4">
                 <div class="row align-items-start mb-0" v-for="(incarcare, index) in incarcari" :key="incarcare">
-                    <div class="col-lg-5 mb-2" style="position:relative;"
-                        v-click-out="() => locuriOperare[index] = ''"
+                    <div class="col-lg-3 mb-2" style="position:relative;"
+                        v-click-out="() => locuriOperareIncarcari[index] = ''"
                         >
-                        <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
-                        <small v-if="(locuriOperare[index]) && (locuriOperare[index].length >= 100)" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
-                        {{-- <small v-if="(incarcari[index].nume.length > 2) && !locuriOperare.nume" class="ps-3 text-danger">Căutarea dvs. nu returnează înregistrări. Vă rugăm să incercați alt set de caractere pentru a regăsi înregistrările dorite!</small> --}}
+                        <label for="nume" class="mb-0 ps-3">Loc de încărcare @{{ index+1 }}<span class="text-danger">*</span></label>
+                        <small v-if="(locuriOperareIncarcari[index]) && (locuriOperareIncarcari[index].length >= 100)" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
                         <input
                             type="hidden"
                             :name="'incarcari[' + index + '][id]'"
@@ -468,37 +405,35 @@
                                 class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
                                 :name="'incarcari[' + index + '][nume]'"
                                 v-model="incarcari[index].nume"
-                                v-on:focus="getLocuriOperare(index, $event.target.value);"
-                                v-on:keyup="getLocuriOperare(index, $event.target.value);"
+                                v-on:focus="getLocuriOperareIncarcari(index, $event.target.value);"
+                                v-on:keyup="getLocuriOperareIncarcari(index, $event.target.value);"
                                 placeholder=""
                                 autocomplete="off"
                                 aria-describedby=""
                                 required>
                                 <div class="input-group-prepend d-flex align-items-center">
-                                    {{-- <div v-if="incarcariId[incarcare-1]" class="input-group-text p-2 text-danger" id="" v-on:click="golireCampuriIncarcari(incarcare-1);"><i class="fa-solid fa-xmark"></i></div> --}}
                                 </div>
                         </div>
-                        <div v-cloak v-if="locuriOperare[index] && locuriOperare[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                        <div v-cloak v-if="locuriOperareIncarcari[index] && locuriOperareIncarcari[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                             <div class="list-group" style="max-height: 218px; overflow:auto;">
                                 <button class="list-group-item list-group-item list-group-item-action py-0"
-                                    v-for="locOperare in locuriOperare[index]"
+                                    v-for="locOperare in locuriOperareIncarcari[index]"
                                     v-on:click="
                                         incarcari[index].id = locOperare.id;
                                         incarcari[index].nume = locOperare.nume;
-                                        incarcari[index].judet = locOperare.judet;
                                         incarcari[index].oras = locOperare.oras;
+                                        incarcari[index].tara.id = locOperare.tara.id;
+                                        incarcari[index].tara.nume = locOperare.tara.nume;
 
-                                        locuriOperare = ''
+                                        locuriOperareIncarcari = ''
                                     ">
                                         @{{ locOperare.nume }}
                                 </button>
                             </div>
                         </div>
                         <small v-if="!incarcari[index].nume || (incarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
-                        {{-- <small v-if="!camionId" class="ps-3">*Selectați un camion</small>
-                        <small v-else class="ps-3 text-success">*Ați selectat camionul</small> --}}
                     </div>
-                    <div class="col-lg-3 mb-2">
+                    <div class="col-lg-2 mb-2">
                         <label for="oras" class="mb-0 ps-3">Oraș</label>
                         <input
                             type="text"
@@ -506,37 +441,45 @@
                             :name="'incarcari[' + index + '][oras]'"
                             v-model="incarcari[index].oras">
                     </div>
-                    {{-- <div class="col-lg-3 mb-2">
-                        <label for="oras" class="mb-0 ps-3">Țara</label>
+                    <div class="col-lg-2 mb-2">
+                        <label for="tara" class="mb-0 ps-3">Țara</label>
                         <input
                             type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
-                            :name="'incarcari[' + index + '][oras]'"
-                            v-model="incarcari[index].oras">
-                    </div> --}}
-                    {{-- <div class="col-lg-3 mb-2 text-center mx-auto">
+                            class="form-control bg-white rounded-3 {{ $errors->has('tara') ? 'is-invalid' : '' }}"
+                            :name="'incarcari[' + index + '][tara][nume]'"
+                            v-model="incarcari[index].tara.nume"
+                            >
+                    </div>
+                    <div class="col-lg-2 mb-2">
                         <label for="data_ora" class="mb-0 ps-3">Data și ora<span class="text-danger">*</span></label>
                         <vue-datepicker-next
-                            data-veche="{{ old('data_creare', $comanda->data_creare) }}"
-                            nume-camp-db="data_creare"
-                            tip="date"
-                            value-type="YYYY-MM-DD"
-                            format="DD.MM.YYYY"
-                            :latime="{ width: '125px' }"
+                            :data-veche='incarcari[index].pivot.data_ora'
+                            :nume-camp-db="'incarcari[' + index + '][pivot][data_ora]'"
+                            tip="datetime"
+                            :minute-step="5"
+                            value-type="YYYY-MM-DD HH:mm"
+                            format="DD.MM.YYYY HH:mm"
+                            :latime="{ width: '170px' }"
                         ></vue-datepicker-next>
-                    </div> --}}
-                    <div class="col-lg-1 d-flex align-items-center border border-dark border-1">
-                        <button  type="button" class="btn m-0 p-0 mb-1" @click="this.incarcari.splice(index, 1);">
-                            <span class="px-1 badge" style="background-color:red; color:white; border-radius:20px">
-                                Șterge
-                            </span>
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="observatii" class="mb-0 ps-3">Observații</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
+                            :name="'incarcari[' + index + '][pivot][observatii]'"
+                            v-model="incarcari[index].pivot.observatii">
+                    </div>
+                    <div class="col-lg-1">
+                        <br>
+                        <button type="btn" title="Șterge încărcarea" class="btn btn-danger" @click="this.incarcari.splice(index, 1);">
+                            <i class="fa-solid fa-trash-can"></i>
                         </button>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-12 d-flex justify-content-center py-1">
-                        <input type="hidden" name="numarIncarcari" v-model="numarIncarcari">
-                        <button type="button" class="btn btn-success text-white" @click="adaugaLocOperareGol()">Adaugă încărcare</button>
+                        <button type="button" class="btn btn-success text-white" @click="adaugaIncarcareGoala()">Adaugă încărcare</button>
                     </div>
                 </div>
                 {{-- <div style="flex" class="">
@@ -549,7 +492,104 @@
                         <span class="badge bg-danger">Adaugă loc de operare nou</span>
                     </a>
                 </div> --}}
+            </div>
+        </div>
+        <div class="row px-2 pt-4 pb-1 d-flex justify-content-center" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
+            <div class="col-lg-12 mb-4 text-center">
+                <span class="fs-4 badge text-white" style="background-color:mediumseagreen;">Descărcări</span>
+            </div>
+            <div class="col-lg-12 mb-4">
+                <div class="row align-items-start mb-0" v-for="(descarcare, index) in descarcari" :key="descarcare">
+                    <div class="col-lg-3 mb-2" style="position:relative;"
+                        v-click-out="() => locuriOperareDescarcari[index] = ''"
+                        >
+                        <label for="nume" class="mb-0 ps-3">Loc de încărcare @{{ index+1 }}<span class="text-danger">*</span></label>
+                        <small v-if="(locuriOperareDescarcari[index]) && (locuriOperareDescarcari[index].length >= 100)" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
+                        <input
+                            type="hidden"
+                            :name="'descarcari[' + index + '][id]'"
+                            v-model="descarcari[index].id"
+                            >
+                        <div class="input-group">
+                            <input
+                                type="text"
+                                class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
+                                :name="'descarcari[' + index + '][nume]'"
+                                v-model="descarcari[index].nume"
+                                v-on:focus="getLocuriOperareDescarcari(index, $event.target.value);"
+                                v-on:keyup="getLocuriOperareDescarcari(index, $event.target.value);"
+                                placeholder=""
+                                autocomplete="off"
+                                aria-describedby=""
+                                required>
+                                <div class="input-group-prepend d-flex align-items-center">
+                                </div>
+                        </div>
+                        <div v-cloak v-if="locuriOperareDescarcari[index] && locuriOperareDescarcari[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                            <div class="list-group" style="max-height: 218px; overflow:auto;">
+                                <button class="list-group-item list-group-item list-group-item-action py-0"
+                                    v-for="locOperare in locuriOperareDescarcari[index]"
+                                    v-on:click="
+                                        descarcari[index].id = locOperare.id;
+                                        descarcari[index].nume = locOperare.nume;
+                                        descarcari[index].oras = locOperare.oras;
+                                        descarcari[index].tara.nume = locOperare.tara.nume;
 
+                                        locuriOperareDescarcari = ''
+                                    ">
+                                        @{{ locOperare.nume }}
+                                </button>
+                            </div>
+                        </div>
+                        <small v-if="!descarcari[index].nume || (descarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="oras" class="mb-0 ps-3">Oraș</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
+                            :name="'descarcari[' + index + '][oras]'"
+                            v-model="descarcari[index].oras">
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="tara" class="mb-0 ps-3">Țara</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('tara') ? 'is-invalid' : '' }}"
+                            :name="'descarcari[' + index + '][tara][nume]'"
+                            v-model="descarcari[index].tara.nume">
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="data_ora" class="mb-0 ps-3">Data și ora<span class="text-danger">*</span></label>
+                        <vue-datepicker-next
+                            :data-veche='descarcari[index].pivot.data_ora'
+                            :nume-camp-db="'descarcari[' + index + '][pivot][data_ora]'"
+                            tip="datetime"
+                            :minute-step="5"
+                            value-type="YYYY-MM-DD HH:mm"
+                            format="DD.MM.YYYY HH:mm"
+                            :latime="{ width: '170px' }"
+                        ></vue-datepicker-next>
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="observatii" class="mb-0 ps-3">Observații</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
+                            :name="'descarcari[' + index + '][pivot][observatii]'"
+                            v-model="descarcari[index].pivot.observatii">
+                    </div>
+                    <div class="col-lg-1">
+                        <br>
+                        <button type="btn" title="Șterge descărcarea" class="btn btn-danger" @click="this.descarcari.splice(index, 1);">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12 d-flex justify-content-center py-1">
+                        <button type="button" class="btn btn-success text-white" @click="adaugaDescarcareGoala()">Adaugă descărcare</button>
+                    </div>
                 </div>
             </div>
         </div>
