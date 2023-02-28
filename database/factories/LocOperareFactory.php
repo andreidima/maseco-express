@@ -18,14 +18,14 @@ class LocOperareFactory extends Factory
     public function definition(): array
     {
         return [
-            'nume' => fake()->catchPhrase(),
+            'nume' => fake()->company(),
             'tara_id' => fake()->numberBetween(1, 193),
             'judet' => fake()->city(),
             'oras' => fake()->city(),
             'adresa' => fake()->address(),
             'cod_postal' => fake()->numberBetween(100000, 999999),
             'persoana_contact' => fake()->name(),
-            'telefon' => fake()->e164PhoneNumber(),
+            'telefon' => '07' . fake()->numberBetween(10000000, 99999999),
             'observatii' => fake()->text(),
             'created_at' => now(),
             'updated_at' => now(),

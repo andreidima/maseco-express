@@ -392,7 +392,7 @@
                     <div class="col-lg-3 mb-2" style="position:relative;"
                         v-click-out="() => locuriOperareIncarcari[index] = ''"
                         >
-                        <label for="nume" class="mb-0 ps-3">Loc de încărcare @{{ index+1 }}<span class="text-danger">*</span></label>
+                        <label for="nume" class="mb-0 ps-3">Loc de descărcare @{{ index+1 }}<span class="text-danger">*</span></label>
                         <small v-if="(locuriOperareIncarcari[index]) && (locuriOperareIncarcari[index].length >= 100)" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
                         <input
                             type="hidden"
@@ -611,8 +611,8 @@
                     name="observatii" rows="3">{{ old('observatii', $comanda->observatii) }}</textarea>
             </div>
         </div> --}}
-        <div class="row">
-            <div class="col-lg-12 mb-4 d-flex justify-content-center">
+        <div class="row py-4">
+            <div class="col-lg-12 mb-0 d-flex justify-content-center">
                 <button type="submit" ref="submit" class="btn btn-lg btn-primary text-white me-3 rounded-3">{{ $buttonText }}</button>
                 <a class="btn btn-lg btn-secondary rounded-3" href="{{ Session::get('ComandaReturnUrl') }}">Renunță</a>
             </div>
