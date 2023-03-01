@@ -388,7 +388,7 @@
                 <span class="fs-4 badge text-white" style="background-color:#2196F3;">Incărcări</span>
             </div>
             <div class="col-lg-12 mb-4">
-                <div class="row align-items-start mb-0" v-for="(incarcare, index) in incarcari" :key="incarcare">
+                <div class="row align-items-start mb-2" v-for="(incarcare, index) in incarcari" :key="incarcare" style="border:2px solid #2196F3;">
                     <div class="col-lg-3 mb-2" style="position:relative;"
                         v-click-out="() => locuriOperareIncarcari[index] = ''"
                         >
@@ -433,6 +433,14 @@
                         </div>
                         <small v-if="!incarcari[index].nume || (incarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
                     </div>
+                    <div class="col-lg-3 mb-2">
+                        <label for="adresa" class="mb-0 ps-3">Adresa</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('adresa') ? 'is-invalid' : '' }}"
+                            :name="'incarcari[' + index + '][adresa]'"
+                            v-model="incarcari[index].adresa">
+                    </div>
                     <div class="col-lg-2 mb-2">
                         <label for="oras" class="mb-0 ps-3">Oraș</label>
                         <input
@@ -462,24 +470,39 @@
                             :latime="{ width: '170px' }"
                         ></vue-datepicker-next>
                     </div>
-                    <div class="col-lg-2 mb-2">
-                        <label for="observatii" class="mb-0 ps-3">Observații</label>
-                        <input
-                            type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
-                            :name="'incarcari[' + index + '][pivot][observatii]'"
-                            v-model="incarcari[index].pivot.observatii">
-                    </div>
-                    <div class="col-lg-1">
-                        <br>
-                        <button type="btn" title="Șterge încărcarea" class="btn btn-danger" @click="this.incarcari.splice(index, 1);">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-5 mb-2">
+                                <label for="observatii" class="form-label mb-0 ps-3">Observații</label>
+                                <textarea class="form-control bg-white {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
+                                    rows="2"
+                                    :name="'incarcari[' + index + '][pivot][observatii]'"
+                                    v-model="incarcari[index].pivot.observatii">
+                                </textarea>
+                            </div>
+                            <div class="col-lg-5 mb-2">
+                                <label for="referinta" class="form-label mb-0 ps-3">Referință</label>
+                                <textarea class="form-control bg-white {{ $errors->has('referinta') ? 'is-invalid' : '' }}"
+                                    rows="2"
+                                    :name="'incarcari[' + index + '][pivot][referinta]'"
+                                    v-model="incarcari[index].pivot.referinta">
+                                </textarea>
+                            </div>
+                            <div class="col-lg-2 mb-3 d-flex justify-content-center align-items-end">
+                                <br>
+                                {{-- <button type="btn" title="Șterge descărcarea" class="btn btn-danger" @click="this.incarcari.splice(index, 1);">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button> --}}
+                                <button type="btn" title="Șterge descărcarea" class="btn btn-danger" @click="this.incarcari.splice(index, 1);">
+                                    <span class="badge bg-danger">Șterge încărcarea</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-lg-12 d-flex justify-content-center py-1">
-                        <button type="button" class="btn btn-success text-white" @click="adaugaIncarcareGoala()">Adaugă încărcare</button>
+                        <button type="button" class="btn btn-primary text-white" @click="adaugaIncarcareGoala()">Adaugă încărcare</button>
                     </div>
                 </div>
                 {{-- <div style="flex" class="">
@@ -499,7 +522,7 @@
                 <span class="fs-4 badge text-white" style="background-color:mediumseagreen;">Descărcări</span>
             </div>
             <div class="col-lg-12 mb-4">
-                <div class="row align-items-start mb-0" v-for="(descarcare, index) in descarcari" :key="descarcare">
+                <div class="row align-items-start mb-2" v-for="(descarcare, index) in descarcari" :key="descarcare" style="border:2px solid mediumseagreen;">
                     <div class="col-lg-3 mb-2" style="position:relative;"
                         v-click-out="() => locuriOperareDescarcari[index] = ''"
                         >
@@ -532,6 +555,7 @@
                                     v-on:click="
                                         descarcari[index].id = locOperare.id;
                                         descarcari[index].nume = locOperare.nume;
+                                        descarcari[index].adresa = locOperare.adresa;
                                         descarcari[index].oras = locOperare.oras;
                                         descarcari[index].tara.nume = locOperare.tara.nume;
 
@@ -542,6 +566,14 @@
                             </div>
                         </div>
                         <small v-if="!descarcari[index].nume || (descarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
+                    </div>
+                    <div class="col-lg-3 mb-2">
+                        <label for="adresa" class="mb-0 ps-3">Adresa</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('adresa') ? 'is-invalid' : '' }}"
+                            :name="'descarcari[' + index + '][adresa]'"
+                            v-model="descarcari[index].adresa">
                     </div>
                     <div class="col-lg-2 mb-2">
                         <label for="oras" class="mb-0 ps-3">Oraș</label>
@@ -571,19 +603,34 @@
                             :latime="{ width: '170px' }"
                         ></vue-datepicker-next>
                     </div>
-                    <div class="col-lg-2 mb-2">
-                        <label for="observatii" class="mb-0 ps-3">Observații</label>
-                        <input
-                            type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
-                            :name="'descarcari[' + index + '][pivot][observatii]'"
-                            v-model="descarcari[index].pivot.observatii">
-                    </div>
-                    <div class="col-lg-1">
-                        <br>
-                        <button type="btn" title="Șterge descărcarea" class="btn btn-danger" @click="this.descarcari.splice(index, 1);">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                    <div class="col-lg-12">
+                        <div class="row">
+                            <div class="col-lg-5 mb-2">
+                                <label for="observatii" class="form-label mb-0 ps-3">Observații</label>
+                                <textarea class="form-control bg-white {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
+                                    rows="2"
+                                    :name="'descarcari[' + index + '][pivot][observatii]'"
+                                    v-model="descarcari[index].pivot.observatii">
+                                </textarea>
+                            </div>
+                            <div class="col-lg-5 mb-2">
+                                <label for="referinta" class="form-label mb-0 ps-3">Referință</label>
+                                <textarea class="form-control bg-white {{ $errors->has('referinta') ? 'is-invalid' : '' }}"
+                                    rows="2"
+                                    :name="'descarcari[' + index + '][pivot][referinta]'"
+                                    v-model="descarcari[index].pivot.referinta">
+                                </textarea>
+                            </div>
+                            <div class="col-lg-2 mb-3 d-flex justify-content-center align-items-end">
+                                <br>
+                                {{-- <button type="btn" title="Șterge descărcarea" class="btn btn-danger" @click="this.descarcari.splice(index, 1);">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button> --}}
+                                <button type="btn" title="Șterge descărcarea" class="btn btn-danger" @click="this.descarcari.splice(index, 1);">
+                                    <span class="badge bg-danger">Șterge descărcarea</span>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="row">

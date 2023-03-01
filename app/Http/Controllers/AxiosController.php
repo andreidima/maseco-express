@@ -17,7 +17,7 @@ class AxiosController extends Controller
         $raspuns = '';
         switch ($_GET['request']) {
             case 'locuriOperare':
-                $raspuns = LocOperare::select('id', 'nume', 'oras', 'tara_id')
+                $raspuns = LocOperare::select('id', 'nume', 'oras', 'tara_id', 'adresa')
                     ->with('tara')
                     ->where('nume', 'like', '%' . $request->nume . '%')
                     ->orderBy('nume')

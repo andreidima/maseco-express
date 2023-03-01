@@ -151,6 +151,7 @@
                             <th class="">Transportator</th>
                             <th class="">Client</th>
                             <th class="">Zile scadente Ctr. Client</th>
+                            <th class="text-center">Contract</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -174,6 +175,13 @@
                                 </td>
                                 <td class="">
                                     {{ $comanda->client_zile_scadente }}
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        <a href="{{ $comanda->path() }}/export-html" class="flex me-1">
+                                            <span class="badge bg-success">Contract</span>
+                                        </a>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-end">

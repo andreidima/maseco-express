@@ -17,10 +17,10 @@ class Comanda extends Model
         return "/comenzi/{$this->id}";
     }
 
-    // public function user()
-    // {
-    //     return $this->belongsTo(User::class);
-    // }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function client()
     {
@@ -32,6 +32,16 @@ class Comanda extends Model
         return $this->belongsTo(Firma::class, 'transportator_transportator_id');
     }
 
+    public function camion()
+    {
+        return $this->belongsTo(Camion::class, 'camion_id');
+    }
+
+    public function transportatorMetodaDePlata()
+    {
+        return $this->belongsTo(MetodaDePlata::class, 'transportator_metoda_de_plata_id');
+    }
+
     public function istoricuri()
     {
         return $this->hasMany(ComandaIstoric::class, 'id');
@@ -39,7 +49,7 @@ class Comanda extends Model
 
     public function locuriOperare()
     {
-        return $this->belongsToMany(LocOperare::class, 'comenzi_locuri_operare', 'comanda_id', 'loc_operare_id')->with('tara')->withPivot('data_ora', 'observatii');
+        return $this->belongsToMany(LocOperare::class, 'comenzi_locuri_operare', 'comanda_id', 'loc_operare_id')->with('tara')->withPivot('data_ora', 'observatii', 'referinta');
     }
 
     public function locuriOperareIncarcari()

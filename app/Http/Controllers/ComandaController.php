@@ -74,6 +74,7 @@ class ComandaController extends Controller
         $comanda->transportator_tarif_pe_km = 0;
         $comanda->client_limba_id = 1; // Romana
         $comanda->client_tarif_pe_km = 0;
+        $comanda->user_id = $request->user()->id;
         $comanda->save();
 
         return redirect( $comanda->path() . '/modifica');
@@ -245,16 +246,16 @@ class ComandaController extends Controller
             // 2. Daca nu sunt duplicate in locatiile vechi din baza de date, se verifica daca exista in cele ce urmeaza a fi introduse
             if (!(isset($existaDuplicateInLocatiileVechi) && ($existaDuplicateInLocatiileVechi > 0))){
                 $temp_array = [];
-                if ((count($request->incarcari) > 0) || (count($request->descarcari) > 0)) {
-                    for ($i = 0; $i < count($request->incarcari); $i++) {
-                        // echo $i . "<br>";
-                        $temp_array[$i] = ($request->incarcari[$i]['id']);
+                if (($request->incarcari && (count($request->incarcari) > 0)) || ($request->descarcari && (count($request->descarcari) > 0))) {
+                    if ($request->incarcari){
+                        for ($i = 0; $i < count($request->incarcari); $i++) {
+                            $temp_array[$i] = ($request->incarcari[$i]['id']);
+                        }
                     }
-                    for ($i = 0; $i < count($request->descarcari); $i++) {
-                        // echo count($temp_array) . "<br>" . $i;
-                        // dd($temp_array);
-                        // dd('stop');
-                        $temp_array[count($temp_array) ?? 0] = ($request->descarcari[$i]['id']);
+                    if ($request->descarcari){
+                        for ($i = 0; $i < count($request->descarcari); $i++) {
+                            $temp_array[count($temp_array) ?? 0] = ($request->descarcari[$i]['id']);
+                        }
                     }
                     $temp_array = array_unique($temp_array);
                     $existaDuplicateInLocatiileNoi = sizeof($temp_array) != (sizeof($request->incarcari) + sizeof($request->descarcari));
@@ -264,22 +265,32 @@ class ComandaController extends Controller
             // Daca exista duplicate, in locatiile vechi sau noi, se creaza un array, cu index incepand cu 0, care la sync va sterge toate lociile vechi si apoi va readauga toate locatiile noi
             // Daca nu exista duplicate, se creaza un array, cu index id-ul locatiilor, care la sync va face update doar daca este cazul
             if ((isset($existaDuplicateInLocatiileVechi) && ($existaDuplicateInLocatiileVechi)) || (isset($existaDuplicateInLocatiileNoi) && ($existaDuplicateInLocatiileNoi))) {
-                for ($i = 0; $i < count($request->incarcari); $i++) {
-                    $locatii_id_array[$i] = ['loc_operare_id' => intval($request->incarcari[$i]['id']), 'tip' => 1, 'ordine' => $i+1, 'data_ora' => $request->incarcari[$i]['pivot']['data_ora'], 'observatii' => $request->incarcari[$i]['pivot']['observatii']];
+                if ($request->incarcari){
+                    for ($i = 0; $i < count($request->incarcari); $i++) {
+                        $locatii_id_array[$i] = ['loc_operare_id' => intval($request->incarcari[$i]['id']), 'tip' => 1, 'ordine' => $i+1, 'data_ora' => $request->incarcari[$i]['pivot']['data_ora'], 'observatii' => $request->incarcari[$i]['pivot']['observatii'], 'referinta' => $request->incarcari[$i]['pivot']['referinta']];
+                    }
                 }
-                for ($i = 0; $i < count($request->descarcari); $i++) {
-                    $locatii_id_array[count($locatii_id_array)] = ['loc_operare_id' => intval($request->descarcari[$i]['id']), 'tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii']];
+                if ($request->descarcari){
+                    for ($i = 0; $i < count($request->descarcari); $i++) {
+                        $locatii_id_array[count($locatii_id_array)] = ['loc_operare_id' => intval($request->descarcari[$i]['id']), 'tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii'], 'referinta' => $request->descarcari[$i]['pivot']['referinta']];
+                    }
                 }
             } else {
-                for ($i = 0; $i < count($request->incarcari); $i++) {
-                    $locatii_id_array[$request->incarcari[$i]['id']] = ['tip' => 1, 'ordine' => $i+1, 'data_ora' => $request->incarcari[$i]['pivot']['data_ora'], 'observatii' => $request->incarcari[$i]['pivot']['observatii']];
+                if ($request->incarcari){
+                    for ($i = 0; $i < count($request->incarcari); $i++) {
+                        $locatii_id_array[$request->incarcari[$i]['id']] = ['tip' => 1, 'ordine' => $i+1, 'data_ora' => $request->incarcari[$i]['pivot']['data_ora'], 'observatii' => $request->incarcari[$i]['pivot']['observatii'], 'referinta' => $request->incarcari[$i]['pivot']['referinta']];
+                    }
                 }
-                for ($i = 0; $i < count($request->descarcari); $i++){
-                    $locatii_id_array[$request->descarcari[$i]['id']] = ['tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii']];
+                if ($request->descarcari){
+                    for ($i = 0; $i < count($request->descarcari); $i++){
+                        $locatii_id_array[$request->descarcari[$i]['id']] = ['tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii'], 'referinta' => $request->descarcari[$i]['pivot']['referinta']];
+                    }
                 }
             }
-                // dd($locatii_id_array);
-            $comanda->locuriOperare()->sync($locatii_id_array);
+
+            if (isset($locatii_id_array)){
+                $comanda->locuriOperare()->sync($locatii_id_array);
+            }
 
 
 
@@ -386,31 +397,16 @@ class ComandaController extends Controller
         );
     }
 
-    // public function restaurareIstoric(Request $request, Comanda $comanda = null, ComandaIstoric $comanda_istoric = null){
-    //     $comanda->nume = $comanda_istoric->nume;
-    //     $comanda->telefon = $comanda_istoric->telefon;
-    //     $comanda->adresa = $comanda_istoric->adresa;
-    //     $comanda->status = $comanda_istoric->status;
-    //     $comanda->intrare = $comanda_istoric->intrare;
-    //     $comanda->lansare = $comanda_istoric->lansare;
-    //     $comanda->oferta_pret = $comanda_istoric->oferta_pret;
-    //     $comanda->avans = $comanda_istoric->avans;
-    //     $comanda->observatii = $comanda_istoric->observatii;
-    //     $comanda->user_id = $comanda_istoric->user_id;
-
-    //     $comanda->save();
-
-    //     // Salvare in istoric
-    //     if ($comanda->wasChanged()){
-    //         $comanda_istoric = new ComandaIstoric;
-    //         $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-    //         $comanda_istoric->operatie = 'Modificare';
-    //         $comanda_istoric->operatie_user_id = auth()->user()->id ?? null;
-    //         $comanda_istoric->save();
-    //         return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . ($comanda->nume ?? '') . '” a fost restaurată cu succes!');
-    //     } else {
-    //         return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('warning', 'Comanda „' . ($comanda->nume ?? '') . '” nu a avut nimic de restaurat!');
-    //     }
-
-    // }
+    public function comandaExportPDF(Request $request, Comanda $comanda)
+    {
+        if ($request->view_type === 'export-html') {
+            return view('comenzi.export.comandaPdf', compact('comanda'));
+        } elseif ($request->view_type === 'export-pdf') {
+            $pdf = \PDF::loadView('comenzi.export.comandaPdf', compact('comanda'))
+                ->setPaper('a4', 'portrait');
+            $pdf->getDomPDF()->set_option("enable_php", true);
+            // return $pdf->download('Contract ' . $comanda->transportator_contract . '.pdf');
+            return $pdf->stream();
+        }
+    }
 }
