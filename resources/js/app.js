@@ -10,6 +10,7 @@ import '../sass/app.scss'
 import '../css/andrei.css'
 
 import { createApp } from 'vue';
+// import { createApp } from 'vue/dist/vue.esm-bundler.js'
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
