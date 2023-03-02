@@ -45,6 +45,11 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item me-3">
+                            <a class="nav-link active" aria-current="page" href="/comenzi">
+                                <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
+                            </a>
+                        </li>
+                        <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/firme/clienti">
                                 <i class="fa-solid fa-users me-1"></i>Clienți
                             </a>
@@ -62,11 +67,6 @@
                         <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/locuri-operare">
                                 <i class="fa-solid fa-location-dot me-1"></i>Locuri de operare
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/comenzi">
-                                <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
                             </a>
                         </li>
                         <li class="nav-item me-3 dropdown">

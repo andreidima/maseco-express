@@ -151,6 +151,7 @@
                             <th class="">Transportator</th>
                             <th class="">Client</th>
                             <th class="">Zile scadente Ctr. Client</th>
+                            <th class="text-center">Status</th>
                             <th class="text-center">Contract</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
@@ -178,7 +179,16 @@
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center">
-                                        <a href="{{ $comanda->path() }}/export-html" class="flex me-1">
+                                        <a data-bs-toggle="collapse" href="#status{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="Status">
+                                            <span class="badge bg-primary">
+                                                <i class="fa-solid fa-arrows-up-down" style=""></i>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        <a href="{{ $comanda->path() }}/export-pdf" target="_blank" class="flex me-1">
                                             <span class="badge bg-success">Contract</span>
                                         </a>
                                     </div>
@@ -198,6 +208,49 @@
                                                 <span class="badge bg-danger">Șterge</span>
                                             </a>
                                         </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr></tr>
+                            <tr class="collapse" id="status{{ $comanda->id }}">
+                                <td colspan="9">
+                                    <div class="row">
+                                    <div class="col-lg-8 table-responsive rounded mx-auto">
+                                        <table class="table table-striped table-hover rounded">
+                                            <thead class="text-white rounded culoare2">
+                                                <tr class="" style="padding:2rem">
+                                                    <th class="">#</th>
+                                                    <th class="">Data</th>
+                                                    <th class="">Ora</th>
+                                                    <th class="">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            @forelse ($comanda->statusuri as $status)
+                                                <tr>
+                                                    <td>
+                                                        {{ $loop->iteration }}
+                                                    </td>
+                                                    <td>
+                                                        {{ \Carbon\Carbon::parse($status->created_at)->isoFormat('DD.MM.YYYY') }}
+                                                    </td>
+                                                    <td>
+                                                        {{ \Carbon\Carbon::parse($status->created_at)->isoFormat('HH:mm') }}
+                                                    </td>
+                                                    <td>
+                                                        {{ $status->status }}
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="3" style="text-align:center">
+                                                        Nu există „statusuri” adăugate în baza de date pentru această comandă.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
                                     </div>
                                 </td>
                             </tr>
