@@ -69,33 +69,6 @@
                                 <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
                             </a>
                         </li>
-                        {{-- <li class="nav-item me-3 dropdown">
-                            <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-calendar-check me-1"></i>
-                                Programări
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li>
-                                    <form class="needs-validation" novalidate method="GET" action="/programari">
-                                        <input type="hidden" name="search_data" value="{{ \Carbon\Carbon::now()->todatestring() }}">
-                                        <button class="dropdown-item btn btn-link" href="programari" type="submit">
-                                            Azi
-                                        </button>
-                                    </form>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/programari">
-                                        Toate
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/programari/afisare-calendar">
-                                <i class="fa-solid fa-calendar-days me-1"></i>Calendar
-                            </a>
-                        </li>
                         <li class="nav-item me-3 dropdown">
                             <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-bars me-1"></i>
@@ -107,14 +80,8 @@
                                         SMS trimise
                                     </a>
                                 </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('zile-nelucratoare.index') }}">
-                                        Zile nelucrătoare
-                                    </a>
-                                </li>
                             </div>
-                        </li> --}}
+                        </li>
                     </ul>
                     </ul>
 

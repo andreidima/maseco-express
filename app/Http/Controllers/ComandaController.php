@@ -75,6 +75,7 @@ class ComandaController extends Controller
         $comanda->client_limba_id = 1; // Romana
         $comanda->client_tarif_pe_km = 0;
         $comanda->user_id = $request->user()->id;
+        $comanda->cheie_unica = uniqid();
         $comanda->save();
 
         return redirect( $comanda->path() . '/modifica');
@@ -258,7 +259,7 @@ class ComandaController extends Controller
                         }
                     }
                     $temp_array = array_unique($temp_array);
-                    $existaDuplicateInLocatiileNoi = sizeof($temp_array) != (sizeof($request->incarcari) + sizeof($request->descarcari));
+                    $existaDuplicateInLocatiileNoi = sizeof($temp_array) != (sizeof($request->incarcari ?? []) + sizeof($request->descarcari ?? []));
                 }
             }
 // dd($existaDuplicateInLocatiileNoi);
@@ -272,7 +273,7 @@ class ComandaController extends Controller
                 }
                 if ($request->descarcari){
                     for ($i = 0; $i < count($request->descarcari); $i++) {
-                        $locatii_id_array[count($locatii_id_array)] = ['loc_operare_id' => intval($request->descarcari[$i]['id']), 'tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii'], 'referinta' => $request->descarcari[$i]['pivot']['referinta']];
+                        $locatii_id_array[count($locatii_id_array ?? [])] = ['loc_operare_id' => intval($request->descarcari[$i]['id']), 'tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii'], 'referinta' => $request->descarcari[$i]['pivot']['referinta']];
                     }
                 }
             } else {
