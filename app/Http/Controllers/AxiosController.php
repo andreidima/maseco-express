@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\LocOperare;
+use App\Models\ComandaStatus;
+use Carbon\Carbon;
 
 class AxiosController extends Controller
 {
@@ -29,6 +31,25 @@ class AxiosController extends Controller
         }
         return response()->json([
             'raspuns' => $raspuns,
+        ]);
+    }
+
+    public function statusuri(Request $request)
+    {
+        $statusuri = ComandaStatus::
+            with('comanda:id,transportator_contract')
+            // ->whereDate('created_at', '>',  Carbon::today()->subDays(5)) // statusurile din ultimele 3 zile
+            ->take(25)
+            ->latest()
+            ->get();
+
+        foreach ($statusuri as $status){
+            $status->data = Carbon::parse($status->created_at)->isoFormat('DD.MM.YYYY');
+            $status->ora = Carbon::parse($status->created_at)->isoFormat('HH:mm');
+        }
+
+        return response()->json([
+            'raspuns' => $statusuri,
         ]);
     }
 }

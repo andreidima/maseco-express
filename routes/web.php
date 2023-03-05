@@ -49,4 +49,5 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Extras date cu Axios
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);
+    Route::get('/axios/statusuri', [AxiosController::class, 'statusuri']);
 });

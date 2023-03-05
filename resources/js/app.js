@@ -310,3 +310,40 @@ if (document.getElementById('formularComanda') != null) {
     formularComanda.mount('#formularComanda');
 }
 
+
+// Incarcare statusuri in pagina principala
+const statusuri = createApp({
+    el: '#statusuri',
+    data() {
+        return {
+            statusuri: [],
+            timer: null
+        }
+    },
+    created: function () {
+        this.getStatusuri();
+    },
+    mounted: function () {
+        this.timer = setInterval(() => {
+            this.getStatusuri();
+        }, 3000)
+    },
+    beforeUnmount() {
+        clearInterval(this.timer)
+    },
+    methods: {
+        getStatusuri() {
+            // this.statusuri = [];
+                axios.get('/axios/statusuri', {
+                    params: {}
+                })
+                    .then(
+                        response => (this.statusuri = response.data.raspuns)
+                    );
+        },
+    }
+});
+
+if (document.getElementById('statusuri') != null) {
+    statusuri.mount('#statusuri');
+}
