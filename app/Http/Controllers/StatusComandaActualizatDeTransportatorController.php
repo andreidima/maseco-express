@@ -22,7 +22,7 @@ class StatusComandaActualizatDeTransportatorController extends Controller
             })
             ->first();
 
-        return view('comenziStatusuri.actualizateDeTransportator.cerereStatusComanda', compact('comanda'));
+        return view('comenziStatusuri.actualizateDeTransportator.cerereStatusComanda', compact('comanda', 'recipient'));
     }
 
     public function salvareStatusComanda(Request $request, $recipient, $cheie_unica)
@@ -69,6 +69,6 @@ class StatusComandaActualizatDeTransportatorController extends Controller
             })
             ->first();
 
-        return view('comenziStatusuri.actualizateDeTransportator.afisareStatusComanda', compact('comanda'));
+        return view('comenziStatusuri.actualizateDeTransportator.afisareStatusComanda', compact('comanda', 'recipient'));
     }
 }
