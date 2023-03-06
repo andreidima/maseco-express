@@ -21,7 +21,7 @@
                     <table class="table table-striped table-hover rounded">
                         <thead class="text-white rounded culoare2">
                             <tr>
-                                <th colspan="8" class="text-center">Ultimele 50 de statusuri de comenzi - se actualizează în timp real fără să necesite refreshul paginii</th>
+                                <th colspan="9" class="text-center">Ultimele 50 de statusuri de comenzi - se actualizează în timp real fără să necesite refreshul paginii</th>
                             </tr>
                             <tr class="" style="padding:2rem">
                                 <th class="">#</th>
@@ -30,6 +30,7 @@
                                 <th class="">Persoană de contact</th>
                                 <th class="">Telefon</th>
                                 <th class="">Status</th>
+                                <th class="">Primit de la</th>
                                 <th class="text-center">Ora</th>
                                 <th class="text-center">Data</th>
                             </tr>
@@ -56,6 +57,9 @@
                                 </td>
                                 <td>
                                     @{{ status.status }}
+                                </td>
+                                <td>
+                                    @{{ status.recipient }}
                                 </td>
                                 <td class="text-center">
                                     @{{ status.ora }}
