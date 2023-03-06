@@ -49,7 +49,7 @@ class StatusComandaActualizatDeTransportatorController extends Controller
             $statusComanda->save();
         }
 
-        return redirect('afisare-status-comanda/' .$cheie_unica);
+        return redirect('afisare-status-comanda/' . $recipient . '/' .$cheie_unica);
     }
 
     public function afisareStatusComanda(Request $request, $recipient, $cheie_unica)
