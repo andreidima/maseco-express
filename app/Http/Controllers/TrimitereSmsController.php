@@ -25,24 +25,29 @@ class TrimitereSmsController extends Controller
                     $query->where('data_ora', '<=', Carbon::now()->todatetimestring());
                 })
                 ->whereHas('locuriOperareDescarcari', function($query){
-                    $query->where('data_ora', '>=', Carbon::now()->todatetimestring());
+                    $query->where('data_ora', '>=', Carbon::now()->subMinutes(4)->todatetimestring());
                 })
+                // ->whereDoesntHave('statusuri', function $query){
+                //     $query->
+                // })
                 ->get();
-// foreach ($comenzi as $comanda){
-//     echo $comanda->id . '<br>';
-//     foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
-//         echo $locOperareIncarcare->pivot->ordine . '. ' . $locOperareIncarcare->pivot->data_ora . '<br>';
-//     }
-//     echo '<br><br>';
-//     foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
-//         echo $locOperareDescarcare->pivot->ordine . '. ' . $locOperareDescarcare->pivot->data_ora . '<br>';
-//     }
-//     echo '<br><br><br>';
-// }
-// dd('stop');
+
+                // Afisare in pagina pentru debug
+                // foreach ($comenzi as $comanda){
+                //     echo $comanda->id . '<br>';
+                //     foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
+                //         echo $locOperareIncarcare->pivot->ordine . '. ' . $locOperareIncarcare->pivot->data_ora . '<br>';
+                //     }
+                //     echo '<br><br>';
+                //     foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
+                //         echo $locOperareDescarcare->pivot->ordine . '. ' . $locOperareDescarcare->pivot->data_ora . '<br>';
+                //     }
+                //     echo '<br><br><br>';
+                // }
+                // dd('stop');
 
             foreach ($comenzi as $comanda){
-                $mesaj = 'Vă rugăm accesati ' . url('/cerere-status-comanda/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
+                $mesaj = 'Vă rugăm accesati ' . url('/cerere-status-comanda/sofer/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
                             ' Multumim, Maseco Expres!';
                 $this->trimiteSms('Comenzi', 'Status', $comanda->id, [$comanda->transportator->telefon ?? ''], $mesaj);
             }

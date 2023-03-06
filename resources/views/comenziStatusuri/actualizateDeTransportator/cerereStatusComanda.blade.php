@@ -31,7 +31,7 @@
                 @include ('errors')
 
                 @if (isset($comanda))
-                    <form class="needs-validation d-grid px-1" novalidate method="POST" action="/salvare-status-comanda/{{$comanda->cheie_unica}}">
+                    <form class="needs-validation d-grid px-1" novalidate method="POST" action="/salvare-status-comanda/{{$recipient}}/{{$comanda->cheie_unica}}">
                         <div class="row align-items-center">
                             <div class="col-lg-12 mb-2">
                                 Transportator: {{ $comanda->transportator->nume }}

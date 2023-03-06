@@ -27,7 +27,7 @@
                                 <th class="">#</th>
                                 <th class="">Comanda</th>
                                 <th class="">Transportator</th>
-                                <th class="">Persoană contact</th>
+                                <th class="">Persoană de contact</th>
                                 <th class="">Telefon</th>
                                 <th class="">Status</th>
                                 <th class="text-center">Ora</th>

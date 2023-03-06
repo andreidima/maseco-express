@@ -27,9 +27,9 @@ Auth::routes(['register' => false, 'password.request' => false, 'reset' => false
 // Trimitere Cron joburi din Cpanel
 Route::any('/cron-jobs/trimitere-automata-sms-cerere-status-comanda/{key}', [TrimitereSmsController::class, 'cronJobTrimitereAutomataSmsCerereStatusComanda']);
 
-Route::get('cerere-status-comanda/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'cerereStatusComanda']);
-Route::post('salvare-status-comanda/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'salvareStatusComanda']);
-Route::get('afisare-status-comanda/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'afisareStatusComanda']);
+Route::get('cerere-status-comanda/{recipient}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'cerereStatusComanda']);
+Route::post('salvare-status-comanda/{recipient}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'salvareStatusComanda']);
+Route::get('afisare-status-comanda/{recipient}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'afisareStatusComanda']);
 
 
 Route::redirect('/', '/acasa');

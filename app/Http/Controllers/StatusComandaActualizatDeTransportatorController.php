@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class StatusComandaActualizatDeTransportatorController extends Controller
 {
-    public function cerereStatusComanda(Request $request, $cheie_unica)
+    public function cerereStatusComanda(Request $request, $recipient, $cheie_unica)
     {
         // se verifica pe langa cheia unica, si daca comanda mai este valabila, mai este in tranzit
         $comanda = Comanda::where('cheie_unica', $cheie_unica)
@@ -25,7 +25,7 @@ class StatusComandaActualizatDeTransportatorController extends Controller
         return view('comenziStatusuri.actualizateDeTransportator.cerereStatusComanda', compact('comanda'));
     }
 
-    public function salvareStatusComanda(Request $request, $cheie_unica)
+    public function salvareStatusComanda(Request $request, $recipient, $cheie_unica)
     {
         $validated = $request->validate([
             'raspuns' => 'required|max:2000',
@@ -45,13 +45,14 @@ class StatusComandaActualizatDeTransportatorController extends Controller
             $statusComanda = new ComandaStatus;
             $statusComanda->comanda_id = $comanda->id;
             $statusComanda->status = $request->raspuns;
+            $statusComanda->recipient = $recipient;
             $statusComanda->save();
         }
 
         return redirect('afisare-status-comanda/' .$cheie_unica);
     }
 
-    public function afisareStatusComanda(Request $request, $cheie_unica)
+    public function afisareStatusComanda(Request $request, $recipient, $cheie_unica)
     {
         // se verifica pe langa cheia unica, si daca comanda mai este valabila, mai este in tranzit
         $comanda = Comanda::

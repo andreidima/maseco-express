@@ -392,7 +392,7 @@
                     <div class="col-lg-3 mb-2" style="position:relative;"
                         v-click-out="() => locuriOperareIncarcari[index] = ''"
                         >
-                        <label for="nume" class="mb-0 ps-3">Loc de descărcare @{{ index+1 }}<span class="text-danger">*</span></label>
+                        <label for="nume" class="mb-0 ps-3">Loc de încărcare @{{ index+1 }}<span class="text-danger">*</span></label>
                         <small v-if="(locuriOperareIncarcari[index]) && (locuriOperareIncarcari[index].length >= 100)" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
                         <input
                             type="hidden"
@@ -526,7 +526,7 @@
                     <div class="col-lg-3 mb-2" style="position:relative;"
                         v-click-out="() => locuriOperareDescarcari[index] = ''"
                         >
-                        <label for="nume" class="mb-0 ps-3">Loc de încărcare @{{ index+1 }}<span class="text-danger">*</span></label>
+                        <label for="nume" class="mb-0 ps-3">Loc de descărcare @{{ index+1 }}<span class="text-danger">*</span></label>
                         <small v-if="(locuriOperareDescarcari[index]) && (locuriOperareDescarcari[index].length >= 100)" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
                         <input
                             type="hidden"
