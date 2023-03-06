@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Comanda;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -16,7 +17,9 @@ class ComandaStatus extends Mailable
     /**
      * Create a new message instance.
      */
-    public function __construct()
+    public function __construct(
+        public Comanda $comanda,
+    )
     {
         //
     }
@@ -27,7 +30,7 @@ class ComandaStatus extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Comanda Status',
+            subject: 'Cerere Status Comandă' . $comanda->transportator_contract,
         );
     }
 
@@ -37,7 +40,7 @@ class ComandaStatus extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emailuri.comenzi.status',
         );
     }
 
