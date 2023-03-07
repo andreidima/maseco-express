@@ -30,7 +30,7 @@
                                 <th class="">Persoană de contact</th>
                                 <th class="">Telefon</th>
                                 <th class="">Status</th>
-                                <th class="">Primit de la</th>
+                                <th class="">Status de la</th>
                                 <th class="text-center">Ora</th>
                                 <th class="text-center">Data</th>
                             </tr>
@@ -43,11 +43,14 @@
                                 <td>
                                     {{-- @{{ status.comanda.transportator_contract }} --}}
                                     <a :href="'/comenzi/' + (status.comanda ? status.comanda.id : '') + '/modifica'" class="flex me-1">
-                                        <span class="badge bg-primary">@{{ status.comanda ? status.comanda.transportator_contract : '' }}</span>
+                                        <span class="badge bg-success">@{{ status.comanda ? status.comanda.transportator_contract : '' }}</span>
                                     </a>
                                 </td>
                                 <td>
-                                    @{{ (status.comanda ? status.comanda.transportator.nume : '') }}
+                                    {{-- @{{ (status.comanda ? status.comanda.transportator.nume : '') }} --}}
+                                    <a :href="'/firme/transportatori/' + (status.comanda ? status.comanda.transportator.id : '') + '/modifica'" class="flex me-1">
+                                        <span class="badge bg-primary">@{{ status.comanda ? status.comanda.transportator.nume : '' }}</span>
+                                    </a>
                                 </td>
                                 <td>
                                     @{{ (status.comanda ? status.comanda.transportator.persoana_contact : '') }}
