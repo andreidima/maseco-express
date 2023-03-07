@@ -26,6 +26,6 @@ class ComandaStatusController extends Controller
      */
     public function index(Request $request)
     {
-        return view('comenzistatusuri.index');
+        return view('comenziStatusuri.index');
     }
 }
