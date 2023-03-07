@@ -6,7 +6,7 @@
         <div style="padding:20px 20px; max-width:760px!important;margin:0 auto; font-size:18px">
             Bună ziua, <b>{{ $comanda->client->nume ?? '' }}</b>,
             <br><br>
-            Vă rugăm să accesați <a href="/cerere-status-comanda/email/{{ $comanda->cheie_unica }}" target="_blank">{{ url('/cerere-status-comanda/email/' . $comanda->cheie_unica) }}</a>, pentru a ne transmite statusul comenzii.
+            Vă rugăm să accesați <a href="{{ url('/cerere-status-comanda/email/' . $comanda->cheie_unica) }}" target="_blank">{{ url('/cerere-status-comanda/email/' . $comanda->cheie_unica) }}</a>, pentru a ne transmite statusul comenzii.
             <br><br>
             Acesta este un mesaj automat. Vă rugăm să nu răspundeți la acest e-mail.
             <br><br>
