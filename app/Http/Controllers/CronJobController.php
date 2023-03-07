@@ -105,7 +105,7 @@ class CronJobController extends Controller
 
             foreach ($comenzi as $comanda){
                 // Trimitere email
-                Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\ComandaIncepere($comanda));
+                Mail::to('info@masecoexpres.net')->send(new \App\Mail\ComandaIncepere($comanda));
             }
 
 
