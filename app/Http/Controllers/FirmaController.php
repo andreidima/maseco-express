@@ -187,7 +187,7 @@ class FirmaController extends Controller
                 'zile_scadente' => 'nullable|numeric',
                 'persoana_contact' => 'nullable|max:500',
                 'skype' => 'nullable|max:500',
-                'email' => 'nullable|max:500',
+                'email' => 'nullable|email:rfc,dns',
                 'telefon' => 'nullable|max:500',
                 'fax' => 'nullable|max:500',
                 'website' => 'nullable|max:500',

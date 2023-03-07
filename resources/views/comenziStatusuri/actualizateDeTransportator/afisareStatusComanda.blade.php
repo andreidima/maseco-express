@@ -47,7 +47,7 @@
                             Dacă doriți, puteți oricând trimite un nou status
                         </div>
                         <div class="col-lg-12 mb-0 d-flex justify-content-center">
-                            <a href="/cerere-status-comanda/{{ $recipient }}/{{ $comanda->cheie_unica }}" class="btn btn-lg bg-primary text-white border border-dark rounded-3 shadow block">
+                            <a href="/cerere-status-comanda/{{ $modTransmitere }}/{{ $comanda->cheie_unica }}" class="btn btn-lg bg-primary text-white border border-dark rounded-3 shadow block">
                                 Trimitere status nou
                             </a>
                         </div>

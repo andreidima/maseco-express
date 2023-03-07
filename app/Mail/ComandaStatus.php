@@ -30,7 +30,7 @@ class ComandaStatus extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Cerere Status Comandă' . $comanda->transportator_contract,
+            subject: 'Cerere Status Comandă ' . $this->comanda->transportator_contract,
         );
     }
 

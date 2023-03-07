@@ -50,14 +50,28 @@
                             </a>
                         </li>
                         <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/firme/clienti">
-                                <i class="fa-solid fa-users me-1"></i>Clienți
+                            <a class="nav-link active" aria-current="page" href="/comenzi-statusuri">
+                                <i class="fa-solid fa-circle-check me-1"></i>Statusuri
                             </a>
                         </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/firme/transportatori">
-                                <i class="fa-solid fa-people-carry-box me-1"></i>Transportatori
+                        <li class="nav-item me-3 dropdown">
+                            <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-users me-1"></i>
+                                Firme
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="/firme/clienti">
+                                        <i class="fa-solid fa-users me-1"></i>Clienți
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/firme/transportatori">
+                                        <i class="fa-solid fa-people-carry-box me-1"></i>Transportatori
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/camioane">
@@ -80,9 +94,8 @@
                                         SMS trimise
                                     </a>
                                 </li>
-                            </div>
+                            </ul>
                         </li>
-                    </ul>
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -142,7 +155,7 @@
     <footer class="mt-auto py-2 text-center text-white culoare1">
         <div class="">
             <p class="mb-1">
-                © {{ config('app.name', 'Laravel') }}
+                © {{ date('Y') }} {{ config('app.name', 'Laravel') }}
             </p>
             <span class="text-white">
                 <a href="https://validsoftware.ro/dezvoltare-aplicatii-web-personalizate/" class="text-white" target="_blank">

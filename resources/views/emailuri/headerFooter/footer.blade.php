@@ -5,15 +5,14 @@
             color:black;
             ">
     <div style="padding:10px 0px; max-width:760px!important;margin:0 auto; font-size:16px">
-        Creare și mentenanță site-uri de prezentare sau magazine online
+        © {{ date('Y') }}
+            <a href="https://www.maseco-express.eu/" class="text-white" target="_blank">
+                {{ config('app.name', 'Laravel') }}
+            </a>
         <br>
-        Dezvoltare aplicații web personalizate
-        <br>
-        Realizare fotografii de produs și locație
-        <br>
-        Service software calculatoare
-        <br>
-        <br>
-        © {{ date('Y') }} ValidSoftware
+        Aplicație web dezvoltată de
+            <a href="https://validsoftware.ro/" class="text-white" target="_blank">
+                ValidSoftware
+            </a>
     </div>
 </div>

@@ -6,14 +6,15 @@ use Illuminate\Http\Request;
 
 use App\Models\Comanda;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 use App\Traits\TrimiteSmsTrait;
 
-class TrimitereSmsController extends Controller
+class CronJobController extends Controller
 {
     use TrimiteSmsTrait;
 
-    public function cronJobTrimitereAutomataSmsCerereStatusComanda($key = null)
+    public function cerereStatusComanda($key = null)
     {
         $config_key = \Config::get('variabile.cron_job_key');
         // dd($key, $config_key);
@@ -34,22 +35,37 @@ class TrimitereSmsController extends Controller
 
                 // Afisare in pagina pentru debug
                 // foreach ($comenzi as $comanda){
-                //     echo $comanda->id . '<br>';
+                //     echo 'Comanda id: ' . $comanda->id;
+                //     echo '<br>';
+                //     if (isset($comanda->transportator->email)){
+                //         echo 'Email transportator: ' . $comanda->transportator->email . '<br>';
+                //     }
+                //     echo '<br>';
+                //     echo 'Incarcari: ';
                 //     foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
-                //         echo $locOperareIncarcare->pivot->ordine . '. ' . $locOperareIncarcare->pivot->data_ora . '<br>';
+                //         echo $locOperareIncarcare->pivot->ordine . '. ' . $locOperareIncarcare->pivot->data_ora . ', ';
+                //     }
+
+                //     echo '<br>';
+
+                //     echo 'Descarcari: ';
+                //     foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
+                //         echo $locOperareDescarcare->pivot->ordine . '. ' . $locOperareDescarcare->pivot->data_ora . ', ';
                 //     }
                 //     echo '<br><br>';
-                //     foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
-                //         echo $locOperareDescarcare->pivot->ordine . '. ' . $locOperareDescarcare->pivot->data_ora . '<br>';
-                //     }
-                //     echo '<br><br><br>';
                 // }
                 // dd('stop');
 
             foreach ($comenzi as $comanda){
-                $mesaj = 'Vă rugăm accesati ' . url('/cerere-status-comanda/sofer/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
+                // Trimitere SMS
+                $mesaj = 'Vă rugăm accesati ' . url('/cerere-status-comanda/sms/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
                             ' Multumim, Maseco Expres!';
                 $this->trimiteSms('Comenzi', 'Status', $comanda->id, [$comanda->transportator->telefon ?? ''], $mesaj);
+
+                // Trimitere email
+                if (isset($comanda->transportator->email)){
+                    Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaStatus($comanda));
+                }
             }
 
 

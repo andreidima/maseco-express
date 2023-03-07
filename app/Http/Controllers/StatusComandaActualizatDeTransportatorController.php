@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class StatusComandaActualizatDeTransportatorController extends Controller
 {
-    public function cerereStatusComanda(Request $request, $recipient, $cheie_unica)
+    public function cerereStatusComanda(Request $request, $modTransmitere, $cheie_unica)
     {
         // se verifica pe langa cheia unica, si daca comanda mai este valabila, mai este in tranzit
         $comanda = Comanda::where('cheie_unica', $cheie_unica)
@@ -22,10 +22,10 @@ class StatusComandaActualizatDeTransportatorController extends Controller
             })
             ->first();
 
-        return view('comenziStatusuri.actualizateDeTransportator.cerereStatusComanda', compact('comanda', 'recipient'));
+        return view('comenziStatusuri.actualizateDeTransportator.cerereStatusComanda', compact('comanda', 'modTransmitere'));
     }
 
-    public function salvareStatusComanda(Request $request, $recipient, $cheie_unica)
+    public function salvareStatusComanda(Request $request, $modTransmitere, $cheie_unica)
     {
         $validated = $request->validate([
             'raspuns' => 'required|max:2000',
@@ -45,20 +45,20 @@ class StatusComandaActualizatDeTransportatorController extends Controller
             $statusComanda = new ComandaStatus;
             $statusComanda->comanda_id = $comanda->id;
             $statusComanda->status = $request->raspuns;
-            $statusComanda->recipient = $recipient;
+            $statusComanda->mod_transmitere = $modTransmitere;
             $statusComanda->save();
         }
 
-        return redirect('afisare-status-comanda/' . $recipient . '/' .$cheie_unica);
+        return redirect('afisare-status-comanda/' . $modTransmitere . '/' .$cheie_unica);
     }
 
-    public function afisareStatusComanda(Request $request, $recipient, $cheie_unica)
+    public function afisareStatusComanda(Request $request, $modTransmitere, $cheie_unica)
     {
         // se verifica pe langa cheia unica, si daca comanda mai este valabila, mai este in tranzit
         $comanda = Comanda::
             // with('statusuri')
-            with(['statusuri' => function($query){
-                $query->latest();
+            with(['statusuri' => function($query) use ($modTransmitere){
+                $query->where('mod_transmitere', $modTransmitere)->latest();
             }])
             ->where('cheie_unica', $cheie_unica)
             ->whereHas('locuriOperareIncarcari', function($query){
@@ -69,6 +69,6 @@ class StatusComandaActualizatDeTransportatorController extends Controller
             })
             ->first();
 
-        return view('comenziStatusuri.actualizateDeTransportator.afisareStatusComanda', compact('comanda', 'recipient'));
+        return view('comenziStatusuri.actualizateDeTransportator.afisareStatusComanda', compact('comanda', 'modTransmitere'));
     }
 }

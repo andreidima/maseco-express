@@ -8,8 +8,9 @@ use App\Http\Controllers\LocOperareController;
 use App\Http\Controllers\ComandaController;
 use App\Http\Controllers\AxiosController;
 use App\Http\Controllers\MesajTrimisSmsController;
-use App\Http\Controllers\TrimitereSmsController;
+use App\Http\Controllers\CronJobController;
 use App\Http\Controllers\StatusComandaActualizatDeTransportatorController;
+use App\Http\Controllers\ComandaStatusController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,11 +26,11 @@ use App\Http\Controllers\StatusComandaActualizatDeTransportatorController;
 Auth::routes(['register' => false, 'password.request' => false, 'reset' => false]);
 
 // Trimitere Cron joburi din Cpanel
-Route::any('/cron-jobs/trimitere-automata-sms-cerere-status-comanda/{key}', [TrimitereSmsController::class, 'cronJobTrimitereAutomataSmsCerereStatusComanda']);
+Route::any('/cron-jobs/cerere-status-comanda/{key}', [CronJobController::class, 'cerereStatusComanda']);
 
-Route::get('cerere-status-comanda/{recipient}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'cerereStatusComanda']);
-Route::post('salvare-status-comanda/{recipient}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'salvareStatusComanda']);
-Route::get('afisare-status-comanda/{recipient}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'afisareStatusComanda']);
+Route::get('cerere-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'cerereStatusComanda']);
+Route::post('salvare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'salvareStatusComanda']);
+Route::get('afisare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'afisareStatusComanda']);
 
 
 Route::redirect('/', '/acasa');
@@ -50,4 +51,6 @@ Route::group(['middleware' => 'auth'], function () {
     // Extras date cu Axios
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);
     Route::get('/axios/statusuri', [AxiosController::class, 'statusuri']);
+
+    Route::resource('/comenzi-statusuri', ComandaStatusController::class)->parameters(['comenzi-statusuri' => 'comandaStatus']);
 });
