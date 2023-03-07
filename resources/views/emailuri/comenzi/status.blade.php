@@ -8,6 +8,8 @@
             <br><br>
             Vă rugăm să accesați <a href="/cerere-status-comanda/email/{{ $comanda->cheie_unica }}" target="_blank">{{ url('/cerere-status-comanda/email/' . $comanda->cheie_unica) }}</a>, pentru a ne transmite statusul comenzii.
             <br><br>
+            Acesta este un mesaj automat. Vă rugăm să nu răspundeți la acest e-mail.
+            <br><br>
             Mulțumim!
         </div>
     </div>
