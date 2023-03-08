@@ -62,11 +62,11 @@ export default {
     methods: {
         notDates(date) {
             // Se blocheaza toate zilele nelucratoare venite din MySQL || se blocheaza ziua de duminica
-            var zileNelucratoare = (typeof this.zileNelucratoare !== 'undefined') ? this.zileNelucratoare : []; // se defineste un array gol daca lipseste prop, ca sa nu dea eroare
-            zileNelucratoare = zileNelucratoare.map(element => { // Se formateaza toate elementele venite din MySQL la formatul DateString
-                return new Date(element).toDateString();
-            });
-            return (zileNelucratoare.includes(date.toDateString()) ? date : '') || new Date(date).getDay() === 0;
+            // var zileNelucratoare = (typeof this.zileNelucratoare !== 'undefined') ? this.zileNelucratoare : []; // se defineste un array gol daca lipseste prop, ca sa nu dea eroare
+            // zileNelucratoare = zileNelucratoare.map(element => { // Se formateaza toate elementele venite din MySQL la formatul DateString
+            //     return new Date(element).toDateString();
+            // });
+            // return (zileNelucratoare.includes(date.toDateString()) ? date : '') || new Date(date).getDay() === 0;
 
 
             // Blocare zile din saptamana
