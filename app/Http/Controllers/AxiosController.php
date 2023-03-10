@@ -36,11 +36,14 @@ class AxiosController extends Controller
 
     public function statusuri(Request $request)
     {
+        $comada_id = $request->comanda_id;
         $statusuri = ComandaStatus::
             with('comanda:id,transportator_contract,transportator_transportator_id,client_client_id', 'comanda.transportator:id,nume,persoana_contact,telefon', 'comanda.client:id,nume')
+            ->whereHas('comanda', function ($query) use ($comada_id) {
+                $query->where('id', $comada_id);
+            })
             // ->with('comanda.transportator:nume')
             // ->whereDate('created_at', '>',  Carbon::today()->subDays(5)) // statusurile din ultimele 3 zile
-            ->take(50)
             ->latest()
             ->get();
 

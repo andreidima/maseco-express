@@ -317,11 +317,14 @@ const statusuri = createApp({
     data() {
         return {
             statusuri: [],
-            timer: null
+            timer: null,
+            mesajLipsaStatusuri: '',
+
+            comandaId: '',
         }
     },
     created: function () {
-        this.getStatusuri();
+        // this.getStatusuri();
     },
     mounted: function () {
         this.timer = setInterval(() => {
@@ -331,15 +334,34 @@ const statusuri = createApp({
     beforeUnmount() {
         clearInterval(this.timer)
     },
+    // watch: {
+    //     comandaId() {
+    //         if (this.comandaId !== '') {
+    //             this.getStatusuri();
+    //         } else {
+    //             this.statusuri = [];
+    //         }
+    //     }
+    // },
     methods: {
         getStatusuri() {
-            // this.statusuri = [];
+            if (this.comandaId !== '') {
                 axios.get('/axios/statusuri', {
-                    params: {}
-                })
+                        params: { comanda_id: this.comandaId }
+                    })
                     .then(
-                        response => (this.statusuri = response.data.raspuns)
+                        response => {
+                            this.statusuri = response.data.raspuns;
+                            if (this.statusuri.length === 0) {
+                                this.mesajLipsaStatusuri = 'Nu există „statusuri” în baza de date pentru această comandă';
+                            } else {
+                                this.mesajLipsaStatusuri = '';
+                            }
+                        }
                     );
+            } else {
+                // this.statusuri = [];
+            }
         },
     }
 });

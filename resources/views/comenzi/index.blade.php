@@ -10,14 +10,14 @@
 @extends ('layouts.app')
 
 @section('content')
-<div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;" id="formularComanda">
+<div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
             <div class="col-lg-2 mb-2">
                 <span class="badge culoare1 fs-5">
                     <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
                 </span>
             </div>
-            <div class="col-lg-8 mb-2">
+            <div class="col-lg-8 mb-2" id="formularComanda">
                 <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form d-flex justify-content-center">
@@ -156,7 +156,7 @@
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody id="statusuri">
                         @forelse ($comenzi as $comanda)
                             <tr>
                                 <td align="">
@@ -179,11 +179,25 @@
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center">
-                                        <a data-bs-toggle="collapse" href="#status{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="Status">
-                                            <span class="badge bg-primary">
+                                        {{-- <a data-bs-toggle="collapse" href="#status{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="Status"> --}}
+                                            {{-- <span class="badge bg-primary" @click="setComandaId({{ $comanda->id}})"> --}}
+                                            <span class="badge bg-primary"
+                                                v-on:click="
+                                                    if (comandaId === {{$comanda->id}}){
+                                                        comandaId = '';
+                                                        statusuri = [];
+                                                    } else {
+                                                        statusuri = [];
+                                                        comandaId = {{$comanda->id}};
+                                                        mesajLipsaStatusuri = '';
+                                                        getStatusuri();
+                                                    }"
+                                                    {{-- ? (comandaId = '';statusuri = []) : ((comandaId = {{$comanda->id}});getStatusuri())" --}}
+                                                    >
+                                            {{-- <span class="badge bg-primary" @click="comandaId = {{$comanda->id}}"> --}}
                                                 <i class="fa-solid fa-arrows-up-down" style=""></i>
                                             </span>
-                                        </a>
+                                        {{-- </a> --}}
                                     </div>
                                 </td>
                                 <td>
@@ -211,43 +225,47 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr></tr>
-                            <tr class="collapse" id="status{{ $comanda->id }}">
+
+                            <tr v-if="comandaId === {{ $comanda->id }}">
                                 <td colspan="9">
                                     <div class="row">
                                     <div class="col-lg-8 table-responsive rounded mx-auto">
                                         <table class="table table-striped table-hover rounded">
                                             <thead class="text-white rounded culoare2">
                                                 <tr class="" style="padding:2rem">
+                                                    <th colspan="5" class="text-center">
+                                                        Comanda {{ $comanda->transportator_contract }}
+                                                    </th>
+                                                </tr>
+                                                <tr class="" style="padding:2rem">
                                                     <th class="">#</th>
-                                                    <th class="">Data</th>
-                                                    <th class="">Ora</th>
                                                     <th class="">Status</th>
+                                                    <th class="">Mod transmitere</th>
+                                                    <th class="text-center">Ora</th>
+                                                    <th class="text-center">Data</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                            @forelse ($comanda->statusuri as $status)
-                                                <tr>
+                                                <tr v-for="(status, index) in statusuri">
                                                     <td>
-                                                        {{ $loop->iteration }}
+                                                        @{{ index+1 }}
                                                     </td>
                                                     <td>
-                                                        {{ \Carbon\Carbon::parse($status->created_at)->isoFormat('DD.MM.YYYY') }}
+                                                        @{{ status.status }}
                                                     </td>
                                                     <td>
-                                                        {{ \Carbon\Carbon::parse($status->created_at)->isoFormat('HH:mm') }}
+                                                        @{{ status.mod_transmitere }}
                                                     </td>
-                                                    <td>
-                                                        {{ $status->status }}
+                                                    <td class="text-center">
+                                                        @{{ status.ora }}
+                                                    </td>
+                                                    <td class="text-center">
+                                                        @{{ status.data }}
                                                     </td>
                                                 </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="3" style="text-align:center">
-                                                        Nu există „statusuri” adăugate în baza de date pentru această comandă.
-                                                    </td>
+                                                <tr v-if="mesajLipsaStatusuri">
+                                                    <td colspan="5">@{{ mesajLipsaStatusuri }}</td>
                                                 </tr>
-                                            @endforelse
                                             </tbody>
                                         </table>
                                     </div>

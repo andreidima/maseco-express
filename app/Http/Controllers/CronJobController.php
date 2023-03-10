@@ -8,6 +8,8 @@ use App\Models\Comanda;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
+use Illuminate\Support\Facades\Validator;
+
 use App\Traits\TrimiteSmsTrait;
 
 class CronJobController extends Controller
@@ -65,6 +67,14 @@ class CronJobController extends Controller
 
                 // Trimitere email
                 if (isset($comanda->transportator->email)){
+                    // Validator::make($comanda->transportator->all(), [
+                    //     'email' => 'email:rfc,dns',
+                    // ])->validate();
+                        // $comanda->transportator->validate([
+                        //     'email' => 'email:rfc,dns',
+                        // ]);
+
+
                     Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaStatus($comanda));
                 }
             }

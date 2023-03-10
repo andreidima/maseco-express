@@ -199,31 +199,22 @@ class FirmaController extends Controller
         );
     }
 
-    // public function restaurareIstoric(Request $request, Firma $firma = null, FirmaIstoric $firma_istoric = null){
-    //     $firma->nume = $firma_istoric->nume;
-    //     $firma->telefon = $firma_istoric->telefon;
-    //     $firma->adresa = $firma_istoric->adresa;
-    //     $firma->status = $firma_istoric->status;
-    //     $firma->intrare = $firma_istoric->intrare;
-    //     $firma->lansare = $firma_istoric->lansare;
-    //     $firma->oferta_pret = $firma_istoric->oferta_pret;
-    //     $firma->avans = $firma_istoric->avans;
-    //     $firma->observatii = $firma_istoric->observatii;
-    //     $firma->user_id = $firma_istoric->user_id;
 
-    //     $firma->save();
+    public function contractExportPDF(Request $request, $tipPartener, Firma $firma)
+    {
+        if (is_null($firma->contract_nr)){
+            $firma->contract_nr = (Firma::max('contract_nr') ?? '0') + 1;
+            $firma->save();
+        }
 
-    //     // Salvare in istoric
-    //     if ($firma->wasChanged()){
-    //         $firma_istoric = new FirmaIstoric;
-    //         $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-    //         $firma_istoric->operatie = 'Modificare';
-    //         $firma_istoric->operatie_user_id = auth()->user()->id ?? null;
-    //         $firma_istoric->save();
-    //         return redirect($request->session()->get('firma_return_url') ?? ('/firme/clienti'))->with('status', 'Firma „' . ($firma->nume ?? '') . '” a fost restaurată cu succes!');
-    //     } else {
-    //         return redirect($request->session()->get('firma_return_url') ?? ('/firme/clienti'))->with('warning', 'Firma „' . ($firma->nume ?? '') . '” nu a avut nimic de restaurat!');
-    //     }
-
-    // }
+        if ($request->view_type === 'export-html') {
+            return view('firme.export.comandaPdf', compact('firma'));
+        } elseif ($request->view_type === 'export-pdf') {
+            $pdf = \PDF::loadView('firme.export.comandaPdf', compact('firma'))
+                ->setPaper('a4', 'portrait');
+            $pdf->getDomPDF()->set_option("enable_php", true);
+            // return $pdf->download('Contract ' . $firma->transportator_contract . '.pdf');
+            return $pdf->stream();
+        }
+    }
 }

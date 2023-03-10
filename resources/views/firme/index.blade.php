@@ -65,6 +65,9 @@
                             <th class="">Email</th>
                             <th class="">Țara</th>
                             <th class="">Camioane</th>
+                            @if ($tipPartener === "transportatori")
+                                <th class="text-center">CCA</th>
+                            @endif
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -92,6 +95,21 @@
                                         <br>
                                     @endforeach
                                 </td>
+                                @if ($tipPartener === "transportatori")
+                                    <td>
+                                        <div class="d-flex justify-content-center">
+                                            @if ($firma->contract_nr)
+                                                <a href="{{ $firma->path($tipPartener) }}/contract/export-pdf" target="_blank" class="flex me-1">
+                                                    <span class="badge bg-success">Deschide</span>
+                                                </a>
+                                            @else
+                                                <a href="{{ $firma->path($tipPartener) }}/contract/export-pdf" target="_blank" class="flex me-1">
+                                                    <span class="badge bg-primary">Generează</span>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </td>
+                                @endif
                                 <td>
                                     <div class="d-flex justify-content-end">
                                         <a href="{{ $firma->path($tipPartener) }}/modifica" class="flex me-1">

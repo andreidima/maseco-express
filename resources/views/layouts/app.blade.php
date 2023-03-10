@@ -49,11 +49,11 @@
                                 <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
                             </a>
                         </li>
-                        <li class="nav-item me-3">
+                        {{-- <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/comenzi-statusuri">
                                 <i class="fa-solid fa-circle-check me-1"></i>Statusuri
                             </a>
-                        </li>
+                        </li> --}}
                         <li class="nav-item me-3 dropdown">
                             <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-users me-1"></i>

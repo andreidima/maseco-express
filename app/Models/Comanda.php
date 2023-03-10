@@ -42,6 +42,11 @@ class Comanda extends Model
         return $this->belongsTo(MetodaDePlata::class, 'transportator_metoda_de_plata_id');
     }
 
+    public function transportatorTermenDePlata()
+    {
+        return $this->belongsTo(TermenDePlata::class, 'transportator_termen_plata_id');
+    }
+
     public function istoricuri()
     {
         return $this->hasMany(ComandaIstoric::class, 'id');
