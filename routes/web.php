@@ -45,8 +45,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/camioane', CamionController::class)->parameters(['camioane' => 'camion']);
     Route::resource('/locuri-operare', LocOperareController::class)->parameters(['locuri-operare' => 'locOperare']);
 
-    Route::get('/comenzi/{comanda}/{view_type}', [ComandaController::class, 'comandaExportPDF']);
     Route::resource('/comenzi', ComandaController::class)->parameters(['comenzi' => 'comanda']);
+    Route::get('/comenzi/{comanda}/{view_type}', [ComandaController::class, 'comandaExportPDF']);
 
     Route::resource('mesaje-trimise-sms', MesajTrimisSmsController::class,  ['parameters' => ['mesaje-trimise-sms' => 'mesaj_trimis_sms']]);
 
