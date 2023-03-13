@@ -26,7 +26,7 @@ class CronJobController extends Controller
             // Trimitere mesaje catre transportatori
             $comenzi = Comanda::with('locuriOperareIncarcari', 'locuriOperareDescarcari')
                 ->whereHas('locuriOperareIncarcari', function($query){
-                    $query->where('data_ora', '<=', Carbon::now()->todatetimestring());
+                    $query->where('data_ora', '<=', Carbon::now()->addMinutes(9)->todatetimestring());
                 })
                 ->whereHas('locuriOperareDescarcari', function($query){
                     $query->where('data_ora', '>=', Carbon::now()->subMinutes(4)->todatetimestring());
