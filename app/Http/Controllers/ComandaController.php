@@ -16,6 +16,7 @@ use App\Models\Camion;
 use App\Models\LocOperare;
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class ComandaController extends Controller
 {
@@ -34,6 +35,7 @@ class ComandaController extends Controller
         $searchClientId = $request->searchClientId;
 
         $query = Comanda::with('client')
+            ->withCount('contracteTrimisePeEmailCatreTransportator')
             ->when($searchDataCreare, function ($query, $searchDataCreare) {
                 return $query->whereDate('data_creare', $searchDataCreare);
             })
@@ -53,7 +55,7 @@ class ComandaController extends Controller
             ->latest();
 
         $comenzi = $query->simplePaginate(25);
-
+// dd($comenzi);
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
 
@@ -408,6 +410,24 @@ class ComandaController extends Controller
             $pdf->getDomPDF()->set_option("enable_php", true);
             // return $pdf->download('Contract ' . $comanda->transportator_contract . '.pdf');
             return $pdf->stream();
+        }
+    }
+
+    public function comandaTrimiteCatreTransportator(Request $request, Comanda $comanda)
+    {
+        if (isset($comanda->transportator->email)){
+            Mail::to($comanda->transportator->email)->send(new \App\Mail\TrimiteContractComandaCatreTransportator($comanda));
+
+            $emailTrimis = new \App\Models\MesajTrimisEmail;
+            $emailTrimis->comanda_id = $comanda->id;
+            $emailTrimis->firma_id = $comanda->transportator->id ?? '';
+            $emailTrimis->categorie = 3;
+            $emailTrimis->email = $comanda->transportator->email;
+            $emailTrimis->save();
+
+            return back()->with('status', 'Emailul către „' . $comanda->transportator->nume . '” a fost trimis cu succes!');
+        } else {
+            return back()->with('error', 'Nu există un email valid!');
         }
     }
 }

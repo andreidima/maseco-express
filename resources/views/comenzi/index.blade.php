@@ -153,6 +153,7 @@
                             <th class="">Zile scadente Ctr. Client</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Contract</th>
+                            <th class="text-center">Trimite Contract pe email</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -204,6 +205,16 @@
                                     <div class="d-flex justify-content-center">
                                         <a href="{{ $comanda->path() }}/export-pdf" target="_blank" class="flex me-1">
                                             <span class="badge bg-success">Contract</span>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        <a href="{{ $comanda->path() }}/trimite-catre-transportator" class="flex me-1" title="Numărul de emailuri trimise până acum">
+                                            <span class="badge bg-primary">
+                                                Trimite
+                                                <span class="badge bg-dark">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                                            </span>
                                         </a>
                                     </div>
                                 </td>
