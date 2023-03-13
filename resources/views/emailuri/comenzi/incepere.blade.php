@@ -4,7 +4,7 @@
         @include ('emailuri.headerFooter.header')
 
         @php
-            $data_ora_prima_incarcare = $comanda->locuriOperareIncarcari()->where('ordine', 1)->data_ora;
+            $data_ora_prima_incarcare = $comanda->locuriOperareIncarcari()->where('ordine', 1)->first()->pivot->data_ora;
         @endphp
 
 
