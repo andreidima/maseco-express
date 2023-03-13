@@ -216,7 +216,7 @@
                         <tr>
                             <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
                                 OBSERVAȚII ÎNCĂRCARE {{ $loop->iteration }}:
-                                {{ $locOperareIncarcare->pivot->referinta ?? ''}}
+                                {{ $locOperareIncarcare->pivot->observatii ?? ''}}
                             </td>
                         </tr>
                     @endif
@@ -234,7 +234,7 @@
                         <tr>
                             <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
                                 OBSERVAȚII DESCĂRCARE {{ $loop->iteration }}:
-                                {{ $locOperareDescarcare->pivot->referinta ?? ''}}
+                                {{ $locOperareDescarcare->pivot->observatii ?? ''}}
                             </td>
                         </tr>
                     @endif
@@ -249,7 +249,7 @@
                         <tr>
                             <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
                                 OBSERVAȚII ÎNCĂRCARE {{ $loop->iteration }}:
-                                {{ $locOperareIncarcare->pivot->referinta ?? ''}}
+                                {{ $locOperareIncarcare->pivot->observatii ?? ''}}
                             </td>
                         </tr>
                     @endif
@@ -259,7 +259,7 @@
                         <tr>
                             <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
                                 OBSERVAȚII DESCĂRCARE {{ $loop->iteration }}:
-                                {{ $locOperareDescarcare->pivot->referinta ?? ''}}
+                                {{ $locOperareDescarcare->pivot->observatii ?? ''}}
                             </td>
                         </tr>
                     @endif
