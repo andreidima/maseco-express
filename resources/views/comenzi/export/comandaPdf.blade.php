@@ -174,9 +174,9 @@
                             @isset ($comanda->locuriOperareDescarcari[$i])
                                 DESCĂRCARE {{ $i+1 }}
                                 <br>
-                                {{ $comanda->locuriOperareIncarcari[$i]->pivot->data_ora ?
-                                    'Data ' . \Carbon\Carbon::parse($comanda->locuriOperareIncarcari[$i]->pivot->data_ora)->isoFormat('DD.MM.YYYY') .
-                                    ', ora ' . \Carbon\Carbon::parse($comanda->locuriOperareIncarcari[$i]->pivot->data_ora)->isoFormat('HH:mm')
+                                {{ $comanda->locuriOperareDescarcari[$i]->pivot->data_ora ?
+                                    'Data ' . \Carbon\Carbon::parse($comanda->locuriOperareDescarcari[$i]->pivot->data_ora)->isoFormat('DD.MM.YYYY') .
+                                    ', ora ' . \Carbon\Carbon::parse($comanda->locuriOperareDescarcari[$i]->pivot->data_ora)->isoFormat('HH:mm')
                                     : ''}}
                                 <br>
                                 {{ $comanda->locuriOperareDescarcari[$i]->nume ?? ''}}
@@ -194,20 +194,24 @@
 
             <br>
 
-            <table>
-                @if ($comanda->descriere_marfa)
+            @if ($comanda->descriere_marfa)
+                <table>
                     <tr>
                         <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
-                            Descriere marfă:
+                            DESCRIERE MARFĂ:
                             {{ $comanda->descriere_marfa }}
                         </td>
                     </tr>
-                @endif
+                </table>
+                <br>
+            @endif
+
+            <table>
                 @foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare)
                     @if ($locOperareIncarcare->pivot->referinta)
                         <tr>
                             <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
-                                DETALII MARFĂ ÎNCĂRCARE {{ $loop->iteration }}:
+                                DETALII ÎNCĂRCARE {{ $loop->iteration }}:
                                 {{ $locOperareIncarcare->pivot->referinta ?? ''}}
                             </td>
                         </tr>
@@ -221,11 +225,16 @@
                         </tr>
                     @endif
                 @endforeach
+            </table>
+
+            <br>
+
+            <table>
                 @foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare)
                     @if ($locOperareDescarcare->pivot->referinta)
                         <tr>
                             <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
-                                DETALII MARFĂ DESCĂRCARE {{ $loop->iteration }}:
+                                DETALII DESCĂRCARE {{ $loop->iteration }}:
                                 {{ $locOperareDescarcare->pivot->referinta ?? ''}}
                             </td>
                         </tr>
@@ -241,30 +250,7 @@
                 @endforeach
             </table>
 
-            <br>
 
-            <table>
-                @foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare)
-                    @if ($locOperareIncarcare->pivot->observatii)
-                        <tr>
-                            <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
-                                OBSERVAȚII ÎNCĂRCARE {{ $loop->iteration }}:
-                                {{ $locOperareIncarcare->pivot->observatii ?? ''}}
-                            </td>
-                        </tr>
-                    @endif
-                @endforeach
-                @foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare)
-                    @if ($locOperareDescarcare->pivot->observatii)
-                        <tr>
-                            <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
-                                OBSERVAȚII DESCĂRCARE {{ $loop->iteration }}:
-                                {{ $locOperareDescarcare->pivot->observatii ?? ''}}
-                            </td>
-                        </tr>
-                    @endif
-                @endforeach
-            </table>
 
             <br>
 
