@@ -16,7 +16,7 @@ class StatusComandaActualizatDeTransportatorController extends Controller
         // se verifica pe langa cheia unica, si daca comanda mai este valabila, mai este in tranzit
         $comanda = Comanda::where('cheie_unica', $cheie_unica)
             ->whereHas('locuriOperareIncarcari', function($query){
-                $query->where('data_ora', '<=', Carbon::now()->todatetimestring());
+                $query->where('data_ora', '<=', Carbon::now()->addHours(2)->todatetimestring());
             })
             ->whereHas('locuriOperareDescarcari', function($query){
                 $query->where('data_ora', '>=', Carbon::now()->subDays(1)->todatetimestring()); // se mai adauga o zi la dispozitie sa completeze statusul
