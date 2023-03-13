@@ -212,12 +212,53 @@
                             </td>
                         </tr>
                     @endif
+                    @if ($locOperareIncarcare->pivot->observatii)
+                        <tr>
+                            <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
+                                OBSERVAȚII ÎNCĂRCARE {{ $loop->iteration }}:
+                                {{ $locOperareIncarcare->pivot->referinta ?? ''}}
+                            </td>
+                        </tr>
+                    @endif
                 @endforeach
                 @foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare)
                     @if ($locOperareDescarcare->pivot->referinta)
                         <tr>
                             <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
                                 DETALII MARFĂ DESCĂRCARE {{ $loop->iteration }}:
+                                {{ $locOperareDescarcare->pivot->referinta ?? ''}}
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($locOperareDescarcare->pivot->observatii)
+                        <tr>
+                            <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
+                                OBSERVAȚII DESCĂRCARE {{ $loop->iteration }}:
+                                {{ $locOperareDescarcare->pivot->referinta ?? ''}}
+                            </td>
+                        </tr>
+                    @endif
+                @endforeach
+            </table>
+
+            <br>
+
+            <table>
+                @foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare)
+                    @if ($locOperareIncarcare->pivot->observatii)
+                        <tr>
+                            <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
+                                OBSERVAȚII ÎNCĂRCARE {{ $loop->iteration }}:
+                                {{ $locOperareIncarcare->pivot->referinta ?? ''}}
+                            </td>
+                        </tr>
+                    @endif
+                @endforeach
+                @foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare)
+                    @if ($locOperareDescarcare->pivot->observatii)
+                        <tr>
+                            <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
+                                OBSERVAȚII DESCĂRCARE {{ $loop->iteration }}:
                                 {{ $locOperareDescarcare->pivot->referinta ?? ''}}
                             </td>
                         </tr>
