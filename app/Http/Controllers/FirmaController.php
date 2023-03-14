@@ -8,6 +8,7 @@ use App\Models\Firma;
 use App\Models\FirmaIstoric;
 use App\Models\Tara;
 use App\Models\Camion;
+use Carbon\Carbon;
 
 class FirmaController extends Controller
 {
@@ -204,13 +205,14 @@ class FirmaController extends Controller
     {
         if (is_null($firma->contract_nr)){
             $firma->contract_nr = (Firma::max('contract_nr') ?? '0') + 1;
+            $firma->contract_data = Carbon::now();
             $firma->save();
         }
 
         if ($request->view_type === 'export-html') {
-            return view('firme.export.comandaPdf', compact('firma'));
+            return view('firme.export.contractCadruPdf', compact('firma'));
         } elseif ($request->view_type === 'export-pdf') {
-            $pdf = \PDF::loadView('firme.export.comandaPdf', compact('firma'))
+            $pdf = \PDF::loadView('firme.export.contractCadruPdf', compact('firma'))
                 ->setPaper('a4', 'portrait');
             $pdf->getDomPDF()->set_option("enable_php", true);
             // return $pdf->download('Contract ' . $firma->transportator_contract . '.pdf');

@@ -13,6 +13,8 @@ use Illuminate\Support\Facades\Validator;
 
 use App\Traits\TrimiteSmsTrait;
 
+use App\Notifications\CerereStatus;
+
 class CronJobController extends Controller
 {
     use TrimiteSmsTrait;
@@ -139,6 +141,10 @@ class CronJobController extends Controller
                     $emailTrimis->save();
 
                 }
+
+                // Trimitere WhatsApp
+                $comanda->transportator->notify(new CerereStatus($comanda));
+                // $request->user()->notify(new CerereStatus($comanda));
             }
 
 

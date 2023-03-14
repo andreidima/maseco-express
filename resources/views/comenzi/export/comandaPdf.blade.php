@@ -270,7 +270,7 @@
                         <br>
                         MODALITATE DE PLATĂ: {{ $comanda->transportatorMetodaDePlata->nume ?? '' }}
                         <br>
-                        TERMEN DE PLATĂ: {{ $comanda->transportatorTermenDePlata->nume ?? '' }}
+                        TERMEN DE PLATĂ: la {{ $comanda->transportator_zile_scadente }} de zile {{ $comanda->transportatorTermenDePlata->nume ?? '' }}
                     </td>
                 </tr>
             </table>

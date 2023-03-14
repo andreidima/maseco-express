@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 
 class Firma extends Model
 {
-    use HasFactory;
+    use HasFactory, Notifiable;
 
     protected $table = 'firme';
     protected $guarded = [];
@@ -40,5 +41,11 @@ class Firma extends Model
     public function istoricuri()
     {
         return $this->hasMany(FirmaIstoric::class, 'id');
+    }
+
+    public function routeNotificationForWhatsApp()
+    {
+        return $this->telefon;
+        // return '+40749262658';
     }
 }
