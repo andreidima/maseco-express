@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Comanda;
 use App\Models\ComandaIstoric;
+use App\Models\ComandaLocOperareIstoric;
 use App\Models\Firma;
 use App\Models\Limba;
 use App\Models\Moneda;
@@ -334,6 +335,10 @@ class ComandaController extends Controller
                         // Nu se ia nici o actiune pentru ca modelele sunt identice
                     } else{
                         $comandaLocOperareIstoric = new ComandaLocOperareIstoric;
+                        $comandaLocOperareIstoric->comanda_id = $locuriOperareIncarcariNoi[$i]->pivot->comanda_id;
+                        $comandaLocOperareIstoric->loc_operare_id = $locuriOperareIncarcariNoi[$i]->pivot->loc_operare_id;
+                        $comandaLocOperareIstoric->tip = $locuriOperareIncarcariNoi[$i]->pivot->tip;
+                        $comandaLocOperareIstoric->ordine = $locuriOperareIncarcariNoi[$i]->pivot->ordine;
                         $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
                         $firma_istoric->operare_user_id = auth()->user()->id ?? null;
                         $firma_istoric->operare_descriere = 'Adaugare';
