@@ -175,7 +175,7 @@ class ComandaController extends Controller
         unset($comanda_campuri['descarcari']);
         $comanda->update($comanda_campuri);
 
-        // Salvare in istoric
+        // Salvare in istoric a comenzii
         if ($comanda->wasChanged()){
             $comanda_istoric = new ComandaIstoric;
             $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
@@ -307,19 +307,50 @@ class ComandaController extends Controller
                 }
             }
 
-            // $locuriOperareIncarcariVechi = $comanda->locuriOperareIncarcari; // necesar pentru salvarea in istoric
-            // $locuriOperareDesarcariVechi = $comanda->locuriOperareDesarcari; // necesar pentru salvarea in istoric
+            $locuriOperareIncarcariVechi = $comanda->locuriOperareIncarcari; // necesar pentru salvarea in istoric
+            $locuriOperareDesarcariVechi = $comanda->locuriOperareDesarcari; // necesar pentru salvarea in istoric
 
             if (isset($locatii_id_array)){
                 $comanda->locuriOperare()->sync($locatii_id_array);
             }
 
-            // Salvare in istoric
-            // $comanda = Comanda::find($comanda->id); // se readuce din baza de date comanda, pentru a fi cu relatiile actualizate
-            // $locuriOperareIncarcariNoi = $comanda->locuriOperareIncarcari;
-            // $locuriOperareDesarcariNoi = $comanda->locuriOperareDesarcari;
 
-            // $locuriOperareNoi = $comanda->locuriOperare;
+            // Salvare in istoric a locurilor de incarcare si descarcare
+            $comanda = Comanda::find($comanda->id); // se readuce din baza de date comanda, pentru a fi cu relatiile actualizate
+            $locuriOperareIncarcariNoi = $comanda->locuriOperareIncarcari;
+            $locuriOperareDesarcariNoi = $comanda->locuriOperareDesarcari;
+
+
+            echo 'locuriOperareIncarcariVechi = ' . $locuriOperareIncarcariVechi->count() . '<br>';
+            echo 'locuriOperareIncarcariNoi = ' . $locuriOperareIncarcariNoi->count() . '<br>';
+            for ($i = 0; $i < max($locuriOperareIncarcariVechi->count(), $locuriOperareIncarcariNoi->count()); $i++ ){
+                if (isset($locuriOperareIncarcariVechi[$i]) && isset($locuriOperareIncarcariNoi[$i])){
+                    if (
+                        ($locuriOperareIncarcariVechi[$i]->pivot->ordine === $locuriOperareIncarcariNoi[$i]->pivot->ordine)
+                        && ($locuriOperareIncarcariVechi[$i]->pivot->data_ora === $locuriOperareIncarcariNoi[$i]->pivot->data_ora)
+                        && ($locuriOperareIncarcariVechi[$i]->pivot->observatii === $locuriOperareIncarcariNoi[$i]->pivot->observatii)
+                        && ($locuriOperareIncarcariVechi[$i]->pivot->referinta === $locuriOperareIncarcariNoi[$i]->pivot->referinta)
+                    ){
+                        // Nu se ia nici o actiune pentru ca modelele sunt identice
+                    } else{
+                        $comandaLocOperareIstoric = new ComandaLocOperareIstoric;
+                        $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                        $firma_istoric->operare_user_id = auth()->user()->id ?? null;
+                        $firma_istoric->operare_descriere = 'Adaugare';
+                        $firma_istoric->save();
+                    }
+                }
+                if (isset($locuriOperareIncarcariNoi[$i])){
+                    echo 'Id nou ' . $locuriOperareIncarcariNoi[$i]->id . '<br>';
+                }
+                if (isset($locuriOperareIncarcariVechi[$i])){
+                    echo 'Id vechi ' . $locuriOperareIncarcariVechi[$i]->id . ', ordine ' . $locuriOperareIncarcariVechi[$i]->pivot->ordine . '<br>';
+                }
+                if (isset($locuriOperareIncarcariNoi[$i])){
+                    echo 'Id nou ' . $locuriOperareIncarcariNoi[$i]->id . '<br>';
+                }
+            }
+            $locuriOperareNoi = $comanda->locuriOperare;
 
             // foreach ($locuriOperareVechi as $locOperare){
             //     echo $locOperare->id . '<br>';
@@ -329,7 +360,7 @@ class ComandaController extends Controller
             //     echo $locOperare->id . '<br>';
             // }
             // dd($locuriOperareVechi, $locuriOperareNoi, $comanda->locuriOperare, $locatii_id_array);
-
+dd('stop');
 
         // for ($i = 0; $i < count($request->incarcari['id']); $i++) {
         //     $comanda->locuriOperare()->sync($request->incarcari['id'][$i], ['tip' => 1, 'ordine' => $i+1]);
