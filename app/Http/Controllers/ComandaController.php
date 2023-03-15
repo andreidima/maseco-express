@@ -80,6 +80,13 @@ class ComandaController extends Controller
         $comanda->cheie_unica = uniqid();
         $comanda->save();
 
+        // Salvare in istoric
+        $comanda_istoric = new ComandaIstoric;
+        $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+        $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+        $comanda_istoric->operare_descriere = 'Adaugare';
+        $comanda_istoric->save();
+
         return redirect( $comanda->path() . '/modifica');
 
         // $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
@@ -167,6 +174,15 @@ class ComandaController extends Controller
         unset($comanda_campuri['incarcari']);
         unset($comanda_campuri['descarcari']);
         $comanda->update($comanda_campuri);
+
+        // Salvare in istoric
+        if ($comanda->wasChanged()){
+            $comanda_istoric = new ComandaIstoric;
+            $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+            $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+            $comanda_istoric->operare_descriere = 'Modificare';
+            $comanda_istoric->save();
+        }
 
 
         // // Incarcari
@@ -265,7 +281,7 @@ class ComandaController extends Controller
                 }
             }
 // dd($existaDuplicateInLocatiileNoi);
-            // Daca exista duplicate, in locatiile vechi sau noi, se creaza un array, cu index incepand cu 0, care la sync va sterge toate lociile vechi si apoi va readauga toate locatiile noi
+            // Daca exista duplicate, in locatiile vechi sau noi, se creaza un array, cu index incepand cu 0, care la sync va sterge toate locatiile vechi si apoi va readauga toate locatiile noi
             // Daca nu exista duplicate, se creaza un array, cu index id-ul locatiilor, care la sync va face update doar daca este cazul
             if ((isset($existaDuplicateInLocatiileVechi) && ($existaDuplicateInLocatiileVechi)) || (isset($existaDuplicateInLocatiileNoi) && ($existaDuplicateInLocatiileNoi))) {
                 if ($request->incarcari){
@@ -291,10 +307,28 @@ class ComandaController extends Controller
                 }
             }
 
+            // $locuriOperareIncarcariVechi = $comanda->locuriOperareIncarcari; // necesar pentru salvarea in istoric
+            // $locuriOperareDesarcariVechi = $comanda->locuriOperareDesarcari; // necesar pentru salvarea in istoric
+
             if (isset($locatii_id_array)){
                 $comanda->locuriOperare()->sync($locatii_id_array);
             }
 
+            // Salvare in istoric
+            // $comanda = Comanda::find($comanda->id); // se readuce din baza de date comanda, pentru a fi cu relatiile actualizate
+            // $locuriOperareIncarcariNoi = $comanda->locuriOperareIncarcari;
+            // $locuriOperareDesarcariNoi = $comanda->locuriOperareDesarcari;
+
+            // $locuriOperareNoi = $comanda->locuriOperare;
+
+            // foreach ($locuriOperareVechi as $locOperare){
+            //     echo $locOperare->id . '<br>';
+            // }
+            // echo '<br><br>';
+            // foreach ($locuriOperareNoi as $locOperare){
+            //     echo $locOperare->id . '<br>';
+            // }
+            // dd($locuriOperareVechi, $locuriOperareNoi, $comanda->locuriOperare, $locatii_id_array);
 
 
         // for ($i = 0; $i < count($request->incarcari['id']); $i++) {

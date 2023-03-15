@@ -31,4 +31,9 @@ class Camion extends Model
     {
         return $this->hasMany(CamionIstoric::class, 'id');
     }
+
+    public function comenzi()
+    {
+        return $this->hasMany(Comanda::class, 'camion_id');
+    }
 }

@@ -28,14 +28,19 @@ class Firma extends Model
         return $this->belongsTo(Tara::class);
     }
 
-    /**
-     * Get all of the camioane for the Firma
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
     public function camioane()
     {
         return $this->hasMany(Camion::class);
+    }
+
+    public function comenziCaSiClient()
+    {
+        return $this->hasMany(Comanda::class, 'client_client_id');
+    }
+
+    public function comenziCaSiTransportator()
+    {
+        return $this->hasMany(Comanda::class, 'transportator_transportator_id');
     }
 
     public function istoricuri()

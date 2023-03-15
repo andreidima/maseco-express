@@ -135,9 +135,9 @@ class LocOperareController extends Controller
      */
     public function destroy(Request $request, LocOperare $locOperare)
     {
-        // if (count($locOperare->comenzi) > 0){
-        //     return back()->with('error', 'Nu puteți șterge locul de operare „' . ($locOperare->nume ?? '') . '” pentru că este adăugat la comenzi!');
-        // }
+        if (count($locOperare->comenzi) > 0){
+            return back()->with('error', 'Nu puteți șterge locul de operare „' . ($locOperare->nume ?? '') . '” pentru că este adăugat la comenzi!');
+        }
 
         // Salvare in istoric
         $locOperareIstoric = new LocOperareIstoric;

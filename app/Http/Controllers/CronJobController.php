@@ -117,7 +117,7 @@ class CronJobController extends Controller
 
             foreach ($comenzi as $comanda){
                 // Trimitere SMS
-                $mesaj = 'Vă rugăm accesati ' . url('/cerere-status-comanda/sms/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
+                $mesaj = 'Va rugam accesati ' . url('/cerere-status-comanda/sms/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
                             ' Multumim, Maseco Expres!';
                 $this->trimiteSms('Comenzi', 'Status', $comanda->id, [$comanda->transportator->telefon ?? ''], $mesaj);
 

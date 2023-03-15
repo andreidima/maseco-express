@@ -139,7 +139,13 @@ class FirmaController extends Controller
     public function destroy(Request $request, $tipPartener = null, Firma $firma)
     {
         if (count($firma->camioane) > 0){
-            return back()->with('error', 'Nu puteți șterge firma „' . ($firma->nume ?? '') . '” pentru că are camioane atașate! Ștergeți mai întâi camioanele');
+            return back()->with('error', 'Nu puteți șterge firma „' . ($firma->nume ?? '') . '” pentru că are camioane atașate! Ștergeți mai întâi camioanele.');
+        }
+        if (count($firma->comenziCaSiClient) > 0){
+            return back()->with('error', 'Nu puteți șterge firma „' . ($firma->nume ?? '') . '” pentru că are comenzi ca și client! Ștergeți mai întâi comenzile respective.');
+        }
+        if (count($firma->comenziCaSiTransportator) > 0){
+            return back()->with('error', 'Nu puteți șterge firma „' . ($firma->nume ?? '') . '” pentru că are comenzi ca și transportator! Ștergeți mai întâi comenzile respective.');
         }
 
         // Salvare in istoric
@@ -174,7 +180,7 @@ class FirmaController extends Controller
             [
                 'nume' => 'required|max:500',
                 'tip_partener' => 'required',
-                'tara_id' => 'required|numeric',
+                'tara_id' => 'nullable|numeric',
                 'cui' => 'nullable|max:500',
                 'reg_com' => 'nullable|max:500',
                 'oras' => 'nullable|max:500',

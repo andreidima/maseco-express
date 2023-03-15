@@ -32,7 +32,11 @@ class LocOperare extends Model
         return $this->hasMany(LocOperareIstoric::class, 'id');
     }
 
-    public function locuriOperare()
+    // public function locuriOperare()
+    // {
+    //     return $this->belongsToMany(Comanda::class, 'comenzi_locuri_operare', 'loc_operare_id', 'comanda_id')->withPivot('ordine', 'data_ora', 'observatii', 'referinta');
+    // }
+    public function comenzi()
     {
         return $this->belongsToMany(Comanda::class, 'comenzi_locuri_operare', 'loc_operare_id', 'comanda_id')->withPivot('ordine', 'data_ora', 'observatii', 'referinta');
     }

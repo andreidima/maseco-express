@@ -211,7 +211,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
-        'Notification' => Illuminate\Support\Facades\Notification::class,
+        // 'Notification' => Illuminate\Support\Facades\Notification::class,
     ])->toArray(),
 
 ];
