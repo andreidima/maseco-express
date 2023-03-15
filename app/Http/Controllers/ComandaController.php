@@ -339,9 +339,10 @@ class ComandaController extends Controller
                         $comandaLocOperareIstoric->loc_operare_id = $locuriOperareIncarcariNoi[$i]->pivot->loc_operare_id;
                         $comandaLocOperareIstoric->tip = $locuriOperareIncarcariNoi[$i]->pivot->tip;
                         $comandaLocOperareIstoric->ordine = $locuriOperareIncarcariNoi[$i]->pivot->ordine;
-                        $firma_istoric->fill($firma->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                        $comandaLocOperareIstoric->data_ora = $locuriOperareIncarcariNoi[$i]->pivot->data_ora;
+                        $comandaLocOperareIstoric->observatii = $locuriOperareIncarcariNoi[$i]->pivot->observatii;
+                        $comandaLocOperareIstoric->referinta = $locuriOperareIncarcariNoi[$i]->pivot->referinta;
                         $firma_istoric->operare_user_id = auth()->user()->id ?? null;
-                        $firma_istoric->operare_descriere = 'Adaugare';
                         $firma_istoric->save();
                     }
                 }
