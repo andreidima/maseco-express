@@ -110,6 +110,24 @@
                 <small v-else class="ps-3 text-success">*Ați selectat transportatorul</small>
             </div>
             <div class="col-lg-2 mb-4">
+                <a
+                    href="#"
+                    data-bs-toggle="modal"
+                    data-bs-target="#adaugaTransportator"
+                    title="Adaugă Transportator Nou"
+                    >
+                    <span class="badge bg-danger">Adaugă transportator nou</span>
+                </a>
+            </div>
+            <div class="col-lg-12 mb-4">
+                @include ('firme.form', [
+                    'firma' => new App\Models\Firma,
+                    'tipPartener' => 'transportatori',
+                    'tari' => App\Models\Tara::select('id', 'nume')->orderBy('nume')->get(),
+                    'buttonText' => 'Adaugă Firma'
+                ])
+            </div>
+            <div class="col-lg-2 mb-4">
                 <label for="transportator_valoare_contract" class="mb-0 ps-3">Valoare contract</label>
                 <input
                     type="text"

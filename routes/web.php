@@ -48,6 +48,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/comenzi', ComandaController::class)->parameters(['comenzi' => 'comanda']);
     Route::get('/comenzi/{comanda}/trimite-catre-transportator', [ComandaController::class, 'comandaTrimiteCatreTransportator']);
     Route::get('/comenzi/{comanda}/{view_type}', [ComandaController::class, 'comandaExportPDF']);
+    Route::get('/comenzi/{comanda}/stare/{stare}', [ComandaController::class, 'stare']);
 
     Route::resource('mesaje-trimise-sms', MesajTrimisSmsController::class,  ['parameters' => ['mesaje-trimise-sms' => 'mesaj_trimis_sms']]);
 

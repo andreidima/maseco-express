@@ -34,6 +34,7 @@ class CronJobController extends Controller
                         ->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
                 })
                 ->whereDoesntHave('emailInformareIncepereComanda')
+                ->where('stare', '<>', 3)
                 ->get();
 
                 // Afisare in pagina pentru debug
@@ -87,6 +88,7 @@ class CronJobController extends Controller
                     $query->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
                 })
                 ->whereDoesntHave('emailuriCerereStatusComandaInUltimaPerioada')
+                ->where('stare', '<>', 3)
                 // ->whereDoesntHave('statusuri', function $query){
                 //     $query->
                 // })

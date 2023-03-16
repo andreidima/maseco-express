@@ -17,11 +17,11 @@
                     <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
                 </span>
             </div>
-            <div class="col-lg-8 mb-2" id="formularComanda">
-                <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
+            <div class="col-lg-8 mb-0" id="formularComanda">
+                <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form d-flex justify-content-center">
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <input type="text" class="form-control rounded-3" id="searchTransportatorContract" name="searchTransportatorContract" placeholder="Ctr. transp." value="{{ $searchTransportatorContract }}">
                         </div>
                         <div class="col-lg-4 d-flex justify-content-center align-items-center">
@@ -36,7 +36,17 @@
                                 style="margin-right: 20px;"
                             ></vue-datepicker-next>
                         </div>
-                        <div class="col-lg-3" style="position:relative;" v-click-out="() => firmeTransportatoriListaAutocomplete = ''">
+                        <div class="col-lg-3">
+                            <select name="searchStare" id="searchStare" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
+                                <option value="" selected>Selectează Stare</option>
+                                <option value="1" {{ intval($searchStare) === 1 ? 'selected' : '' }}>Deschise</option>
+                                <option value="2" {{ intval($searchStare) === 2 ? 'selected' : '' }}>Închise</option>
+                                <option value="3" {{ intval($searchStare) === 3 ? 'selected' : '' }}>Anulate</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-1 custom-search-form d-flex justify-content-center">
+                        <div class="col-lg-5" style="position:relative;" v-click-out="() => firmeTransportatoriListaAutocomplete = ''">
                             <input
                                 type="hidden"
                                 v-model="firmaTransportatorId"
@@ -77,7 +87,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-3" style="position:relative;" v-click-out="() => firmeClientiListaAutocomplete = ''">
+                        <div class="col-lg-5" style="position:relative;" v-click-out="() => firmeClientiListaAutocomplete = ''">
                             <input
                                 type="hidden"
                                 v-model="firmaClientId"
@@ -154,6 +164,7 @@
                             <th class="text-center">Status</th>
                             <th class="text-center">Contract</th>
                             <th class="text-center">Trimite Contract pe email</th>
+                            <th class="text-center">Stare</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -214,6 +225,25 @@
                                             <span class="badge bg-primary">
                                                 Trimite
                                                 <span class="badge bg-dark">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        <a href="{{ $comanda->path() }}/stare/deschide" class="flex me-1" title="Deschisă">
+                                            <span class="badge {{ $comanda->stare === 1 ? 'bg-success' : 'bg-light text-dark' }}">
+                                                <i class="fa-solid fa-lock-open fa-1x"></i>
+                                            </span>
+                                        </a>
+                                        <a href="{{ $comanda->path() }}/stare/inchide" class="flex me-1" title="Închisă">
+                                            <span class="badge {{ $comanda->stare === 2 ? 'bg-dark' : 'bg-white text-dark' }}">
+                                                <i class="fa-solid fa-lock fa-1x"></i>
+                                            </span>
+                                        </a>
+                                        <a href="{{ $comanda->path() }}/stare/anuleaza" class="flex me-1" title="Anulată">
+                                            <span class="badge {{ $comanda->stare === 3 ? 'bg-danger' : 'bg-light text-dark' }}">
+                                                <i class="fa-solid fa-ban fa-1x"></i>
                                             </span>
                                         </a>
                                     </div>

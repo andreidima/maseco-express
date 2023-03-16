@@ -32,6 +32,7 @@ class ComandaController extends Controller
 
         $searchDataCreare = $request->searchDataCreare;
         $searchTransportatorContract = $request->searchTransportatorContract;
+        $searchStare = $request->searchStare;
         $searchTransportatorId = $request->searchTransportatorId;
         $searchClientId = $request->searchClientId;
 
@@ -42,6 +43,9 @@ class ComandaController extends Controller
             })
             ->when($searchTransportatorContract, function ($query, $searchTransportatorContract) {
                 return $query->where('transportator_contract', 'like', '%' . $searchTransportatorContract . '%');
+            })
+            ->when($searchStare, function ($query, $searchStare) {
+                return $query->where('stare', $searchStare);
             })
             ->when($searchTransportatorId, function ($query, $searchTransportatorId) {
                 return $query->whereHas('transportator', function ($query) use ($searchTransportatorId) {
@@ -60,7 +64,7 @@ class ComandaController extends Controller
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
 
-        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'searchDataCreare', 'searchTransportatorContract', 'searchTransportatorId', 'searchClientId'));
+        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'searchDataCreare', 'searchTransportatorContract', 'searchStare', 'searchTransportatorId', 'searchClientId'));
     }
 
     /**
@@ -156,6 +160,7 @@ class ComandaController extends Controller
         $descarcari = $comanda->locuriOperareDescarcari()->get();
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
+        $request->session()->put('firma_return_url', url()->current()); // in cazul ca se adauga direct de  aici o firma
 
         return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane', 'incarcari', 'descarcari'));
     }
@@ -309,32 +314,29 @@ class ComandaController extends Controller
             }
 
             $locuriOperareIncarcariVechi = $comanda->locuriOperareIncarcari; // necesar pentru salvarea in istoric
-            $locuriOperareDesarcariVechi = $comanda->locuriOperareDesarcari; // necesar pentru salvarea in istoric
+            $locuriOperareDescarcariVechi = $comanda->locuriOperareDescarcari; // necesar pentru salvarea in istoric
 
             if (isset($locatii_id_array)){
                 $comanda->locuriOperare()->sync($locatii_id_array);
+            } else {
+                $comanda->locuriOperare()->detach();
             }
 
 
-            // Salvare in istoric a locurilor de incarcare si descarcare
+            /**
+            * Salvare in istoric a locurilor de incarcare si descarcare
+            */
             $comanda = Comanda::find($comanda->id); // se readuce din baza de date comanda, pentru a fi cu relatiile actualizate
             $locuriOperareIncarcariNoi = $comanda->locuriOperareIncarcari;
-            $locuriOperareDesarcariNoi = $comanda->locuriOperareDesarcari;
+            $locuriOperareDescarcariNoi = $comanda->locuriOperareDescarcari;
 
-
-            echo 'locuriOperareIncarcariVechi = ' . $locuriOperareIncarcariVechi->count() . '<br>';
-            echo 'locuriOperareIncarcariNoi = ' . $locuriOperareIncarcariNoi->count() . '<br>';
+            // echo 'locuriOperareIncarcariVechi = ' . $locuriOperareIncarcariVechi->count() . '<br>';
+            // echo 'locuriOperareIncarcariNoi = ' . $locuriOperareIncarcariNoi->count() . '<br>';
             for ($i = 0; $i < max($locuriOperareIncarcariVechi->count(), $locuriOperareIncarcariNoi->count()); $i++ ){
-                if (isset($locuriOperareIncarcariVechi[$i]) && isset($locuriOperareIncarcariNoi[$i])){
-                    if (
-                        ($locuriOperareIncarcariVechi[$i]->pivot->ordine === $locuriOperareIncarcariNoi[$i]->pivot->ordine)
-                        && ($locuriOperareIncarcariVechi[$i]->pivot->data_ora === $locuriOperareIncarcariNoi[$i]->pivot->data_ora)
-                        && ($locuriOperareIncarcariVechi[$i]->pivot->observatii === $locuriOperareIncarcariNoi[$i]->pivot->observatii)
-                        && ($locuriOperareIncarcariVechi[$i]->pivot->referinta === $locuriOperareIncarcariNoi[$i]->pivot->referinta)
-                    ){
-                        // Nu se ia nici o actiune pentru ca modelele sunt identice
-                    } else{
+                if (isset($locuriOperareIncarcariNoi[$i])){
+                    if (!isset($locuriOperareIncarcariVechi[$i])){
                         $comandaLocOperareIstoric = new ComandaLocOperareIstoric;
+                        $comandaLocOperareIstoric->id = $locuriOperareIncarcariNoi[$i]->pivot->id;
                         $comandaLocOperareIstoric->comanda_id = $locuriOperareIncarcariNoi[$i]->pivot->comanda_id;
                         $comandaLocOperareIstoric->loc_operare_id = $locuriOperareIncarcariNoi[$i]->pivot->loc_operare_id;
                         $comandaLocOperareIstoric->tip = $locuriOperareIncarcariNoi[$i]->pivot->tip;
@@ -342,45 +344,153 @@ class ComandaController extends Controller
                         $comandaLocOperareIstoric->data_ora = $locuriOperareIncarcariNoi[$i]->pivot->data_ora;
                         $comandaLocOperareIstoric->observatii = $locuriOperareIncarcariNoi[$i]->pivot->observatii;
                         $comandaLocOperareIstoric->referinta = $locuriOperareIncarcariNoi[$i]->pivot->referinta;
-                        $firma_istoric->operare_user_id = auth()->user()->id ?? null;
-                        $firma_istoric->save();
+                        $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
+                        $comandaLocOperareIstoric->operare_descriere = 'Adaugare';
+                        $comandaLocOperareIstoric->save();
+
+                        $comanda_istoric = new ComandaIstoric;
+                        $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                        $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+                        $comanda_istoric->operare_descriere = 'Adaugare incarcare';
+                        $comanda_istoric->save();
+                    } else if (
+                        ($locuriOperareIncarcariVechi[$i]->id !== $locuriOperareIncarcariNoi[$i]->id)
+                        || ($locuriOperareIncarcariVechi[$i]->pivot->ordine !== $locuriOperareIncarcariNoi[$i]->pivot->ordine)
+                        || ($locuriOperareIncarcariVechi[$i]->pivot->data_ora !== $locuriOperareIncarcariNoi[$i]->pivot->data_ora)
+                        || ($locuriOperareIncarcariVechi[$i]->pivot->observatii !== $locuriOperareIncarcariNoi[$i]->pivot->observatii)
+                        || ($locuriOperareIncarcariVechi[$i]->pivot->referinta !== $locuriOperareIncarcariNoi[$i]->pivot->referinta)
+                    ){
+                            $comandaLocOperareIstoric = new ComandaLocOperareIstoric;
+                            $comandaLocOperareIstoric->id = $locuriOperareIncarcariNoi[$i]->pivot->id;
+                            $comandaLocOperareIstoric->comanda_id = $locuriOperareIncarcariNoi[$i]->pivot->comanda_id;
+                            $comandaLocOperareIstoric->loc_operare_id = $locuriOperareIncarcariNoi[$i]->pivot->loc_operare_id;
+                            $comandaLocOperareIstoric->tip = $locuriOperareIncarcariNoi[$i]->pivot->tip;
+                            $comandaLocOperareIstoric->ordine = $locuriOperareIncarcariNoi[$i]->pivot->ordine;
+                            $comandaLocOperareIstoric->data_ora = $locuriOperareIncarcariNoi[$i]->pivot->data_ora;
+                            $comandaLocOperareIstoric->observatii = $locuriOperareIncarcariNoi[$i]->pivot->observatii;
+                            $comandaLocOperareIstoric->referinta = $locuriOperareIncarcariNoi[$i]->pivot->referinta;
+                            $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
+                            $comandaLocOperareIstoric->operare_descriere = 'Modificare';
+                            $comandaLocOperareIstoric->save();
+
+                            $comanda_istoric = new ComandaIstoric;
+                            $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                            $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+                            $comanda_istoric->operare_descriere = 'Modificare incarcare';
+                            $comanda_istoric->save();
                     }
+
+                } else if (!isset($locuriOperareIncarcariNoi[$i])){
+                    $comandaLocOperareIstoric = new ComandaLocOperareIstoric;
+                    $comandaLocOperareIstoric->id = $locuriOperareIncarcariVechi[$i]->pivot->id;
+                    $comandaLocOperareIstoric->comanda_id = $locuriOperareIncarcariVechi[$i]->pivot->comanda_id;
+                    $comandaLocOperareIstoric->loc_operare_id = $locuriOperareIncarcariVechi[$i]->pivot->loc_operare_id;
+                    $comandaLocOperareIstoric->tip = $locuriOperareIncarcariVechi[$i]->pivot->tip;
+                    $comandaLocOperareIstoric->ordine = $locuriOperareIncarcariVechi[$i]->pivot->ordine;
+                    $comandaLocOperareIstoric->data_ora = $locuriOperareIncarcariVechi[$i]->pivot->data_ora;
+                    $comandaLocOperareIstoric->observatii = $locuriOperareIncarcariVechi[$i]->pivot->observatii;
+                    $comandaLocOperareIstoric->referinta = $locuriOperareIncarcariVechi[$i]->pivot->referinta;
+                    $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
+                    $comandaLocOperareIstoric->operare_descriere = 'Stergere';
+                    $comandaLocOperareIstoric->save();
+
+                    $comanda_istoric = new ComandaIstoric;
+                    $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                    $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+                    $comanda_istoric->operare_descriere = 'Stergere incarcare';
+                    $comanda_istoric->save();
                 }
-                if (isset($locuriOperareIncarcariNoi[$i])){
-                    echo 'Id nou ' . $locuriOperareIncarcariNoi[$i]->id . '<br>';
-                }
-                if (isset($locuriOperareIncarcariVechi[$i])){
-                    echo 'Id vechi ' . $locuriOperareIncarcariVechi[$i]->id . ', ordine ' . $locuriOperareIncarcariVechi[$i]->pivot->ordine . '<br>';
-                }
-                if (isset($locuriOperareIncarcariNoi[$i])){
-                    echo 'Id nou ' . $locuriOperareIncarcariNoi[$i]->id . '<br>';
-                }
+
+                // if (isset($locuriOperareIncarcariNoi[$i])){
+                //     echo 'Id nou ' . $locuriOperareIncarcariNoi[$i]->id . '<br>';
+                // }
+                // if (isset($locuriOperareIncarcariVechi[$i])){
+                //     echo 'Id vechi ' . $locuriOperareIncarcariVechi[$i]->id . ', ordine ' . $locuriOperareIncarcariVechi[$i]->pivot->ordine . '<br>';
+                // }
+                // if (isset($locuriOperareIncarcariNoi[$i])){
+                //     echo 'Id nou ' . $locuriOperareIncarcariNoi[$i]->id . '<br>';
+                // }
             }
-            $locuriOperareNoi = $comanda->locuriOperare;
 
-            // foreach ($locuriOperareVechi as $locOperare){
-            //     echo $locOperare->id . '<br>';
-            // }
-            // echo '<br><br>';
-            // foreach ($locuriOperareNoi as $locOperare){
-            //     echo $locOperare->id . '<br>';
-            // }
-            // dd($locuriOperareVechi, $locuriOperareNoi, $comanda->locuriOperare, $locatii_id_array);
-dd('stop');
+            for ($i = 0; $i < max($locuriOperareDescarcariVechi->count(), $locuriOperareDescarcariNoi->count()); $i++ ){
+                if (isset($locuriOperareDescarcariNoi[$i])){
+                    if (!isset($locuriOperareDescarcariVechi[$i])){
+                        $comandaLocOperareIstoric = new ComandaLocOperareIstoric;
+                        $comandaLocOperareIstoric->id = $locuriOperareDescarcariNoi[$i]->pivot->id;
+                        $comandaLocOperareIstoric->comanda_id = $locuriOperareDescarcariNoi[$i]->pivot->comanda_id;
+                        $comandaLocOperareIstoric->loc_operare_id = $locuriOperareDescarcariNoi[$i]->pivot->loc_operare_id;
+                        $comandaLocOperareIstoric->tip = $locuriOperareDescarcariNoi[$i]->pivot->tip;
+                        $comandaLocOperareIstoric->ordine = $locuriOperareDescarcariNoi[$i]->pivot->ordine;
+                        $comandaLocOperareIstoric->data_ora = $locuriOperareDescarcariNoi[$i]->pivot->data_ora;
+                        $comandaLocOperareIstoric->observatii = $locuriOperareDescarcariNoi[$i]->pivot->observatii;
+                        $comandaLocOperareIstoric->referinta = $locuriOperareDescarcariNoi[$i]->pivot->referinta;
+                        $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
+                        $comandaLocOperareIstoric->operare_descriere = 'Adaugare';
+                        $comandaLocOperareIstoric->save();
 
-        // for ($i = 0; $i < count($request->incarcari['id']); $i++) {
-        //     $comanda->locuriOperare()->sync($request->incarcari['id'][$i], ['tip' => 1, 'ordine' => $i+1]);
-        // }
+                        $comanda_istoric = new ComandaIstoric;
+                        $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                        $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+                        $comanda_istoric->operare_descriere = 'Adaugare descarcare';
+                        $comanda_istoric->save();
+                    } else if (
+                        ($locuriOperareDescarcariVechi[$i]->id !== $locuriOperareDescarcariNoi[$i]->id)
+                        || ($locuriOperareDescarcariVechi[$i]->pivot->ordine !== $locuriOperareDescarcariNoi[$i]->pivot->ordine)
+                        || ($locuriOperareDescarcariVechi[$i]->pivot->data_ora !== $locuriOperareDescarcariNoi[$i]->pivot->data_ora)
+                        || ($locuriOperareDescarcariVechi[$i]->pivot->observatii !== $locuriOperareDescarcariNoi[$i]->pivot->observatii)
+                        || ($locuriOperareDescarcariVechi[$i]->pivot->referinta !== $locuriOperareDescarcariNoi[$i]->pivot->referinta)
+                    ){
+                            $comandaLocOperareIstoric = new ComandaLocOperareIstoric;
+                            $comandaLocOperareIstoric->id = $locuriOperareDescarcariNoi[$i]->pivot->id;
+                            $comandaLocOperareIstoric->comanda_id = $locuriOperareDescarcariNoi[$i]->pivot->comanda_id;
+                            $comandaLocOperareIstoric->loc_operare_id = $locuriOperareDescarcariNoi[$i]->pivot->loc_operare_id;
+                            $comandaLocOperareIstoric->tip = $locuriOperareDescarcariNoi[$i]->pivot->tip;
+                            $comandaLocOperareIstoric->ordine = $locuriOperareDescarcariNoi[$i]->pivot->ordine;
+                            $comandaLocOperareIstoric->data_ora = $locuriOperareDescarcariNoi[$i]->pivot->data_ora;
+                            $comandaLocOperareIstoric->observatii = $locuriOperareDescarcariNoi[$i]->pivot->observatii;
+                            $comandaLocOperareIstoric->referinta = $locuriOperareDescarcariNoi[$i]->pivot->referinta;
+                            $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
+                            $comandaLocOperareIstoric->operare_descriere = 'Modificare';
+                            $comandaLocOperareIstoric->save();
 
+                            $comanda_istoric = new ComandaIstoric;
+                            $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                            $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+                            $comanda_istoric->operare_descriere = 'Modificare descarcare';
+                            $comanda_istoric->save();
+                    }
 
-        // Salvare in istoric
-        // if ($comanda->wasChanged()){
-        //     $comanda_istoric = new ComandaIstoric;
-        //     $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        //     $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
-        //     $comanda_istoric->operare_descriere = 'Modificare';
-        //     $comanda_istoric->save();
-        // }
+                } else if (!isset($locuriOperareDescarcariNoi[$i])){
+                    $comandaLocOperareIstoric = new ComandaLocOperareIstoric;
+                    $comandaLocOperareIstoric->id = $locuriOperareDescarcariVechi[$i]->pivot->id;
+                    $comandaLocOperareIstoric->comanda_id = $locuriOperareDescarcariVechi[$i]->pivot->comanda_id;
+                    $comandaLocOperareIstoric->loc_operare_id = $locuriOperareDescarcariVechi[$i]->pivot->loc_operare_id;
+                    $comandaLocOperareIstoric->tip = $locuriOperareDescarcariVechi[$i]->pivot->tip;
+                    $comandaLocOperareIstoric->ordine = $locuriOperareDescarcariVechi[$i]->pivot->ordine;
+                    $comandaLocOperareIstoric->data_ora = $locuriOperareDescarcariVechi[$i]->pivot->data_ora;
+                    $comandaLocOperareIstoric->observatii = $locuriOperareDescarcariVechi[$i]->pivot->observatii;
+                    $comandaLocOperareIstoric->referinta = $locuriOperareDescarcariVechi[$i]->pivot->referinta;
+                    $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
+                    $comandaLocOperareIstoric->operare_descriere = 'Stergere';
+                    $comandaLocOperareIstoric->save();
+
+                    $comanda_istoric = new ComandaIstoric;
+                    $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                    $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+                    $comanda_istoric->operare_descriere = 'Stergere descarcare';
+                    $comanda_istoric->save();
+                }
+
+                // if (isset($locuriOperareDescarcariNoi[$i])){
+                //     echo 'Id nou ' . $locuriOperareDescarcariNoi[$i]->id . '<br>';
+                // }
+                // if (isset($locuriOperareDescarcariVechi[$i])){
+                //     echo 'Id vechi ' . $locuriOperareDescarcariVechi[$i]->id . ', ordine ' . $locuriOperareDescarcariVechi[$i]->pivot->ordine . '<br>';
+                // }
+                // if (isset($locuriOperareDescarcariNoi[$i])){
+                //     echo 'Id nou ' . $locuriOperareDescarcariNoi[$i]->id . '<br>';
+                // }
+            }
 
         return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost salvată cu succes!');
     }
@@ -500,5 +610,24 @@ dd('stop');
         } else {
             return back()->with('error', 'Nu există un email valid!');
         }
+    }
+
+    public function stare(Request $request, Comanda $comanda, $stare = null)
+    {
+        switch ($stare) {
+            case 'deschide':
+                $comanda->stare = 1;
+                break;
+            case 'inchide':
+                $comanda->stare = 2;
+                break;
+            case 'anuleaza':
+                $comanda->stare = 3;
+                break;
+        }
+
+        $comanda->save();
+
+        return back()->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost ' . (($comanda->stare === 1) ? 'deschisa' : (($comanda->stare === 2) ? 'inchisa' : (($comanda->stare === 3) ? 'anulata' : '' ))) . '!');
     }
 }
