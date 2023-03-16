@@ -91,6 +91,9 @@
                     <div class="input-group-prepend d-flex align-items-center">
                         <div v-if="firmaTransportatorId" class="input-group-text p-2 text-danger" id="firmaTransportatorNume" v-on:click="firmaTransportatorId = null; firmaTransportatorNume = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
+                    <div class="input-group-prepend d-flex align-items-center">
+                        <div class="input-group-text p-2 bg-success text-white ms-3" v-on:click="firmaTransportatorId = null; firmaTransportatorNume = ''">+</div>
+                    </div>
                 </div>
                 <div v-cloak v-if="firmeTransportatoriListaAutocomplete && firmeTransportatoriListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                     <div class="list-group" style="max-height: 218px; overflow:auto;">
