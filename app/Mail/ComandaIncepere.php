@@ -10,6 +10,8 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
+use Illuminate\Mail\Mailables\Headers;
+
 class ComandaIncepere extends Mailable
 {
     use Queueable, SerializesModels;
@@ -25,12 +27,27 @@ class ComandaIncepere extends Mailable
     }
 
     /**
+     * Get the message headers.
+     */
+    // public function headers(): Headers
+    // {
+    //     return new Headers(
+            // messageId: 'custom-message-id@example.com',
+            // messageId: \Carbon\Carbon::now()->todatetimestring(),
+            // references: ['previous-message@example.com'],
+            // text: [
+            //     'X-Custom-Header' => 'Custom Value',
+            // ],
+    //     );
+    // }
+
+    /**
      * Get the message envelope.
      */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Începe comanda ' . $this->comanda->transportator_contract . ' - ' . ($this->comanda->data_ora ?? \Carbon\Carbon::parse($this->comanda->data_ora)->isoFormat('HH:mm DD.MM.YYYY')),
+            subject: 'Începe comanda ' . $this->comanda->transportator_contract . ' - ' . ($this->comanda->data_ora ?? \Carbon\Carbon::parse($this->comanda->data_ora)->isoFormat('HH:mm DD.MM.YYYY')) . ' (' .  uniqid() . ')',
         );
     }
 
