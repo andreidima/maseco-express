@@ -28,7 +28,7 @@
             font-size: 12px;
             margin-top: 10px;
             margin-left: 1cm;
-            margin-right: 1cm;
+            margin-right: 0.5cm;
             margin-bottom: 1cm;
         }
 
@@ -151,8 +151,8 @@
 
             <h3 style="margin:0; text-align:center"><b>CAP. I.	PĂRȚILE</b></h3>
             <p style="text-indent: -20px;">
-                <b>1.1. MASECO EXPRES S.R.L.</b>, CUI RO26994418, J33/359/2010, având sediul în: mun. Suceava, Str. Baladei, Nr. 2, Bl. 25, Sc. C, Ap. 9, Suceava, Romania, c. p. 72016 și adresa de  corespondență: mun. Suceava, str. Fântâna Mare nr. 2, bl. 2A, sc. A, et. 1, ap. 4, jud Suceava, c.p. 720279, email: info@masecoexpres.net, tel.: 0752.219.049, <b>în calitate de Expeditor</b>,
-                <b>prin director general Alexandru Tcaciuc</b>,
+                <b>1.1. MASECO EXPRES S.R.L.</b>, CUI RO26994418, J33/359/2010, având sediul în: mun. Suceava, Str. Baladei, Nr. 2, Bl. 25, Sc. C, Ap. 9, Suceava, Romania, c. p. 720159 și adresa de  corespondență: mun. Suceava, str. Fântâna Mare nr. 2, bl. 2A, sc. A, et. 1, ap. 4, jud Suceava, c.p. 720279, email: info@masecoexpres.net, tel.: 0740.800.852, <b>în calitate de Expeditor</b>,
+                <b>prin director general Adrian Tcaciuc</b>,
             </p>
             <p style="text-indent: -20px;">
                 <b>1.2.	{{ $firma->nume ?? '' }} </b> , CUI  {{ $firma->cui ?? '' }} , J {{ $firma->reg_com ?? '' }} , având sediul / adresa de corespondență în: {{ $firma->adresa ?? '' }}, {{ $firma->oras ?? '' }}, {{ $firma->judet ?? '' }}, {{ $firma->tara->nume ?? '' }}, email: {{ $firma->email }} , tel.: {{ $firma->telefon }} , <b>în calitate de Transportator</b>,
@@ -257,14 +257,19 @@
                     <td style="padding:0px 2px; margin:0rem; width:50%;">
                         Reprezentant Expeditor,
                         <br>
-                        <br>
-                        _____________________________________
+                        <img src="{{ public_path('images/semnatura_stampila.jpg') }}" width="143px" style="margin-left:50px">
+                        {{-- <br> --}}
+                        <hr width="70%" style="margin-left:0;">
                     </td>
                     <td style="padding:0px 2px; margin:0rem; width:50%;">
                         Reprezentant Cărăuș,
                         <br>
                         <br>
-                        _____________________________________
+                        <br>
+                        <br>
+                        <br>
+                        <br>
+                        <hr width="70%" style="margin-left:0;">
                     </td>
                 </tr>
             </table>
