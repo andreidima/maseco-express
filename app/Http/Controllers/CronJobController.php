@@ -95,26 +95,26 @@ class CronJobController extends Controller
                 ->get();
 
                 // Afisare in pagina pentru debug
-                foreach ($comenzi as $comanda){
-                    echo 'Comanda id: ' . $comanda->id;
-                    echo '<br>';
-                    if (isset($comanda->transportator->email)){
-                        echo 'Email transportator: ' . $comanda->transportator->email . '<br>';
-                    }
-                    echo '<br>';
-                    echo 'Incarcari: ';
-                    foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
-                        echo $locOperareIncarcare->pivot->ordine . '. ' . $locOperareIncarcare->pivot->data_ora . ', ';
-                    }
+                // foreach ($comenzi as $comanda){
+                //     echo 'Comanda id: ' . $comanda->id;
+                //     echo '<br>';
+                //     if (isset($comanda->transportator->email)){
+                //         echo 'Email transportator: ' . $comanda->transportator->email . '<br>';
+                //     }
+                //     echo '<br>';
+                //     echo 'Incarcari: ';
+                //     foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
+                //         echo $locOperareIncarcare->pivot->ordine . '. ' . $locOperareIncarcare->pivot->data_ora . ', ';
+                //     }
 
-                    echo '<br>';
+                //     echo '<br>';
 
-                    echo 'Descarcari: ';
-                    foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
-                        echo $locOperareDescarcare->pivot->ordine . '. ' . $locOperareDescarcare->pivot->data_ora . ', ';
-                    }
-                    echo '<br><br><br><br>';
-                }
+                //     echo 'Descarcari: ';
+                //     foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
+                //         echo $locOperareDescarcare->pivot->ordine . '. ' . $locOperareDescarcare->pivot->data_ora . ', ';
+                //     }
+                //     echo '<br><br><br><br>';
+                // }
                 // dd('stop');
 
             foreach ($comenzi as $comanda){
@@ -131,7 +131,7 @@ class CronJobController extends Controller
                         // $comanda->transportator->validate([
                         //     'email' => 'email:rfc,dns',
                         // ]);
-                    echo "<br><br><br><br>Email cerere status trimis<br><br><br><br>";
+
 
                     Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaStatus($comanda));
 
@@ -142,37 +142,11 @@ class CronJobController extends Controller
                     $emailTrimis->email = $comanda->transportator->email;
                     $emailTrimis->save();
 
-            // Afisare in pagina pentru debug
-            foreach ($comenzi as $comanda){
-                echo 'Email de informare catre maseco: <br>';
-
-                echo 'Comanda id: ' . $comanda->id;
-                echo '<br>';
-                if (isset($comanda->transportator->email)){
-                    echo 'Email transportator: ' . $comanda->transportator->email . '<br>';
-                }
-                echo '<br>';
-                echo 'Incarcari: ';
-                foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
-                    echo $locOperareIncarcare->pivot->ordine . '. ' . $locOperareIncarcare->pivot->data_ora . ', ';
                 }
 
-                echo '<br>';
-
-                echo 'Descarcari: ';
-                foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
-                    echo $locOperareDescarcare->pivot->ordine . '. ' . $locOperareDescarcare->pivot->data_ora . ', ';
-                }
-                echo '<br><br>';
-            }
-            // dd('stop');
-
-
-            foreach ($comenzi as $comanda){
-                // Trimitere email
-                echo "<br><br><br><br>Email informare trimis<br><br><br><br>";
-                // Mail::to('info@masecoexpres.net')->send(new \App\Mail\ComandaIncepere($comanda));
-                Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\ComandaIncepere($comanda));
+                // Trimitere WhatsApp
+                // $comanda->transportator->notify(new CerereStatus($comanda));
+                // $request->user()->notify(new CerereStatus($comanda));
             }
 
 
