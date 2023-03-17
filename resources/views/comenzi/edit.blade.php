@@ -36,6 +36,33 @@
 </div>
 
 
+<div class="modal fade text-dark" id="adaugaTransportator" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+        <div class="modal-header bg-danger">
+            <h5 class="modal-title text-white" id="exampleModalLabel">Firma</h5>
+            <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" style="text-align:left;">
+            <form class="needs-validation" novalidate method="POST" action="/firme/transportatori">
+                @include ('firme.form', [
+                    'firma' => new App\Models\Firma,
+                    'tipPartener' => 'transportatori',
+                    'tari' => App\Models\Tara::select('id', 'nume')->orderBy('nume')->get(),
+                    'buttonText' => 'Adaugă Firma'
+                ])
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+
+
+        </div>
+        </div>
+    </div>
+</div>
+
+
 {{-- <div class="modal fade text-dark" id="adaugaLocOperareNou" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">

@@ -174,9 +174,9 @@
                             @isset ($comanda->locuriOperareDescarcari[$i])
                                 DESCĂRCARE {{ $i+1 }}
                                 <br>
-                                {{ $comanda->locuriOperareIncarcari[$i]->pivot->data_ora ?
-                                    'Data ' . \Carbon\Carbon::parse($comanda->locuriOperareIncarcari[$i]->pivot->data_ora)->isoFormat('DD.MM.YYYY') .
-                                    ', ora ' . \Carbon\Carbon::parse($comanda->locuriOperareIncarcari[$i]->pivot->data_ora)->isoFormat('HH:mm')
+                                {{ $comanda->locuriOperareDescarcari[$i]->pivot->data_ora ?
+                                    'Data ' . \Carbon\Carbon::parse($comanda->locuriOperareDescarcari[$i]->pivot->data_ora)->isoFormat('DD.MM.YYYY') .
+                                    ', ora ' . \Carbon\Carbon::parse($comanda->locuriOperareDescarcari[$i]->pivot->data_ora)->isoFormat('HH:mm')
                                     : ''}}
                                 <br>
                                 {{ $comanda->locuriOperareDescarcari[$i]->nume ?? ''}}
@@ -194,36 +194,63 @@
 
             <br>
 
-            <table>
-                @if ($comanda->descriere_marfa)
+            @if ($comanda->descriere_marfa)
+                <table>
                     <tr>
                         <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
-                            Descriere marfă:
+                            DESCRIERE MARFĂ:
                             {{ $comanda->descriere_marfa }}
                         </td>
                     </tr>
-                @endif
+                </table>
+                <br>
+            @endif
+
+            <table>
                 @foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare)
                     @if ($locOperareIncarcare->pivot->referinta)
                         <tr>
                             <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
-                                DETALII MARFĂ ÎNCĂRCARE {{ $loop->iteration }}:
+                                DETALII ÎNCĂRCARE {{ $loop->iteration }}:
                                 {{ $locOperareIncarcare->pivot->referinta ?? ''}}
                             </td>
                         </tr>
                     @endif
-                @endforeach
-                @foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare)
-                    @if ($locOperareDescarcare->pivot->referinta)
+                    @if ($locOperareIncarcare->pivot->observatii)
                         <tr>
                             <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
-                                DETALII MARFĂ DESCĂRCARE {{ $loop->iteration }}:
-                                {{ $locOperareDescarcare->pivot->referinta ?? ''}}
+                                OBSERVAȚII ÎNCĂRCARE {{ $loop->iteration }}:
+                                {{ $locOperareIncarcare->pivot->observatii ?? ''}}
                             </td>
                         </tr>
                     @endif
                 @endforeach
             </table>
+
+            <br>
+
+            <table>
+                @foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare)
+                    @if ($locOperareDescarcare->pivot->referinta)
+                        <tr>
+                            <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
+                                DETALII DESCĂRCARE {{ $loop->iteration }}:
+                                {{ $locOperareDescarcare->pivot->referinta ?? ''}}
+                            </td>
+                        </tr>
+                    @endif
+                    @if ($locOperareDescarcare->pivot->observatii)
+                        <tr>
+                            <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
+                                OBSERVAȚII DESCĂRCARE {{ $loop->iteration }}:
+                                {{ $locOperareDescarcare->pivot->observatii ?? ''}}
+                            </td>
+                        </tr>
+                    @endif
+                @endforeach
+            </table>
+
+
 
             <br>
 
@@ -243,30 +270,7 @@
                         <br>
                         MODALITATE DE PLATĂ: {{ $comanda->transportatorMetodaDePlata->nume ?? '' }}
                         <br>
-                        TERMEN DE PLATĂ: {{ $comanda->transportatorTermenDePlata->nume ?? '' }}
-                    </td>
-                </tr>
-            </table>
-
-            <table>
-                <tr valign="top">
-                    <td style="padding:0px 2px; margin:0rem; width:50%;">
-                        SC Maseco Expres SRL
-                        <br>
-                        {{ $comanda->user->name ?? '' }}
-                        <br>
-                        {{ $comanda->user->telefon ?? '' }}
-                        <br>
-                        info@masecoexpres@gmail.com
-                    </td>
-                    <td style="padding:0px 2px; margin:0rem; width:50%;">
-                        {{ $comanda->transportator->nume ?? '' }}
-                        <br>
-                        {{ $comanda->transportator->persoana_contact ?? '' }}
-                        <br>
-                        {{ $comanda->transportator->telefon ?? '' }}
-                        <br>
-                        {{ $comanda->transportator->email ?? '' }}
+                        TERMEN DE PLATĂ: la {{ $comanda->transportator_zile_scadente }} de zile {{ $comanda->transportatorTermenDePlata->nume ?? '' }}
                     </td>
                 </tr>
             </table>
@@ -278,27 +282,45 @@
             {{ $comanda->transportator_contract }} / {{ (isset($comanda->data_creare) ? (\Carbon\Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY')) : '') }} - {{ $comanda->client_contract }}
         </h2>
 
-        <h5 style="text-align:center; margin-bottom: 0px;">
-            ATENȚIE !!!ACEASTĂ PAGINĂ NU SE ÎNMÂNEAZĂ ȘOFERULUI!!!
+        <h4 style="text-align:center; margin-bottom: 0px;">
+            ATENȚIE!!! ACEASTĂ PAGINĂ NU SE ÎNMÂNEAZĂ ȘOFERULUI!!!
             <br>
-            CONTRAVALOAREA FACTURII DE TRANSPORT VA FI ACHITATĂ CU CONDIȚIA RECEPTIONĂRII FACTURII DE TRANSPORT ȘI 2 CMR-URI ÎN ORIGINAL, PLUS AVIZELE AFERENTE CURSEI, DACĂ ESTE NECESAR.
+            CONTRAVALOAREA FACTURII DE TRANSPORT VA FI ACHITATĂ CU CONDIȚIA RECEPȚIONĂRII FACTURII DE TRANSPORT ȘI 2 CMR-URI ÎN ORIGINAL, PLUS AVIZELE AFERENTE CURSEI, DACĂ ESTE NECESAR.
             <br>
-            CMR-ul ȘI DOCUMENTELE SPECIFICE AFERENTE COMENZII TREBUIE TRIMISE ÎN FORMAT PDF ÎN ZIUA ÎN CURS AEFECTUĂRII TRANSPORTULUI LA: pod@masecoexpres.net
-        </h5>
+            CMR-UL ȘI DOCUMENTELE SPECIFICE AFERENTE COMENZII TREBUIE TRIMISE ÎN FORMAT PDF ÎN ZIUA ÎN CURS AEFECTUĂRII TRANSPORTULUI LA: pod@masecoexpres.net
+        </h4>
         <h4 style="text-align:center; color:red">
-            !!!ADRESĂ CORESPONDENȚĂ!!!
+            !!!ADRESĂ CORESPONDENȚĂ!!!DOAR CURIERI!!!
             <br>
-            BLD. ACADEMICIAN VASILE GRECU NR. 2, 720239 SUCEAVA
+            STRADA FÂNTAÂNA ALBĂ, NR. 2, BL. 2A, SC. A, ET. 1, AP. 4, 720264 SUCEAVA
             <br>
-            NU ACCEPTĂM DOCUMENTE TRIMISE CU POȘTA !!!!DOAR CURIERI!!!
+            NU ACCEPTĂM DOCUMENTE TRIMISE CU POȘTA
             <br>
-            ATENȚIE! FIRMA NOASTRĂ ESTE PLATITOARE DE TVA
+            ATENȚIE! FIRMA NOASTRĂ ESTE PLĂTITOARE DE TVA!
         </h4>
 
-        <br>
+        <ol><center><b>CONDIȚII SPECIALE ALE COMENZII DE TRANSPORT</b></center>
+            <li>Prezentele condiții reglementează modul de desfășurare a livrării mărfurilor, ce fac obiectul comenzii, și se completează cu prevederile contractului cadru, dispozițiile Convenției CMR, Convenției TIR, OUG nr. 27/2011 și art. 1.955 - art. 2.001 Cod civil.</li>
+            <li>Comanda se consideră confirmată și acceptată prin acordul de voință manifestat de Cărăuș, exprimat în orice formă și comunicat în scris Expeditorului, prin mijloacele de comunicare electronice utilizate de părți  (ex: Skype, Whatsapp). </li>
+            <li>Comanda plasată de Expeditor și acceptată de Cărăuș este irevocabilă. Prin excepție, Expeditorul are dreptul de a modifica sau anula o comandă confirmată, în orice moment, în cazul în care intervin evenimente ce fac imposibilă realizarea obiectului comenzii. </li>
+            <li>Este interzisă subcontractarea comenzilor acceptate de Cărăuș către alți transportatori, fără acordul scris al Expeditorului.</li>
+            <li>Înainte de începerea cursei, Cărăușul va comunica Expeditorului, link-ul GPRS al autocamionului utilizat, cu valabilitate pe toată perioada cursei, și o copie a asigurării CMR, cu valabilitate pe toată perioada cursei (în valoare de minim: 15.000 euro, pentru autocamioane de 3,5 tone, 50.000 euro, pentru autocamioane de 7,5 tone, sau minim 100.000 euro, pentru autocamioane de 24 tone).</li>
+            <li>Cărăușul este obligat să dețină licență de transport, valabilă pe toată perioada cursei, și se va asigura că șoferul desemnat este instruit SSM, are drepturile salariale stabilite și plătite conform legislației aplicabile și deține asupra sa Declarația de detașare, conform Pachetului de mobilitate în vigoare.</li>
+            <li>Cărăușul va folosit pentru transport autocamioane adecvate, dotate cu toate echipamentele necesare și în stare bună tehnică (minim: 24 bucăți chingi STF 500 DAN, 2 colțare de protective pentru fiecare chingă, 2 covorașe antiderapante pentru fiecare palet, prelată, etc.).</li>
+            <li>Cărăușul se va asigura că la momentul încărcării mărfurile sunt integrale, nedeteriorate, ambalate și asigurate corespunzător. Orice lipsuri ori deficiențe în privința mărfurilor, neanunțate in momentul încărcării, vor fi considerate ca fiind produse pe timpul transportului, culpa revenind exclusiv Cărăușului.</li>
+            <li>Imediat după încărcarea mărfurilor, Cărăușul este obligat sa comunice Expeditorului fotografii ale mărfurilor încărcate în autocamion și copii ale documentele de transport. Cărăușul nu va părăsi locul de încărcare, fără acordul scris din partea Expeditorului.</li>
+            <li>Cărăușul are obligația să asigure supravegherea, conservarea, paza și integritatea bunurilor pe tot parcursul transportului, având pe deplin responsabilitatea oricăror lipsuri sau deficiențe provocate.</li>
+            <li>Imediat după descărcarea mărfurilor, Cărăușul va comunica Expeditorului copii ale CMR, semnat si acceptat fără obiecțiuni, prin mijloacele de comunicare electronice utilizate de părți și la adresa de email. pod@masecoexpres.net, sub sancțiunea amânării plății cursei cu până la 30 de zile. Cărăușul nu va părăsi locul de descărcare decât după primirea acceptului scris din partea Expeditorului.</li>
+            <li>Întârzierea efectuării transportului de Cărăuș, poate atrage plata de daune interese de 100 euro pentru fiecare oră de întârziere, sau în cuantum egal cu cele aplicate Expeditorului de către beneficiarului transportului, dacă au fost reclamate și depășesc această valoare.</li>
+            <li>Cărăușul declară că înțelege și acceptă că pot exista eventuale întârzieri (de câteva ore) la încărcare și/sau la descărcare mărfurilor.</li>
+            <li>În cazul în care, prin acordul părților încărcarea și/sau descărcarea mărfurilor se va face de către Transportator, manual, Cărăușul are obligația de a comunica imediat Expeditorului fotografii doveditoare.</li>
+            <li>Este interzisă transbordarea, încărcarea sau descărcarea mărfurilor, în afara stațiilor de încărcare sau descărcare, fără acordul scris al Expeditorului. Daca transportul se efectuează cu autocamion de 24 tone, Cărăușul nu va deconecta semiremorca de capul tractor, pana la descărcarea mărfurilor, fără acordul scris al Expeditorului.</li>
+            <li>În termen de maxim 7 zile lucrătoare, pentru transportul intern, sau maxim 10 zile lucrătoare, pentru transportul extern, de la efectuarea transportului, Cărăușul va comunica Expeditorului, prin curier, la adresa de corespondență, în original, comanda de transport semnată și ștampilată, cele 2 exemplare ale CMR-ului și celelalte documente ce au însoțit transportul, sub sancțiunea amânării plății curse cu până la 30 de zile. În cazul pierderii, distrugerii sau deteriorării grave a documentelor de transport originale, Expeditorul are dreptul de a refuza plata transportului.</li>
+            <li>Nerespectarea de către Cărăuș a obligațiilor asumate prin prezenta comandă, poate atrage anularea comenzii de către Expeditor, fără punere în întârziere, refuzul plății cursei și/sau plata de către Cărăuș de daune interese egale cu dublul prețului cursei anulate, sau în cuantum egal cu cele aplicate Expeditorului de către beneficiarului transportului, dacă au fost reclamate și depășesc această valoare, precum și  prejudicii de imagine în sumă de 500 euro.</li>
+            <li>Dacă părțile convin asupra prețului transportului în EUR, plățile se vor efectua la cursul BNR din ziua emiterii facturii. Cărăușul are obligația sa menționeze în cuprinsul facturilor contravaloarea serviciilor în ambele valute (RON si EURO). Lipsa acestor informații, poate atrage refuzul plății facturii până la remediere.</li>
+            <li>Părțile se obligă să respecte legislația cu privire la protecția, confidențialitatea și prelucrarea datelor cu caracter personal, respectiv Regulamentul UE 679/2016, Legea nr. 190/2018 și orice alte acte normative în domeniu în vigoare.</li>
 
-        <ol>ALTE CLAUZE SI OBSERVATII:
-            <li>Aceasta comanda de transport este sustinuta de Conventiile CMR si TIR, pentru transportul specificat in continutul sau.</li>
+            {{-- <li>Aceasta comanda de transport este sustinuta de Conventiile CMR si TIR, pentru transportul specificat in continutul sau.</li>
             <li>Prezentul contract este considerat acceptat de ambele parti, pentru suma convenita si trebuie executat conform cerintelor mentionate.</li>
             <li>In cazul in care, carausul nu confirma acest transport in maxim 30 minute, comanda se considera acceptata, cu toate conditiile mentionate! Anularea se poate realiza doar in scris, in maxim 10 minute de la primirea comenzii.</li>
             <li>Anularea comenzii de transport, dupa confirmarea ei se penalizeaza cu 30.000 euro, cu chemarea in instanta.</li>
@@ -317,15 +339,15 @@
             <li>Orice necompletarea corespunzatoare ale documentelor de transport sau deteriorarea lor duce la o penalizare de 50 euro. Pentru pierderea lor, carausul nu poate sa primeasca contravaloarea transportului ci va fi penalizat cu suma impusa de client + 200 euro pentru despagubirea imaginii SC Maseco Expres SRL.</li>
             <li>Plata transportului se face in RON sau EURO, la cursul BNR din ziua emiterii facturii. Carausul are obligatia sa mentioneze ambele sume (RON si EURO) pe factura. Lipsa acestor informatii, poate duce la prelunguirea cu 15 zile a platii.</li>
             <li>Carausul este obligat, prin acceptarea acestei comenzi, sa respecte fiecare regula mentionata. Nerespectarea termenilor poate dup ace neachitarea facturii de transport.</li>
-            <li>Carausul este obligat sa detina licenta de transport valabilia si sa se asigure ca șoferul are completata Declarația De Detașare conform pachetului de Mobilitate intrat în vigoare la data de 02.02.2021 21. Se poate astepta la incarcare/descarcare cateva ore 22. Dupa primirea comenzi transportatorul are obligatia sa trimita linkul GPS al masini cu o valabilitate pe toata perioada cursei</li>
+            <li>Carausul este obligat sa detina licenta de transport valabilia si sa se asigure ca șoferul are completata Declarația De Detașare conform pachetului de Mobilitate intrat în vigoare la data de 02.02.2021 21. Se poate astepta la incarcare/descarcare cateva ore 22. Dupa primirea comenzi transportatorul are obligatia sa trimita linkul GPS al masini cu o valabilitate pe toata perioada cursei</li> --}}
         </ol>
 
         <br>
         <br>
 
-        <table>
+        <table style="width:90%; margin-left: auto; margin-right: auto;">
             <tr valign="top">
-                <td style="padding:0px 2px; margin:0rem; width:50%;">
+                <td style="padding:0px 2px; margin:0rem; width:60%;">
                     SC Maseco Expres SRL
                     <br>
                     {{ $comanda->user->name ?? '' }}
@@ -334,7 +356,7 @@
                     <br>
                     info@masecoexpres@gmail.com
                 </td>
-                <td style="padding:0px 2px; margin:0rem; width:50%;">
+                <td style="padding:0px 2px; margin:0rem; width:40%;">
                     {{ $comanda->transportator->nume ?? '' }}
                     <br>
                     {{ $comanda->transportator->persoana_contact ?? '' }}

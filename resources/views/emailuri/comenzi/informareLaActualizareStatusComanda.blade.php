@@ -3,17 +3,16 @@
 
         @include ('emailuri.headerFooter.header')
 
-        @php
-            $data_ora_prima_incarcare = $comanda->locuriOperareIncarcari()->where('ordine', 1)->first()->pivot->data_ora;
-        @endphp
-
-
         <div style="padding:20px 20px; max-width:760px!important;margin:0 auto; font-size:18px">
             Bună Maseco Expres,
             <br><br>
-            Comanda {{ $comanda->transportator_contract }} începe prima încărcare
-            la ora <b>{{ $data_ora_prima_incarcare ? \Carbon\Carbon::parse($data_ora_prima_incarcare)->isoFormat('HH:mm') : '' }}</b>,
-            în data de <b>{{ $data_ora_prima_incarcare ? \Carbon\Carbon::parse($data_ora_prima_incarcare)->isoFormat('DD.MM.YYYY'): '' }}</b>
+            Transportatorul a adăugat un status la Comanda {{ $comanda->transportator_contract }}
+            <br><br>
+            Data: {{ \Carbon\Carbon::parse($comanda->ultimulStatus()->created_at)->isoFormat('DD.MM.YYYY') }}
+            <br>
+            Mod transmitere: {{ $comanda->ultimulStatus()->mod_transmitere }}
+            <br>
+            Status: {{ $comanda->ultimulStatus()->status }}
             <br><br>
             Acesta este un mesaj automat. Vă rugăm să nu răspundeți la acest e-mail.
             <br><br>

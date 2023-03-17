@@ -137,6 +137,10 @@ class CamionController extends Controller
      */
     public function destroy(Request $request, Camion $camion)
     {
+        if (count($camion->comenzi) > 0){
+            return back()->with('error', 'Nu puteți șterge camionul „' . ($camion->nume ?? '') . '” pentru că are comenzi! Ștergeți mai întâi comenzile respective.');
+        }
+
         // Salvare in istoric
         $camion_istoric = new CamionIstoric;
         $camion_istoric->fill($camion->makeHidden(['created_at', 'updated_at'])->attributesToArray());

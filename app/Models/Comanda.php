@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Comanda extends Model
 {
@@ -54,7 +55,7 @@ class Comanda extends Model
 
     public function locuriOperare()
     {
-        return $this->belongsToMany(LocOperare::class, 'comenzi_locuri_operare', 'comanda_id', 'loc_operare_id')->with('tara')->withPivot('ordine', 'data_ora', 'observatii', 'referinta');
+        return $this->belongsToMany(LocOperare::class, 'comenzi_locuri_operare', 'comanda_id', 'loc_operare_id')->with('tara')->withPivot('id', 'tip', 'ordine', 'data_ora', 'observatii', 'referinta');
     }
 
     public function locuriOperareIncarcari()
@@ -70,5 +71,39 @@ class Comanda extends Model
     public function statusuri()
     {
         return $this->hasMany(ComandaStatus::class);
+    }
+
+    public function ultimulStatus()
+    {
+        return $this->hasOne(ComandaStatus::class)->latest()->first();
+    }
+
+    public function contracteTrimisePeEmailCatreTransportator()
+    {
+        return $this->hasMany(MesajTrimisEmail::class, 'comanda_id')->where('categorie', 3);
+    }
+
+    public function emailInformareIncepereComanda()
+    {
+        return $this->hasOne(MesajTrimisEmail::class, 'comanda_id')->where('categorie', 1);
+    }
+
+    public function emailuriCerereStatusComanda()
+    {
+        return $this->hasMany(MesajTrimisEmail::class, 'comanda_id')->where('categorie', 2);
+    }
+
+     // Se trimite notificare de cerere status doar daca nu este nici una trimisa intr-un interval stabilit de timp
+    public function emailuriCerereStatusComandaInUltimaPerioada()
+    {
+        return $this->hasMany(MesajTrimisEmail::class, 'comanda_id')->where('categorie', 2)->where('created_at', '>=', Carbon::now()->subMinutes(30) );
+
+        // $ultimulMesajTrimis = $this->emailuriCerereStatusComanda()->where('categorie', 2)->latest()->first();
+        // if ($ultimulMesajTrimis){
+        //     if (Carbon::parse($ultimulMesajTrimis->created_at)->diffInHours(Carbon::now()) <= 30){
+        //         return true;
+        //     }
+        // }
+        // return false;
     }
 }

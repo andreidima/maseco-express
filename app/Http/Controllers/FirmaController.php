@@ -8,6 +8,7 @@ use App\Models\Firma;
 use App\Models\FirmaIstoric;
 use App\Models\Tara;
 use App\Models\Camion;
+use Carbon\Carbon;
 
 class FirmaController extends Controller
 {
@@ -138,7 +139,13 @@ class FirmaController extends Controller
     public function destroy(Request $request, $tipPartener = null, Firma $firma)
     {
         if (count($firma->camioane) > 0){
-            return back()->with('error', 'Nu puteți șterge firma „' . ($firma->nume ?? '') . '” pentru că are camioane atașate! Ștergeți mai întâi camioanele');
+            return back()->with('error', 'Nu puteți șterge firma „' . ($firma->nume ?? '') . '” pentru că are camioane atașate! Ștergeți mai întâi camioanele.');
+        }
+        if (count($firma->comenziCaSiClient) > 0){
+            return back()->with('error', 'Nu puteți șterge firma „' . ($firma->nume ?? '') . '” pentru că are comenzi ca și client! Ștergeți mai întâi comenzile respective.');
+        }
+        if (count($firma->comenziCaSiTransportator) > 0){
+            return back()->with('error', 'Nu puteți șterge firma „' . ($firma->nume ?? '') . '” pentru că are comenzi ca și transportator! Ștergeți mai întâi comenzile respective.');
         }
 
         // Salvare in istoric
@@ -173,7 +180,7 @@ class FirmaController extends Controller
             [
                 'nume' => 'required|max:500',
                 'tip_partener' => 'required',
-                'tara_id' => 'required|numeric',
+                'tara_id' => 'nullable|numeric',
                 'cui' => 'nullable|max:500',
                 'reg_com' => 'nullable|max:500',
                 'oras' => 'nullable|max:500',
@@ -204,13 +211,14 @@ class FirmaController extends Controller
     {
         if (is_null($firma->contract_nr)){
             $firma->contract_nr = (Firma::max('contract_nr') ?? '0') + 1;
+            $firma->contract_data = Carbon::now();
             $firma->save();
         }
 
         if ($request->view_type === 'export-html') {
-            return view('firme.export.comandaPdf', compact('firma'));
+            return view('firme.export.contractCadruPdf', compact('firma'));
         } elseif ($request->view_type === 'export-pdf') {
-            $pdf = \PDF::loadView('firme.export.comandaPdf', compact('firma'))
+            $pdf = \PDF::loadView('firme.export.contractCadruPdf', compact('firma'))
                 ->setPaper('a4', 'portrait');
             $pdf->getDomPDF()->set_option("enable_php", true);
             // return $pdf->download('Contract ' . $firma->transportator_contract . '.pdf');

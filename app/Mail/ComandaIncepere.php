@@ -47,7 +47,12 @@ class ComandaIncepere extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
+<<<<<<< HEAD
             subject: 'Începe comanda ' . $this->comanda->transportator_contract . ' - ' . ($this->comanda->data_ora ?? \Carbon\Carbon::parse($this->comanda->data_ora)->isoFormat('HH:mm DD.MM.YYYY')) . ' (' .  uniqid() . ')',
+=======
+            // subject: 'Începe comanda ' . $this->comanda->transportator_contract . ' - ' . ($this->comanda->data_ora ?? \Carbon\Carbon::parse($this->comanda->data_ora)->isoFormat('HH:mm DD.MM.YYYY')),
+            subject: 'Începe comanda ' . $this->comanda->transportator_contract,
+>>>>>>> 4f79a55df74cbb42a2492a2671598c5ec94900a4
         );
     }
 
