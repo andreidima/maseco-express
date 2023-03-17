@@ -15,6 +15,7 @@
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
                     name="nume"
+                    v-model="firmaNume"
                     placeholder=""
                     value="{{ old('nume', $firma->nume) }}"
                     required>

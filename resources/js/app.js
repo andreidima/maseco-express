@@ -140,8 +140,6 @@ const formularComanda = createApp({
             locuriOperareDescarcari: [],
             incarcari: ((typeof incarcari !== 'undefined') ? incarcari : []),
             descarcari: ((typeof descarcari !== 'undefined') ? descarcari : []),
-
-            modalaTransportator: false,
         }
     },
     created: function () {

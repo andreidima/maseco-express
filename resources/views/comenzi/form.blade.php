@@ -112,7 +112,7 @@
                 <small v-if="!firmaTransportatorId" class="ps-3">*Selectați un transportator</small>
                 <small v-else class="ps-3 text-success">*Ați selectat transportatorul</small>
             </div>
-            {{-- <div class="col-lg-2 mb-4">
+            <div class="col-lg-2 mb-4">
                 <a
                     href="#"
                     data-bs-toggle="modal"
@@ -121,7 +121,7 @@
                     >
                     <span class="badge bg-danger">Adaugă transportator nou</span>
                 </a>
-            </div> --}}
+            </div>
             {{-- <div class="col-lg-12 mb-4">
                 @include ('firme.form', [
                     'firma' => new App\Models\Firma,
@@ -707,6 +707,9 @@
                 </form>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                    Salvează
+                </button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
             </div>
             </div>
