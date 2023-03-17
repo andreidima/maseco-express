@@ -45,6 +45,11 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <li class="nav-item me-3">
+                            <a class="nav-link active" aria-current="page" href="/acasa" title="Pagina principală">
+                                <i class="fa-solid fa-house"></i>&nbsp;
+                            </a>
+                        </li>
+                        <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/comenzi">
                                 <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
                             </a>

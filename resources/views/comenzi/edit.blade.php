@@ -36,7 +36,7 @@
 </div>
 
 
-<div class="modal fade text-dark" id="adaugaTransportator" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+{{-- <div class="modal fade text-dark" id="adaugaTransportator" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
         <div class="modal-header bg-danger">
@@ -60,7 +60,7 @@
         </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 
 {{-- <div class="modal fade text-dark" id="adaugaLocOperareNou" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

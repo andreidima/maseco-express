@@ -628,6 +628,15 @@ class ComandaController extends Controller
 
         $comanda->save();
 
+        // Salvare in istoric a comenzii
+        if ($comanda->wasChanged()){
+            $comanda_istoric = new ComandaIstoric;
+            $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+            $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+            $comanda_istoric->operare_descriere = 'Modificare stare';
+            $comanda_istoric->save();
+        }
+
         return back()->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost ' . (($comanda->stare === 1) ? 'deschisa' : (($comanda->stare === 2) ? 'inchisa' : (($comanda->stare === 3) ? 'anulata' : '' ))) . '!');
     }
 }

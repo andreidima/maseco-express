@@ -91,9 +91,9 @@
                     <div class="input-group-prepend d-flex align-items-center">
                         <div v-if="firmaTransportatorId" class="input-group-text p-2 text-danger" id="firmaTransportatorNume" v-on:click="firmaTransportatorId = null; firmaTransportatorNume = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
-                    <div class="input-group-prepend d-flex align-items-center">
+                    {{-- <div class="input-group-prepend d-flex align-items-center">
                         <div class="input-group-text p-2 bg-success text-white ms-3" v-on:click="firmaTransportatorId = null; firmaTransportatorNume = ''">+</div>
-                    </div>
+                    </div> --}}
                 </div>
                 <div v-cloak v-if="firmeTransportatoriListaAutocomplete && firmeTransportatoriListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                     <div class="list-group" style="max-height: 218px; overflow:auto;">
@@ -112,7 +112,7 @@
                 <small v-if="!firmaTransportatorId" class="ps-3">*Selectați un transportator</small>
                 <small v-else class="ps-3 text-success">*Ați selectat transportatorul</small>
             </div>
-            <div class="col-lg-2 mb-4">
+            {{-- <div class="col-lg-2 mb-4">
                 <a
                     href="#"
                     data-bs-toggle="modal"
@@ -121,15 +121,15 @@
                     >
                     <span class="badge bg-danger">Adaugă transportator nou</span>
                 </a>
-            </div>
-            <div class="col-lg-12 mb-4">
+            </div> --}}
+            {{-- <div class="col-lg-12 mb-4">
                 @include ('firme.form', [
                     'firma' => new App\Models\Firma,
                     'tipPartener' => 'transportatori',
                     'tari' => App\Models\Tara::select('id', 'nume')->orderBy('nume')->get(),
                     'buttonText' => 'Adaugă Firma'
                 ])
-            </div>
+            </div> --}}
             <div class="col-lg-2 mb-4">
                 <label for="transportator_valoare_contract" class="mb-0 ps-3">Valoare contract</label>
                 <input
@@ -686,5 +686,33 @@
             </div>
         </div>
     </div>
+
+
+    {{-- Modala transportator --}}
+    {{-- <div class="modal fade text-dark" id="adaugaTransportator" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+            <div class="modal-header bg-danger">
+                <h5 class="modal-title text-white" id="exampleModalLabel">Firma</h5>
+                <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="text-align:left;">
+                <form class="needs-validation" novalidate method="POST" action="/firme/transportatori">
+                    @include ('firme.form', [
+                        'firma' => new App\Models\Firma,
+                        'tipPartener' => 'transportatori',
+                        'tari' => App\Models\Tara::select('id', 'nume')->orderBy('nume')->get(),
+                        'buttonText' => 'Adaugă Firma'
+                    ])
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+            </div>
+            </div>
+        </div>
+    </div> --}}
+
+
 </div>
 
