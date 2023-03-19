@@ -36,7 +36,7 @@
 </div>
 
 
-<div class="modal fade text-dark" id="adaugaTransportator" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade text-dark" id="adaugareFirmaDinFormularComanda" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
         <div class="modal-header bg-danger">
@@ -54,6 +54,11 @@
             </form>
         </div>
         <div class="modal-footer">
+            <button type="button" class="btn btn-primary"
+            {{-- data-bs-dismiss="modal" --}}
+            @click="adaugaTransportator()"
+            >Adaugă Transportator</button>
+
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
 
 

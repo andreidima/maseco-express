@@ -270,6 +270,46 @@ if (document.getElementById('formularComanda') != null) {
 }
 
 
+
+// Adaugare firme din pagina de comenzi
+const adaugareFirmaDinFormularComanda = createApp({
+    el: '#adaugareFirmaDinFormularComanda',
+    data() {
+        return {
+            // statusuri: [],
+            // timer: null,
+            // mesajLipsaStatusuri: '',
+
+        }
+    },
+    methods: {
+        adaugaTransportator() {
+            console.log('hihihihi');
+            // if (this.comandaId !== '') {
+            //     axios.get('/axios/statusuri', {
+            //         params: { comanda_id: this.comandaId }
+            //     })
+            //         .then(
+            //             response => {
+            //                 this.statusuri = response.data.raspuns;
+            //                 if (this.statusuri.length === 0) {
+            //                     this.mesajLipsaStatusuri = 'Nu există „statusuri” în baza de date pentru această comandă';
+            //                 } else {
+            //                     this.mesajLipsaStatusuri = '';
+            //                 }
+            //             }
+            //         );
+            // } else {
+            // }
+        },
+    }
+});
+
+if (document.getElementById('adaugareFirmaDinFormularComanda') != null) {
+    adaugareFirmaDinFormularComanda.mount('#adaugareFirmaDinFormularComanda');
+}
+
+
 // Incarcare statusuri in pagina principala
 const statusuri = createApp({
     el: '#statusuri',
