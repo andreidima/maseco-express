@@ -12,12 +12,8 @@
     camioane = {!! json_encode($camioane) !!}
     camionIdVechi = {!! json_encode(old('camion_id', ($comanda->camion_id ?? "")) ?? "") !!}
 
-    // locuriOperare = {!! json_encode($locuriOperare ?? "") !!}
-    // incarcari =  {!! json_encode(old('incarcari',$incarcari)) !!}
     incarcari =  {!! json_encode(old('incarcari', $comanda->locuriOperareIncarcari()->get())) !!}
     descarcari =  {!! json_encode(old('descarcari', $comanda->locuriOperareDescarcari()->get())) !!}
-    // incarcariId={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.id', ($comanda->locuriOperare['id'] ?? [])))) !!}
-    // incarcariNume={!! json_encode(\Illuminate\Support\Arr::flatten(old('incarcari.nume', ($comanda->locuriOperare['nume'] ?? [])))) !!}
 </script>
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="formularComanda">
@@ -211,7 +207,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-3 mb-4" style="position:relative;" v-click-out="() => firmeClientiListaAutocomplete = ''">
+            <div class="col-lg-4 mb-4" style="position:relative;" v-click-out="() => firmeClientiListaAutocomplete = ''">
                 <label for="client_client_id" class="mb-0 ps-3">Client<span class="text-danger">*</span></label>
                 <input
                     type="hidden"
@@ -430,8 +426,8 @@
                                     </div>
                             </div>
                             <div class="input-group-prepend ms-2 d-flex align-items-center">
-                                <button type="submit" ref="submit" formaction="{{ $comanda->path() }}/adauga-resursa/camion" class="btn btn-success text-white rounded-3 py-0 px-2"
-                                    style="font-size: 30px; line-height: 1.2;" title="Adaugă camion nou">+</button>
+                                <button type="submit" ref="submit" :formaction="'{{ $comanda->path() }}/adauga-resursa/loc-operare/incarcari/' + index" class="btn btn-success text-white rounded-3 py-0 px-2"
+                                    style="font-size: 30px; line-height: 1.2;" title="Adaugă loc operare nou">+</button>
                             </div>
                         </div>
                         <div v-cloak v-if="locuriOperareIncarcari[index] && locuriOperareIncarcari[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
@@ -553,20 +549,26 @@
                             :name="'descarcari[' + index + '][id]'"
                             v-model="descarcari[index].id"
                             >
-                        <div class="input-group">
-                            <input
-                                type="text"
-                                class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
-                                :name="'descarcari[' + index + '][nume]'"
-                                v-model="descarcari[index].nume"
-                                v-on:focus="getLocuriOperareDescarcari(index, $event.target.value);"
-                                v-on:keyup="getLocuriOperareDescarcari(index, $event.target.value);"
-                                placeholder=""
-                                autocomplete="off"
-                                aria-describedby=""
-                                required>
-                                <div class="input-group-prepend d-flex align-items-center">
-                                </div>
+                        <div class="d-flex">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
+                                    :name="'descarcari[' + index + '][nume]'"
+                                    v-model="descarcari[index].nume"
+                                    v-on:focus="getLocuriOperareDescarcari(index, $event.target.value);"
+                                    v-on:keyup="getLocuriOperareDescarcari(index, $event.target.value);"
+                                    placeholder=""
+                                    autocomplete="off"
+                                    aria-describedby=""
+                                    required>
+                                    <div class="input-group-prepend d-flex align-items-center">
+                                    </div>
+                            </div>
+                            <div class="input-group-prepend ms-2 d-flex align-items-center">
+                                <button type="submit" ref="submit" :formaction="'{{ $comanda->path() }}/adauga-resursa/loc-operare/descarcari/' + index" class="btn btn-success text-white rounded-3 py-0 px-2"
+                                    style="font-size: 30px; line-height: 1.2;" title="Adaugă loc operare nou">+</button>
+                            </div>
                         </div>
                         <div v-cloak v-if="locuriOperareDescarcari[index] && locuriOperareDescarcari[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                             <div class="list-group" style="max-height: 218px; overflow:auto;">
@@ -591,7 +593,7 @@
                         <label for="adresa" class="mb-0 ps-3">Adresa</label>
                         <input
                             type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('adresa') ? 'is-invalid' : '' }}"
+                            class="form-control bg-white rounded-3 {{ $errors->has('adresa') ? 'is-invalid' : '' }}" readonly
                             :name="'descarcari[' + index + '][adresa]'"
                             v-model="descarcari[index].adresa">
                     </div>
@@ -599,7 +601,7 @@
                         <label for="oras" class="mb-0 ps-3">Oraș</label>
                         <input
                             type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
+                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}" readonly
                             :name="'descarcari[' + index + '][oras]'"
                             v-model="descarcari[index].oras">
                     </div>
@@ -607,7 +609,7 @@
                         <label for="tara" class="mb-0 ps-3">Țara</label>
                         <input
                             type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('tara') ? 'is-invalid' : '' }}"
+                            class="form-control bg-white rounded-3 {{ $errors->has('tara') ? 'is-invalid' : '' }}" readonly
                             :name="'descarcari[' + index + '][tara][nume]'"
                             v-model="descarcari[index].tara.nume">
                     </div>

@@ -47,7 +47,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('/comenzi', ComandaController::class)->parameters(['comenzi' => 'comanda']);
     Route::get('/comenzi/{comanda}/trimite-catre-transportator', [ComandaController::class, 'comandaTrimiteCatreTransportator']);
-    Route::any('/comenzi/{comanda}/adauga-resursa/{resursa}', [ComandaController::class, 'comandaAdaugaResursa']);
+    Route::any('/comenzi/{comanda}/adauga-resursa/{resursa}/{tip?}/{ordine?}', [ComandaController::class, 'comandaAdaugaResursa']);
     Route::get('/comenzi/{comanda}/{view_type}', [ComandaController::class, 'comandaExportPDF']);
     Route::get('/comenzi/{comanda}/stare/{stare}', [ComandaController::class, 'stare']);
 

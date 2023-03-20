@@ -29,6 +29,7 @@ class ComandaController extends Controller
     public function index(Request $request)
     {
         $request->session()->forget('ComandaReturnUrl');
+        $request->session()->forget('_old_input'); // se sterge din sesiune, pentru ca desi ar trebuie sa se stearga automat dupa validare si update, tot mai raman date aici
 
         $searchDataCreare = $request->searchDataCreare;
         $searchTransportatorContract = $request->searchTransportatorContract;
@@ -148,22 +149,29 @@ class ComandaController extends Controller
     {
         // Daca a fost adaugat un transportator din comanda, se revine in formularul comenzii si campurile trebuie sa se recompleteze automat
         if ($request->session()->exists('comandaRequest')) {
+            echo '1';
             session()->put('_old_input', $request->session()->pull('comandaRequest', 'default'));
-        }
-        if ($request->session()->exists('comandaFirmaTip')) {
-            if ($request->session()->pull('comandaFirmaTip') === 'clienti') {
-                session()->put('_old_input.client_client_id', $request->session()->pull('comandaFirmaId', ''));
-            } else {
-                session()->put('_old_input.transportator_transportator_id', $request->session()->pull('comandaFirmaId', ''));
+            if ($request->session()->exists('comandaFirmaTip')) {
+                if ($request->session()->pull('comandaFirmaTip') === 'clienti') {
+                    session()->put('_old_input.client_client_id', $request->session()->pull('comandaFirmaId', ''));
+                } else {
+                    session()->put('_old_input.transportator_transportator_id', $request->session()->pull('comandaFirmaId', ''));
+                }
+            } else if ($request->session()->exists('comandaCamionId')) {
+                session()->put('_old_input.camion_id', $request->session()->pull('comandaCamionId', ''));
+            } else if ($request->session()->exists('comandaLocOperareId')) {
+                $locOperare = LocOperare::with('tara')->find($request->session()->pull('comandaLocOperareId', ''));
+                $locOperareTip = $request->session()->pull('comandaLocOperareTip', '');
+                $locOperareOrdine = $request->session()->pull('comandaLocOperareOrdine', '');
+                session()->put('_old_input.' . $locOperareTip . '.' . $locOperareOrdine . '.id', $locOperare->id);
+                session()->put('_old_input.' . $locOperareTip . '.' . $locOperareOrdine . '.nume', $locOperare->nume);
+                session()->put('_old_input.' . $locOperareTip . '.' . $locOperareOrdine . '.adresa', $locOperare->adresa);
+                session()->put('_old_input.' . $locOperareTip . '.' . $locOperareOrdine . '.oras', $locOperare->oras);
+                session()->put('_old_input.' . $locOperareTip . '.' . $locOperareOrdine . '.tara.id', $locOperare->tara->id);
+                session()->put('_old_input.' . $locOperareTip . '.' . $locOperareOrdine . '.tara.nume', $locOperare->tara->nume);
             }
         }
-        if ($request->session()->exists('comandaCamionId')) {
-            session()->put('_old_input.camion_id', $request->session()->pull('comandaCamionId', ''));
-        }
-        if ($request->session()->exists('comandaLocOperareId')) {
-            session()->put('_old_input.camion_id', $request->session()->pull('comandaLocOperareId', ''));
-        }
-
+        // dd($comanda, session()->getOldInput());
 
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
@@ -175,13 +183,12 @@ class ComandaController extends Controller
         $camioane = Camion::select('id', 'numar_inmatriculare', 'tip_camion')->orderBy('numar_inmatriculare')->get();
         // $locuriOperare = LocOperare::select('id', 'nume')->orderBy('nume')->get();
         // $locuriOperare = LocOperare::select('*')->orderBy('nume')->get();
-        $incarcari = $comanda->locuriOperareIncarcari()->get();
-        $descarcari = $comanda->locuriOperareDescarcari()->get();
+        // $incarcari = $comanda->locuriOperareIncarcari()->get();
+        // $descarcari = $comanda->locuriOperareDescarcari()->get();
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
-        $request->session()->put('firma_return_url', url()->current()); // in cazul ca se adauga direct de  aici o firma
 
-        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane', 'incarcari', 'descarcari'));
+        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane'));
     }
 
     /**
@@ -659,7 +666,7 @@ class ComandaController extends Controller
         return back()->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost ' . (($comanda->stare === 1) ? 'deschisa' : (($comanda->stare === 2) ? 'inchisa' : (($comanda->stare === 3) ? 'anulata' : '' ))) . '!');
     }
 
-    public function comandaAdaugaResursa(Request $request, Comanda $comanda, $resursa = null)
+    public function comandaAdaugaResursa(Request $request, Comanda $comanda, $resursa = null, $tip = null, $ordine = null)
     {
         $request->session()->put('comandaRequest', $request->all());
 
@@ -676,8 +683,10 @@ class ComandaController extends Controller
                 $request->session()->put('camion_return_url', url()->previous());
                 return redirect('/camioane/adauga');
                 break;
-            case 'locoperare':
+            case 'loc-operare':
                 $request->session()->put('locOperareReturnUrl', url()->previous());
+                $request->session()->put('comandaLocOperareTip', $tip);
+                $request->session()->put('comandaLocOperareOrdine', $ordine);
                 return redirect('locuri-operare/adauga');
                 break;
         }
