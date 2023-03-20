@@ -15,14 +15,13 @@
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
                     name="nume"
-                    v-model="firmaNume"
                     placeholder=""
                     value="{{ old('nume', $firma->nume) }}"
                     required>
             </div>
             <div class="col-lg-2 mb-2">
                 <label for="tip_partener" class="mb-0 ps-3">Tip partener<span class="text-danger">*{{ old('tip_partener') }}</span></label>
-                <select name="tip_partener" class="form-select bg-white rounded-3 {{ $errors->has('tip_partener') ? 'is-invalid' : '' }}">
+                <select name="tip_partener" class="form-select bg-white rounded-3 {{ $errors->has('tip_partener') ? 'is-invalid' : '' }}" disabled>
                     <option selected></option>
                     <option value="1"
                         {{

@@ -72,6 +72,11 @@ class CamionController extends Controller
         $camion_istoric->operare_descriere = 'Adaugare';
         $camion_istoric->save();
 
+        // Daca camionul a fost adaugat din formularul Comanda, se trimite in sesiune, pentru a fi folosit in comanda
+        if ($request->session()->exists('comandaRequest')) {
+            $request->session()->put('comandaCamionId', $camion->id);
+        }
+
         return redirect($request->session()->get('camion_return_url') ?? ('/camioane'))->with('status', 'Camionul „' . ($camion->numar_inmatriculare ?? '') . '” a fost adăugat cu succes!');
     }
 

@@ -74,6 +74,12 @@ class FirmaController extends Controller
         $firma_istoric->operare_descriere = 'Adaugare';
         $firma_istoric->save();
 
+        // Daca firma a fost adaugata din formularul Comanda, se trimite in sesiune, pentru a fi folosita in comanda
+        if ($request->session()->exists('comandaRequest')) {
+            $request->session()->put('comandaFirmaId', $firma->id);
+            $request->session()->put('comandaFirmaTip', $tipPartener);
+        }
+
         return redirect($request->session()->get('firma_return_url') ?? ('/firme/clienti'))->with('status', 'Firma „' . ($firma->nume ?? '') . '” a fost adăugată cu succes!');
     }
 

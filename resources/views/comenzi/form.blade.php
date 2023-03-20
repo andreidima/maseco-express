@@ -1,6 +1,8 @@
 @csrf
 @php
-    // dd(old('incarcari'));
+    // echo old('transportator_transportator_id');
+    // echo json_encode(old('transportator_transportator_id'));
+    // dd(old('incarcari'), old('transportator_contract'), old('client_zile_scadente'));
 @endphp
 <script type="application/javascript">
     firmeTransportatori = {!! json_encode($firmeTransportatori) !!}
@@ -22,7 +24,7 @@
     <div class="col-lg-12 px-4 pt-2 mb-0">
         <div class="row px-2 pt-4 pb-1 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
             <div class="col-lg-3 mb-4 text-center mx-auto">
-                <label for="data_creare" class="mb-0 ps-3">Dată creare{{ (Route::currentRouteName() === "comenzi.create") ? \Carbon\Carbon::today() : ''  }}<span class="text-danger">*</span></label>
+                <label for="data_creare" class="mb-0 ps-3">Dată creare{{ old('transportator_zile_scadente') }}{{ (Route::currentRouteName() === "comenzi.create") ? \Carbon\Carbon::today() : ''  }}<span class="text-danger">*</span></label>
                 <vue-datepicker-next
                     data-veche="{{ old('data_creare', $comanda->data_creare) }}"
                     nume-camp-db="data_creare"
@@ -65,7 +67,7 @@
                     @endforeach
                 </select>
             </div> --}}
-            <div class="col-lg-3 mb-4" style="position:relative;" v-click-out="() => firmeTransportatoriListaAutocomplete = ''">
+            <div class="col-lg-4 mb-4" style="position:relative;" v-click-out="() => firmeTransportatoriListaAutocomplete = ''">
                 <label for="transportator_transportator_id" class="mb-0 ps-3">Transportator<span class="text-danger">*</span></label>
                 <input
                     type="hidden"
@@ -91,9 +93,10 @@
                     <div class="input-group-prepend d-flex align-items-center">
                         <div v-if="firmaTransportatorId" class="input-group-text p-2 text-danger" id="firmaTransportatorNume" v-on:click="firmaTransportatorId = null; firmaTransportatorNume = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
-                    {{-- <div class="input-group-prepend d-flex align-items-center">
-                        <div class="input-group-text p-2 bg-success text-white ms-3" v-on:click="firmaTransportatorId = null; firmaTransportatorNume = ''">+</div>
-                    </div> --}}
+                    <div class="input-group-prepend ms-2 d-flex align-items-center">
+                        <button type="submit" ref="submit" formaction="{{ $comanda->path() }}/adauga-resursa/transportator" class="btn btn-success text-white rounded-3 py-0 px-2"
+                            style="font-size: 30px; line-height: 1.2;" title="Adaugă transportator nou">+</button>
+                    </div>
                 </div>
                 <div v-cloak v-if="firmeTransportatoriListaAutocomplete && firmeTransportatoriListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                     <div class="list-group" style="max-height: 218px; overflow:auto;">
@@ -112,24 +115,6 @@
                 <small v-if="!firmaTransportatorId" class="ps-3">*Selectați un transportator</small>
                 <small v-else class="ps-3 text-success">*Ați selectat transportatorul</small>
             </div>
-            <div class="col-lg-2 mb-4">
-                <a
-                    href="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#adaugareFirmaDinFormularComanda"
-                    title="Adaugă Transportator Nou"
-                    >
-                    <span class="badge bg-danger">Adaugă transportator nou</span>
-                </a>
-            </div>
-            {{-- <div class="col-lg-12 mb-4">
-                @include ('firme.form', [
-                    'firma' => new App\Models\Firma,
-                    'tipPartener' => 'transportatori',
-                    'tari' => App\Models\Tara::select('id', 'nume')->orderBy('nume')->get(),
-                    'buttonText' => 'Adaugă Firma'
-                ])
-            </div> --}}
             <div class="col-lg-2 mb-4">
                 <label for="transportator_valoare_contract" class="mb-0 ps-3">Valoare contract</label>
                 <input
@@ -251,6 +236,10 @@
                         required>
                     <div class="input-group-prepend d-flex align-items-center">
                         <div v-if="firmaClientId" class="input-group-text p-2 text-danger" id="firmaClientNume" v-on:click="firmaClientId = null; firmaClientNume = ''"><i class="fa-solid fa-xmark"></i></div>
+                    </div>
+                    <div class="input-group-prepend ms-2 d-flex align-items-center">
+                        <button type="submit" ref="submit" formaction="{{ $comanda->path() }}/adauga-resursa/client" class="btn btn-success text-white rounded-3 py-0 px-2"
+                            style="font-size: 30px; line-height: 1.2;" title="Adaugă client nou">+</button>
                     </div>
                 </div>
                 <div v-cloak v-if="firmeClientiListaAutocomplete && firmeClientiListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
@@ -376,6 +365,10 @@
                     <div class="input-group-prepend d-flex align-items-center">
                         <div v-if="camionId" class="input-group-text p-2 text-danger" id="camionNumarInmatriculare" v-on:click="camionId = null; camionNumarInmatriculare = ''; camionTipCamion = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
+                    <div class="input-group-prepend ms-2 d-flex align-items-center">
+                        <button type="submit" ref="submit" formaction="{{ $comanda->path() }}/adauga-resursa/camion" class="btn btn-success text-white rounded-3 py-0 px-2"
+                            style="font-size: 30px; line-height: 1.2;" title="Adaugă camion nou">+</button>
+                    </div>
                 </div>
                 <div v-cloak v-if="camioaneListaAutocomplete && camioaneListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                     <div class="list-group" style="max-height: 218px; overflow:auto;">
@@ -420,20 +413,26 @@
                             :name="'incarcari[' + index + '][id]'"
                             v-model="incarcari[index].id"
                             >
-                        <div class="input-group">
-                            <input
-                                type="text"
-                                class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
-                                :name="'incarcari[' + index + '][nume]'"
-                                v-model="incarcari[index].nume"
-                                v-on:focus="getLocuriOperareIncarcari(index, $event.target.value);"
-                                v-on:keyup="getLocuriOperareIncarcari(index, $event.target.value);"
-                                placeholder=""
-                                autocomplete="off"
-                                aria-describedby=""
-                                required>
-                                <div class="input-group-prepend d-flex align-items-center">
-                                </div>
+                        <div class="d-flex">
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
+                                    :name="'incarcari[' + index + '][nume]'"
+                                    v-model="incarcari[index].nume"
+                                    v-on:focus="getLocuriOperareIncarcari(index, $event.target.value);"
+                                    v-on:keyup="getLocuriOperareIncarcari(index, $event.target.value);"
+                                    placeholder=""
+                                    autocomplete="off"
+                                    aria-describedby=""
+                                    required>
+                                    <div class="input-group-prepend d-flex align-items-center">
+                                    </div>
+                            </div>
+                            <div class="input-group-prepend ms-2 d-flex align-items-center">
+                                <button type="submit" ref="submit" formaction="{{ $comanda->path() }}/adauga-resursa/camion" class="btn btn-success text-white rounded-3 py-0 px-2"
+                                    style="font-size: 30px; line-height: 1.2;" title="Adaugă camion nou">+</button>
+                            </div>
                         </div>
                         <div v-cloak v-if="locuriOperareIncarcari[index] && locuriOperareIncarcari[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                             <div class="list-group" style="max-height: 218px; overflow:auto;">

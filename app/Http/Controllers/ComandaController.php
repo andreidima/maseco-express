@@ -146,6 +146,25 @@ class ComandaController extends Controller
      */
     public function edit(Request $request, Comanda $comanda)
     {
+        // Daca a fost adaugat un transportator din comanda, se revine in formularul comenzii si campurile trebuie sa se recompleteze automat
+        if ($request->session()->exists('comandaRequest')) {
+            session()->put('_old_input', $request->session()->pull('comandaRequest', 'default'));
+        }
+        if ($request->session()->exists('comandaFirmaTip')) {
+            if ($request->session()->pull('comandaFirmaTip') === 'clienti') {
+                session()->put('_old_input.client_client_id', $request->session()->pull('comandaFirmaId', ''));
+            } else {
+                session()->put('_old_input.transportator_transportator_id', $request->session()->pull('comandaFirmaId', ''));
+            }
+        }
+        if ($request->session()->exists('comandaCamionId')) {
+            session()->put('_old_input.camion_id', $request->session()->pull('comandaCamionId', ''));
+        }
+        if ($request->session()->exists('comandaLocOperareId')) {
+            session()->put('_old_input.camion_id', $request->session()->pull('comandaLocOperareId', ''));
+        }
+
+
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $limbi = Limba::select('id', 'nume')->get();
@@ -174,7 +193,7 @@ class ComandaController extends Controller
      */
     public function update(Request $request, Comanda $comanda)
     {
-        // dd($request->request);
+        // dd($request, $request->request);
         // dd($request->request, $request->except(['incarcari']), $this->validateRequest($request));
         $comanda_campuri = $this->validateRequest($request);
         unset($comanda_campuri['incarcari']);
@@ -638,5 +657,30 @@ class ComandaController extends Controller
         }
 
         return back()->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost ' . (($comanda->stare === 1) ? 'deschisa' : (($comanda->stare === 2) ? 'inchisa' : (($comanda->stare === 3) ? 'anulata' : '' ))) . '!');
+    }
+
+    public function comandaAdaugaResursa(Request $request, Comanda $comanda, $resursa = null)
+    {
+        $request->session()->put('comandaRequest', $request->all());
+
+        switch($resursa){
+            case 'transportator':
+                $request->session()->put('firma_return_url', url()->previous());
+                return redirect('/firme/transportatori/adauga');
+                break;
+            case 'client':
+                $request->session()->put('firma_return_url', url()->previous());
+                return redirect('/firme/clienti/adauga');
+                break;
+            case 'camion':
+                $request->session()->put('camion_return_url', url()->previous());
+                return redirect('/camioane/adauga');
+                break;
+            case 'locoperare':
+                $request->session()->put('locOperareReturnUrl', url()->previous());
+                return redirect('locuri-operare/adauga');
+                break;
+        }
+
     }
 }

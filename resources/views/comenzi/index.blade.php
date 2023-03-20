@@ -268,7 +268,7 @@
                             </tr>
 
                             <tr v-if="comandaId === {{ $comanda->id }}">
-                                <td colspan="9">
+                                <td colspan="11">
                                     <div class="row">
                                     <div class="col-lg-8 table-responsive rounded mx-auto">
                                         <table class="table table-striped table-hover rounded">

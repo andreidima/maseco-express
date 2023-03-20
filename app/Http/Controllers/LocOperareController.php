@@ -71,6 +71,11 @@ class LocOperareController extends Controller
         $locOperareIstoric->operare_descriere = 'Adaugare';
         $locOperareIstoric->save();
 
+        // Daca locul de operare a fost adaugat din formularul Comanda, se trimite in sesiune, pentru a fi folosit in comanda
+        if ($request->session()->exists('comandaRequest')) {
+            $request->session()->put('comandaLocOperareId', $camion->id);
+        }
+
         return redirect($request->session()->get('locOperareReturnUrl') ?? ('/locuri-operare'))->with('status', 'Locul de operare „' . ($locOperare->nume ?? '') . '” a fost adăugat cu succes!');
     }
 
