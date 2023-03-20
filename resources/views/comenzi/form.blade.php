@@ -116,7 +116,7 @@
                 <a
                     href="#"
                     data-bs-toggle="modal"
-                    data-bs-target="#adaugaTransportator"
+                    data-bs-target="#adaugareFirmaDinFormularComanda"
                     title="Adaugă Transportator Nou"
                     >
                     <span class="badge bg-danger">Adaugă transportator nou</span>

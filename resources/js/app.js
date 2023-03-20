@@ -278,7 +278,7 @@ const adaugareFirmaDinFormularComanda = createApp({
         return {
             // statusuri: [],
             // timer: null,
-            // mesajLipsaStatusuri: '',
+            firmaNume: '',
 
         }
     },
