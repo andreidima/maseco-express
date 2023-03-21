@@ -39,8 +39,9 @@ Route::redirect('/', '/acasa');
 Route::group(['middleware' => 'auth'], function () {
     Route::view('acasa', 'acasa');
 
-    Route::get('/firme/{tipPartener}/{firma}/contract/{view_type}', [FirmaController::class, 'contractExportPDF']);
     Route::resource('/firme/{tipPartener}', FirmaController::class)->parameters(['{tipPartener}' => 'firma']);
+    Route::get('/firme/{tipPartener}/{firma}/contract/{view_type}', [FirmaController::class, 'contractExportPDF']);
+    Route::get('/firme/{tipPartener}/{firma}/contract-cca/trimite-catre-transportator', [FirmaController::class, 'contractCcaTrimiteCatreTransportator']);
 
     Route::resource('/camioane', CamionController::class)->parameters(['camioane' => 'camion']);
     Route::resource('/locuri-operare', LocOperareController::class)->parameters(['locuri-operare' => 'locOperare']);

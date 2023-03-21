@@ -156,14 +156,14 @@
                     {{-- <thead class="text-white rounded" style="background-color: #69A1B1"> --}}
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
-                            <th class="">Contract transportator</th>
+                            <th class="">Contract<br>transportator</th>
                             <th class="">Dată creare</th>
                             <th class="">Transportator</th>
                             <th class="">Client</th>
-                            <th class="">Zile scadente Ctr. Client</th>
+                            <th class="">Zile scadente<br> Ctr. Client</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Contract</th>
-                            <th class="text-center">Trimite Contract pe email</th>
+                            <th class="text-center">Trimite Contract<br> pe email</th>
                             <th class="text-center">Stare</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
