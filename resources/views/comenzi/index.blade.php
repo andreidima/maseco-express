@@ -176,9 +176,10 @@
                                 </td>
                                 <td class="">
                                     {{ $comanda->transportator_contract }}
-                                    {{-- {{ $comanda->interval_notificari ? \Carbon\Carbon::parse($comanda->interval_notificari)->minutes() : '' }} --}}
-                                    {{-- {{ $comanda->interval_notificari !== null ? \Carbon\CarbonInterval::make($comanda->interval_notificari)->totalMinutes : '' }} --}}
-                                    {{ $comanda->interval_notificari ? \Carbon\CarbonInterval::createFromFormat('H:i:s', $comanda->interval_notificari)->totalMinutes : '' }}
+                                    <br>
+                                    {{-- {{ $comanda->ultimaDescarcare ?? '' }} --}}
+                                    {{-- {{ $comanda->ultimaDescarcare()->data_ora ?? '' }} --}}
+                                    {{-- {{ $comanda->ultimaDescarcare()->pivot->data_ora ?? '' }} --}}
                                 </td>
                                 <td class="">
                                     {{ $comanda->data_creare ? \Carbon\Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY') : '' }}

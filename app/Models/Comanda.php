@@ -68,6 +68,11 @@ class Comanda extends Model
         return $this->locuriOperare()->where('tip', '2')->orderBy('ordine');
     }
 
+    public function ultimaDescarcare()
+    {
+        return $this->locuriOperare()->where('tip', '2')->orderByDesc('data_ora')->first();
+    }
+
     public function statusuri()
     {
         return $this->hasMany(ComandaStatus::class);
@@ -100,7 +105,7 @@ class Comanda extends Model
             ->where('categorie', 2)
             ->where('created_at', '>=', Carbon::now()->subMinutes(
                 $this->interval_notificari ? \Carbon\CarbonInterval::createFromFormat('H:i:s', $this->interval_notificari)->totalMinutes : 180
-            )->addMinutes(3)); // se mai scad inca 3 minute de siguranta
+            )->addMinutes(3)); // se mai adauga inca 3 minute de siguranta
             // {{ $this->interval_notificari ? \Carbon\CarbonInterval::createFromFormat('H:i:s', $comanda->interval_notificari)->totalMinutes : 180 }}
 
         // $ultimulMesajTrimis = $this->emailuriCerereStatusComanda()->where('categorie', 2)->latest()->first();
