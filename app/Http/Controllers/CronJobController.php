@@ -87,7 +87,7 @@ class CronJobController extends Controller
                 ->whereHas('locuriOperareDescarcari', function($query){
                     $query->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
                 })
-                ->whereDoesntHave('emailuriCerereStatusComandaInUltimaPerioada')
+                // ->whereDoesntHave('emailuriCerereStatusComandaInUltimaPerioada')
                 ->where('stare', '<>', 3)
                 // ->whereDoesntHave('statusuri', function $query){
                 //     $query->
@@ -118,35 +118,36 @@ class CronJobController extends Controller
                 // dd('stop');
 
             foreach ($comenzi as $comanda){
-                // Trimitere SMS
-                $mesaj = 'Va rugam accesati ' . url('/cerere-status-comanda/sms/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
-                            ' Multumim, Maseco Expres!';
-                $this->trimiteSms('Comenzi', 'Status', $comanda->id, [$comanda->transportator->telefon ?? ''], $mesaj);
+                if ($comanda->emailuriCerereStatusComandaInUltimaPerioada->count() === 0) {
+                    // Trimitere SMS
+                    $mesaj = 'Va rugam accesati ' . url('/cerere-status-comanda/sms/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
+                                ' Multumim, Maseco Expres!';
+                    $this->trimiteSms('Comenzi', 'Status', $comanda->id, [$comanda->transportator->telefon ?? ''], $mesaj);
 
-                // Trimitere email
-                if (isset($comanda->transportator->email)){
-                    // Validator::make($comanda->transportator->all(), [
-                    //     'email' => 'email:rfc,dns',
-                    // ])->validate();
-                        // $comanda->transportator->validate([
+                    // Trimitere email
+                    if (isset($comanda->transportator->email)){
+                        // Validator::make($comanda->transportator->all(), [
                         //     'email' => 'email:rfc,dns',
-                        // ]);
+                        // ])->validate();
+                            // $comanda->transportator->validate([
+                            //     'email' => 'email:rfc,dns',
+                            // ]);
 
 
-                    Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaStatus($comanda));
+                        Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaStatus($comanda));
 
-                    $emailTrimis = new \App\Models\MesajTrimisEmail;
-                    $emailTrimis->comanda_id = $comanda->id;
-                    $emailTrimis->firma_id = $comanda->transportator->id ?? '';
-                    $emailTrimis->categorie = 2;
-                    $emailTrimis->email = $comanda->transportator->email;
-                    $emailTrimis->save();
-
-                }
+                        $emailTrimis = new \App\Models\MesajTrimisEmail;
+                        $emailTrimis->comanda_id = $comanda->id;
+                        $emailTrimis->firma_id = $comanda->transportator->id ?? '';
+                        $emailTrimis->categorie = 2;
+                        $emailTrimis->email = $comanda->transportator->email;
+                        $emailTrimis->save();
+                    }
 
                 // Trimitere WhatsApp
                 // $comanda->transportator->notify(new CerereStatus($comanda));
                 // $request->user()->notify(new CerereStatus($comanda));
+                }
             }
 
 

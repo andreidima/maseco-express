@@ -38,8 +38,8 @@ class AxiosController extends Controller
     {
         $comada_id = $request->comanda_id;
         $statusuri = ComandaStatus::
-            with('comanda:id,transportator_contract,transportator_transportator_id,client_client_id', 'comanda.transportator:id,nume,persoana_contact,telefon', 'comanda.client:id,nume')
-            ->whereHas('comanda', function ($query) use ($comada_id) {
+            // with('comanda:id,transportator_contract,transportator_transportator_id,client_client_id', 'comanda.transportator:id,nume,persoana_contact,telefon', 'comanda.client:id,nume')
+            whereHas('comanda', function ($query) use ($comada_id) {
                 $query->where('id', $comada_id);
             })
             // ->with('comanda.transportator:nume')

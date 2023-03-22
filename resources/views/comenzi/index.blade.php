@@ -176,6 +176,9 @@
                                 </td>
                                 <td class="">
                                     {{ $comanda->transportator_contract }}
+                                    {{-- {{ $comanda->interval_notificari ? \Carbon\Carbon::parse($comanda->interval_notificari)->minutes() : '' }} --}}
+                                    {{-- {{ $comanda->interval_notificari !== null ? \Carbon\CarbonInterval::make($comanda->interval_notificari)->totalMinutes : '' }} --}}
+                                    {{ $comanda->interval_notificari ? \Carbon\CarbonInterval::createFromFormat('H:i:s', $comanda->interval_notificari)->totalMinutes : '' }}
                                 </td>
                                 <td class="">
                                     {{ $comanda->data_creare ? \Carbon\Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY') : '' }}
@@ -269,8 +272,7 @@
 
                             <tr v-if="comandaId === {{ $comanda->id }}">
                                 <td colspan="11">
-                                    <div class="row">
-                                    <div class="col-lg-8 table-responsive rounded mx-auto">
+                                    <div class="table-responsive rounded mx-auto w-75">
                                         <table class="table table-striped table-hover rounded">
                                             <thead class="text-white rounded culoare2">
                                                 <tr class="" style="padding:2rem">
@@ -309,7 +311,6 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                    </div>
                                     </div>
                                 </td>
                             </tr>

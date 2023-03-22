@@ -288,7 +288,7 @@ const statusuri = createApp({
     mounted: function () {
         this.timer = setInterval(() => {
             this.getStatusuri();
-        }, 5000)
+        }, 10000)
     },
     beforeUnmount() {
         clearInterval(this.timer)

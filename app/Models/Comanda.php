@@ -96,7 +96,12 @@ class Comanda extends Model
      // Se trimite notificare de cerere status doar daca nu este nici una trimisa intr-un interval stabilit de timp
     public function emailuriCerereStatusComandaInUltimaPerioada()
     {
-        return $this->hasMany(MesajTrimisEmail::class, 'comanda_id')->where('categorie', 2)->where('created_at', '>=', Carbon::now()->subMinutes(30) );
+        return $this->hasMany(MesajTrimisEmail::class, 'comanda_id')
+            ->where('categorie', 2)
+            ->where('created_at', '>=', Carbon::now()->subMinutes(
+                $this->interval_notificari ? \Carbon\CarbonInterval::createFromFormat('H:i:s', $this->interval_notificari)->totalMinutes : 180
+            )->addMinutes(3)); // se mai scad inca 3 minute de siguranta
+            // {{ $this->interval_notificari ? \Carbon\CarbonInterval::createFromFormat('H:i:s', $comanda->interval_notificari)->totalMinutes : 180 }}
 
         // $ultimulMesajTrimis = $this->emailuriCerereStatusComanda()->where('categorie', 2)->latest()->first();
         // if ($ultimulMesajTrimis){

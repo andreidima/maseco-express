@@ -20,7 +20,7 @@
     <div class="col-lg-12 px-4 pt-2 mb-0">
         <div class="row px-2 pt-4 pb-1 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
             <div class="col-lg-3 mb-4 text-center mx-auto">
-                <label for="data_creare" class="mb-0 ps-3">Dată creare{{ old('transportator_zile_scadente') }}{{ (Route::currentRouteName() === "comenzi.create") ? \Carbon\Carbon::today() : ''  }}<span class="text-danger">*</span></label>
+                <label for="data_creare" class="mb-0 ps-3">Dată creare<span class="text-danger">*</span></label>
                 <vue-datepicker-next
                     data-veche="{{ old('data_creare', $comanda->data_creare) }}"
                     nume-camp-db="data_creare"
@@ -28,6 +28,18 @@
                     value-type="YYYY-MM-DD"
                     format="DD.MM.YYYY"
                     :latime="{ width: '125px' }"
+                ></vue-datepicker-next>
+            </div>
+            <div class="col-lg-3 mb-4 text-center mx-auto">
+                <label for="interval_notificari" class="mb-0 ps-3">Interval notificari<span class="text-danger">*</span></label>
+                <vue-datepicker-next
+                    data-veche="{{ old('interval_notificari', $comanda->interval_notificari) }}"
+                    nume-camp-db="interval_notificari"
+                    tip="time"
+                    :minute-step="5"
+                    value-type="HH:mm:ss"
+                    format="HH:mm"
+                    :latime="{ width: '100px' }"
                 ></vue-datepicker-next>
             </div>
         </div>

@@ -78,6 +78,7 @@ class ComandaController extends Controller
         $comanda = new Comanda;
         $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::latest()->first()->transportator_contract ?? '0') ) + 1);
         $comanda->data_creare = Carbon::today();
+        $comanda->interval_notificari = '03:00:00';
         $comanda->transportator_limba_id = 1; // Romana
         $comanda->transportator_tarif_pe_km = 0;
         $comanda->client_limba_id = 1; // Romana
@@ -563,6 +564,7 @@ class ComandaController extends Controller
         return $request->validate(
             [
                 'data_creare' => 'required',
+                'interval_notificari' => 'required',
                 // 'transportator_contract' => 'required|max:20',
                 'transportator_limba_id' => '',
                 'transportator_valoare_contract' => 'nullable|numeric|min:-9999999|max:9999999',
