@@ -120,7 +120,8 @@ class CronJobController extends Controller
             foreach ($comenzi as $comanda){
                 if (
                     ($comanda->emailuriCerereStatusComandaInUltimaPerioada->count() === 0)
-                    || ($comanda->ultimaDescarcare()->pivot->data_ora <= Carbon::now()->todatetimestring()) // daca este ultima descarcare, se trimite notificare chiar daca a mai fost una trimisa in ultimul interval
+                    // daca este ultima descarcare, se trimite notificare chiar daca a mai fost una trimisa in ultimul interval
+                    || ($comanda->ultimaDescarcare()->pivot->data_ora <= Carbon::now()->todatetimestring())
                     ){
                     // Trimitere SMS
                     $mesaj = 'Va rugam accesati ' . url('/cerere-status-comanda/sms/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
