@@ -123,34 +123,32 @@ class CronJobController extends Controller
                     // daca este ultima descarcare, se trimite notificare chiar daca a mai fost una trimisa in ultimul interval
                     || ($comanda->ultimaDescarcare()->pivot->data_ora <= Carbon::now()->todatetimestring())
                     ){
-                    // Trimitere SMS
-                    $mesaj = 'Va rugam accesati ' . url('/cerere-status-comanda/sms/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
-                                ' Multumim, Maseco Expres!';
-                    $this->trimiteSms('Comenzi', 'Status', $comanda->id, [$comanda->transportator->telefon ?? ''], $mesaj);
+                        // Trimitere SMS
+                        $mesaj = 'Va rugam accesati ' . url('/cerere-status-comanda/sms/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
+                                    ' Multumim, Maseco Expres!';
+                        $this->trimiteSms('Comenzi', 'Status', $comanda->id, [$comanda->transportator->telefon ?? ''], $mesaj);
 
-                    // Trimitere email
-                    if (isset($comanda->transportator->email)){
-                        // Validator::make($comanda->transportator->all(), [
-                        //     'email' => 'email:rfc,dns',
-                        // ])->validate();
-                            // $comanda->transportator->validate([
+                        // Trimitere email
+                        if (isset($comanda->transportator->email)){
+                            // Validator::make($comanda->transportator->all(), [
                             //     'email' => 'email:rfc,dns',
-                            // ]);
+                            // ])->validate();
+                                // $comanda->transportator->validate([
+                                //     'email' => 'email:rfc,dns',
+                                // ]);
+                            Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaStatus($comanda));
 
+                            $emailTrimis = new \App\Models\MesajTrimisEmail;
+                            $emailTrimis->comanda_id = $comanda->id;
+                            $emailTrimis->firma_id = $comanda->transportator->id ?? '';
+                            $emailTrimis->categorie = 2;
+                            $emailTrimis->email = $comanda->transportator->email;
+                            $emailTrimis->save();
+                        }
 
-                        Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaStatus($comanda));
-
-                        $emailTrimis = new \App\Models\MesajTrimisEmail;
-                        $emailTrimis->comanda_id = $comanda->id;
-                        $emailTrimis->firma_id = $comanda->transportator->id ?? '';
-                        $emailTrimis->categorie = 2;
-                        $emailTrimis->email = $comanda->transportator->email;
-                        $emailTrimis->save();
-                    }
-
-                // Trimitere WhatsApp
-                // $comanda->transportator->notify(new CerereStatus($comanda));
-                // $request->user()->notify(new CerereStatus($comanda));
+                        // Trimitere WhatsApp
+                        $comanda->transportator->notify(new CerereStatus($comanda));
+                        // $request->user()->notify(new CerereStatus($comanda));
                 }
             }
 
