@@ -103,14 +103,6 @@ class ComandaController extends Controller
         $comanda_istoric->save();
 
         return redirect( $comanda->path() . '/modifica');
-
-        // $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
-        // $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
-        // $limbi = Limba::select('id', 'nume')->get();
-
-        // $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
-
-        // return view('comenzi.create', compact('firmeClienti', 'firmeTransportatori', 'limbi'));
     }
 
     /**

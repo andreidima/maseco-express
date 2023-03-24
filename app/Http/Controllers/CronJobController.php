@@ -88,6 +88,7 @@ class CronJobController extends Controller
                     $query->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
                 })
                 // ->whereDoesntHave('emailuriCerereStatusComandaInUltimaPerioada')
+                ->whereHas('contracteTrimisePeEmailCatreTransportator')
                 ->where('stare', '<>', 3)
                 // ->whereDoesntHave('statusuri', function $query){
                 //     $query->
