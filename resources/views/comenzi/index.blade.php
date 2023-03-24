@@ -21,7 +21,7 @@
                 <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form d-flex justify-content-center">
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <input type="text" class="form-control rounded-3" id="searchTransportatorContract" name="searchTransportatorContract" placeholder="Ctr. transp." value="{{ $searchTransportatorContract }}">
                         </div>
                         <div class="col-lg-4 d-flex justify-content-center align-items-center">
@@ -42,6 +42,14 @@
                                 <option value="1" {{ intval($searchStare) === 1 ? 'selected' : '' }}>Deschise</option>
                                 <option value="2" {{ intval($searchStare) === 2 ? 'selected' : '' }}>Închise</option>
                                 <option value="3" {{ intval($searchStare) === 3 ? 'selected' : '' }}>Anulate</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <select name="searchUser" id="searchUser" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
+                                <option value="" selected>Selectează Utilizator</option>
+                                @foreach ($useri as $user)
+                                    <option value="{{ $user->id }}" {{ intval($searchUser) === $user->id ? 'selected' : ''  }}>{{ $user->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -165,6 +173,7 @@
                             <th class="text-center">Contract</th>
                             <th class="text-center">Trimite Contract<br> pe email</th>
                             <th class="text-center">Stare</th>
+                            <th class="text-center">Utilizator</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -251,6 +260,9 @@
                                             </span>
                                         </a>
                                     </div>
+                                </td>
+                                <td class="text-center">
+                                    {{ $comanda->user->name ?? '' }}
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-end">

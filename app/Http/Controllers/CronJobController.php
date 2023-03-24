@@ -147,7 +147,7 @@ class CronJobController extends Controller
                         }
 
                         // Trimitere WhatsApp
-                        $comanda->transportator->notify(new CerereStatus($comanda));
+                        // $comanda->transportator->notify(new CerereStatus($comanda));
                         // $request->user()->notify(new CerereStatus($comanda));
                 }
             }
