@@ -126,7 +126,7 @@ class CronJobController extends Controller
                         // Trimitere SMS
                         $mesaj = 'Va rugam accesati ' . url('/cerere-status-comanda/sms/' . $comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
                                     ' Multumim, Maseco Expres!';
-                        $this->trimiteSms('Comenzi', 'Status', $comanda->id, [$comanda->transportator->telefon ?? ''], $mesaj);
+                        $this->trimiteSms('Comenzi', 'Status', $comanda->id, [$comanda->camion->telefon_sofer ?? ''], $mesaj);
 
                         // Trimitere email
                         if (isset($comanda->transportator->email)){
