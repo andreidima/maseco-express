@@ -65,4 +65,8 @@ Route::group(['middleware' => 'auth'], function () {
         Artisan::call('cache:clear');
         return 'Application cache has been cleared';
     });
+    Route::get('/config-cache', function() {
+        Artisan::call('config:cache');
+        return 'Configuration cached successfully.';
+    });
 });
