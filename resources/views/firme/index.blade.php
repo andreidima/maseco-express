@@ -67,6 +67,7 @@
                             <th class="">Camioane</th>
                             @if ($tipPartener === "transportatori")
                                 <th class="text-center">CCA</th>
+                                <th class="text-center">Trimite CCA<br> pe email</th>
                             @endif
                             <th class="text-end">Acțiuni</th>
                         </tr>
@@ -98,15 +99,23 @@
                                 @if ($tipPartener === "transportatori")
                                     <td>
                                         <div class="d-flex justify-content-center">
-                                            @if ($firma->contract_nr)
-                                                <a href="{{ $firma->path($tipPartener) }}/contract/export-pdf" target="_blank" class="flex me-1">
-                                                    <span class="badge bg-success">Deschide</span>
-                                                </a>
-                                            @else
-                                                <a href="{{ $firma->path($tipPartener) }}/contract/export-pdf" target="_blank" class="flex me-1">
+                                            <a href="{{ $firma->path($tipPartener) }}/contract/export-pdf" target="_blank" class="flex me-1">
+                                                {{-- @if ($firma->contract_nr) --}}
+                                                    <span class="badge bg-success">Contract</span>
+                                                {{-- @else
                                                     <span class="badge bg-primary">Generează</span>
-                                                </a>
-                                            @endif
+                                                @endif --}}
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="d-flex justify-content-center">
+                                            <a href="{{ $firma->path($tipPartener) }}/contract-cca/trimite-catre-transportator" class="flex me-1" title="Numărul de emailuri trimise până acum">
+                                                <span class="badge bg-primary">
+                                                    Trimite
+                                                    <span class="badge bg-dark">{{ $firma->contracte_cca_trimise_pe_email_catre_transportator_count }}</span>
+                                                </span>
+                                            </a>
                                         </div>
                                     </td>
                                 @endif

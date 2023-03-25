@@ -354,7 +354,7 @@
                     <br>
                     {{ $comanda->user->telefon ?? '' }}
                     <br>
-                    info@masecoexpres@gmail.com
+                    info@masecoexpres.net
                 </td>
                 <td style="padding:0px 2px; margin:0rem; width:40%;">
                     {{ $comanda->transportator->nume ?? '' }}

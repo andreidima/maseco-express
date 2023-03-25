@@ -15,6 +15,7 @@ use App\Models\MetodaDePlata;
 use App\Models\TermenDePlata;
 use App\Models\Camion;
 use App\Models\LocOperare;
+use App\Models\User;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -34,6 +35,7 @@ class ComandaController extends Controller
         $searchDataCreare = $request->searchDataCreare;
         $searchTransportatorContract = $request->searchTransportatorContract;
         $searchStare = $request->searchStare;
+        $searchUser = $request->searchUser;
         $searchTransportatorId = $request->searchTransportatorId;
         $searchClientId = $request->searchClientId;
 
@@ -47,6 +49,11 @@ class ComandaController extends Controller
             })
             ->when($searchStare, function ($query, $searchStare) {
                 return $query->where('stare', $searchStare);
+            })
+            ->when($searchUser, function ($query, $searchUser) {
+                return $query->whereHas('user', function ($query) use ($searchUser) {
+                    $query->where('id', $searchUser);
+                });
             })
             ->when($searchTransportatorId, function ($query, $searchTransportatorId) {
                 return $query->whereHas('transportator', function ($query) use ($searchTransportatorId) {
@@ -64,8 +71,9 @@ class ComandaController extends Controller
 // dd($comenzi);
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+        $useri = User::select('id' , 'name')->get();
 
-        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'searchDataCreare', 'searchTransportatorContract', 'searchStare', 'searchTransportatorId', 'searchClientId'));
+        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'useri', 'searchDataCreare', 'searchTransportatorContract', 'searchStare', 'searchUser', 'searchTransportatorId', 'searchClientId'));
     }
 
     /**
@@ -78,6 +86,7 @@ class ComandaController extends Controller
         $comanda = new Comanda;
         $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::latest()->first()->transportator_contract ?? '0') ) + 1);
         $comanda->data_creare = Carbon::today();
+        $comanda->interval_notificari = '03:00:00';
         $comanda->transportator_limba_id = 1; // Romana
         $comanda->transportator_tarif_pe_km = 0;
         $comanda->client_limba_id = 1; // Romana
@@ -94,14 +103,6 @@ class ComandaController extends Controller
         $comanda_istoric->save();
 
         return redirect( $comanda->path() . '/modifica');
-
-        // $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
-        // $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
-        // $limbi = Limba::select('id', 'nume')->get();
-
-        // $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
-
-        // return view('comenzi.create', compact('firmeClienti', 'firmeTransportatori', 'limbi'));
     }
 
     /**
@@ -563,6 +564,7 @@ class ComandaController extends Controller
         return $request->validate(
             [
                 'data_creare' => 'required',
+                'interval_notificari' => 'required',
                 // 'transportator_contract' => 'required|max:20',
                 'transportator_limba_id' => '',
                 'transportator_valoare_contract' => 'nullable|numeric|min:-9999999|max:9999999',

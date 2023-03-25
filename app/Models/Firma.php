@@ -53,4 +53,9 @@ class Firma extends Model
         return $this->telefon;
         // return '+40749262658';
     }
+
+    public function contracteCcaTrimisePeEmailCatreTransportator()
+    {
+        return $this->hasMany(MesajTrimisEmail::class, 'firma_id')->where('categorie', 4);
+    }
 }

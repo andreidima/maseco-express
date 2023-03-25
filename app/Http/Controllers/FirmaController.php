@@ -8,7 +8,9 @@ use App\Models\Firma;
 use App\Models\FirmaIstoric;
 use App\Models\Tara;
 use App\Models\Camion;
+
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class FirmaController extends Controller
 {
@@ -26,6 +28,7 @@ class FirmaController extends Controller
         $search_email = $request->search_email;
 
         $query = Firma::with('tara')
+            ->withCount('contracteCcaTrimisePeEmailCatreTransportator')
             ->when($search_nume, function ($query, $search_nume) {
                 return $query->where('nume', 'like', '%' . $search_nume . '%');
             })
@@ -229,6 +232,24 @@ class FirmaController extends Controller
             $pdf->getDomPDF()->set_option("enable_php", true);
             // return $pdf->download('Contract ' . $firma->transportator_contract . '.pdf');
             return $pdf->stream();
+        }
+    }
+
+    public function contractCcaTrimiteCatreTransportator(Request $request, $tipPartener, Firma $firma)
+    {
+        if (isset($firma->email)){
+            Mail::to($firma->email)->send(new \App\Mail\TrimiteContractCcaCatreTransportator($firma));
+
+            $emailTrimis = new \App\Models\MesajTrimisEmail;
+            // $emailTrimis->comanda_id = $comanda->id;
+            $emailTrimis->firma_id = $firma->id ?? '';
+            $emailTrimis->categorie = 4;
+            $emailTrimis->email = $firma->email;
+            $emailTrimis->save();
+
+            return back()->with('status', 'Emailul către „' . $firma->nume . '” a fost trimis cu succes!');
+        } else {
+            return back()->with('error', 'Nu există un email valid!');
         }
     }
 }

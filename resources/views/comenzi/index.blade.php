@@ -21,7 +21,7 @@
                 <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form d-flex justify-content-center">
-                        <div class="col-lg-3">
+                        <div class="col-lg-2">
                             <input type="text" class="form-control rounded-3" id="searchTransportatorContract" name="searchTransportatorContract" placeholder="Ctr. transp." value="{{ $searchTransportatorContract }}">
                         </div>
                         <div class="col-lg-4 d-flex justify-content-center align-items-center">
@@ -42,6 +42,14 @@
                                 <option value="1" {{ intval($searchStare) === 1 ? 'selected' : '' }}>Deschise</option>
                                 <option value="2" {{ intval($searchStare) === 2 ? 'selected' : '' }}>Închise</option>
                                 <option value="3" {{ intval($searchStare) === 3 ? 'selected' : '' }}>Anulate</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-3">
+                            <select name="searchUser" id="searchUser" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
+                                <option value="" selected>Selectează Utilizator</option>
+                                @foreach ($useri as $user)
+                                    <option value="{{ $user->id }}" {{ intval($searchUser) === $user->id ? 'selected' : ''  }}>{{ $user->name }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -156,15 +164,16 @@
                     {{-- <thead class="text-white rounded" style="background-color: #69A1B1"> --}}
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
-                            <th class="">Contract transportator</th>
+                            <th class="">Contract<br>transportator</th>
                             <th class="">Dată creare</th>
                             <th class="">Transportator</th>
                             <th class="">Client</th>
-                            <th class="">Zile scadente Ctr. Client</th>
+                            <th class="">Zile scadente<br> Ctr. Client</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Contract</th>
-                            <th class="text-center">Trimite Contract pe email</th>
+                            <th class="text-center">Trimite Contract<br> pe email</th>
                             <th class="text-center">Stare</th>
+                            <th class="text-center">Utilizator</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -176,6 +185,10 @@
                                 </td>
                                 <td class="">
                                     {{ $comanda->transportator_contract }}
+                                    <br>
+                                    {{-- {{ $comanda->ultimaDescarcare ?? '' }} --}}
+                                    {{-- {{ $comanda->ultimaDescarcare()->data_ora ?? '' }} --}}
+                                    {{-- {{ $comanda->ultimaDescarcare()->pivot->data_ora ?? '' }} --}}
                                 </td>
                                 <td class="">
                                     {{ $comanda->data_creare ? \Carbon\Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY') : '' }}
@@ -248,6 +261,9 @@
                                         </a>
                                     </div>
                                 </td>
+                                <td class="text-center">
+                                    {{ $comanda->user->name ?? '' }}
+                                </td>
                                 <td>
                                     <div class="d-flex justify-content-end">
                                         <a href="{{ $comanda->path() }}/modifica" class="flex me-1">
@@ -269,8 +285,7 @@
 
                             <tr v-if="comandaId === {{ $comanda->id }}">
                                 <td colspan="11">
-                                    <div class="row">
-                                    <div class="col-lg-8 table-responsive rounded mx-auto">
+                                    <div class="table-responsive rounded mx-auto w-75">
                                         <table class="table table-striped table-hover rounded">
                                             <thead class="text-white rounded culoare2">
                                                 <tr class="" style="padding:2rem">
@@ -309,7 +324,6 @@
                                                 </tr>
                                             </tbody>
                                         </table>
-                                    </div>
                                     </div>
                                 </td>
                             </tr>
