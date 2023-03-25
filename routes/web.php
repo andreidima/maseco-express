@@ -59,4 +59,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/axios/statusuri', [AxiosController::class, 'statusuri']);
 
     // Route::resource('/comenzi-statusuri', ComandaStatusController::class)->parameters(['comenzi-statusuri' => 'comandaStatus']);
+
+    // Clear application cache:
+    Route::get('/clear-cache', function() {
+        Artisan::call('cache:clear');
+        return 'Application cache has been cleared';
+    });
 });
