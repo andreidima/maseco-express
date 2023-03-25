@@ -437,8 +437,9 @@
                                     v-on:click="
                                         incarcari[index].id = locOperare.id;
                                         incarcari[index].nume = locOperare.nume;
+                                        incarcari[index].adresa = locOperare.adresa;
                                         incarcari[index].oras = locOperare.oras;
-                                        incarcari[index].tara.id = locOperare.tara.id;
+                                        {{-- incarcari[index].tara.id = locOperare.tara.id; --}}
                                         incarcari[index].tara.nume = locOperare.tara.nume;
 
                                         locuriOperareIncarcari = ''
@@ -453,7 +454,7 @@
                         <label for="adresa" class="mb-0 ps-3">Adresa</label>
                         <input
                             type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('adresa') ? 'is-invalid' : '' }}"
+                            class="form-control bg-white rounded-3 {{ $errors->has('adresa') ? 'is-invalid' : '' }}" readonly
                             :name="'incarcari[' + index + '][adresa]'"
                             v-model="incarcari[index].adresa">
                     </div>
@@ -461,7 +462,7 @@
                         <label for="oras" class="mb-0 ps-3">Oraș</label>
                         <input
                             type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
+                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}" readonly
                             :name="'incarcari[' + index + '][oras]'"
                             v-model="incarcari[index].oras">
                     </div>
@@ -469,7 +470,7 @@
                         <label for="tara" class="mb-0 ps-3">Țara</label>
                         <input
                             type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('tara') ? 'is-invalid' : '' }}"
+                            class="form-control bg-white rounded-3 {{ $errors->has('tara') ? 'is-invalid' : '' }}" readonly
                             :name="'incarcari[' + index + '][tara][nume]'"
                             v-model="incarcari[index].tara.nume"
                             >
