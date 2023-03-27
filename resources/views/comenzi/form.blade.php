@@ -411,7 +411,7 @@
             </div>
             <div class="col-lg-12 mb-4">
                 <div class="row align-items-start mb-2" v-for="(incarcare, index) in incarcari" :key="incarcare" style="border:2px solid #2196F3;">
-                    <div class="col-lg-3 mb-2" style="position:relative;"
+                    <div class="col-lg-4 mb-2" style="position:relative;"
                         v-click-out="() => locuriOperareIncarcari[index] = ''"
                         >
                         <label for="nume" class="mb-0 ps-3">Loc de încărcare @{{ index+1 }}<span class="text-danger">*</span></label>
@@ -461,7 +461,7 @@
                         </div>
                         <small v-if="!incarcari[index].nume || (incarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
                     </div>
-                    <div class="col-lg-3 mb-2">
+                    <div class="col-lg-4 mb-2">
                         <label for="adresa" class="mb-0 ps-3">Adresa</label>
                         <input
                             type="text"
@@ -486,21 +486,33 @@
                             v-model="incarcari[index].tara.nume"
                             >
                     </div>
-                    <div class="col-lg-2 mb-2">
-                        <label for="data_ora" class="mb-0 ps-3">Data și ora<span class="text-danger">*</span></label>
-                        <vue-datepicker-next
-                            :data-veche='incarcari[index].pivot.data_ora'
-                            :nume-camp-db="'incarcari[' + index + '][pivot][data_ora]'"
-                            tip="datetime"
-                            :minute-step="5"
-                            value-type="YYYY-MM-DD HH:mm"
-                            format="DD.MM.YYYY HH:mm"
-                            :latime="{ width: '170px' }"
-                        ></vue-datepicker-next>
-                    </div>
                     <div class="col-lg-12">
                         <div class="row">
-                            <div class="col-lg-5 mb-2">
+                            <div class="col-lg-2 mb-2">
+                                <label for="data_ora" class="mb-0 ps-3">Data și ora<span class="text-danger">*</span></label>
+                                <vue-datepicker-next
+                                    :data-veche='incarcari[index].pivot.data_ora'
+                                    :nume-camp-db="'incarcari[' + index + '][pivot][data_ora]'"
+                                    tip="datetime"
+                                    :minute-step="5"
+                                    value-type="YYYY-MM-DD HH:mm"
+                                    format="DD.MM.YYYY HH:mm"
+                                    :latime="{ width: '170px' }"
+                                ></vue-datepicker-next>
+                            </div>
+                            <div class="col-lg-2 mb-2">
+                                <label for="data_ora" class="mb-0 ps-3">Durata<span class="text-danger">*</span></label>
+                                <vue-datepicker-next
+                                    :data-veche='incarcari[index].pivot.durata'
+                                    :nume-camp-db="'incarcari[' + index + '][pivot][durata]'"
+                                    tip="time"
+                                    :minute-step="5"
+                                    value-type="HH:mm"
+                                    format="HH:mm"
+                                    :latime="{ width: '80px' }"
+                                ></vue-datepicker-next>
+                            </div>
+                            <div class="col-lg-3 mb-2">
                                 <label for="observatii" class="form-label mb-0 ps-3">Observații</label>
                                 <textarea class="form-control bg-white {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
                                     rows="2"
@@ -508,7 +520,7 @@
                                     v-model="incarcari[index].pivot.observatii">
                                 </textarea>
                             </div>
-                            <div class="col-lg-5 mb-2">
+                            <div class="col-lg-3 mb-2">
                                 <label for="referinta" class="form-label mb-0 ps-3">Referință</label>
                                 <textarea class="form-control bg-white {{ $errors->has('referinta') ? 'is-invalid' : '' }}"
                                     rows="2"
@@ -516,7 +528,9 @@
                                     v-model="incarcari[index].pivot.referinta">
                                 </textarea>
                             </div>
-                            <div class="col-lg-2 mb-3 d-flex justify-content-center align-items-end">
+                            {{-- <div class="col-lg-1 mb-3 d-flex justify-content-center align-items-end">
+                            </div> --}}
+                            <div class="col-lg-2 mb-3 d-flex justify-content-end align-items-end">
                                 <br>
                                 {{-- <button type="btn" title="Șterge descărcarea" class="btn btn-danger" @click="this.incarcari.splice(index, 1);">
                                     <i class="fa-solid fa-trash-can"></i>
@@ -551,7 +565,7 @@
             </div>
             <div class="col-lg-12 mb-4">
                 <div class="row align-items-start mb-2" v-for="(descarcare, index) in descarcari" :key="descarcare" style="border:2px solid mediumseagreen;">
-                    <div class="col-lg-3 mb-2" style="position:relative;"
+                    <div class="col-lg-4 mb-2" style="position:relative;"
                         v-click-out="() => locuriOperareDescarcari[index] = ''"
                         >
                         <label for="nume" class="mb-0 ps-3">Loc de descărcare @{{ index+1 }}<span class="text-danger">*</span></label>
@@ -601,7 +615,7 @@
                         </div>
                         <small v-if="!descarcari[index].nume || (descarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
                     </div>
-                    <div class="col-lg-3 mb-2">
+                    <div class="col-lg-4 mb-2">
                         <label for="adresa" class="mb-0 ps-3">Adresa</label>
                         <input
                             type="text"
@@ -625,21 +639,33 @@
                             :name="'descarcari[' + index + '][tara][nume]'"
                             v-model="descarcari[index].tara.nume">
                     </div>
-                    <div class="col-lg-2 mb-2">
-                        <label for="data_ora" class="mb-0 ps-3">Data și ora<span class="text-danger">*</span></label>
-                        <vue-datepicker-next
-                            :data-veche='descarcari[index].pivot.data_ora'
-                            :nume-camp-db="'descarcari[' + index + '][pivot][data_ora]'"
-                            tip="datetime"
-                            :minute-step="5"
-                            value-type="YYYY-MM-DD HH:mm"
-                            format="DD.MM.YYYY HH:mm"
-                            :latime="{ width: '170px' }"
-                        ></vue-datepicker-next>
-                    </div>
                     <div class="col-lg-12">
                         <div class="row">
-                            <div class="col-lg-5 mb-2">
+                            <div class="col-lg-2 mb-2">
+                                <label for="data_ora" class="mb-0 ps-3">Data și ora<span class="text-danger">*</span></label>
+                                <vue-datepicker-next
+                                    :data-veche='descarcari[index].pivot.data_ora'
+                                    :nume-camp-db="'descarcari[' + index + '][pivot][data_ora]'"
+                                    tip="datetime"
+                                    :minute-step="5"
+                                    value-type="YYYY-MM-DD HH:mm"
+                                    format="DD.MM.YYYY HH:mm"
+                                    :latime="{ width: '170px' }"
+                                ></vue-datepicker-next>
+                            </div>
+                            <div class="col-lg-2 mb-2">
+                                <label for="durata" class="mb-0 ps-3">Durata<span class="text-danger">*</span></label>
+                                <vue-datepicker-next
+                                    :data-veche='descarcari[index].pivot.durata'
+                                    :nume-camp-db="'descarcari[' + index + '][pivot][durata]'"
+                                    tip="time"
+                                    :minute-step="5"
+                                    value-type="HH:mm"
+                                    format="HH:mm"
+                                    :latime="{ width: '80px' }"
+                                ></vue-datepicker-next>
+                            </div>
+                            <div class="col-lg-3 mb-2">
                                 <label for="observatii" class="form-label mb-0 ps-3">Observații</label>
                                 <textarea class="form-control bg-white {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
                                     rows="2"
@@ -647,7 +673,7 @@
                                     v-model="descarcari[index].pivot.observatii">
                                 </textarea>
                             </div>
-                            <div class="col-lg-5 mb-2">
+                            <div class="col-lg-3 mb-2">
                                 <label for="referinta" class="form-label mb-0 ps-3">Referință</label>
                                 <textarea class="form-control bg-white {{ $errors->has('referinta') ? 'is-invalid' : '' }}"
                                     rows="2"
@@ -655,7 +681,7 @@
                                     v-model="descarcari[index].pivot.referinta">
                                 </textarea>
                             </div>
-                            <div class="col-lg-2 mb-3 d-flex justify-content-center align-items-end">
+                            <div class="col-lg-2 mb-3 d-flex justify-content-end align-items-end">
                                 <br>
                                 {{-- <button type="btn" title="Șterge descărcarea" class="btn btn-danger" @click="this.descarcari.splice(index, 1);">
                                     <i class="fa-solid fa-trash-can"></i>

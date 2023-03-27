@@ -58,5 +58,18 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);
     Route::get('/axios/statusuri', [AxiosController::class, 'statusuri']);
 
-    // Route::resource('/comenzi-statusuri', ComandaStatusController::class)->parameters(['comenzi-statusuri' => 'comandaStatus']);
+    // Route::get('/actualizare-tari', function() {
+    //     $tari = App\Models\Tara::all();
+    //     $tariTemporar = Illuminate\Support\Facades\DB::table('tari_temporar')->distinct('country_name')->get();
+    //     foreach ($tariTemporar as $taraTemporar){
+    //         foreach ($tari as $tara){
+    //             if ($taraTemporar->country_name === $tara->nume) {
+    //                 // echo $tara->nume . ' ' . trim($taraTemporar->gmt_offset, "UTC") . '<br>';
+    //                 $tara->gmt_offset = trim($taraTemporar->gmt_offset, "UTC ");
+    //                 $tara->update();
+    //             }
+    //         }
+    //     }
+    //     echo 'hasd';
+    // });
 });

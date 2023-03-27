@@ -218,73 +218,6 @@ class ComandaController extends Controller
         }
 
 
-        // // Incarcari
-        //     // Se verifica daca exista duplicate in locatiile vechi din baza de date
-        //     if ($comanda->locuriOperareIncarcari()->count() > 0) {
-        //         foreach ($comanda->locuriOperareIncarcari()->get() as $key=>$locOperare){
-        //             $temp_array[$key] = $locOperare->id;
-        //         }
-        //         $temp_array = array_unique($temp_array);
-        //         $existaDuplicateInIncarcarileVechi = sizeof($temp_array) != sizeof($comanda->locuriOperare()->get());
-        //     }
-
-        //     // Se verifica daca exista duplicate in locatiile noi
-        //     if (count($request->incarcari) > 0) {
-        //         for ($i = 0; $i < count($request->incarcari); $i++) {
-        //             $temp_array[$i] = ($request->incarcari[$i]['id']);
-        //         }
-        //         $temp_array = array_unique($temp_array);
-        //         $existaDuplicateInIncarcarileNoi = sizeof($temp_array) != sizeof($request->incarcari);
-        //     }
-
-        //     // Daca exista duplicate, in locatiile vechi sau noi, se creaza un array, cu index incepand cu 0, care la sync va sterge toate lociile vechi si apoi va readauga toate locatiile noi
-        //     // Daca nu exista duplicate, se creaza un array, cu index id-ul locatiilor, care la sync va face update doar daca este cazul
-        //     if ((isset($existaDuplicateInIncarcarileVechi) && ($existaDuplicateInIncarcarileVechi > 0)) || (isset($existaDuplicateInIncarcarileNoi) && ($existaDuplicateInIncarcarileNoi > 0))) {
-        //         for ($i = 0; $i < count($request->incarcari); $i++) {
-        //             $incarcari_id_array[$i] = ['loc_operare_id' => intval($request->incarcari[$i]['id']), 'tip' => 1, 'ordine' => $i+1, 'data_ora' => $request->incarcari[$i]['pivot']['data_ora'], 'observatii' => $request->incarcari[$i]['pivot']['observatii']];
-        //         }
-        //     } else {
-        //         for ($i = 0; $i < count($request->incarcari); $i++) {
-        //             $incarcari_id_array[$request->incarcari[$i]['id']] = ['tip' => 1, 'ordine' => $i+1, 'data_ora' => $request->incarcari[$i]['pivot']['data_ora'], 'observatii' => $request->incarcari[$i]['pivot']['observatii']];
-        //         }
-        //     }
-        //     $comanda->locuriOperareIncarcari()->sync($incarcari_id_array);
-
-
-        // // Descarcari
-        //     // Se verifica daca exista duplicate in locatiile vechi din baza de date
-        //     if ($comanda->locuriOperareDescarcari()->count() > 0) {
-        //         foreach ($comanda->locuriOperareDescarcari()->get() as $key=>$locOperare){
-        //             $temp_array[$key] = $locOperare->id;
-        //         }
-        //         $temp_array = array_unique($temp_array);
-        //         $existaDuplicateInDescarcarileVechi = sizeof($temp_array) != sizeof($comanda->locuriOperare()->get());
-        //     }
-
-        //     // Se verifica daca exista duplicate in locatiile noi
-        //     if (count($request->descarcari) > 0) {
-        //         for ($i = 0; $i < count($request->descarcari); $i++) {
-        //             $temp_array[$i] = ($request->descarcari[$i]['id']);
-        //         }
-        //         $temp_array = array_unique($temp_array);
-        //         $existaDuplicateInDescarcarileNoi = sizeof($temp_array) != sizeof($request->descarcari);
-        //     }
-
-        //     // Daca exista duplicate, in locatiile vechi sau noi, se creaza un array, cu index incepand cu 0, care la sync va sterge toate lociile vechi si apoi va readauga toate locatiile noi
-        //     // Daca nu exista duplicate, se creaza un array, cu index id-ul locatiilor, care la sync va face update doar daca este cazul
-        //     if ((isset($existaDuplicateInDescarcarileVechi) && ($existaDuplicateInDescarcarileVechi > 0)) || (isset($existaDuplicateInDescarcarileNoi) && ($existaDuplicateInDescarcarileNoi > 0))) {
-        //         for ($i = 0; $i < count($request->descarcari); $i++) {
-        //             $descarcari_id_array[$i] = ['loc_operare_id' => intval($request->descarcari[$i]['id']), 'tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii']];
-        //         }
-        //     } else {
-        //         for ($i = 0; $i < count($request->descarcari); $i++) {
-        //             $descarcari_id_array[$request->descarcari[$i]['id']] = ['tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii']];
-        //         }
-        //     }
-        //     $comanda->locuriOperareDescarcari()->sync($descarcari_id_array);
-        //     dd($request->request, $incarcari_id_array, $descarcari_id_array);
-
-
         // Incarcari
             // 1. Se verifica daca exista duplicate in locatiile vechi din baza de date
             if ($comanda->locuriOperare()->count() > 0) {
@@ -313,29 +246,59 @@ class ComandaController extends Controller
                     $existaDuplicateInLocatiileNoi = sizeof($temp_array) != (sizeof($request->incarcari ?? []) + sizeof($request->descarcari ?? []));
                 }
             }
-// dd($existaDuplicateInLocatiileNoi);
+
             // Daca exista duplicate, in locatiile vechi sau noi, se creaza un array, cu index incepand cu 0, care la sync va sterge toate locatiile vechi si apoi va readauga toate locatiile noi
             // Daca nu exista duplicate, se creaza un array, cu index id-ul locatiilor, care la sync va face update doar daca este cazul
             if ((isset($existaDuplicateInLocatiileVechi) && ($existaDuplicateInLocatiileVechi)) || (isset($existaDuplicateInLocatiileNoi) && ($existaDuplicateInLocatiileNoi))) {
                 if ($request->incarcari){
                     for ($i = 0; $i < count($request->incarcari); $i++) {
-                        $locatii_id_array[$i] = ['loc_operare_id' => intval($request->incarcari[$i]['id']), 'tip' => 1, 'ordine' => $i+1, 'data_ora' => $request->incarcari[$i]['pivot']['data_ora'], 'observatii' => $request->incarcari[$i]['pivot']['observatii'], 'referinta' => $request->incarcari[$i]['pivot']['referinta']];
+                        $locatii_id_array[$i] = [
+                            'loc_operare_id' => intval($request->incarcari[$i]['id']),
+                            'tip' => 1,
+                            'ordine' => $i+1,
+                            'data_ora' => $request->incarcari[$i]['pivot']['data_ora'],
+                            'durata' => $request->incarcari[$i]['pivot']['durata'],
+                            'observatii' => $request->incarcari[$i]['pivot']['observatii'],
+                            'referinta' => $request->incarcari[$i]['pivot']['referinta']
+                        ];
                     }
                 }
                 if ($request->descarcari){
                     for ($i = 0; $i < count($request->descarcari); $i++) {
-                        $locatii_id_array[count($locatii_id_array ?? [])] = ['loc_operare_id' => intval($request->descarcari[$i]['id']), 'tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii'], 'referinta' => $request->descarcari[$i]['pivot']['referinta']];
+                        $locatii_id_array[count($locatii_id_array ?? [])] = [
+                            'loc_operare_id' => intval($request->descarcari[$i]['id']),
+                            'tip' => 2,
+                            'ordine' => $i+1,
+                            'data_ora' => $request->descarcari[$i]['pivot']['data_ora'],
+                            'durata' => $request->descarcari[$i]['pivot']['durata'],
+                            'observatii' => $request->descarcari[$i]['pivot']['observatii'],
+                            'referinta' => $request->descarcari[$i]['pivot']['referinta']
+                        ];
                     }
                 }
             } else {
                 if ($request->incarcari){
                     for ($i = 0; $i < count($request->incarcari); $i++) {
-                        $locatii_id_array[$request->incarcari[$i]['id']] = ['tip' => 1, 'ordine' => $i+1, 'data_ora' => $request->incarcari[$i]['pivot']['data_ora'], 'observatii' => $request->incarcari[$i]['pivot']['observatii'], 'referinta' => $request->incarcari[$i]['pivot']['referinta']];
+                        $locatii_id_array[$request->incarcari[$i]['id']] = [
+                            'tip' => 1,
+                            'ordine' => $i+1,
+                            'data_ora' => $request->incarcari[$i]['pivot']['data_ora'],
+                            'durata' => $request->incarcari[$i]['pivot']['durata'],
+                            'observatii' => $request->incarcari[$i]['pivot']['observatii'],
+                            'referinta' => $request->incarcari[$i]['pivot']['referinta']
+                        ];
                     }
                 }
                 if ($request->descarcari){
                     for ($i = 0; $i < count($request->descarcari); $i++){
-                        $locatii_id_array[$request->descarcari[$i]['id']] = ['tip' => 2, 'ordine' => $i+1, 'data_ora' => $request->descarcari[$i]['pivot']['data_ora'], 'observatii' => $request->descarcari[$i]['pivot']['observatii'], 'referinta' => $request->descarcari[$i]['pivot']['referinta']];
+                        $locatii_id_array[$request->descarcari[$i]['id']] = [
+                            'tip' => 2,
+                            'ordine' => $i+1,
+                            'data_ora' => $request->descarcari[$i]['pivot']['data_ora'],
+                            'durata' => $request->descarcari[$i]['pivot']['durata'],
+                            'observatii' => $request->descarcari[$i]['pivot']['observatii'],
+                            'referinta' => $request->descarcari[$i]['pivot']['referinta']
+                        ];
                     }
                 }
             }
@@ -369,6 +332,7 @@ class ComandaController extends Controller
                         $comandaLocOperareIstoric->tip = $locuriOperareIncarcariNoi[$i]->pivot->tip;
                         $comandaLocOperareIstoric->ordine = $locuriOperareIncarcariNoi[$i]->pivot->ordine;
                         $comandaLocOperareIstoric->data_ora = $locuriOperareIncarcariNoi[$i]->pivot->data_ora;
+                        $comandaLocOperareIstoric->durata = $locuriOperareIncarcariNoi[$i]->pivot->durata;
                         $comandaLocOperareIstoric->observatii = $locuriOperareIncarcariNoi[$i]->pivot->observatii;
                         $comandaLocOperareIstoric->referinta = $locuriOperareIncarcariNoi[$i]->pivot->referinta;
                         $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
@@ -384,6 +348,7 @@ class ComandaController extends Controller
                         ($locuriOperareIncarcariVechi[$i]->id !== $locuriOperareIncarcariNoi[$i]->id)
                         || ($locuriOperareIncarcariVechi[$i]->pivot->ordine !== $locuriOperareIncarcariNoi[$i]->pivot->ordine)
                         || ($locuriOperareIncarcariVechi[$i]->pivot->data_ora !== $locuriOperareIncarcariNoi[$i]->pivot->data_ora)
+                        || ($locuriOperareIncarcariVechi[$i]->pivot->durata !== $locuriOperareIncarcariNoi[$i]->pivot->durata)
                         || ($locuriOperareIncarcariVechi[$i]->pivot->observatii !== $locuriOperareIncarcariNoi[$i]->pivot->observatii)
                         || ($locuriOperareIncarcariVechi[$i]->pivot->referinta !== $locuriOperareIncarcariNoi[$i]->pivot->referinta)
                     ){
@@ -394,6 +359,7 @@ class ComandaController extends Controller
                             $comandaLocOperareIstoric->tip = $locuriOperareIncarcariNoi[$i]->pivot->tip;
                             $comandaLocOperareIstoric->ordine = $locuriOperareIncarcariNoi[$i]->pivot->ordine;
                             $comandaLocOperareIstoric->data_ora = $locuriOperareIncarcariNoi[$i]->pivot->data_ora;
+                            $comandaLocOperareIstoric->durata = $locuriOperareIncarcariNoi[$i]->pivot->durata;
                             $comandaLocOperareIstoric->observatii = $locuriOperareIncarcariNoi[$i]->pivot->observatii;
                             $comandaLocOperareIstoric->referinta = $locuriOperareIncarcariNoi[$i]->pivot->referinta;
                             $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
@@ -415,6 +381,7 @@ class ComandaController extends Controller
                     $comandaLocOperareIstoric->tip = $locuriOperareIncarcariVechi[$i]->pivot->tip;
                     $comandaLocOperareIstoric->ordine = $locuriOperareIncarcariVechi[$i]->pivot->ordine;
                     $comandaLocOperareIstoric->data_ora = $locuriOperareIncarcariVechi[$i]->pivot->data_ora;
+                    $comandaLocOperareIstoric->durata = $locuriOperareIncarcariVechi[$i]->pivot->durata;
                     $comandaLocOperareIstoric->observatii = $locuriOperareIncarcariVechi[$i]->pivot->observatii;
                     $comandaLocOperareIstoric->referinta = $locuriOperareIncarcariVechi[$i]->pivot->referinta;
                     $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
@@ -449,6 +416,7 @@ class ComandaController extends Controller
                         $comandaLocOperareIstoric->tip = $locuriOperareDescarcariNoi[$i]->pivot->tip;
                         $comandaLocOperareIstoric->ordine = $locuriOperareDescarcariNoi[$i]->pivot->ordine;
                         $comandaLocOperareIstoric->data_ora = $locuriOperareDescarcariNoi[$i]->pivot->data_ora;
+                        $comandaLocOperareIstoric->durata = $locuriOperareDescarcariNoi[$i]->pivot->durata;
                         $comandaLocOperareIstoric->observatii = $locuriOperareDescarcariNoi[$i]->pivot->observatii;
                         $comandaLocOperareIstoric->referinta = $locuriOperareDescarcariNoi[$i]->pivot->referinta;
                         $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
@@ -464,6 +432,7 @@ class ComandaController extends Controller
                         ($locuriOperareDescarcariVechi[$i]->id !== $locuriOperareDescarcariNoi[$i]->id)
                         || ($locuriOperareDescarcariVechi[$i]->pivot->ordine !== $locuriOperareDescarcariNoi[$i]->pivot->ordine)
                         || ($locuriOperareDescarcariVechi[$i]->pivot->data_ora !== $locuriOperareDescarcariNoi[$i]->pivot->data_ora)
+                        || ($locuriOperareDescarcariVechi[$i]->pivot->durata !== $locuriOperareDescarcariNoi[$i]->pivot->durata)
                         || ($locuriOperareDescarcariVechi[$i]->pivot->observatii !== $locuriOperareDescarcariNoi[$i]->pivot->observatii)
                         || ($locuriOperareDescarcariVechi[$i]->pivot->referinta !== $locuriOperareDescarcariNoi[$i]->pivot->referinta)
                     ){
@@ -474,6 +443,7 @@ class ComandaController extends Controller
                             $comandaLocOperareIstoric->tip = $locuriOperareDescarcariNoi[$i]->pivot->tip;
                             $comandaLocOperareIstoric->ordine = $locuriOperareDescarcariNoi[$i]->pivot->ordine;
                             $comandaLocOperareIstoric->data_ora = $locuriOperareDescarcariNoi[$i]->pivot->data_ora;
+                            $comandaLocOperareIstoric->durata = $locuriOperareDescarcariNoi[$i]->pivot->durata;
                             $comandaLocOperareIstoric->observatii = $locuriOperareDescarcariNoi[$i]->pivot->observatii;
                             $comandaLocOperareIstoric->referinta = $locuriOperareDescarcariNoi[$i]->pivot->referinta;
                             $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
@@ -495,6 +465,7 @@ class ComandaController extends Controller
                     $comandaLocOperareIstoric->tip = $locuriOperareDescarcariVechi[$i]->pivot->tip;
                     $comandaLocOperareIstoric->ordine = $locuriOperareDescarcariVechi[$i]->pivot->ordine;
                     $comandaLocOperareIstoric->data_ora = $locuriOperareDescarcariVechi[$i]->pivot->data_ora;
+                    $comandaLocOperareIstoric->durata = $locuriOperareDescarcariVechi[$i]->pivot->durata;
                     $comandaLocOperareIstoric->observatii = $locuriOperareDescarcariVechi[$i]->pivot->observatii;
                     $comandaLocOperareIstoric->referinta = $locuriOperareDescarcariVechi[$i]->pivot->referinta;
                     $comandaLocOperareIstoric->operare_user_id = auth()->user()->id ?? null;
@@ -592,9 +563,11 @@ class ComandaController extends Controller
                 // 'incarcari.*.nume' => 'required|max:500',
                 // 'incarcari.*.oras' => 'nullable|max:500',
                 'incarcari.*.pivot.data_ora' => 'required',
+                'incarcari.*.pivot.durata' => 'required',
 
                 'descarcari.*.id' => 'required',
                 'descarcari.*.pivot.data_ora' => 'required',
+                'descarcari.*.pivot.durata' => 'required',
 
                 // 'observatii' => 'nullable|max:2000',
             ],
@@ -603,8 +576,10 @@ class ComandaController extends Controller
                 'client_client_id.required' => 'Câmpul Client este obligatoriu',
                 'incarcari.*.id' => 'Încărcarea #:position este obligatoriu de selectat din baza de date',
                 'incarcari.*.pivot.data_ora' => 'Câmpul Data și ora pentru încărcarea #:position este obligatoriu',
+                'incarcari.*.pivot.durata' => 'Câmpul Durata pentru încărcarea #:position este obligatoriu',
                 'descarcari.*.id' => 'Descărcarea #:position este obligatoriu de selectat din baza de date',
                 'descarcari.*.pivot.data_ora' => 'Câmpul Data și ora pentru descărcarea #:position este obligatoriu',
+                'descarcari.*.pivot.durata' => 'Câmpul Durata pentru descărcarea #:position este obligatoriu',
             ]
         );
     }

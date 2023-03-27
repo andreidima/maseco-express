@@ -55,7 +55,7 @@ class Comanda extends Model
 
     public function locuriOperare()
     {
-        return $this->belongsToMany(LocOperare::class, 'comenzi_locuri_operare', 'comanda_id', 'loc_operare_id')->with('tara')->withPivot('id', 'tip', 'ordine', 'data_ora', 'observatii', 'referinta');
+        return $this->belongsToMany(LocOperare::class, 'comenzi_locuri_operare', 'comanda_id', 'loc_operare_id')->with('tara')->withPivot('id', 'tip', 'ordine', 'data_ora', 'durata', 'observatii', 'referinta');
     }
 
     public function locuriOperareIncarcari()

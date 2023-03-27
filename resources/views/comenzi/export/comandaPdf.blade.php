@@ -156,10 +156,20 @@
                             @isset ($comanda->locuriOperareIncarcari[$i])
                                 ÎNCĂRCARE {{ $i+1 }}
                                 <br>
-                                {{ $comanda->locuriOperareIncarcari[$i]->pivot->data_ora ?
-                                    'Data ' . \Carbon\Carbon::parse($comanda->locuriOperareIncarcari[$i]->pivot->data_ora)->isoFormat('DD.MM.YYYY') .
-                                    ', ora ' . \Carbon\Carbon::parse($comanda->locuriOperareIncarcari[$i]->pivot->data_ora)->isoFormat('HH:mm')
-                                    : ''}}
+                                @if ($comanda->locuriOperareIncarcari[$i]->pivot->data_ora)
+                                    @php
+                                        $data_ora = \Carbon\Carbon::parse($comanda->locuriOperareIncarcari[$i]->pivot->data_ora)
+                                    @endphp
+                                    {{ 'Data ' . $data_ora->isoFormat('DD.MM.YYYY'). ', ora ' . $data_ora->isoFormat('HH:mm') }}
+                                    @if ($comanda->locuriOperareIncarcari[$i]->pivot->durata)
+                                        @php
+                                            $durata = \Carbon\Carbon::parse($comanda->locuriOperareIncarcari[$i]->pivot->durata)
+                                        @endphp
+                                        {{
+                                            ' - ' . $data_ora->addHours($durata->hour)->addMinutes($durata->minute)->isoFormat('HH:mm')
+                                        }}
+                                    @endif
+                                @endif
                                 <br>
                                 {{ $comanda->locuriOperareIncarcari[$i]->nume ?? ''}}
                                 <br>
@@ -174,10 +184,20 @@
                             @isset ($comanda->locuriOperareDescarcari[$i])
                                 DESCĂRCARE {{ $i+1 }}
                                 <br>
-                                {{ $comanda->locuriOperareDescarcari[$i]->pivot->data_ora ?
-                                    'Data ' . \Carbon\Carbon::parse($comanda->locuriOperareDescarcari[$i]->pivot->data_ora)->isoFormat('DD.MM.YYYY') .
-                                    ', ora ' . \Carbon\Carbon::parse($comanda->locuriOperareDescarcari[$i]->pivot->data_ora)->isoFormat('HH:mm')
-                                    : ''}}
+                                @if ($comanda->locuriOperareDescarcari[$i]->pivot->data_ora)
+                                    @php
+                                        $data_ora = \Carbon\Carbon::parse($comanda->locuriOperareDescarcari[$i]->pivot->data_ora)
+                                    @endphp
+                                    {{ 'Data ' . $data_ora->isoFormat('DD.MM.YYYY'). ', ora ' . $data_ora->isoFormat('HH:mm') }}
+                                    @if ($comanda->locuriOperareDescarcari[$i]->pivot->durata)
+                                        @php
+                                            $durata = \Carbon\Carbon::parse($comanda->locuriOperareDescarcari[$i]->pivot->durata)
+                                        @endphp
+                                        {{
+                                            ' - ' . $data_ora->addHours($durata->hour)->addMinutes($durata->minute)->isoFormat('HH:mm')
+                                        }}
+                                    @endif
+                                @endif
                                 <br>
                                 {{ $comanda->locuriOperareDescarcari[$i]->nume ?? ''}}
                                 <br>
