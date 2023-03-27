@@ -154,7 +154,7 @@
         </div>
         <div class="row px-2 pt-4 pb-2 mb-0" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
             <div class="col-lg-2 mb-2">
-                <label for="persoana_contact" class="mb-0 ps-3">Persoană de contact</label>
+                <label for="persoana_contact" class="mb-0 ps-3">Persoană contact</label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('persoana_contact') ? 'is-invalid' : '' }}"
