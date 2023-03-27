@@ -58,7 +58,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);
     Route::get('/axios/statusuri', [AxiosController::class, 'statusuri']);
 
-<<<<<<< HEAD
     // Route::get('/actualizare-tari', function() {
     //     $tari = App\Models\Tara::all();
     //     $tariTemporar = Illuminate\Support\Facades\DB::table('tari_temporar')->distinct('country_name')->get();
@@ -73,17 +72,4 @@ Route::group(['middleware' => 'auth'], function () {
     //     }
     //     echo 'hasd';
     // });
-=======
-    // Route::resource('/comenzi-statusuri', ComandaStatusController::class)->parameters(['comenzi-statusuri' => 'comandaStatus']);
-
-    // Clear application cache:
-    Route::get('/clear-cache', function() {
-        Artisan::call('cache:clear');
-        return 'Application cache has been cleared';
-    });
-    Route::get('/config-cache', function() {
-        Artisan::call('config:cache');
-        return 'Configuration cached successfully.';
-    });
->>>>>>> a04cf4ebf8487465d4ae291d5ccb4e70ef57d7ca
 });
