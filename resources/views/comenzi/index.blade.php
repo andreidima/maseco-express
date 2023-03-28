@@ -383,6 +383,9 @@
                                                                 @case(4)
                                                                     CCA către Transportator
                                                                     @break
+                                                                @case(5)
+                                                                    Răspuns Transportator la cerere Status
+                                                                    @break
                                                             @endswitch
                                                         </td>
                                                         <td class="text-right">
