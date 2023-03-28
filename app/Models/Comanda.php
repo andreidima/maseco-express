@@ -119,12 +119,12 @@ class Comanda extends Model
 
     public function mesajeTrimiseEmail()
     {
-        return $this->hasMany(MesajTrimisEmail::class, 'comanda_id');
+        return $this->hasMany(MesajTrimisEmail::class, 'comanda_id')->latest();
     }
 
     public function mesajeTrimiseSms()
     {
-        return $this->hasMany(MesajTrimisSms::class, 'referinta_id');
+        return $this->hasMany(MesajTrimisSms::class, 'referinta_id')->latest();
         // ->where('categorie', 'Comenzi');
     }
 }
