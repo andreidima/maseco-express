@@ -62,7 +62,7 @@ class StatusComandaActualizatDeTransportatorController extends Controller
             }
             $emailTrimis->comanda_id = $comanda->id;
             $emailTrimis->firma_id = $comanda->transportator->id ?? '';
-            $emailTrimis->categorie = 4;
+            $emailTrimis->categorie = 5;
             $emailTrimis->save();
         }
 
