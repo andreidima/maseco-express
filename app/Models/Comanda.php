@@ -116,4 +116,15 @@ class Comanda extends Model
         // }
         // return false;
     }
+
+    public function mesajeTrimiseEmail()
+    {
+        return $this->hasMany(MesajTrimisEmail::class, 'comanda_id');
+    }
+
+    public function mesajeTrimiseSms()
+    {
+        return $this->hasMany(MesajTrimisSms::class, 'referinta_id');
+        // ->where('categorie', 'Comenzi');
+    }
 }

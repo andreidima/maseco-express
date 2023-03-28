@@ -168,10 +168,11 @@
                             <th class="">Dată creare</th>
                             <th class="">Transportator</th>
                             <th class="">Client</th>
-                            <th class="">Zile scadente<br> Ctr. Client</th>
+                            <th class="">Zile scadente<br>Ctr. Client</th>
                             <th class="text-center">Status</th>
                             <th class="text-center">Contract</th>
-                            <th class="text-center">Trimite Contract<br> pe email</th>
+                            <th class="text-center">Trimite Contract<br>pe email</th>
+                            <th class="text-center">Mesaje<br>trimise</th>
                             <th class="text-center">Stare</th>
                             <th class="text-center">Utilizator</th>
                             <th class="text-end">Acțiuni</th>
@@ -227,17 +228,31 @@
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center">
-                                        <a href="{{ $comanda->path() }}/export-pdf" target="_blank" class="flex me-1">
+                                        <a href="{{ $comanda->path() }}/export-pdf" target="_blank" class="flex">
                                             <span class="badge bg-success">Contract</span>
                                         </a>
                                     </div>
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center">
-                                        <a href="{{ $comanda->path() }}/trimite-catre-transportator" class="flex me-1" title="Numărul de emailuri trimise până acum">
+                                        <a href="{{ $comanda->path() }}/trimite-catre-transportator" class="flex" title="Numărul de emailuri trimise până acum">
                                             <span class="badge bg-primary">
                                                 Trimite
                                                 <span class="badge bg-dark">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                                            </span>
+                                        </a>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex">
+                                        <a class="flex me-1" data-bs-toggle="collapse" href="#emailuriTrimise{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="emailuriTrimise{{ $comanda->id }}">
+                                            <span class="badge bg-primary d-flex align-items-center">
+                                                <i class="fa-solid fa-arrows-up-down pe-1 fa-sm" style=""></i> Email
+                                            </span>
+                                        </a>
+                                        <a class="flex me-1" data-bs-toggle="collapse" href="#smsTrimise{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="smsTrimise{{ $comanda->id }}">
+                                            <span class="badge bg-primary d-flex align-items-center">
+                                                <i class="fa-solid fa-arrows-up-down pe-1 fa-sm" style=""></i> Sms
                                             </span>
                                         </a>
                                     </div>
@@ -284,13 +299,13 @@
                             </tr>
 
                             <tr v-if="comandaId === {{ $comanda->id }}">
-                                <td colspan="11">
+                                <td colspan="13">
                                     <div class="table-responsive rounded mx-auto w-75">
                                         <table class="table table-striped table-hover rounded">
                                             <thead class="text-white rounded culoare2">
                                                 <tr class="" style="padding:2rem">
                                                     <th colspan="5" class="text-center">
-                                                        Comanda {{ $comanda->transportator_contract }}
+                                                        Comanda {{ $comanda->transportator_contract }} | Statusuri
                                                     </th>
                                                 </tr>
                                                 <tr class="" style="padding:2rem">
@@ -323,6 +338,123 @@
                                                     <td colspan="5">@{{ mesajLipsaStatusuri }}</td>
                                                 </tr>
                                             </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="collapse" id="emailuriTrimise{{ $comanda->id }}">
+                                <td colspan="13">
+                                    <div class="table-responsive rounded mx-auto w-75">
+                                        <table class="table table-striped table-hover rounded">
+                                            <thead class="text-white rounded culoare2">
+                                                <tr class="" style="padding:2rem">
+                                                    <th colspan="4" class="text-center">
+                                                        Comanda {{ $comanda->transportator_contract }} | Email-uri trimise
+                                                    </th>
+                                                </tr>
+                                                <tr class="" style="padding:2rem">
+                                                    <th style="">#</th>
+                                                    <th class="">Adresa</th>
+                                                    <th style="text-center">Mesaj</th>
+                                                    <th class="text-right">Data trimitere</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse ($comanda->mesajeTrimiseEmail as $email)
+                                                    <tr>
+                                                        <td>
+                                                            {{ $loop->iteration }}
+                                                        </td>
+                                                        <td class="">
+                                                            {{ $email->email }}
+                                                        </td>
+                                                        <td class="">
+                                                            @switch ($email->categorie)
+                                                                @case(1)
+                                                                    Informare de începere comandă
+                                                                    @break
+                                                                @case(2)
+                                                                    Cerere Status de la Transportator
+                                                                    @break
+                                                                @case(3)
+                                                                    Contract către Transportator
+                                                                    @break
+                                                                @case(4)
+                                                                    CCA către Transportator
+                                                                    @break
+                                                            @endswitch
+                                                        </td>
+                                                        <td class="text-right">
+                                                            {{ $email->created_at ? \Carbon\Carbon::parse($email->created_at)->isoFormat('HH:mm - DD.MM.YYYY') : '' }}
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="6">
+                                                            Nu au fost trimise email-uri pentru această comandă
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+                                                </tbody>
+                                        </table>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr class="collapse" id="smsTrimise{{ $comanda->id }}">
+                                <td colspan="13">
+                                    <div class="table-responsive rounded mx-auto w-75">
+                                        <table class="table table-striped table-hover rounded">
+                                            <thead class="text-white rounded culoare2">
+                                                <tr class="" style="padding:2rem">
+                                                    <th colspan="6" class="text-center">
+                                                        Comanda {{ $comanda->transportator_contract }} | Sms-uri trimise
+                                                    </th>
+                                                </tr>
+                                                <tr class="" style="padding:2rem">
+                                                    <th style="">#</th>
+                                                    <th style="">Telefon SMS</th>
+                                                    <th class="text-center">Mesaj</th>
+                                                    <th class="text-center">Trimis</th>
+                                                    <th class="text-center">Mesaj success/ eroare</th>
+                                                    <th class="text-right">Data trimitere</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse ($comanda->mesajeTrimiseSms as $mesajSms)
+                                                    <tr>
+                                                        <td>
+                                                            {{ $loop->iteration }}
+                                                        </td>
+                                                        <td class="">
+                                                            {{ $mesajSms->telefon ?? '' }}
+                                                        </td>
+                                                        <td class="">
+                                                            {{ $mesajSms->mesaj }}
+                                                        </td>
+                                                        <td class="text-center">
+                                                            @if ($mesajSms->trimis === 1)
+                                                                <span class="text-success">DA</span>
+                                                            @else
+                                                                <span class="text-danger">NU</span>
+                                                            @endif
+                                                        </td>
+                                                        <td class="">
+                                                            {{ $mesajSms->raspuns }}
+                                                        </td>
+                                                        <td class="text-right">
+                                                            {{ $mesajSms->created_at ? \Carbon\Carbon::parse($mesajSms->created_at)->isoFormat('HH:mm - DD.MM.YYYY') : '' }}
+                                                        </td>
+                                                    </tr>
+                                                @empty
+                                                    <tr>
+                                                        <td colspan="6">
+                                                            Nu au fost trimise sms-uri pentru această comandă
+                                                        </td>
+                                                    </tr>
+                                                @endforelse
+                                                </tbody>
                                         </table>
                                     </div>
                                 </td>

@@ -145,7 +145,7 @@
                 </tr>
             </table> --}}
 
-            <h2 style="margin:0; text-align:center"><b>CONTRACT CADRU DE TRANSPORT</b></h2>
+            <h2 style="margin:0; text-align:center"><b>CONTRACT EXCLUSIVITATE SUBCONTRACTARE SERVICII TRANSPORT</b></h2>
 
             <br><br>
 

@@ -30,8 +30,11 @@ class CronJobController extends Controller
             $comenzi = Comanda::with('locuriOperareIncarcari', 'locuriOperareDescarcari')
                 ->whereHas('locuriOperareIncarcari', function($query){
                     $query->where('ordine', 1)
-                        ->where('data_ora', '<=', Carbon::now()->addMinutes(14)->todatetimestring())
+                        // ->where('data_ora', '<=', Carbon::now()->addMinutes(14)->todatetimestring());
                         ->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
+                })
+                ->whereHas('locuriOperareDescarcari', function($query){
+                    $query->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
                 })
                 ->whereDoesntHave('emailInformareIncepereComanda')
                 ->where('stare', '<>', 3)
