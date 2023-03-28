@@ -355,7 +355,7 @@
                                                 </tr>
                                                 <tr class="" style="padding:2rem">
                                                     <th style="">#</th>
-                                                    <th class="">Adresa</th>
+                                                    <th class="">Email</th>
                                                     <th style="text-center">Mesaj</th>
                                                     <th class="text-right">Data trimitere</th>
                                                 </tr>
