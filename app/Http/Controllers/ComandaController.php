@@ -633,12 +633,7 @@ class ComandaController extends Controller
             $emailTrimis->save();
 
             // Nu se trimit notificari decat daca a fost trimisa comanda pe email catre transportator
-            // $comanda->cronjob ?? $comanda->cronjob = new ComandaCronJob;
-            // $comanda->cronjob->contract_trimis_pe_email_catre_transportator = 1;
-            // $comanda->cronjob->save();
-            $comanda->cronjob()->updateOrCreate(['comanda_id' => $comanda->id],['contract_trimis_pe_email_catre_transportator' => 1]);;
-            // $comanda->cronjob->contract_trimis_pe_email_catre_transportator = 1;
-            // $comanda->cronjob->save();
+            $comanda->cronjob()->updateOrCreate(['comanda_id' => $comanda->id],['contract_trimis_pe_email_catre_transportator' => 1]);
 
             return back()->with('status', 'Emailul către „' . $comanda->transportator->nume . '” a fost trimis cu succes!');
         } else {
