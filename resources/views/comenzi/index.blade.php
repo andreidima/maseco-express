@@ -207,7 +207,7 @@
                                     <div class="d-flex justify-content-center">
                                         {{-- <a data-bs-toggle="collapse" href="#status{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="Status"> --}}
                                             {{-- <span class="badge bg-primary" @click="setComandaId({{ $comanda->id}})"> --}}
-                                            <span class="badge bg-primary"
+                                            <span class="badge bg-info"
                                                 v-on:click="
                                                     if (comandaId === {{$comanda->id}}){
                                                         comandaId = '';
@@ -235,23 +235,34 @@
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center">
-                                        <a href="{{ $comanda->path() }}/trimite-catre-transportator" class="flex" title="Numărul de emailuri trimise până acum">
+                                        <a
+                                            href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#trimiteCatreTransportator{{ $comanda->id }}"
+                                            title="Trimite Comanda"
+                                        >
+                                            <span class="badge bg-primary">
+                                                Trimite
+                                                <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                                            </span>
+                                        </a>
+                                        {{-- <a href="{{ $comanda->path() }}/trimite-catre-transportator" class="flex" title="Numărul de emailuri trimise până acum">
                                             <span class="badge bg-primary">
                                                 Trimite
                                                 <span class="badge bg-dark">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
                                             </span>
-                                        </a>
+                                        </a> --}}
                                     </div>
                                 </td>
                                 <td>
                                     <div class="d-flex">
                                         <a class="flex me-1" data-bs-toggle="collapse" href="#emailuriTrimise{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="emailuriTrimise{{ $comanda->id }}">
-                                            <span class="badge bg-primary d-flex align-items-center">
+                                            <span class="badge bg-info d-flex align-items-center">
                                                 <i class="fa-solid fa-arrows-up-down pe-1 fa-sm" style=""></i> Email
                                             </span>
                                         </a>
                                         <a class="flex me-1" data-bs-toggle="collapse" href="#smsTrimise{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="smsTrimise{{ $comanda->id }}">
-                                            <span class="badge bg-primary d-flex align-items-center">
+                                            <span class="badge bg-info d-flex align-items-center">
                                                 <i class="fa-solid fa-arrows-up-down pe-1 fa-sm" style=""></i> Sms
                                             </span>
                                         </a>
@@ -476,6 +487,32 @@
                 </nav>
         </div>
     </div>
+
+    {{-- Modalele pentru trimitere comanda catre transportator --}}
+    @foreach ($comenzi as $comanda)
+        <div class="modal fade text-dark" id="trimiteCatreTransportator{{ $comanda->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white" id="exampleModalLabel">Comanda: <b>{{ $comanda->transportator_contract }}</b></h5>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="text-align:left;">
+                    Ești sigur ca vrei să trimiți Comanda către transportator?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+
+                    <a href="{{ $comanda->path() }}/trimite-catre-transportator" class="btn btn-primary flex">
+                            Trimite
+                            <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                    </a>
+
+                </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     {{-- Modalele pentru stergere comanda --}}
     @foreach ($comenzi as $comanda)

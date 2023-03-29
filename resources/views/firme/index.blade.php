@@ -100,20 +100,22 @@
                                     <td>
                                         <div class="d-flex justify-content-center">
                                             <a href="{{ $firma->path($tipPartener) }}/contract/export-pdf" target="_blank" class="flex me-1">
-                                                {{-- @if ($firma->contract_nr) --}}
-                                                    <span class="badge bg-success">Contract</span>
-                                                {{-- @else
-                                                    <span class="badge bg-primary">Generează</span>
-                                                @endif --}}
+                                                <span class="badge bg-success">Contract</span>
                                             </a>
                                         </div>
                                     </td>
                                     <td>
                                         <div class="d-flex justify-content-center">
-                                            <a href="{{ $firma->path($tipPartener) }}/contract-cca/trimite-catre-transportator" class="flex me-1" title="Numărul de emailuri trimise până acum">
+                                            {{-- <a href="{{ $firma->path($tipPartener) }}/contract-cca/trimite-catre-transportator" class="flex me-1" title="Numărul de emailuri trimise până acum">
                                                 <span class="badge bg-primary">
                                                     Trimite
                                                     <span class="badge bg-dark">{{ $firma->contracte_cca_trimise_pe_email_catre_transportator_count }}</span>
+                                                </span>
+                                            </a> --}}
+                                            <a href="#" data-bs-toggle="modal" data-bs-target="#trimiteCCATransportator{{ $firma->id }}" title="Trimite Comanda">
+                                                <span class="badge bg-primary">
+                                                    Trimite
+                                                    <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $firma->contracte_cca_trimise_pe_email_catre_transportator_count }}</span>
                                                 </span>
                                             </a>
                                         </div>
@@ -151,6 +153,30 @@
                 </nav>
         </div>
     </div>
+
+    {{-- Modalele pentru trimitere CCA catre transportator --}}
+    @foreach ($firme as $firma)
+        <div class="modal fade text-dark" id="trimiteCCATransportator{{ $firma->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white" id="exampleModalLabel">Firma: <b>{{ $firma->nume }}</b></h5>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="text-align:left;">
+                    Ești sigur ca vrei să trimiți CCA către firmă?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                    <a href="{{ $firma->path($tipPartener) }}/contract-cca/trimite-catre-transportator" class="btn btn-primary flex">
+                        Trimite
+                        <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $firma->contracte_cca_trimise_pe_email_catre_transportator_count }}</span>
+                    </a>
+                </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     {{-- Modalele pentru stergere firma --}}
     @foreach ($firme as $firma)

@@ -68,6 +68,11 @@ class Comanda extends Model
         return $this->locuriOperare()->where('tip', '2')->orderBy('ordine');
     }
 
+    public function primaIncarcare()
+    {
+        return $this->locuriOperare()->where('tip', '1')->orderBy('data_ora')->first();
+    }
+
     public function ultimaDescarcare()
     {
         return $this->locuriOperare()->where('tip', '2')->orderByDesc('data_ora')->first();
@@ -126,5 +131,10 @@ class Comanda extends Model
     {
         return $this->hasMany(MesajTrimisSms::class, 'referinta_id')->latest();
         // ->where('categorie', 'Comenzi');
+    }
+
+    public function cronJob()
+    {
+        return $this->hasOne(ComandaCronJob::class, 'comanda_id');
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Comanda;
 use App\Models\ComandaIstoric;
+use App\Models\ComandaCronjob;
 use App\Models\ComandaLocOperareIstoric;
 use App\Models\Firma;
 use App\Models\Limba;
@@ -113,16 +114,16 @@ class ComandaController extends Controller
      */
     public function store(Request $request)
     {
-        $comanda = Comanda::create($this->validateRequest($request));
+        // $comanda = Comanda::create($this->validateRequest($request));
 
         // Salvare in istoric
-        $comanda_istoric = new ComandaIstoric;
-        $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
-        $comanda_istoric->operare_descriere = 'Adaugare';
-        $comanda_istoric->save();
+        // $comanda_istoric = new ComandaIstoric;
+        // $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+        // $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+        // $comanda_istoric->operare_descriere = 'Adaugare';
+        // $comanda_istoric->save();
 
-        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost adăugată cu succes!');
+        // return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost adăugată cu succes!');
     }
 
     /**
@@ -490,6 +491,28 @@ class ComandaController extends Controller
                 // }
             }
 
+
+        /**
+         * Salvare cronJob
+         */
+        if ($comanda->primaIncarcare() && $comanda->Ultimadescarcare()){
+            if ($comanda->client->tara->gmt_offset ?? ''){
+                // GMT +3 ora Romaniei - GTM ora tarii unde este clientul
+                $diferenta_fus_orar = 3-substr($comanda->client->tara->gmt_offset, 0, -3);
+            } else {
+                $diferenta_fus_orar = 0;
+            }
+
+            $cronjob = ComandaCronJob::where('comanda_id', $comanda->id)->first() ?? new ComandaCronJob;
+            $cronjob->comanda_id = $comanda->id;
+            $cronjob->inceput = Carbon::parse($comanda->primaIncarcare()->pivot->data_ora)->addHours($diferenta_fus_orar);
+            $cronjob->sfarsit = Carbon::parse($comanda->ultimaDescarcare()->pivot->data_ora)->addHours($diferenta_fus_orar);
+            // if (!isset ($cronjob->urmatorul_mesaj_incepand_cu)){
+            //     $cronjob->urmatorul_mesaj_incepand_cu = Carbon::parse($comanda->primaIncarcare()->pivot->data_ora)->addHours($diferenta_fus_orar);
+            // }
+            // $cronjob->save();
+        }
+
         return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost salvată cu succes!');
     }
 
@@ -501,15 +524,15 @@ class ComandaController extends Controller
      */
     public function destroy(Request $request, Comanda $comanda)
     {
-        // Salvare in istoric
-        // $comanda_istoric = new ComandaIstoric;
-        // $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        // $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
-        // $comanda_istoric->operare_descriere = 'Stergere';
-        // $comanda_istoric->save();
-
         $comanda->locuriOperare()->detach();
         $comanda->delete();
+
+        // Salvare in istoric
+        $comanda_istoric = new ComandaIstoric;
+        $comanda_istoric->fill($comanda->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+        $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
+        $comanda_istoric->operare_descriere = 'Stergere';
+        $comanda_istoric->save();
 
         return back()->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost ștearsă cu succes!');
     }
@@ -608,6 +631,14 @@ class ComandaController extends Controller
             $emailTrimis->categorie = 3;
             $emailTrimis->email = $comanda->transportator->email;
             $emailTrimis->save();
+
+            // Nu se trimit notificari decat daca a fost trimisa comanda pe email catre transportator
+            // $comanda->cronjob ?? $comanda->cronjob = new ComandaCronJob;
+            // $comanda->cronjob->contract_trimis_pe_email_catre_transportator = 1;
+            // $comanda->cronjob->save();
+            $comanda->cronjob()->updateOrCreate(['comanda_id' => $comanda->id],['contract_trimis_pe_email_catre_transportator' => 1]);;
+            // $comanda->cronjob->contract_trimis_pe_email_catre_transportator = 1;
+            // $comanda->cronjob->save();
 
             return back()->with('status', 'Emailul către „' . $comanda->transportator->nume . '” a fost trimis cu succes!');
         } else {
