@@ -25,10 +25,10 @@
         body {
             font-family: DejaVu Sans, sans-serif;
             /* font-family: Arial, Helvetica, sans-serif; */
-            font-size: 12px;
+            font-size: 11px;
             margin-top: 10px;
-            margin-left: 1cm;
-            margin-right: 0.5cm;
+            margin-left: 1.4cm;
+            margin-right: 0.9cm;
             margin-bottom: 1cm;
         }
 
@@ -146,6 +146,7 @@
             </table> --}}
 
             <h2 style="margin:0; text-align:center"><b>CONTRACT EXCLUSIVITATE SUBCONTRACTARE SERVICII TRANSPORT</b></h2>
+            <h2 style="margin:0; text-align:center"><b>CCME {{ $firma->contract_nr }}/{{ $firma->contract_data ? \Carbon\Carbon::parse($firma->contract_data)->isoFormat('DD.MM.YYYY') : '' }}</b></h2>
 
             <br><br>
 
