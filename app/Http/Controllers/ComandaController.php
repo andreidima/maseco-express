@@ -496,19 +496,25 @@ class ComandaController extends Controller
          * Salvare cronJob
          */
         if ($comanda->primaIncarcare() && $comanda->Ultimadescarcare()){
-            if ($comanda->client->tara->gmt_offset ?? ''){
+            if ($comanda->primaIncarcare()->tara->gmt_offset ?? ''){
                 // GMT +3 ora Romaniei - GTM ora tarii unde este clientul
-                $diferenta_fus_orar = 3-substr($comanda->client->tara->gmt_offset, 0, -3);
+                $diferenta_fus_orar_incarcare = 3-substr($comanda->primaIncarcare()->tara->gmt_offset, 0, -3);
             } else {
-                $diferenta_fus_orar = 0;
+                $diferenta_fus_orar_incarcare = 0;
+            }
+            if ($comanda->Ultimadescarcare()->tara->gmt_offset ?? ''){
+                // GMT +3 ora Romaniei - GTM ora tarii unde este clientul
+                $diferenta_fus_orar_descarcare = 3-substr($comanda->Ultimadescarcare()->tara->gmt_offset, 0, -3);
+            } else {
+                $diferenta_fus_orar_descarcare = 0;
             }
 
 
             $comanda->cronjob()->updateOrCreate(
                 ['comanda_id' => $comanda->id],
                 [
-                    'inceput' => Carbon::parse($comanda->primaIncarcare()->pivot->data_ora)->addHours($diferenta_fus_orar),
-                    'sfarsit' => Carbon::parse($comanda->ultimaDescarcare()->pivot->data_ora)->addHours($diferenta_fus_orar),
+                    'inceput' => Carbon::parse($comanda->primaIncarcare()->pivot->data_ora)->addHours($diferenta_fus_orar_incarcare),
+                    'sfarsit' => Carbon::parse($comanda->ultimaDescarcare()->pivot->data_ora)->addHours($diferenta_fus_orar_descarcare),
                 ]);
 
             // $cronjob = ComandaCronJob::where('comanda_id', $comanda->id)->first() ?? new ComandaCronJob;
