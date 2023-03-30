@@ -105,20 +105,16 @@ class CronJobController extends Controller
 
 
         // Trimitere mesaje catre transportatori
-        $comenzi = Comanda::with('locuriOperareIncarcari', 'locuriOperareDescarcari')
-            ->whereHas('locuriOperareIncarcari', function($query){
-                $query->where('data_ora', '<=', Carbon::now()->addMinutes(15)->todatetimestring());
-            })
-            ->whereHas('locuriOperareDescarcari', function($query){
-                $query->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
-            })
-            // ->whereDoesntHave('emailuriCerereStatusComandaInUltimaPerioada')
-            ->whereHas('contracteTrimisePeEmailCatreTransportator')
-            ->where('stare', '<>', 3)
-            // ->whereDoesntHave('statusuri', function $query){
-            //     $query->
-            // })
-            ->get();
+        // $comenzi = Comanda::with('locuriOperareIncarcari', 'locuriOperareDescarcari')
+        //     ->whereHas('locuriOperareIncarcari', function($query){
+        //         $query->where('data_ora', '<=', Carbon::now()->addMinutes(15)->todatetimestring());
+        //     })
+        //     ->whereHas('locuriOperareDescarcari', function($query){
+        //         $query->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
+        //     })
+        //     ->whereHas('contracteTrimisePeEmailCatreTransportator')
+        //     ->where('stare', '<>', 3)
+        //     ->get();
 
             // Afisare in pagina pentru debug
             // foreach ($comenzi as $comanda){
@@ -145,7 +141,7 @@ class CronJobController extends Controller
 
 
         $cronjobs = ComandaCronJob::with('comanda')
-            ->where('inceput', '<=', Carbon::now()->addMinutes(14)->todatetimestring())
+            ->where('inceput', '<=', Carbon::now()->addMinutes(14)->addMinutes(15)->todatetimestring()) // se trimite mesaj cu 15 minute inainte de a incepe comanda
             ->where('sfarsit', '>=', Carbon::now()->subMinutes(14)->todatetimestring())
             ->where('contract_trimis_pe_email_catre_transportator', 1)
             ->whereHas('comanda', function($query){
