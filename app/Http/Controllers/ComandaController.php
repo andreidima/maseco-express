@@ -539,7 +539,7 @@ class ComandaController extends Controller
     public function destroy(Request $request, Comanda $comanda)
     {
         $comanda->locuriOperare()->detach();
-        $comanda->cronjob->delete();
+        $comanda->cronjob ? $comanda->cronjob->delete() : '';
         $comanda->delete();
 
         // Salvare in istoric
