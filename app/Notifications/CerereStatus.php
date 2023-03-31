@@ -39,6 +39,6 @@ class CerereStatus extends Notification
 
     return (new WhatsAppMessage)
         // ->content("Your {$company} order of {$this->comanda->transportator_contract} has shipped and should be delivered on {$deliveryDate}. Details: {$orderUrl}");
-        ->content('Va rugam accesati ' . url('/cerere-status-comanda/sms/' . $this->comanda->cheie_unica) . ' , pentru a ne transmite statusul comenzii. Multumim, Maseco Expres!');
+        ->content('Va rugam accesati ' . url('/cerere-status-comanda/whatsapp/' . $this->comanda->cheie_unica) . ' , pentru a ne transmite statusul comenzii. Multumim, Maseco Expres!');
   }
 }

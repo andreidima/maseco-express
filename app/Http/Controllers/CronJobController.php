@@ -203,10 +203,20 @@ class CronJobController extends Controller
                     );
                     $cronjob->save();
 
-                    // Trimitere WhatsApp
-                    // $comanda->transportator->notify(new CerereStatus($comanda));
-                    // $request->user()->notify(new CerereStatus($comanda));
             }
+
+                    // Trimitere WhatsApp
+                    if (
+                        (($cronjob->comanda->transportator->email ?? '') === 'adima@validsoftware.ro')
+                        || (($cronjob->comanda->transportator->email ?? '') === 'andrei.dima@usm.ro'))
+                    {
+                        $cronjob->comanda->transportator->notify(new CerereStatus($cronjob->comanda));
+                        // $request->user()->notify(new CerereStatus($cronjob->comanda));
+
+                        echo 'WhatsApp sent';
+                    } else {
+                        // echo 'nu';
+                    }
         }
 
     }
