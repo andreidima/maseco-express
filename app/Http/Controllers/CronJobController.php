@@ -206,14 +206,14 @@ class CronJobController extends Controller
             }
 
                     // Trimitere WhatsApp
-                    if (
-                        (($cronjob->comanda->transportator->email ?? '') === 'adima@validsoftware.ro')
-                        || (($cronjob->comanda->transportator->email ?? '') === 'andrei.dima@usm.ro'))
-                    {
-                        $cronjob->comanda->transportator->notify(new CerereStatus($cronjob->comanda));
+                    // if (
+                    //     (($cronjob->comanda->transportator->email ?? '') === 'adima@validsoftware.ro')
+                    //     || (($cronjob->comanda->transportator->email ?? '') === 'andrei.dima@usm.ro'))
+                    // {
+                    //     $cronjob->comanda->transportator->notify(new CerereStatus($cronjob->comanda));
 
-                        echo 'WhatsApp sent';
-                    }
+                    //     echo 'WhatsApp sent';
+                    // }
         }
 
     }
