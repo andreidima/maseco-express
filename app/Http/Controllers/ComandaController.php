@@ -514,7 +514,7 @@ class ComandaController extends Controller
                 ['comanda_id' => $comanda->id],
                 [
                     'inceput' => Carbon::parse($comanda->primaIncarcare()->pivot->data_ora)->addHours($diferenta_fus_orar_incarcare),
-                    'sfarsit' => Carbon::parse($comanda->ultimaDescarcare()->pivot->data_ora)->addHours($diferenta_fus_orar_descarcare),
+                    'sfarsit' => Carbon::parse($comanda->ultimaDescarcare()->pivot->data_ora)->addHours($diferenta_fus_orar_descarcare)->addMinutes(Carbon::parse($comanda->ultimaDescarcare()->pivot->durata)->diffInMinutes(Carbon::today())),
                 ]);
 
             // $cronjob = ComandaCronJob::where('comanda_id', $comanda->id)->first() ?? new ComandaCronJob;

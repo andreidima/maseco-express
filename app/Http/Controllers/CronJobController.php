@@ -172,7 +172,7 @@ class CronJobController extends Controller
                 ($cronjob->urmatorul_mesaj_incepand_cu ? Carbon::parse($cronjob->urmatorul_mesaj_incepand_cu)->lessThan(Carbon::now()->addMinutes(14)->todatetimestring()) : true)
                 // daca este ultima descarcare, se trimite notificare chiar daca a mai fost una trimisa in ultimul interval
                 // || ($comanda->ultimaDescarcare()->pivot->data_ora <= Carbon::now()->todatetimestring())
-                || ($cronjob->comanda->sfarsit ? Carbon::parse($cronjob->comanda->sfarsit)->lessThan(Carbon::now()) : '')
+                || ($cronjob->sfarsit ? Carbon::parse($cronjob->sfarsit)->lessThan(Carbon::now()) : '')
                 ){
                     // Trimitere SMS
                     $mesaj = 'Va rugam accesati ' . url('/cerere-status-comanda/sms/' . $cronjob->comanda->cheie_unica) . ', pentru a ne transmite statusul comenzii.' .
@@ -206,17 +206,14 @@ class CronJobController extends Controller
             }
 
                     // Trimitere WhatsApp
-                    if (
-                        (($cronjob->comanda->transportator->email ?? '') === 'adima@validsoftware.ro')
-                        || (($cronjob->comanda->transportator->email ?? '') === 'andrei.dima@usm.ro'))
-                    {
-                        $cronjob->comanda->transportator->notify(new CerereStatus($cronjob->comanda));
-                        // $request->user()->notify(new CerereStatus($cronjob->comanda));
+                    // if (
+                    //     (($cronjob->comanda->transportator->email ?? '') === 'adima@validsoftware.ro')
+                    //     || (($cronjob->comanda->transportator->email ?? '') === 'andrei.dima@usm.ro'))
+                    // {
+                    //     $cronjob->comanda->transportator->notify(new CerereStatus($cronjob->comanda));
 
-                        echo 'WhatsApp sent';
-                    } else {
-                        // echo 'nu';
-                    }
+                    //     echo 'WhatsApp sent';
+                    // }
         }
 
     }
