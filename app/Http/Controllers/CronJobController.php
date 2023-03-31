@@ -76,10 +76,10 @@ class CronJobController extends Controller
             ->get();
 
             // Afisare in pagina pentru debug
-            foreach ($cronjobs as $cronjob){
-                echo 'Comanda id: ' . $cronjob->comanda->id;
-                echo '<br>';
-            }
+            // foreach ($cronjobs as $cronjob){
+            //     echo 'Comanda id: ' . $cronjob->comanda->id;
+            //     echo '<br>';
+            // }
 
         foreach ($cronjobs as $cronjob){
             // Trimitere email
@@ -206,14 +206,14 @@ class CronJobController extends Controller
             }
 
                     // Trimitere WhatsApp
-                    // if (
-                    //     (($cronjob->comanda->transportator->email ?? '') === 'adima@validsoftware.ro')
-                    //     || (($cronjob->comanda->transportator->email ?? '') === 'andrei.dima@usm.ro'))
-                    // {
-                    //     $cronjob->comanda->transportator->notify(new CerereStatus($cronjob->comanda));
+                    if (
+                        (($cronjob->comanda->transportator->email ?? '') === 'adima@validsoftware.ro')
+                        || (($cronjob->comanda->transportator->email ?? '') === 'andrei.dima@usm.ro'))
+                    {
+                        $cronjob->comanda->transportator->notify(new CerereStatus($cronjob->comanda));
 
-                    //     echo 'WhatsApp sent';
-                    // }
+                        echo 'WhatsApp sent';
+                    }
         }
 
     }
