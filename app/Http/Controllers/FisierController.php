@@ -30,7 +30,7 @@ class FisierController extends Controller
                 return $query->where('nume', 'like', '%' . $search_nume . '%');
             })
             ->when($search_fisier, function ($query, $search_fisier) {
-                return $query->where('path', 'like', '%' . $search_fisier . '%');
+                return $query->where('fisier_nume', 'like', '%' . $search_fisier . '%');
             })
             ->where('categorie' , (($categorieFisier === 'maseco') ? 1 : (($categorieFisier === 'masini') ? 2 : '')))
             ->latest();
