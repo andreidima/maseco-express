@@ -11,6 +11,7 @@ use App\Http\Controllers\MesajTrimisSmsController;
 use App\Http\Controllers\CronJobController;
 use App\Http\Controllers\StatusComandaActualizatDeTransportatorController;
 use App\Http\Controllers\ComandaStatusController;
+use App\Http\Controllers\FisierController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,20 +59,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);
     Route::get('/axios/statusuri', [AxiosController::class, 'statusuri']);
 
-    // Route::get('/actualizare-tari', function() {
-    //     $tari = App\Models\Tara::all();
-    //     $tariTemporar = Illuminate\Support\Facades\DB::table('tari_temporar')->distinct('country_name')->get();
-    //     foreach ($tariTemporar as $taraTemporar){
-    //         foreach ($tari as $tara){
-    //             if ($taraTemporar->country_name === $tara->nume) {
-    //                 // echo $tara->nume . ' ' . trim($taraTemporar->gmt_offset, "UTC") . '<br>';
-    //                 $tara->gmt_offset = trim($taraTemporar->gmt_offset, "UTC ");
-    //                 $tara->update();
-    //             }
-    //         }
-    //     }
-    //     echo 'hasd';
-    // });
+    Route::resource('/fisiere/{categorieFisier}', FisierController::class)->parameters(['{categorieFisier}' => 'fisier']);
+    Route::get('/fisiere/{categorieFisier}/{fisier}/descarca', [FisierController::class, 'descarca']);
 
     // Clear application cache:
     Route::get('/clear-cache', function() {
