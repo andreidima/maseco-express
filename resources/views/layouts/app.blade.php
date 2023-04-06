@@ -44,7 +44,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item me-3 dropdown">
+                        {{-- <li class="nav-item me-3 dropdown">
                             <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Fisiere">
                                 <i class="fa-solid fa-folder"></i>
                             </a>
@@ -61,6 +61,11 @@
                                     </a>
                                 </li>
                             </ul>
+                        </li> --}}
+                        <li class="nav-item me-3">
+                            <a class="nav-link active" aria-current="page" href="/file-manager" title="File Manager">
+                                <i class="fa-solid fa-folder"></i>&nbsp;
+                            </a>
                         </li>
                         <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/acasa" title="Pagina principală">
