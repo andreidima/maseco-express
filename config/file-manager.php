@@ -85,7 +85,7 @@ return [
      * null - no restrictions
      */
     // 'maxUploadFileSize' => null,
-    'maxUploadFileSize' => 500000,
+    'maxUploadFileSize' => 250000,
 
     /**
      * File upload - Allow these file types
