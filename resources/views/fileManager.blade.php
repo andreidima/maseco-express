@@ -17,6 +17,12 @@
             <div class="col-md-12" id="fm-main-block" style="height: 700px;">
                 <div id="fm" style="height: 700px;"></div>
             </div>
+            <div class="col-md-12">
+                <br>
+                <p class="ps-4">
+                    *Nu se poate face Upload la mai mult de 100MB odată. Dacă doriți sa faceți upload la mai multe fișiere ce depășesc 100MB, împărțiți pe grupuri mai mici și faceți upload de mai multe ori.
+                </p>
+            </div>
         </div>
     </div>
 
