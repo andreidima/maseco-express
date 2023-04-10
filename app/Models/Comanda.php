@@ -38,6 +38,11 @@ class Comanda extends Model
         return $this->belongsTo(Camion::class, 'camion_id');
     }
 
+    public function transportatorMoneda()
+    {
+        return $this->belongsTo(Moneda::class, 'transportator_moneda_id');
+    }
+
     public function transportatorMetodaDePlata()
     {
         return $this->belongsTo(MetodaDePlata::class, 'transportator_metoda_de_plata_id');

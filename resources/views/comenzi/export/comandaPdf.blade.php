@@ -286,7 +286,7 @@
                 </tr>
                 <tr>
                     <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
-                        PREȚ TRANSPORT: {{ $comanda->transportator_valoare_contract }}
+                        PREȚ TRANSPORT: {{ $comanda->transportator_valoare_contract }} {{ $comanda->transportatorMoneda->nume ?? '' }}
                         <br>
                         MODALITATE DE PLATĂ: {{ $comanda->transportatorMetodaDePlata->nume ?? '' }}
                         <br>
