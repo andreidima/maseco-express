@@ -194,13 +194,20 @@ const formularComanda = createApp({
                 }
             }
         },
-        getLocuriOperareIncarcari(incarcare, value) {
+        // getLocuriOperareIncarcari(incarcare, value, categorie) {
+        getLocuriOperareIncarcari(incarcare) {
             this.locuriOperareIncarcari = [];
-            if (value.length > 2) {
+            // console.log(incarcare, value, categorie);
+            // console.log(incarcari[incarcare].nume, incarcari[incarcare].oras);
+            // if (value.length > 2) {
+            if ((incarcari[incarcare].nume && incarcari[incarcare].nume.length > 2) || (incarcari[incarcare].oras && (incarcari[incarcare].oras.length > 2))) {
                 axios.get('/axios/locuri-operare', {
                     params: {
                         request: 'locuriOperare',
-                        nume: value,
+                        // nume: value,
+                        // categorie: categorie,
+                        nume: incarcari[incarcare].nume,
+                        oras: incarcari[incarcare].oras,
                     }
                 })
                 .then(
@@ -208,13 +215,18 @@ const formularComanda = createApp({
                 );
             }
         },
-        getLocuriOperareDescarcari(descarcare, value) {
+        // getLocuriOperareDescarcari(descarcare, value, categorie) {
+        getLocuriOperareDescarcari(descarcare) {
             this.locuriOperareDescarcari = [];
-            if (value.length > 2) {
+            // if (value.length > 2) {
+            if ((descarcari[descarcare].nume && descarcari[descarcare].nume.length > 2) || (descarcari[descarcare].oras && (descarcari[descarcare].oras.length > 2))) {
                 axios.get('/axios/locuri-operare', {
                     params: {
                         request: 'locuriOperare',
-                        nume: value,
+                        // nume: value,
+                        // categorie: categorie,
+                        nume: descarcari[descarcare].nume,
+                        oras: descarcari[descarcare].oras,
                     }
                 })
                     .then(

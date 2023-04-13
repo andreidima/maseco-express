@@ -30,7 +30,8 @@ class InformareLaActualizareStatusComanda extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Transportatorul a actualizat statusul Comenzii ' . $this->comanda->transportator_contract,
+            // subject: 'Transportatorul a actualizat statusul Comenzii ' . $this->comanda->transportator_contract,
+            subject: '!!! TRANSPORTATORUL A ACTUALIZAT STATUSUL COMENZII ' . $this->comanda->transportator_contract . ' !!!',
         );
     }
 

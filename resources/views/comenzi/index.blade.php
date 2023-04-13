@@ -164,14 +164,17 @@
                     {{-- <thead class="text-white rounded" style="background-color: #69A1B1"> --}}
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
-                            <th class="">Contract<br>transportator</th>
+                            <th class="">Contract</th>
                             <th class="">Dată creare</th>
                             <th class="">Transportator</th>
                             <th class="">Client</th>
-                            <th class="">Zile scadente<br>Ctr. Client</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-center">Contract</th>
-                            <th class="text-center">Trimite Contract<br>pe email</th>
+                            <th class="text-center small">Zile scadente<br>Ctr. Client</th>
+                            <th class="">Încărcări</th>
+                            <th class="">Descărcări</th>
+                            <th class="">Nr. auto</th>
+                            <th class="text-center small">Status</th>
+                            <th class="text-center small">Contract</th>
+                            {{-- <th class="text-center small">Trimite Ctr.<br>pe email</th> --}}
                             <th class="text-center">Mesaje<br>trimise</th>
                             <th class="text-center">Stare</th>
                             <th class="text-center">Utilizator</th>
@@ -200,8 +203,25 @@
                                 <td class="">
                                     {{ $comanda->client->nume ?? ''}}
                                 </td>
-                                <td class="">
+                                <td class="text-center">
                                     {{ $comanda->client_zile_scadente }}
+                                </td>
+                                <td style="width:150px">
+                                    @foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare)
+                                        <p class="mb-0" style="display: inline-block">
+                                            {{ $locOperareIncarcare->pivot->data_ora ? \Carbon\Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('DD.MM.YYYY HH:mm') : '' }}
+                                        </p>
+                                    @endforeach
+                                </td>
+                                <td style="width:150px">
+                                    @foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare)
+                                        <p class="mb-0" style="display: inline-block">
+                                            {{ $locOperareDescarcare->pivot->data_ora ? \Carbon\Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('DD.MM.YYYY HH:mm') : '' }}
+                                        </p>
+                                    @endforeach
+                                </td>
+                                <td>
+                                    {{ $comanda->camion->numar_inmatriculare ?? ''}}
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center">
@@ -227,13 +247,28 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="d-flex justify-content-center">
-                                        <a href="{{ $comanda->path() }}/export-pdf" target="_blank" class="flex">
-                                            <span class="badge bg-success">Contract</span>
-                                        </a>
+                                    <div class="text-center">
+                                        <div class="mb-1">
+                                            <a href="{{ $comanda->path() }}/export-pdf" target="_blank" class="flex">
+                                                <span class="badge bg-success">Contract</span>
+                                            </a>
+                                        </div>
+                                        <div class="">
+                                            <a
+                                                href="#"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#trimiteCatreTransportator{{ $comanda->id }}"
+                                                title="Trimite Comanda"
+                                            >
+                                                <span class="badge bg-primary">
+                                                    Trimite
+                                                    <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                                                </span>
+                                            </a>
+                                        </div>
                                     </div>
                                 </td>
-                                <td>
+                                {{-- <td>
                                     <div class="d-flex justify-content-center">
                                         <a
                                             href="#"
@@ -246,26 +281,24 @@
                                                 <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
                                             </span>
                                         </a>
-                                        {{-- <a href="{{ $comanda->path() }}/trimite-catre-transportator" class="flex" title="Numărul de emailuri trimise până acum">
-                                            <span class="badge bg-primary">
-                                                Trimite
-                                                <span class="badge bg-dark">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
-                                            </span>
-                                        </a> --}}
                                     </div>
-                                </td>
+                                </td> --}}
                                 <td>
-                                    <div class="d-flex">
-                                        <a class="flex me-1" data-bs-toggle="collapse" href="#emailuriTrimise{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="emailuriTrimise{{ $comanda->id }}">
-                                            <span class="badge bg-info d-flex align-items-center">
-                                                <i class="fa-solid fa-arrows-up-down pe-1 fa-sm" style=""></i> Email
-                                            </span>
-                                        </a>
-                                        <a class="flex me-1" data-bs-toggle="collapse" href="#smsTrimise{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="smsTrimise{{ $comanda->id }}">
-                                            <span class="badge bg-info d-flex align-items-center">
-                                                <i class="fa-solid fa-arrows-up-down pe-1 fa-sm" style=""></i> Sms
-                                            </span>
-                                        </a>
+                                    <div class="text-center">
+                                        <div class="mb-1">
+                                            <a class="" data-bs-toggle="collapse" href="#emailuriTrimise{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="emailuriTrimise{{ $comanda->id }}">
+                                                <span class="badge bg-info align-items-center">
+                                                    <i class="fa-solid fa-arrows-up-down pe-1 fa-sm" style=""></i> Email
+                                                </span>
+                                            </a>
+                                        </div>
+                                        <div>
+                                            <a class="" data-bs-toggle="collapse" href="#smsTrimise{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="smsTrimise{{ $comanda->id }}">
+                                                <span class="badge bg-info align-items-center">
+                                                    <i class="fa-solid fa-arrows-up-down pe-1 fa-sm" style=""></i> Sms
+                                                </span>
+                                            </a>
+                                        </div>
                                     </div>
                                 </td>
                                 <td>
@@ -291,11 +324,13 @@
                                     {{ $comanda->user->name ?? '' }}
                                 </td>
                                 <td>
-                                    <div class="d-flex justify-content-end">
-                                        <a href="{{ $comanda->path() }}/modifica" class="flex me-1">
-                                            <span class="badge bg-primary">Modifică</span>
-                                        </a>
-                                        <div style="flex" class="">
+                                    <div class="text-end">
+                                        <div class="mb-1">
+                                            <a href="{{ $comanda->path() }}/modifica" class="flex">
+                                                <span class="badge bg-primary">Modifică</span>
+                                            </a>
+                                        </div>
+                                        <div class="">
                                             <a
                                                 href="#"
                                                 data-bs-toggle="modal"
@@ -332,7 +367,7 @@
                                                     <td>
                                                         @{{ index+1 }}
                                                     </td>
-                                                    <td>
+                                                    <td >
                                                         @{{ status.status }}
                                                     </td>
                                                     <td>

@@ -428,8 +428,10 @@
                                     class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
                                     :name="'incarcari[' + index + '][nume]'"
                                     v-model="incarcari[index].nume"
-                                    v-on:focus="getLocuriOperareIncarcari(index, $event.target.value);"
-                                    v-on:keyup="getLocuriOperareIncarcari(index, $event.target.value);"
+                                    {{-- v-on:focus="getLocuriOperareIncarcari(index, $event.target.value, 'nume');"
+                                    v-on:keyup="getLocuriOperareIncarcari(index, $event.target.value, 'nume');" --}}
+                                    v-on:focus="getLocuriOperareIncarcari(index);"
+                                    v-on:keyup="getLocuriOperareIncarcari(index);"
                                     placeholder=""
                                     autocomplete="off"
                                     aria-describedby=""
@@ -460,7 +462,7 @@
                                 </button>
                             </div>
                         </div>
-                        <small v-if="!incarcari[index].nume || (incarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
+                        {{-- <small v-if="!incarcari[index].nume || (incarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small> --}}
                     </div>
                     <div class="col-lg-4 mb-2">
                         <label for="adresa" class="mb-0 ps-3">Adresa</label>
@@ -474,9 +476,17 @@
                         <label for="oras" class="mb-0 ps-3">Oraș</label>
                         <input
                             type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}" readonly
+                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
                             :name="'incarcari[' + index + '][oras]'"
-                            v-model="incarcari[index].oras">
+                            v-model="incarcari[index].oras"
+                            {{-- v-on:focus="getLocuriOperareIncarcari(index, $event.target.value, 'oras');"
+                            v-on:keyup="getLocuriOperareIncarcari(index, $event.target.value, 'oras');" --}}
+                            v-on:focus="getLocuriOperareIncarcari(index);"
+                            v-on:keyup="getLocuriOperareIncarcari(index);"
+                            placeholder=""
+                            autocomplete="off"
+                            aria-describedby="">
+                        {{-- <small v-if="!incarcari[index].nume || (incarcari[index].nume.length < 3)" class="ps-2">* Introduceți > 2 caractere</small> --}}
                     </div>
                     <div class="col-lg-2 mb-2">
                         <label for="tara" class="mb-0 ps-3">Țara</label>
@@ -544,6 +554,9 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div v-if="(incarcari && incarcari.length > 0)" class="col-lg-12">
+                        <small class="ps-3">* Puteți căuta locurile de operare din baza de date introducănd minim 3 caractere la numele locului de încărcare, sau la oraș</small>
+                    </div>
                     <div class="col-lg-12 d-flex justify-content-center py-1">
                         <button type="button" class="btn btn-primary text-white" @click="adaugaIncarcareGoala()">Adaugă încărcare</button>
                     </div>
@@ -583,8 +596,10 @@
                                     class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
                                     :name="'descarcari[' + index + '][nume]'"
                                     v-model="descarcari[index].nume"
-                                    v-on:focus="getLocuriOperareDescarcari(index, $event.target.value);"
-                                    v-on:keyup="getLocuriOperareDescarcari(index, $event.target.value);"
+                                    {{-- v-on:focus="getLocuriOperareDescarcari(index, $event.target.value, 'nume');"
+                                    v-on:keyup="getLocuriOperareDescarcari(index, $event.target.value, 'nume');" --}}
+                                    v-on:focus="getLocuriOperareDescarcari(index);"
+                                    v-on:keyup="getLocuriOperareDescarcari(index);"
                                     placeholder=""
                                     autocomplete="off"
                                     aria-describedby=""
@@ -614,7 +629,7 @@
                                 </button>
                             </div>
                         </div>
-                        <small v-if="!descarcari[index].nume || (descarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
+                        {{-- <small v-if="!descarcari[index].nume || (descarcari[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small> --}}
                     </div>
                     <div class="col-lg-4 mb-2">
                         <label for="adresa" class="mb-0 ps-3">Adresa</label>
@@ -628,9 +643,17 @@
                         <label for="oras" class="mb-0 ps-3">Oraș</label>
                         <input
                             type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}" readonly
+                            class="form-control bg-white rounded-3 {{ $errors->has('oras') ? 'is-invalid' : '' }}"
                             :name="'descarcari[' + index + '][oras]'"
-                            v-model="descarcari[index].oras">
+                            v-model="descarcari[index].oras"
+                            {{-- v-on:focus="getLocuriOperareDescarcari(index, $event.target.value, 'oras');"
+                            v-on:keyup="getLocuriOperareDescarcari(index, $event.target.value, 'oras');" --}}
+                            v-on:focus="getLocuriOperareDescarcari(index);"
+                            v-on:keyup="getLocuriOperareDescarcari(index);"
+                            placeholder=""
+                            autocomplete="off"
+                            aria-describedby="">
+                        {{-- <small v-if="!descarcari[index].nume || (descarcari[index].nume.length < 3)" class="ps-2">* Introduceți > 2 caractere</small> --}}
                     </div>
                     <div class="col-lg-2 mb-2">
                         <label for="tara" class="mb-0 ps-3">Țara</label>
@@ -695,6 +718,9 @@
                     </div>
                 </div>
                 <div class="row">
+                    <div v-if="(descarcari && descarcari.length > 0)" class="col-lg-12">
+                        <small class="ps-3">* Puteți căuta locurile de operare din baza de date introducănd minim 3 caractere la numele locului de încărcare, sau la oraș</small>
+                    </div>
                     <div class="col-lg-12 d-flex justify-content-center py-1">
                         <button type="button" class="btn btn-success text-white" @click="adaugaDescarcareGoala()">Adaugă descărcare</button>
                     </div>

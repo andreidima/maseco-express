@@ -22,6 +22,14 @@ class AxiosController extends Controller
                 $raspuns = LocOperare::select('id', 'nume', 'oras', 'tara_id', 'adresa')
                     ->with('tara')
                     ->where('nume', 'like', '%' . $request->nume . '%')
+                    ->where('oras', 'like', '%' . $request->oras . '%')
+                    // ->where(function ($query) use ($request){
+                    //     if ($request->categorie === 'nume'){
+                    //         $query->where('nume', 'like', '%' . $request->nume . '%');
+                    //     }elseif ($request->categorie === 'oras'){
+                    //         $query->where('oras', 'like', '%' . $request->nume . '%');
+                    //     }
+                    // })
                     ->orderBy('nume')
                     ->take(100)
                     ->get();
