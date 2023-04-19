@@ -31,41 +31,6 @@ class CronJobController extends Controller
         }
 
         // Trimitere mesaj catre Maseco, doar o singura data, in momentul in care incepe prima incarcare din comanda
-        // $comenzi = Comanda::with('locuriOperareIncarcari', 'locuriOperareDescarcari')
-        //     ->whereHas('locuriOperareIncarcari', function($query){
-        //         $query->where('ordine', 1)
-        //             ->where('data_ora', '<=', Carbon::now()->addMinutes(14)->todatetimestring());
-        //     })
-        //     ->whereHas('locuriOperareDescarcari', function($query){
-        //         $query->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
-        //     })
-        //     ->whereDoesntHave('emailInformareIncepereComanda')
-        //     ->where('stare', '<>', 3)
-        //     ->get();
-
-            // Afisare in pagina pentru debug
-            // foreach ($comenzi as $comanda){
-            //     echo 'Comanda id: ' . $comanda->id;
-            //     echo '<br>';
-            //     if (isset($comanda->transportator->email)){
-            //         echo 'Email transportator: ' . $comanda->transportator->email . '<br>';
-            //     }
-            //     echo '<br>';
-            //     echo 'Incarcari: ';
-            //     foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
-            //         echo $locOperareIncarcare->pivot->ordine . '. ' . $locOperareIncarcare->pivot->data_ora . ', ';
-            //     }
-
-            //     echo '<br>';
-
-            //     echo 'Descarcari: ';
-            //     foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
-            //         echo $locOperareDescarcare->pivot->ordine . '. ' . $locOperareDescarcare->pivot->data_ora . ', ';
-            //     }
-            //     echo '<br><br>';
-            // }
-            // dd('stop');
-
         $cronjobs = ComandaCronJob::with('comanda')
             ->where('inceput', '<=', Carbon::now()->addMinutes(14)->todatetimestring())
             ->where('sfarsit', '>=', Carbon::now()->subMinutes(14)->todatetimestring())
@@ -105,41 +70,6 @@ class CronJobController extends Controller
 
 
         // Trimitere mesaje catre transportatori
-        // $comenzi = Comanda::with('locuriOperareIncarcari', 'locuriOperareDescarcari')
-        //     ->whereHas('locuriOperareIncarcari', function($query){
-        //         $query->where('data_ora', '<=', Carbon::now()->addMinutes(15)->todatetimestring());
-        //     })
-        //     ->whereHas('locuriOperareDescarcari', function($query){
-        //         $query->where('data_ora', '>=', Carbon::now()->subMinutes(14)->todatetimestring());
-        //     })
-        //     ->whereHas('contracteTrimisePeEmailCatreTransportator')
-        //     ->where('stare', '<>', 3)
-        //     ->get();
-
-            // Afisare in pagina pentru debug
-            // foreach ($comenzi as $comanda){
-            //     echo 'Comanda id: ' . $comanda->id;
-            //     echo '<br>';
-            //     if (isset($comanda->transportator->email)){
-            //         echo 'Email transportator: ' . $comanda->transportator->email . '<br>';
-            //     }
-            //     echo '<br>';
-            //     echo 'Incarcari: ';
-            //     foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
-            //         echo $locOperareIncarcare->pivot->ordine . '. ' . $locOperareIncarcare->pivot->data_ora . ', ';
-            //     }
-
-            //     echo '<br>';
-
-            //     echo 'Descarcari: ';
-            //     foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
-            //         echo $locOperareDescarcare->pivot->ordine . '. ' . $locOperareDescarcare->pivot->data_ora . ', ';
-            //     }
-            //     echo '<br><br><br><br>';
-            // }
-            // dd('stop');
-
-
         $cronjobs = ComandaCronJob::with('comanda')
             ->where('inceput', '<=', Carbon::now()->addMinutes(14)->addMinutes(15)->todatetimestring()) // se trimite mesaj cu 15 minute inainte de a incepe comanda
             ->where('sfarsit', '>=', Carbon::now()->subMinutes(14)->todatetimestring())
@@ -168,10 +98,8 @@ class CronJobController extends Controller
 
 
             if (
-                // ($comanda->emailuriCerereStatusComandaInUltimaPerioada->count() === 0)
                 ($cronjob->urmatorul_mesaj_incepand_cu ? Carbon::parse($cronjob->urmatorul_mesaj_incepand_cu)->lessThan(Carbon::now()->addMinutes(14)->todatetimestring()) : true)
                 // daca este ultima descarcare, se trimite notificare chiar daca a mai fost una trimisa in ultimul interval
-                // || ($comanda->ultimaDescarcare()->pivot->data_ora <= Carbon::now()->todatetimestring())
                 || ($cronjob->sfarsit ? Carbon::parse($cronjob->sfarsit)->lessThan(Carbon::now()) : '')
                 ){
                     // Trimitere SMS
@@ -181,20 +109,22 @@ class CronJobController extends Controller
 
                     // Trimitere email
                     if (isset($cronjob->comanda->transportator->email)){
-                        // Validator::make($comanda->transportator->all(), [
-                        //     'email' => 'email:rfc,dns',
-                        // ])->validate();
-                            // $comanda->transportator->validate([
-                            //     'email' => 'email:rfc,dns',
-                            // ]);
-                        Mail::to($cronjob->comanda->transportator->email)->send(new \App\Mail\ComandaStatus($cronjob->comanda));
+                        $validator = Validator::make(['email' => $cronjob->comanda->transportator->email], ['email' => 'email:rfc,dns',]);
 
-                        $emailTrimis = new \App\Models\MesajTrimisEmail;
-                        $emailTrimis->comanda_id = $cronjob->comanda->id;
-                        $emailTrimis->firma_id = $cronjob->comanda->transportator->id ?? '';
-                        $emailTrimis->categorie = 2;
-                        $emailTrimis->email = $cronjob->comanda->transportator->email;
-                        $emailTrimis->save();
+                        if ($validator->passes()){
+                            Mail::to($cronjob->comanda->transportator->email)->send(new \App\Mail\ComandaStatus($cronjob->comanda));
+
+                            $emailTrimis = new \App\Models\MesajTrimisEmail;
+                            $emailTrimis->comanda_id = $cronjob->comanda->id;
+                            $emailTrimis->firma_id = $cronjob->comanda->transportator->id ?? '';
+                            $emailTrimis->categorie = 2;
+                            $emailTrimis->email = $cronjob->comanda->transportator->email;
+                            $emailTrimis->save();
+
+                            // echo ('Corect: ' . $cronjob->comanda->transportator->email . '<br>');
+                        } else {
+                            // echo ('Gresit: ' . $cronjob->comanda->transportator->email . '<br>');
+                        }
                     }
 
                     // Se seteaza trimiterea in CronJob pentru a nu se mai trimite inca odata

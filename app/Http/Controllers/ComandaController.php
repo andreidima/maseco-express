@@ -511,22 +511,19 @@ class ComandaController extends Controller
                 $diferenta_fus_orar_descarcare = 0;
             }
 
-
             $comanda->cronjob()->updateOrCreate(
                 ['comanda_id' => $comanda->id],
                 [
                     'inceput' => Carbon::parse($comanda->primaIncarcare()->pivot->data_ora)->addHours($diferenta_fus_orar_incarcare),
                     'sfarsit' => Carbon::parse($comanda->ultimaDescarcare()->pivot->data_ora)->addHours($diferenta_fus_orar_descarcare)->addMinutes(Carbon::parse($comanda->ultimaDescarcare()->pivot->durata)->diffInMinutes(Carbon::today())),
                 ]);
-
-            // $cronjob = ComandaCronJob::where('comanda_id', $comanda->id)->first() ?? new ComandaCronJob;
-            // $cronjob->comanda_id = $comanda->id;
-            // $cronjob->inceput = Carbon::parse($comanda->primaIncarcare()->pivot->data_ora)->addHours($diferenta_fus_orar);
-            // $cronjob->sfarsit = Carbon::parse($comanda->ultimaDescarcare()->pivot->data_ora)->addHours($diferenta_fus_orar);
-            // if (!isset ($cronjob->urmatorul_mesaj_incepand_cu)){
-            //     $cronjob->urmatorul_mesaj_incepand_cu = Carbon::parse($comanda->primaIncarcare()->pivot->data_ora)->addHours($diferenta_fus_orar);
-            // }
-            // $cronjob->save();
+        } else {
+            $comanda->cronjob()->updateOrCreate(
+                ['comanda_id' => $comanda->id],
+                [
+                    'inceput' => NULL,
+                    'sfarsit' => NULL,
+                ]);
         }
 
         return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Comanda „' . $comanda->transportator_contract . '” a fost salvată cu succes!');
