@@ -30,6 +30,16 @@
                     :latime="{ width: '125px' }"
                 ></vue-datepicker-next>
             </div>
+
+            <div class="col-lg-3 mb-4">
+                <label for="user_id" class="mb-0 ps-3">Utilizator</label>
+                <select name="user_id" class="form-select bg-white rounded-3 {{ $errors->has('user_id') ? 'is-invalid' : '' }}">
+                    {{-- <option selected></option> --}}
+                    @foreach ($useri as $user)
+                        <option value="{{ $user->id }}" {{ ($user->id === intval(old('user_id', $comanda->user_id ?? ''))) ? 'selected' : '' }}>{{ $user->name }}</option>
+                    @endforeach
+                </select>
+            </div>
             <div class="col-lg-3 mb-4 text-center mx-auto">
                 <label for="interval_notificari" class="mb-0 ps-3">Interval notificari<span class="text-danger">*</span></label>
                 <vue-datepicker-next

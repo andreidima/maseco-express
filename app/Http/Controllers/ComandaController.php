@@ -177,6 +177,7 @@ class ComandaController extends Controller
         }
         // dd($comanda, session()->getOldInput());
 
+        $useri = User::select('id', 'name')->where('name', '<>', 'Andrei Dima')->orderBy('name')->get();
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $limbi = Limba::select('id', 'nume')->get();
@@ -192,7 +193,7 @@ class ComandaController extends Controller
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        return view('comenzi.edit', compact('comanda', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane'));
+        return view('comenzi.edit', compact('comanda', 'useri', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane'));
     }
 
     /**
@@ -605,6 +606,8 @@ class ComandaController extends Controller
                 'descarcari.*.id' => 'required',
                 'descarcari.*.pivot.data_ora' => 'required',
                 'descarcari.*.pivot.durata' => 'required',
+
+                'user_id' => 'required',
 
                 // 'observatii' => 'nullable|max:2000',
             ],
