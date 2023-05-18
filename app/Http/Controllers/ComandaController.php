@@ -607,6 +607,9 @@ class ComandaController extends Controller
                 'descarcari.*.pivot.data_ora' => 'required',
                 'descarcari.*.pivot.durata' => 'required',
 
+                'observatii_interne' => 'nullable|max:2000',
+                'observatii_externe' => 'nullable|max:2000',
+
                 'user_id' => 'required',
 
                 // 'observatii' => 'nullable|max:2000',

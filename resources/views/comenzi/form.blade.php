@@ -737,6 +737,18 @@
                 </div>
             </div>
         </div>
+        <div class="row px-2 pt-4 pb-1 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
+            <div class="col-lg-6 mb-4">
+                <label for="observatii_interne" class="form-label mb-0 ps-3">Observații interne</label>
+                <textarea class="form-control bg-white {{ $errors->has('observatii_interne') ? 'is-invalid' : '' }}"
+                    name="observatii_interne" rows="3">{{ old('observatii_interne', $comanda->observatii_interne) }}</textarea>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <label for="observatii_externe" class="form-label mb-0 ps-3">Observații externe</label>
+                <textarea class="form-control bg-white {{ $errors->has('observatii_externe') ? 'is-invalid' : '' }}"
+                    name="observatii_externe" rows="3">{{ old('observatii_externe', $comanda->observatii_externe) }}</textarea>
+            </div>
+        </div>
         {{-- <div class="row px-2 pt-4 pb-2 mb-0" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
             <div class="col-lg-2 mb-4">
                 <label for="persoana_contact" class="mb-0 ps-3">Transportator</label>

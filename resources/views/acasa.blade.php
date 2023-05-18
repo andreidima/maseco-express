@@ -90,7 +90,56 @@
                 </thead>
             </table>
         </div> --}}
-        <div class="col-md-6 mb-3">
+
+        <div class="col-md-6 mb-5">
+            <div class="table-responsive rounded">
+                <table class="table table-striped table-hover rounded">
+                    <thead class="text-white rounded culoare2">
+                        <tr><th colspan="3" class="text-center">Observații interne</th></tr>
+                        <tr class="" style="padding:2rem">
+                            <th class="">#</th>
+                            <th class="">Comanda</th>
+                            <th class="">Observație</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (\App\Models\Comanda::where('observatii_interne', '<>', null)->latest()->take(20)->get() as $comanda)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $comanda->transportator_contract }}</td>
+                            <td>{{ $comanda->observatii_interne }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-5">
+            <div class="table-responsive rounded">
+                <table class="table table-striped table-hover rounded">
+                    <thead class="text-white rounded culoare2">
+                        <tr><th colspan="3" class="text-center">Observații externe</th></tr>
+                        <tr class="" style="padding:2rem">
+                            <th class="">#</th>
+                            <th class="">Comanda</th>
+                            <th class="">Observație</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (\App\Models\Comanda::where('observatii_externe', '<>', null)->latest()->take(20)->get() as $comanda)
+                        <tr>
+                            <td>{{ $loop->iteration }}</td>
+                            <td>{{ $comanda->transportator_contract }}</td>
+                            <td>{{ $comanda->observatii_externe }}</td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="col-md-6 mb-5">
             <div class="table-responsive rounded">
                 <table class="table table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
