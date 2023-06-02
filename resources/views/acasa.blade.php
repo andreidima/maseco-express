@@ -17,8 +17,8 @@
     <div class="row justify-content-center">
         @php
             $comenziLunaCurenta = \App\Models\Comanda::select('id', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id')
-                                                        ->whereDate('created_at', '>', \Carbon\Carbon::today()->startOfMonth())->get();
-
+                                                        ->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->get();
+// dd($comenziLunaCurenta);
             $monede = \App\Models\Moneda::select('id', 'nume')->get();
             $leiLunaCurenta = $comenziLunaCurenta->where('client_moneda_id', 1)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', 1)->sum('transportator_valoare_contract')
         @endphp
