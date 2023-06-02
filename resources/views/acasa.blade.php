@@ -26,7 +26,7 @@
             <div class="card culoare2">
                 <div class="card-header text-center">Clienți noi luna curentă</div>
                 <div class="card-body text-center">
-                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 1)->whereDate('created_at', '>', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
+                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 1)->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
                 </div>
             </div>
         </div>
@@ -34,7 +34,7 @@
             <div class="card culoare2">
                 <div class="card-header text-center">Transportatori noi luna curentă</div>
                 <div class="card-body text-center">
-                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 2)->whereDate('created_at', '>', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
+                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 2)->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
                 </div>
             </div>
         </div>
