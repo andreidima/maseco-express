@@ -12,6 +12,7 @@ use App\Http\Controllers\CronJobController;
 use App\Http\Controllers\StatusComandaActualizatDeTransportatorController;
 use App\Http\Controllers\ComandaStatusController;
 use App\Http\Controllers\FisierController;
+use App\Http\Controllers\MementoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -74,6 +75,7 @@ Route::group(['middleware' => 'auth'], function () {
         return 'Configuration cached successfully.';
     });
 
+    Route::resource('/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
 
     Route::get('send-whatsapp-curl', function() {
         // $params=array(

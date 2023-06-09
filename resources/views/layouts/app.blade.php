@@ -118,6 +118,12 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
+                                    <a class="dropdown-item" href="{{ route('mementouri.index') }}">
+                                        <i class="fa-solid fa-bell me-1"></i>Mementouri
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
                                     <a class="dropdown-item" href="{{ route('mesaje-trimise-sms.index') }}">
                                         SMS trimise
                                     </a>
