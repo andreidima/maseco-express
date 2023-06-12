@@ -47,8 +47,9 @@
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
                             <th class="">Nume</th>
-                            <th class="">Descriere</th>
-                            <th class="">Observații</th>
+                            <th class="text-center">Dată expirare</th>
+                            {{-- <th class="">Descriere</th>
+                            <th class="">Observații</th> --}}
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -61,14 +62,20 @@
                                 <td class="">
                                     {{ $memento->nume }}
                                 </td>
-                                <td class="">
+                                <td class="text-center">
+                                    {{ $memento->data_expirare ? \Carbon\Carbon::parse($memento->data_expirare)->isoFormat('DD.MM.YYYY') : '' }}
+                                </td>
+                                {{-- <td class="">
                                     {{ $memento->descriere }}
                                 </td>
                                 <td class="">
                                     {{ $memento->observatii }}
-                                </td>
+                                </td> --}}
                                 <td>
                                     <div class="d-flex justify-content-end">
+                                        <a href="{{ $memento->path() }}" class="flex me-1">
+                                            <span class="badge bg-success">Vizualizează</span>
+                                        </a>
                                         <a href="{{ $memento->path() }}/modifica" class="flex me-1">
                                             <span class="badge bg-primary">Modifică</span>
                                         </a>

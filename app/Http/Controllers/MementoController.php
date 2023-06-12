@@ -65,11 +65,9 @@ class MementoController extends Controller
      */
     public function show(Request $request, Memento $memento)
     {
-        // $this->authorize('update', $memento);
+        $request->session()->get('memento_return_url') ?? $request->session()->put('memento_return_url', url()->previous());
 
-        // $request->session()->get('memento_return_url') ?? $request->session()->put('memento_return_url', url()->previous());
-
-        // return view('mementouri.show', compact('memento'));
+        return view('mementouri.show', compact('memento'));
     }
 
     /**
@@ -135,6 +133,7 @@ class MementoController extends Controller
         return $request->validate(
             [
                 'nume' => 'required|max:500',
+                'data_expirare' => '',
                 'descriere' => 'nullable|max:10000',
                 'observatii' => 'nullable|max:10000',
             ],

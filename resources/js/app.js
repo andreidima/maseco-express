@@ -52,6 +52,14 @@ if (document.getElementById('app') != null) {
 
 
 
+const app1 = createApp({});
+app1.component('vue-datepicker-next', VueDatepickerNext);
+if (document.getElementById('app1') != null) {
+    app1.mount('#app1');
+}
+
+
+
 const camion = createApp({
     el: '#camion',
     data() {
