@@ -110,7 +110,10 @@ export default {
         //     const day = new Date(date).getDay()
         //     // return day === 0 || day === 6
         //     return day === 0
-        // }
+        // },
+        sendDataToParent() {
+            this.$emit('trimitere_data_catre_parinte', this.time);
+        },
     },
     created() {
         if (this.dataVeche == "") {
@@ -118,11 +121,11 @@ export default {
         else {
           this.time = this.dataVeche
         }
-        // this.dataprogramare('dataProgramareTrimisa');
+        this.sendDataToParent();
     },
-    // updated() {
-    //     this.dataprogramare('dataProgramareTrimisa');
-    // }
+    updated() {
+        this.sendDataToParent();
+    },
 
 
 }

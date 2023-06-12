@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\Memento;
+use App\Models\MementoAlerta;
 
 class MementoController extends Controller
 {
@@ -19,8 +20,8 @@ class MementoController extends Controller
 
         $searchNume = $request->searchNume;
 
-        $query = Memento::
-            when($searchNume, function ($query, $searchNume) {
+        $query = Memento::with('alerte')
+            ->when($searchNume, function ($query, $searchNume) {
                 return $query->where('nume', 'like', '%' . $searchNume . '%');
             })
             ->latest();
@@ -37,11 +38,9 @@ class MementoController extends Controller
      */
     public function create(Request $request)
     {
-        $mementouriAlerte = '';
+        $request->session()->get('mementoReturnUrl') ?? $request->session()->put('mementoReturnUrl', url()->previous());
 
-        $request->session()->get('memento_return_url') ?? $request->session()->put('memento_return_url', url()->previous());
-
-        return view('mementouri.create', compact('mementouriAlerte'));
+        return view('mementouri.create');
     }
 
     /**
@@ -53,8 +52,12 @@ class MementoController extends Controller
     public function store(Request $request)
     {
         $memento = Memento::create($this->validateRequest($request));
+        foreach ($request->dateSelectate as $data){
+            $alerta = new MementoAlerta(['data' => $data]);
+            $memento->alerte()->save($alerta);
+        }
 
-        return redirect($request->session()->get('memento_return_url') ?? ('/mementouri'))->with('status', 'Mementoul „' . ($memento->nume ?? '') . '” a fost adăugat cu succes!');
+        return redirect($request->session()->get('mementoReturnUrl') ?? ('/mementouri'))->with('status', 'Mementoul „' . ($memento->nume ?? '') . '” a fost adăugat cu succes!');
     }
 
     /**
@@ -65,7 +68,7 @@ class MementoController extends Controller
      */
     public function show(Request $request, Memento $memento)
     {
-        $request->session()->get('memento_return_url') ?? $request->session()->put('memento_return_url', url()->previous());
+        $request->session()->get('mementoReturnUrl') ?? $request->session()->put('mementoReturnUrl', url()->previous());
 
         return view('mementouri.show', compact('memento'));
     }
@@ -78,11 +81,9 @@ class MementoController extends Controller
      */
     public function edit(Request $request, Memento $memento)
     {
-        $mementouriAlerte = '';
+        $request->session()->get('mementoReturnUrl') ?? $request->session()->put('mementoReturnUrl', url()->previous());
 
-        $request->session()->get('memento_return_url') ?? $request->session()->put('memento_return_url', url()->previous());
-
-        return view('mementouri.edit', compact('memento', 'mementouriAlerte'));
+        return view('mementouri.edit', compact('memento'));
     }
 
     /**
@@ -96,7 +97,13 @@ class MementoController extends Controller
     {
         $memento->update($this->validateRequest($request));
 
-        return redirect($request->session()->get('memento_return_url') ?? ('/mementouri'))->with('status', 'Mementoul „' . ($memento->nume ?? '') . '” a fost modificat cu succes!');
+        $memento->alerte()->delete();
+        foreach ($request->dateSelectate as $data){
+            $alerta = new MementoAlerta(['data' => $data]);
+            $memento->alerte()->save($alerta);
+        }
+
+        return redirect($request->session()->get('mementoReturnUrl') ?? ('/mementouri'))->with('status', 'Mementoul „' . ($memento->nume ?? '') . '” a fost modificat cu succes!');
     }
 
     /**

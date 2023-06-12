@@ -17,8 +17,8 @@ class Memento extends Model
         return "/mementouri/{$this->id}";
     }
 
-    public function mementouriAlerte()
+    public function alerte()
     {
-        return $this->hasMany(MementoAlerta::class, 'id');
+        return $this->hasMany(MementoAlerta::class, 'memento_id')->orderBy('data');
     }
 }

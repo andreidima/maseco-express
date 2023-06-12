@@ -52,14 +52,6 @@ if (document.getElementById('app') != null) {
 
 
 
-const app1 = createApp({});
-app1.component('vue-datepicker-next', VueDatepickerNext);
-if (document.getElementById('app1') != null) {
-    app1.mount('#app1');
-}
-
-
-
 const camion = createApp({
     el: '#camion',
     data() {
@@ -337,4 +329,41 @@ const statusuri = createApp({
 
 if (document.getElementById('statusuri') != null) {
     statusuri.mount('#statusuri');
+}
+
+
+
+// Incarcare alerte la mementouri
+const mementoAlerte = createApp({
+    el: '#mementoAlerte',
+    data() {
+        return {
+            dataSelectata: '',
+            dateSelectate: dateSelectate,
+        }
+    },
+    methods: {
+        captureDataDeLaCopil(data){
+            this.dataSelectata = data;
+        },
+        adaugaAlerta: function () {
+            if ((this.dataSelectata !== null) && (!this.dateSelectate.includes(this.dataSelectata))) {
+                this.dateSelectate.push(this.dataSelectata);
+                // var data = new Date(this.dataSelectata);
+                // this.dateSelectate.push(data.toLocaleDateString("ro-RO"));
+            }
+        },
+        stergeAlerta: function (data) {
+            for (var i = 0; i < this.dateSelectate.length; i++) {
+                if (this.dateSelectate[i] == data) {
+                    this.dateSelectate.splice(i, 1);
+                    break;
+                }
+            }
+        },
+    }
+});
+mementoAlerte.component('vue-datepicker-next', VueDatepickerNext);
+if (document.getElementById('mementoAlerte') != null) {
+    mementoAlerte.mount('#mementoAlerte');
 }
