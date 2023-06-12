@@ -67,10 +67,15 @@
                                     {{ $memento->data_expirare ? \Carbon\Carbon::parse($memento->data_expirare)->isoFormat('DD.MM.YYYY') : '' }}
                                 </td>
                                 <td class="text-center">
+                                    <div class="d-flex justify-content-center">
                                     @foreach ($memento->alerte as $alerta)
                                         {{ $alerta->data ? \Carbon\Carbon::parse($alerta->data)->isoFormat('DD.MM.YYYY') : '' }}
+                                        {{-- @if (!$loop->last)
+                                            /&nbsp;
+                                        @endif --}}
                                         <br>
                                     @endforeach
+                                    </div>
                                 </td>
                                 <td class="">
                                     {{ $memento->descriere }}

@@ -13,6 +13,7 @@ use App\Http\Controllers\StatusComandaActualizatDeTransportatorController;
 use App\Http\Controllers\ComandaStatusController;
 use App\Http\Controllers\FisierController;
 use App\Http\Controllers\MementoController;
+use App\Http\Controllers\CronJobAlertaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -75,7 +76,14 @@ Route::group(['middleware' => 'auth'], function () {
         return 'Configuration cached successfully.';
     });
 
+
+    // Mementouri
     Route::resource('/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
+    // Trimitere mementouri prin Cron Job
+    Route::get('/cronjob-memento-alerte', [CronJobAlertaController::class, 'trimiteAlerte']);
+
+
+
 
     Route::get('send-whatsapp-curl', function() {
         // $params=array(

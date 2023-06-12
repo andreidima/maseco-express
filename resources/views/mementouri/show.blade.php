@@ -57,7 +57,7 @@
 
                     <div class="form-row mb-2 px-2">
                         <div class="col-lg-12 d-flex justify-content-center">
-                            <a class="btn btn-secondary text-white rounded-3" href="{{ Session::get('memento_return_url') }}">Înapoi</a>
+                            <a class="btn btn-secondary text-white rounded-3" href="{{ Session::get('mementoReturnUrl') }}">Înapoi</a>
                         </div>
                     </div>
 
