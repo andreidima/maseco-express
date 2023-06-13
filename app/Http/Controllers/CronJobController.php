@@ -177,7 +177,7 @@ class CronJobController extends Controller
                 to('masecoexpres@gmail.com')
                 // to('adima@validsoftware.ro')
                 // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
-                ->bcc(['andrei.dima@usm.ro'])
+                // ->bcc(['andrei.dima@usm.ro'])
                 ->send(new \App\Mail\MementoAlerta($mesaj)
             );
             echo $mesaj;
