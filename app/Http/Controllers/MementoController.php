@@ -52,9 +52,11 @@ class MementoController extends Controller
     public function store(Request $request)
     {
         $memento = Memento::create($this->validateRequest($request));
-        foreach ($request->dateSelectate as $data){
-            $alerta = new MementoAlerta(['data' => $data]);
-            $memento->alerte()->save($alerta);
+        if ($request->dateSelectate) {
+            foreach ($request->dateSelectate as $data){
+                $alerta = new MementoAlerta(['data' => $data]);
+                $memento->alerte()->save($alerta);
+            }
         }
 
         return redirect($request->session()->get('mementoReturnUrl') ?? ('/mementouri'))->with('status', 'Mementoul „' . ($memento->nume ?? '') . '” a fost adăugat cu succes!');
@@ -98,9 +100,11 @@ class MementoController extends Controller
         $memento->update($this->validateRequest($request));
 
         $memento->alerte()->delete();
-        foreach ($request->dateSelectate as $data){
-            $alerta = new MementoAlerta(['data' => $data]);
-            $memento->alerte()->save($alerta);
+        if ($request->dateSelectate) {
+            foreach ($request->dateSelectate as $data){
+                $alerta = new MementoAlerta(['data' => $data]);
+                $memento->alerte()->save($alerta);
+            }
         }
 
         return redirect($request->session()->get('mementoReturnUrl') ?? ('/mementouri'))->with('status', 'Mementoul „' . ($memento->nume ?? '') . '” a fost modificat cu succes!');

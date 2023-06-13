@@ -17,7 +17,7 @@ class MementoAlerta extends Model
         return "/mementouri-alerte/{$this->id}";
     }
 
-    public function mementouri()
+    public function memento()
     {
         return $this->belongsTo(Memento::class, 'memento_id');
     }

@@ -13,7 +13,6 @@ use App\Http\Controllers\StatusComandaActualizatDeTransportatorController;
 use App\Http\Controllers\ComandaStatusController;
 use App\Http\Controllers\FisierController;
 use App\Http\Controllers\MementoController;
-use App\Http\Controllers\CronJobAlertaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,6 +29,7 @@ Auth::routes(['register' => false, 'password.request' => false, 'reset' => false
 
 // Trimitere Cron joburi din Cpanel
 Route::any('/cron-jobs/cerere-status-comanda/{key}', [CronJobController::class, 'cerereStatusComanda']);
+Route::get('/cron-jobs/memento-alerte/{key}', [CronJobController::class, 'trimiteMementoAlerte']);
 
 Route::get('cerere-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'cerereStatusComanda']);
 Route::post('salvare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'salvareStatusComanda']);
@@ -58,6 +58,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/comenzi/{comanda}/stare/{stare}', [ComandaController::class, 'stare']);
 
     Route::resource('mesaje-trimise-sms', MesajTrimisSmsController::class,  ['parameters' => ['mesaje-trimise-sms' => 'mesaj_trimis_sms']]);
+    Route::resource('/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
 
     // Extras date cu Axios
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);
@@ -76,11 +77,6 @@ Route::group(['middleware' => 'auth'], function () {
         return 'Configuration cached successfully.';
     });
 
-
-    // Mementouri
-    Route::resource('/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
-    // Trimitere mementouri prin Cron Job
-    Route::get('/cronjob-memento-alerte', [CronJobAlertaController::class, 'trimiteAlerte']);
 
 
 
