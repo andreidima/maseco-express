@@ -6,9 +6,12 @@
         <div style="padding:20px 20px; max-width:760px!important;margin:0 auto; font-size:18px">
             Bună Maseco Expres,
             <br><br>
-            Acestea sunt alertele de mementouri pentru ziua de astăzi:
-            <br><br>
+            Vă trimitem alertă pentru următorul memento:
+            <br>
             {!! $mesaj !!}
+
+            Acesta este un mesaj automat. Vă rugăm să nu răspundeți la acest e-mail.
+            <br><br>
             Mulțumim!
         </div>
     </div>

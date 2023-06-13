@@ -17,6 +17,7 @@ class MementoAlerta extends Mailable
      * Create a new message instance.
      */
     public function __construct(
+        public $subiect,
         public $mesaj,
     )
     {
@@ -30,7 +31,7 @@ class MementoAlerta extends Mailable
     {
         return new Envelope(
             // subject: 'Transportatorul a actualizat statusul Comenzii ' . $this->comanda->transportator_contract,
-            subject: 'Mementouri aplicație - alerte',
+            subject: 'Memento aplicație - alertă! ' . $this->subiect,
         );
     }
 

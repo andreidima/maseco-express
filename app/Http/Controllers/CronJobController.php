@@ -162,49 +162,27 @@ class CronJobController extends Controller
             return;
         }
 
-        $mesaj = '';
-// dd($mementouriAlerte);
+
         foreach ($mementouriAlerte as $alerta){
+            $subiect = $alerta->memento->nume ?? '';
+
+            $mesaj = '';
             $mesaj .= 'Nume: ' . ($alerta->memento->nume ?? '') . '<br>';
             $mesaj .= 'Dată expirare: ' . ($alerta->memento->data_expirare ? Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY') : '') . '<br>';
             $mesaj .= 'Descriere: ' . ($alerta->memento->descriere ?? '') . '<br>';
             $mesaj .= 'Observații: ' . ($alerta->memento->observatii ?? '') . '<br>';
             $mesaj .= '<br>';
-        }
 
             // Trimitere alerta prin email
             \Mail::
                 to('masecoexpres@gmail.com')
                 // to('adima@validsoftware.ro')
                 // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
-                // ->bcc(['andrei.dima@usm.ro'])
-                ->send(new \App\Mail\MementoAlerta($mesaj)
+                ->bcc(['andrei.dima@usm.ro'])
+                ->send(new \App\Mail\MementoAlerta($subiect, $mesaj)
             );
-            echo $mesaj;
-
-
-        if (isset($cronjobs)){
-            foreach ($cronjobs as $cronjob){
-                // Trimitere email
-                $emailTrimis = new \App\Models\MesajTrimisEmail;
-                if (isset($cronjob->comanda->transportator->email) && ($cronjob->comanda->transportator->email !== 'adima@validsoftware.ro') && ($cronjob->comanda->transportator->email !== 'andrei.dima@usm.ro')){
-                    // echo 'nu este Andrei';
-                    Mail::to('info@masecoexpres.net')->send(new \App\Mail\ComandaIncepere($cronjob->comanda));
-                    $emailTrimis->email = 'info@masecoexpres.net';
-                } else {
-                    // echo 'Este Andrei';
-                    Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\ComandaIncepere($cronjob->comanda));
-                    $emailTrimis->email = 'andrei.dima@usm.ro';
-                }
-                $emailTrimis->comanda_id = $cronjob->comanda->id ?? '';
-                $emailTrimis->firma_id = $cronjob->comanda->transportator->id ?? '';
-                $emailTrimis->categorie = 1;
-                $emailTrimis->save();
-
-                // Se seteaza trimiterea si in CronJob pentru a nu se mai trimite inca odata
-                $cronjob->informare_incepere_comanda = 1;
-                $cronjob->save();
-            }
         }
+
+            // echo $mesaj;
     }
 }

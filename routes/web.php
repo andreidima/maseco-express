@@ -13,6 +13,7 @@ use App\Http\Controllers\StatusComandaActualizatDeTransportatorController;
 use App\Http\Controllers\ComandaStatusController;
 use App\Http\Controllers\FisierController;
 use App\Http\Controllers\MementoController;
+use App\Http\Controllers\FileManagerPersonalizatController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::view('acasa', 'acasa');
 
     Route::view('file-manager', 'fileManager');
+    Route::get('/file-manager-personalizat', [FileManagerPersonalizatController::class, 'afisareDirectoareSiFisiere']);
 
     Route::resource('/firme/{tipPartener}', FirmaController::class)->parameters(['{tipPartener}' => 'firma']);
     Route::get('/firme/{tipPartener}/{firma}/contract/{view_type}', [FirmaController::class, 'contractExportPDF']);

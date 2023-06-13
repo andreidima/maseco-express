@@ -118,7 +118,7 @@ class MementoController extends Controller
      */
     public function destroy(Request $request, Memento $memento)
     {
-        $memento->mementouriAlerte->delete();
+        $memento->alerte()->delete();
 
         $memento->delete();
 
