@@ -50,14 +50,14 @@ class CronJobController extends Controller
         foreach ($cronjobs as $cronjob){
             // Trimitere email
             $emailTrimis = new \App\Models\MesajTrimisEmail;
-            if (isset($cronjob->comanda->transportator->email) && ($cronjob->comanda->transportator->email !== 'adima@validsoftware.ro') && ($cronjob->comanda->transportator->email !== 'andrei.dima@usm.ro')){
-                // echo 'nu este Andrei';
-                Mail::to('info@masecoexpres.net')->send(new \App\Mail\ComandaIncepere($cronjob->comanda));
-                $emailTrimis->email = 'info@masecoexpres.net';
-            } else {
+            if (isset($cronjob->comanda->transportator->email) && ($cronjob->comanda->transportator->email === 'adima@validsoftware.ro') && ($cronjob->comanda->transportator->email === 'andrei.dima@usm.ro')){
                 // echo 'Este Andrei';
                 Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\ComandaIncepere($cronjob->comanda));
                 $emailTrimis->email = 'andrei.dima@usm.ro';
+            } else {
+                // echo 'nu este Andrei';
+                Mail::to('info@masecoexpres.net')->send(new \App\Mail\ComandaIncepere($cronjob->comanda));
+                $emailTrimis->email = 'info@masecoexpres.net';
             }
             $emailTrimis->comanda_id = $cronjob->comanda->id ?? '';
             $emailTrimis->firma_id = $cronjob->comanda->transportator->id ?? '';
@@ -164,23 +164,30 @@ class CronJobController extends Controller
 
 
         foreach ($mementouriAlerte as $alerta){
-            $subiect = $alerta->memento->nume ?? '';
+            if (isset($alerta->memento->email)){
+                $validator = Validator::make(['email' => $alerta->memento->email], ['email' => 'email:rfc,dns',]);
 
-            $mesaj = '';
-            $mesaj .= 'Nume: ' . ($alerta->memento->nume ?? '') . '<br>';
-            $mesaj .= 'Dată expirare: ' . ($alerta->memento->data_expirare ? Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY') : '') . '<br>';
-            $mesaj .= 'Descriere: ' . ($alerta->memento->descriere ?? '') . '<br>';
-            $mesaj .= 'Observații: ' . ($alerta->memento->observatii ?? '') . '<br>';
-            $mesaj .= '<br>';
+                if ($validator->passes()){
+                    $subiect = $alerta->memento->nume ?? '';
 
-            // Trimitere alerta prin email
-            \Mail::
-                to('masecoexpres@gmail.com')
-                // to('adima@validsoftware.ro')
-                // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
-                ->bcc(['andrei.dima@usm.ro'])
-                ->send(new \App\Mail\MementoAlerta($subiect, $mesaj)
-            );
+                    $mesaj = '';
+                    $mesaj .= 'Nume: ' . ($alerta->memento->nume ?? '') . '<br>';
+                    $mesaj .= 'Dată expirare: ' . ($alerta->memento->data_expirare ? Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY') : '') . '<br>';
+                    $mesaj .= 'Descriere: ' . ($alerta->memento->descriere ?? '') . '<br>';
+                    $mesaj .= 'Observații: ' . ($alerta->memento->observatii ?? '') . '<br>';
+                    $mesaj .= '<br>';
+
+                    // Trimitere alerta prin email
+                    \Mail::
+                        // to('masecoexpres@gmail.com')
+                        to($alerta->memento->email)
+                        // to('adima@validsoftware.ro')
+                        // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
+                        // ->bcc(['andrei.dima@usm.ro'])
+                        ->send(new \App\Mail\MementoAlerta($subiect, $mesaj)
+                    );
+                }
+            }
         }
 
             // echo $mesaj;

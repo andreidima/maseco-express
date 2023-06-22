@@ -144,6 +144,7 @@ class MementoController extends Controller
         return $request->validate(
             [
                 'nume' => 'required|max:500',
+                'email' => 'required|max:500|email:rfc,dns',
                 'data_expirare' => '',
                 'descriere' => 'nullable|max:10000',
                 'observatii' => 'nullable|max:10000',

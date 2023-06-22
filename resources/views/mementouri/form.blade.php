@@ -10,7 +10,7 @@
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px">
     <div class="col-lg-7 px-4 py-2 mb-0">
         <div class="row mb-0">
-            <div class="col-lg-8 mb-4">
+            <div class="col-lg-12 mb-4">
                 <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
                 <input
                     type="text"
@@ -19,7 +19,16 @@
                     value="{{ old('nume', $memento->nume) }}"
                     required>
             </div>
-            <div class="col-lg-4 mb-4 text-center" id="app">
+            <div class="col-lg-6 mb-4">
+                <label for="email" class="mb-0 ps-3">Email către care se trimite alerta<span class="text-danger">*</span></label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                    name="email"
+                    value="{{ old('email', $memento->email) }}"
+                    required>
+            </div>
+            <div class="col-lg-6 mb-4 text-center" id="app">
                 <label for="data_expirare" class="mb-0 ps-0">Dată expirare</label>
                 <vue-datepicker-next
                     data-veche="{{ old('data_expirare', $memento->data_expirare) }}"

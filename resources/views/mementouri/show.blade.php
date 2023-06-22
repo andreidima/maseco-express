@@ -30,6 +30,14 @@
                             </tr>
                             <tr>
                                 <td class="pe-4">
+                                    Email
+                                </td>
+                                <td>
+                                    {{ $memento->email }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pe-4">
                                     Dată expirare
                                 </td>
                                 <td>
