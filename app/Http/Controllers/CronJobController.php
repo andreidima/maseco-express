@@ -76,7 +76,8 @@ class CronJobController extends Controller
             ->where('sfarsit', '>=', Carbon::now()->subMinutes(14)->todatetimestring())
             ->where('contract_trimis_pe_email_catre_transportator', 1)
             ->whereHas('comanda', function($query){
-                $query->where('stare', '<>', 3); // comanda nu este anulata
+                $query->where('stare', '<>', 3) // comanda nu este anulata
+                        ->where('interval_notificari', '<>', '00:00');
             })
             ->get();
 
