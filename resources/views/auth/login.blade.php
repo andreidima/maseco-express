@@ -23,6 +23,8 @@
 
                 <div class="card-body pb-0">
 
+                    @include('errors')
+
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 
