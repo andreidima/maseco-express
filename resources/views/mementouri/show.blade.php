@@ -30,6 +30,14 @@
                             </tr>
                             <tr>
                                 <td class="pe-4">
+                                    Telefon
+                                </td>
+                                <td>
+                                    {{ $memento->telefon }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pe-4">
                                     Email
                                 </td>
                                 <td>

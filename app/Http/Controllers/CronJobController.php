@@ -156,14 +156,34 @@ class CronJobController extends Controller
             return ;
         }
 
-        $mementouriAlerte = MementoAlerta::whereDate('data', '=', Carbon::today())->get();
+        $mementouriAlerte = MementoAlerta::with('memento')->whereDate('data', '=', Carbon::today())->get();
 
         // Daca nu este nici o alerta setata pentru ziua curenta, se termina functia
         if (count($mementouriAlerte) === 0){
             return;
         }
 
+        // Trimitere SMS
+        $mementouriAlerteDeTrimisSmsGrupateDupaTelefon = $mementouriAlerte->whereNotNull('memento.telefon')->groupBy('memento.telefon');
+        foreach($mementouriAlerteDeTrimisSmsGrupateDupaTelefon as $mementouriAlerteDeTrimisSms){
+            $mesaj = 'Memento aplicatie! ';
+            foreach($mementouriAlerteDeTrimisSms as $alerta){
+                $mesaj .= ($alerta->memento->nume ?? '');
+                if ($alerta->memento->data_expirare){
+                    $mesaj .= ', expirare ' . Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY');
+                }
+                if ($alerta->memento->descriere){
+                    $mesaj .= ', ' . $alerta->memento->descriere;
+                }
+                if ($alerta->memento->observatii){
+                    $mesaj .= ', ' . $alerta->memento->observatii;
+                }
+                $mesaj .= ". ";
+            }
+            $this->trimiteSms('Memento', null, null, [$alerta->memento->telefon ?? ''], $mesaj);
+        }
 
+        // Trimitere email
         foreach ($mementouriAlerte as $alerta){
             if (isset($alerta->memento->email)){
                 $validator = Validator::make(['email' => $alerta->memento->email], ['email' => 'email:rfc,dns',]);

@@ -19,7 +19,16 @@
                     value="{{ old('nume', $memento->nume) }}"
                     required>
             </div>
-            <div class="col-lg-6 mb-4">
+            <div class="col-lg-5 mb-4">
+                <label for="telefon" class="mb-0 ps-3">Telefon către care se trimite alerta</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('telefon') ? 'is-invalid' : '' }}"
+                    name="telefon"
+                    value="{{ old('telefon', $memento->telefon) }}"
+                    required>
+            </div>
+            <div class="col-lg-5 mb-4">
                 <label for="email" class="mb-0 ps-3">Email către care se trimite alerta<span class="text-danger">*</span></label>
                 <input
                     type="text"
@@ -28,7 +37,7 @@
                     value="{{ old('email', $memento->email) }}"
                     required>
             </div>
-            <div class="col-lg-6 mb-4 text-center" id="app">
+            <div class="col-lg-2 mb-4 text-center" id="app">
                 <label for="data_expirare" class="mb-0 ps-0">Dată expirare</label>
                 <vue-datepicker-next
                     data-veche="{{ old('data_expirare', $memento->data_expirare) }}"

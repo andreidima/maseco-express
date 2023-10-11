@@ -48,7 +48,7 @@
                             <th class="">#</th>
                             <th class="">Nume</th>
                             <th class="text-center">Dată expirare</th>
-                            <th class="">Email</th>
+                            <th class="">Telefon/ Email</th>
                             <th class="text-center">Alerte</th>
                             <th class="">Descriere</th>
                             {{-- <th class="">Observații</th> --}}
@@ -68,6 +68,10 @@
                                     {{ $memento->data_expirare ? \Carbon\Carbon::parse($memento->data_expirare)->isoFormat('DD.MM.YYYY') : '' }}
                                 </td>
                                 <td class="">
+                                    @if ($memento->telefon)
+                                        {{ $memento->telefon }}
+                                        <br>
+                                    @endif
                                     {{ $memento->email }}
                                 </td>
                                 <td class="text-center">
