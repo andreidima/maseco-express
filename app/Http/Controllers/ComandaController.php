@@ -21,6 +21,9 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 class ComandaController extends Controller
 {
     /**
@@ -638,6 +641,90 @@ class ComandaController extends Controller
             // return $pdf->download('Contract ' . $comanda->transportator_contract . '.pdf');
             return $pdf->stream();
         }
+    }
+
+    public function comandaExportExcel(Request $request, Comanda $comanda)
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->getPageSetup()->setPaperSize(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::PAPERSIZE_A4);
+        $sheet->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
+
+        $sheet->getStyle('A1:N1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+        $sheet->getStyle('A1:N1')->getFont()->setBold(true);;
+        $sheet->setCellValue('A1', 'Transport ID');
+        $sheet->setCellValue('B1', 'Stop Type');
+        $sheet->setCellValue('C1', 'References / Deliveries');
+        $sheet->setCellValue('D1', 'Location Name');
+        $sheet->setCellValue('E1', 'Street');
+        $sheet->setCellValue('F1', 'Postcode');
+        $sheet->setCellValue('G1', 'City');
+        $sheet->setCellValue('H1', 'Country');
+        $sheet->setCellValue('I1', 'Time Slot Start Date');
+        $sheet->setCellValue('J1', 'Time Slot Start Time');
+        $sheet->setCellValue('K1', 'Time Slot End Date');
+        $sheet->setCellValue('L1', 'Time Slot End Time');
+        $sheet->setCellValue('M1', 'Grouping Code');
+        $sheet->setCellValue('N1', 'Stop Remarks');
+
+        $rand = 2;
+        foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
+            $sheet->setCellValue('A' . $rand, $comanda->transportator_contract);
+            $sheet->setCellValue('B' . $rand, 'Loading');
+            $sheet->getStyle('B' . $rand)->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_BLUE);
+            $sheet->setCellValue('D' . $rand, $locOperareIncarcare->nume);
+            $sheet->setCellValue('E' . $rand, $locOperareIncarcare->adresa);
+            $sheet->setCellValue('F' . $rand, $locOperareIncarcare->cod_postal);
+            $sheet->setCellValue('G' . $rand, $locOperareIncarcare->oras);
+            $sheet->setCellValue('H' . $rand, $locOperareIncarcare->tara->nume ?? '');
+            if ($locOperareIncarcare->pivot->data_ora){
+                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('DD.MM.YYYY'));
+                $sheet->setCellValue('J' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('HH:mm:ss'));
+
+                $durata = Carbon::parse($locOperareIncarcare->pivot->durata);
+                // dd($durata);
+                $sfarsit = Carbon::parse($locOperareIncarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
+                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD.MM.YYYY'));
+                $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
+            }
+            $sheet->setCellValue('N' . $rand, $locOperareIncarcare->pivot->observatii ?? '');
+            $rand ++;
+        }
+        foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
+            $sheet->setCellValue('A' . $rand, $comanda->transportator_contract);
+            $sheet->setCellValue('B' . $rand, 'Unloading');
+            $sheet->getStyle('B' . $rand)->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_RED);
+            $sheet->setCellValue('D' . $rand, $locOperareDescarcare->nume);
+            $sheet->setCellValue('E' . $rand, $locOperareDescarcare->adresa);
+            $sheet->setCellValue('F' . $rand, $locOperareDescarcare->cod_postal);
+            $sheet->setCellValue('G' . $rand, $locOperareDescarcare->oras);
+            $sheet->setCellValue('H' . $rand, $locOperareDescarcare->tara->nume ?? '');
+            if ($locOperareDescarcare->pivot->data_ora){
+                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('DD.MM.YYYY'));
+                $sheet->setCellValue('J' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('HH:mm:ss'));
+
+                $durata = Carbon::parse($locOperareDescarcare->pivot->durata);
+                // dd($durata);
+                $sfarsit = Carbon::parse($locOperareDescarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
+                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD.MM.YYYY'));
+                $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
+            }
+            $sheet->setCellValue('N' . $rand, $locOperareDescarcare->pivot->observatii ?? '');
+            $rand ++;
+        }
+
+        // Se parcug toate coloanele si se stabileste latimea AUTO
+        foreach ($sheet->getColumnIterator() as $column) {
+            $sheet->getColumnDimension($column->getColumnIndex())->setAutoSize(true);
+        }
+        // $sheet->getColumnDimension('A')->setWidth(90);
+
+        $writer = new Xlsx($spreadsheet);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="Comanda ' . $comanda->transportator_contract . '.xlsx"');
+        $writer->save('php://output');
+        exit();
     }
 
     public function comandaTrimiteCatreTransportator(Request $request, Comanda $comanda)

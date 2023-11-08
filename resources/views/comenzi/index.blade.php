@@ -302,7 +302,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="d-flex justify-content-center">
+                                    <div class="text-center">
                                         <a href="{{ $comanda->path() }}/stare/deschide" class="flex me-1" title="Deschisă">
                                             <span class="badge {{ $comanda->stare === 1 ? 'bg-success' : 'bg-light text-dark' }}">
                                                 <i class="fa-solid fa-lock-open fa-1x"></i>
@@ -325,6 +325,11 @@
                                 </td>
                                 <td>
                                     <div class="text-end">
+                                        <div class="mb-1">
+                                            <a href="{{ $comanda->path() }}/export-excel" class="flex">
+                                                <span class="badge bg-success">Excel</span>
+                                            </a>
+                                        </div>
                                         <div class="mb-1">
                                             <a href="{{ $comanda->path() }}/modifica" class="flex">
                                                 <span class="badge bg-primary">Modifică</span>
