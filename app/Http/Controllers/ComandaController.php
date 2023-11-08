@@ -652,7 +652,7 @@ class ComandaController extends Controller
         $sheet->getPageSetup()->setOrientation(\PhpOffice\PhpSpreadsheet\Worksheet\PageSetup::ORIENTATION_LANDSCAPE);
 
         $sheet->getStyle('A1:N1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
-        $sheet->getStyle('A1:N1')->getFont()->setBold(true);;
+        $sheet->getStyle('A1:N1')->getFont()->setBold(true);
         $sheet->setCellValue('A1', 'Transport ID');
         $sheet->setCellValue('B1', 'Stop Type');
         $sheet->setCellValue('C1', 'References / Deliveries');
@@ -669,10 +669,11 @@ class ComandaController extends Controller
         $sheet->setCellValue('N1', 'Stop Remarks');
 
         $rand = 2;
-        foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare){
+        foreach ($comanda->locuriOperareIncarcari as $key=>$locOperareIncarcare){
             $sheet->setCellValue('A' . $rand, $comanda->transportator_contract);
             $sheet->setCellValue('B' . $rand, 'Loading');
             $sheet->getStyle('B' . $rand)->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_BLUE);
+            $sheet->setCellValue('C' . $rand, $locOperareIncarcare->pivot->referinta ?? '');
             $sheet->setCellValue('D' . $rand, $locOperareIncarcare->nume);
             $sheet->setCellValue('E' . $rand, $locOperareIncarcare->adresa);
             $sheet->setCellValue('F' . $rand, $locOperareIncarcare->cod_postal);
@@ -688,13 +689,15 @@ class ComandaController extends Controller
                 $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD.MM.YYYY'));
                 $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
             }
-            $sheet->setCellValue('N' . $rand, $locOperareIncarcare->pivot->observatii ?? '');
+            // $sheet->setCellValue('N' . $rand, $locOperareIncarcare->pivot->observatii ?? '');
+            $sheet->setCellValue('N' . $rand, 'Loading ' . $key+1 );
             $rand ++;
         }
-        foreach ($comanda->locuriOperareDescarcari as $locOperareDescarcare){
+        foreach ($comanda->locuriOperareDescarcari as $key=>$locOperareDescarcare){
             $sheet->setCellValue('A' . $rand, $comanda->transportator_contract);
             $sheet->setCellValue('B' . $rand, 'Unloading');
             $sheet->getStyle('B' . $rand)->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_RED);
+            $sheet->setCellValue('C' . $rand, $locOperareDescarcare->pivot->referinta ?? '');
             $sheet->setCellValue('D' . $rand, $locOperareDescarcare->nume);
             $sheet->setCellValue('E' . $rand, $locOperareDescarcare->adresa);
             $sheet->setCellValue('F' . $rand, $locOperareDescarcare->cod_postal);
@@ -705,12 +708,12 @@ class ComandaController extends Controller
                 $sheet->setCellValue('J' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('HH:mm:ss'));
 
                 $durata = Carbon::parse($locOperareDescarcare->pivot->durata);
-                // dd($durata);
                 $sfarsit = Carbon::parse($locOperareDescarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
                 $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD.MM.YYYY'));
                 $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
             }
-            $sheet->setCellValue('N' . $rand, $locOperareDescarcare->pivot->observatii ?? '');
+            // $sheet->setCellValue('N' . $rand, $locOperareDescarcare->pivot->observatii ?? '');
+            $sheet->setCellValue('N' . $rand, 'Unloading ' . $key+1 );
             $rand ++;
         }
 
