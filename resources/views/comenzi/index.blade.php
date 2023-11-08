@@ -323,14 +323,9 @@
                                 <td class="text-center">
                                     {{ $comanda->user->name ?? '' }}
                                 </td>
-                                <td>
-                                    <div class="text-end">
-                                        <div class="mb-1">
-                                            <a href="{{ $comanda->path() }}/export-excel" class="flex">
-                                                <span class="badge bg-success">Excel</span>
-                                            </a>
-                                        </div>
-                                        <div class="mb-1">
+                                <td class="text-end">
+                                    <div class="d-flex text-end">
+                                        <div class="mb-1 me-1">
                                             <a href="{{ $comanda->path() }}/modifica" class="flex">
                                                 <span class="badge bg-primary">Modifică</span>
                                             </a>
@@ -345,6 +340,11 @@
                                                 <span class="badge bg-danger">Șterge</span>
                                             </a>
                                         </div>
+                                    </div>
+                                    <div class="mb-1 me-1">
+                                        <a href="{{ $comanda->path() }}/export-excel" class="flex">
+                                            <span class="badge bg-success">Excel</span>
+                                        </a>
                                     </div>
                                 </td>
                             </tr>
