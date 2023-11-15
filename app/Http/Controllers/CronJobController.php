@@ -213,4 +213,70 @@ class CronJobController extends Controller
 
             // echo $mesaj;
     }
+
+    public function trimiteMementoFacturi($key = null){
+        if ($key !== \Config::get('variabile.cron_job_key')){
+            echo 'Cheia pentru Cron Joburi nu este corectă!';
+            return ;
+        }
+
+        $comenzi = Comanda::select('id', 'client_data_factura', 'client_zile_scadente', 'client_zile_inainte_de_scadenta_memento_factura')
+            ->whereDate('client_data_factura', '>', Carbon::now()->subDays(100))
+            ->get();
+
+        $arrayIdComenziDeTrimisMesaj = [];
+        foreach ($comenzi as $comanda){
+            if ($comanda->client_zile_scadente){ // daca exista zile scadente
+                if (Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente) >= Carbon::now()){  // daca nu a trecut scadenta
+                    $zileInainte = preg_split ("/\,/", $comanda->client_zile_inainte_de_scadenta_memento_factura);
+                    foreach ($zileInainte as $ziInainte){
+                        // echo Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente - $ziInainte)->toDateString() . '<br>';
+                        // daca scandenta - ziua inainte = astazi, se salveaza in arrayul de comenzi pentru trimitere mesaj
+                        if (Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente - $ziInainte)->toDateString() == Carbon::today()->toDateString()){
+                            array_push($arrayIdComenziDeTrimisMesaj, $comanda->id,);
+                        }
+                    }
+                    // echo '<br><br>';
+                }
+            }
+        }
+
+        $comenziDeTrimisMesaj = Comanda::whereIn('id', $arrayIdComenziDeTrimisMesaj)->get();
+
+        // Daca nu este nici un memento de trimis pentru ziua curenta, se termina functia
+        if (count($comenziDeTrimisMesaj) === 0){
+            return;
+        }
+
+        // Trimitere email
+        foreach ($comenziDeTrimisMesaj as $comanda){
+            if (isset($comanda->client->email)){
+                $validator = Validator::make(['email' => $comanda->client->email], ['email' => 'email:rfc,dns',]);
+
+                if ($validator->passes()){
+                    // $subiect = $comanda->client->nume ?? '';
+                    $subiect = 'Scadență factură ';
+
+                    $mesaj = '';
+                    $mesaj .= 'Nume: ' . ($alerta->memento->nume ?? '') . '<br>';
+                    $mesaj .= 'Dată expirare: ' . ($alerta->memento->data_expirare ? Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY') : '') . '<br>';
+                    $mesaj .= 'Descriere: ' . ($alerta->memento->descriere ?? '') . '<br>';
+                    $mesaj .= 'Observații: ' . ($alerta->memento->observatii ?? '') . '<br>';
+                    $mesaj .= '<br>';
+
+                    // Trimitere alerta prin email
+                    \Mail::
+                        // to('masecoexpres@gmail.com')
+                        to($alerta->memento->email)
+                        // to('adima@validsoftware.ro')
+                        // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
+                        // ->bcc(['andrei.dima@usm.ro'])
+                        ->send(new \App\Mail\MementoAlerta($subiect, $mesaj)
+                    );
+                }
+            }
+        }
+
+            // echo $mesaj;
+    }
 }

@@ -350,6 +350,29 @@
                     </div>
                 </div>
             </div>
+            <div class="col-lg-2 mb-4">
+                <label for="client_data_factura" class="mb-0 ps-3">Dată factură</label>
+                <vue-datepicker-next
+                    data-veche="{{ old('client_data_factura', $comanda->client_data_factura) }}"
+                    nume-camp-db="client_data_factura"
+                    tip="date"
+                    value-type="YYYY-MM-DD"
+                    format="DD.MM.YYYY"
+                    :latime="{ width: '125px' }"
+                ></vue-datepicker-next>
+            </div>
+            <div class="col-lg-4 mb-4">
+                <label for="client_zile_inainte_de_scadenta_memento_factura" class="mb-0 ps-3"><small>Cu câte zile înainte de scadență să se trimită memento</small></label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('client_zile_inainte_de_scadenta_memento_factura') ? 'is-invalid' : '' }}"
+                    name="client_zile_inainte_de_scadenta_memento_factura"
+                    placeholder=""
+                    value="{{ old('client_zile_inainte_de_scadenta_memento_factura', $comanda->client_zile_inainte_de_scadenta_memento_factura) }}">
+                <small class="ps-3">
+                    *Se pot introduce mai multe cu virgulă între ele (Ex: 1,3,7)
+                </small>
+            </div>
         </div>
         <div class="row px-2 pt-4 pb-1 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
             <div class="col-lg-6 mb-4">

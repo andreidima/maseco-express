@@ -597,6 +597,22 @@ class ComandaController extends Controller
                 'client_procent_tva_id' => '',
                 'client_metoda_de_plata_id' => '',
                 'client_tarif_pe_km' => '',
+                'client_data_factura' => '',
+                'client_zile_inainte_de_scadenta_memento_factura' =>
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value){
+                            $zileInainte = preg_split ("/\,/", $value);
+                            foreach ($zileInainte as $ziInainte){
+                                if (!(intval($ziInainte) == $ziInainte)){
+                                    $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu este completat corect');
+                                }elseif ($ziInainte < 0){
+                                    $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu poate conține valori negative');
+                                }elseif ($ziInainte > 100){
+                                    $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu poate conține valori mai mari de 100');
+                                }
+                            }
+                        }
+                    },
                 'descriere_marfa' => 'nullable|max:500',
                 'camion_id' => '',
 
