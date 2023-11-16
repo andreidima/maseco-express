@@ -275,6 +275,7 @@ class CronJobController extends Controller
                         ->bcc(['pod@masecoexpres.net'])
                         ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
                     );
+                    echo $comanda->client->email;
                 }
             }
         }
