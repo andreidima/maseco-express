@@ -247,7 +247,7 @@ class CronJobController extends Controller
         if (count($comenziDeTrimisMesaj) === 0){
             return;
         }
-        dd($comenziDeTrimisMesaj);
+        // dd($comenziDeTrimisMesaj);
 
         // Trimitere email
         foreach ($comenziDeTrimisMesaj as $comanda){
