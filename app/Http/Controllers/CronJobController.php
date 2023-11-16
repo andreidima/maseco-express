@@ -247,6 +247,7 @@ class CronJobController extends Controller
         if (count($comenziDeTrimisMesaj) === 0){
             return;
         }
+        // dd($comenziDeTrimisMesaj);
 
         // Trimitere email
         foreach ($comenziDeTrimisMesaj as $comanda){
@@ -254,24 +255,25 @@ class CronJobController extends Controller
                 $validator = Validator::make(['email' => $comanda->client->email], ['email' => 'email:rfc,dns',]);
 
                 if ($validator->passes()){
-                    // $subiect = $comanda->client->nume ?? '';
-                    $subiect = 'Scadență factură ';
+                    $subiect = 'Scadență factură Maseco Expres';
+                    $mesaj = 'Bun găsit!
+                        <br><br>
+                        Îți reamintim că factura ta este scadentă la data de ' . Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente)->isoFormat('DD.MM.YYYY') .
+                        '<br><br>
+                        Mulțumim!
+                        <br>
+                        Echipa Maseco Expres
+                        <br>';
 
-                    $mesaj = '';
-                    $mesaj .= 'Nume: ' . ($alerta->memento->nume ?? '') . '<br>';
-                    $mesaj .= 'Dată expirare: ' . ($alerta->memento->data_expirare ? Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY') : '') . '<br>';
-                    $mesaj .= 'Descriere: ' . ($alerta->memento->descriere ?? '') . '<br>';
-                    $mesaj .= 'Observații: ' . ($alerta->memento->observatii ?? '') . '<br>';
-                    $mesaj .= '<br>';
-
-                    // Trimitere alerta prin email
+                    // Trimitere memento prin email
                     \Mail::
                         // to('masecoexpres@gmail.com')
-                        to($alerta->memento->email)
+                        to($comanda->client->email)
+                        // to(['andrei.dima@usm.ro'])
                         // to('adima@validsoftware.ro')
                         // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
-                        // ->bcc(['andrei.dima@usm.ro'])
-                        ->send(new \App\Mail\MementoAlerta($subiect, $mesaj)
+                        ->bcc(['pod@masecoexpres.net'])
+                        ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
                     );
                 }
             }
