@@ -241,7 +241,7 @@ class CronJobController extends Controller
             }
         }
 
-        $comenziDeTrimisMesaj = Comanda::whereIn('id', $arrayIdComenziDeTrimisMesaj)->get();
+        $comenziDeTrimisMesaj = Comanda::with('client')->whereIn('id', $arrayIdComenziDeTrimisMesaj)->get();
 
         // Daca nu este nici un memento de trimis pentru ziua curenta, se termina functia
         if (count($comenziDeTrimisMesaj) === 0){
