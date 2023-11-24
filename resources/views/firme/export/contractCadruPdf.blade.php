@@ -205,7 +205,8 @@
             <p style="text-indent: -20px;"><b>6.1.</b> Nerespectarea de către Cărăuș a obligațiilor privind livrarea mărfurilor, dacă nu sunt prevăzute expres ale sancțiuni, poate atrage anularea comenzii de către Expeditor, fără punere în întârziere, și/sau plata de către Cărăuș de daune interese egale cu dublul prețului cursei anulate, sau în cuantumul impus de beneficiarul transportului, și prejudicii de imagine în sumă de 500 euro.</p>
             <p style="text-indent: -20px;"><b>6.2.</b> Întârzierea efectuării transportului de către Cărăuș, poate atrage plata de daune interese de 100 euro pentru fiecare oră de întârziere, sau în cuantum egal cu cele aplicate Expeditorului de către beneficiarului transportului, dacă depășesc această valoare.</p>
             <p style="text-indent: -20px;"><b>6.3.</b> Neîndeplinirea de către Expeditor a obligațiilor privind plata prețului atrage plata către Cărăuș de penalități de întârziere în cuantum egal cu dobânda legală penalizatoare stabilită de BNR.</p>
-            <p style="text-indent: -20px;"><b>6.4.</b> Părțile pot agrea într-un alt mod asupra penalităților contractuale.</p>
+            <p style="text-indent: -20px;"><b>6.4.</b> Pentru cursele la care clientul nostru ne obligă să folosim aplicatia Zekju, șoferul are obligația la primirea link-ului de la noi să acceseze acel link urmând pașii. Nefolosirea link-ului gps duce la o penalitate de 50e.</p>
+            <p style="text-indent: -20px;"><b>6.5.</b> Părțile pot agrea într-un alt mod asupra penalităților contractuale.</p>
             <br>
 
             <h3 style="margin:0; text-align:center"><b>CAP. VII. ÎNCETAREA CONTRACTULUI</b></h3>
