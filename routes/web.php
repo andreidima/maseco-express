@@ -14,6 +14,7 @@ use App\Http\Controllers\ComandaStatusController;
 use App\Http\Controllers\FisierController;
 use App\Http\Controllers\MementoController;
 use App\Http\Controllers\FileManagerPersonalizatController;
+use App\Http\Controllers\FacturaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -63,6 +64,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('mesaje-trimise-sms', MesajTrimisSmsController::class,  ['parameters' => ['mesaje-trimise-sms' => 'mesaj_trimis_sms']]);
     Route::resource('/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
+    Route::resource('/facturi', FacturaController::class)->parameters(['facturi' => 'factura']);
 
     // Extras date cu Axios
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);

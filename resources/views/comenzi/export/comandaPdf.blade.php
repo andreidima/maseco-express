@@ -288,7 +288,7 @@
                     <td style="padding:0px 2px; margin:0rem; width:50%; border:1px solid black;">
                         PREȚ TRANSPORT: {{ $comanda->transportator_valoare_contract }} {{ $comanda->transportatorMoneda->nume ?? '' }}
                         {{-- Doar pentru romania se adauga mentiunea +TVA --}}
-                        @if ($comanda->transportator->tara_id === null || $comanda->transportator->tara_id === 0 || $comanda->transportator->tara_id === 141)
+                        @if (($comanda->transportator->tara_id ?? '') === null || ($comanda->transportator->tara_id ?? '') === 0 || ($comanda->transportator->tara_id ?? '') === 141)
                             +TVA
                         @endif
                         <br>
