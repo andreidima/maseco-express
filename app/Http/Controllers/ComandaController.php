@@ -720,12 +720,12 @@ class ComandaController extends Controller
             $sheet->setCellValue('G' . $rand, $locOperareDescarcare->oras);
             $sheet->setCellValue('H' . $rand, $locOperareDescarcare->tara->nume ?? '');
             if ($locOperareDescarcare->pivot->data_ora){
-                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('DD.MM.YYYY'));
+                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('DD/MM/YYYY'));
                 $sheet->setCellValue('J' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('HH:mm:ss'));
 
                 $durata = Carbon::parse($locOperareDescarcare->pivot->durata);
                 $sfarsit = Carbon::parse($locOperareDescarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
-                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD.MM.YYYY'));
+                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD/MM/YYYY'));
                 $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
             }
             // $sheet->setCellValue('N' . $rand, $locOperareDescarcare->pivot->observatii ?? '');
