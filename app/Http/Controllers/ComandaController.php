@@ -696,13 +696,13 @@ class ComandaController extends Controller
             $sheet->setCellValue('G' . $rand, $locOperareIncarcare->oras);
             $sheet->setCellValue('H' . $rand, $locOperareIncarcare->tara->nume ?? '');
             if ($locOperareIncarcare->pivot->data_ora){
-                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('DD.MM.YYYY'));
+                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('DD/MM/YYYY'));
                 $sheet->setCellValue('J' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('HH:mm:ss'));
 
                 $durata = Carbon::parse($locOperareIncarcare->pivot->durata);
                 // dd($durata);
                 $sfarsit = Carbon::parse($locOperareIncarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
-                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD.MM.YYYY'));
+                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD/MM/YYYY'));
                 $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
             }
             // $sheet->setCellValue('N' . $rand, $locOperareIncarcare->pivot->observatii ?? '');
