@@ -5,10 +5,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Camion extends Model
+class CursBnr extends Model
 {
     use HasFactory;
 
-    protected $table = 'curs_brn';
+    protected $table = 'curs_bnr';
     protected $guarded = [];
 }

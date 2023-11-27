@@ -64,7 +64,6 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('mesaje-trimise-sms', MesajTrimisSmsController::class,  ['parameters' => ['mesaje-trimise-sms' => 'mesaj_trimis_sms']]);
     Route::resource('/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
-    Route::resource('/facturi', FacturaController::class)->parameters(['facturi' => 'factura']);
 
     // Extras date cu Axios
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);
@@ -72,6 +71,11 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('/fisiere/{categorieFisier}', FisierController::class)->parameters(['{categorieFisier}' => 'fisier']);
     Route::get('/fisiere/{categorieFisier}/{fisier}/descarca', [FisierController::class, 'descarca']);
+
+    Route::post('/facturi/axios/cauta-comanda', [FacturaController::class, 'axiosCautaComanda']);
+    Route::resource('/facturi', FacturaController::class)->parameters(['facturi' => 'factura'])->only(['index', 'create', 'store', 'destroy']);
+    Route::any('/facturi/{factura}/anuleaza', [FacturaController::class, 'anuleaza']);
+    Route::get('/facturi/{factura}/export/{view_type}', [FacturaController::class, 'exportPDF']);
 
     // Clear application cache:
     Route::get('/clear-cache', function() {

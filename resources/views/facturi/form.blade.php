@@ -1,113 +1,143 @@
 @csrf
+
 @php
-    // dd(\Illuminate\Support\Arr::flatten($memento->alerte->pluck('data')));
+    use \Carbon\Carbon;
 @endphp
+
 <script type="application/javascript">
-    dateSelectate = {!! json_encode(old('dateSelectate', \Illuminate\Support\Arr::flatten($memento->alerte->pluck('data')))) !!}
-    // dateSelectate = {!! json_encode(\Illuminate\Support\Arr::flatten(old('dateSelectate', ($memento->alerte['data'] ?? [])))) !!}
+    comandaId = {!! json_encode(old('comandaId', "")) !!}
+    client = {!! json_encode(old('client', "")) !!}
+    cif = {!! json_encode(old('cif', "")) !!}
+    adresa = {!! json_encode(old('adresa', "")) !!}
+    tara = {!! json_encode(old('tara', "")) !!}
+    produse = {!! json_encode(old('produse', "")) !!}
+    valoare_contract = {!! json_encode(old('valoare_contract', "")) !!}
+    moneda = {!! json_encode(old('moneda', "")) !!}
+    procent_tva = {!! json_encode(old('procent_tva', "")) !!}
 </script>
 
-<div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px">
-    <div class="col-lg-7 px-4 py-2 mb-0">
-        <div class="row mb-0">
-            <div class="col-lg-12 mb-4">
-                <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
-                <input
-                    type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
-                    name="nume"
-                    value="{{ old('nume', $memento->nume) }}"
-                    required>
+<div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="creareFactura">
+    <div class="col-lg-12 px-4 py-2 mb-0">
+        <div class="row mb-4 justify-content-center">
+            <div class="col-lg-2 mb-4">
+                <label for="seria" class="mb-0 ps-3">Seria facturii<span class="text-danger">*</span></label>
+                <select name="seria"
+                    class="form-select bg-white rounded-3 {{ $errors->has('seria') ? 'is-invalid' : '' }}">
+                    <option selected></option>
+                    <option value="MAS" {{ (old('seria') === "MAS") ? 'selected' : '' }}>MAS</option>
+                    <option value="MSC" {{ (old('seria') === "MSC") ? 'selected' : '' }}>MSC</option>
+                    <option value="MSX" {{ (old('seria') === "MSX") ? 'selected' : '' }}>MSX</option>
+                </select>
             </div>
-            <div class="col-lg-5 mb-4">
-                <label for="telefon" class="mb-0 ps-3">Telefon către care se trimite alerta</label>
-                <input
-                    type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('telefon') ? 'is-invalid' : '' }}"
-                    name="telefon"
-                    value="{{ old('telefon', $memento->telefon) }}"
-                    required>
-            </div>
-            <div class="col-lg-5 mb-4">
-                <label for="email" class="mb-0 ps-3">Email către care se trimite alerta<span class="text-danger">*</span></label>
-                <input
-                    type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('email') ? 'is-invalid' : '' }}"
-                    name="email"
-                    value="{{ old('email', $memento->email) }}"
-                    required>
-            </div>
-            <div class="col-lg-2 mb-4 text-center" id="app">
-                <label for="data_expirare" class="mb-0 ps-0">Dată expirare</label>
+            <div class="col-lg-2 mb-4 text-center">
+                <label for="data" class="mb-0 ps-3">Data facturii<span class="text-danger">*</span></label>
                 <vue-datepicker-next
-                    data-veche="{{ old('data_expirare', $memento->data_expirare) }}"
-                    nume-camp-db="data_expirare"
+                    data-veche="{{ old('data', Carbon::now()) }}"
+                    nume-camp-db="data"
                     tip="date"
                     value-type="YYYY-MM-DD"
                     format="DD.MM.YYYY"
                     :latime="{ width: '125px' }"
                 ></vue-datepicker-next>
             </div>
-            <div class="col-lg-12 mb-4">
-                <label for="descriere" class="form-label mb-0 ps-3">Descriere</label>
-                <textarea class="form-control bg-white {{ $errors->has('descriere') ? 'is-invalid' : '' }}"
-                    name="descriere" rows="3">{{ old('descriere', $memento->descriere) }}</textarea>
-            </div>
-            <div class="col-lg-12 mb-4">
-                <label for="observatii" class="form-label mb-0 ps-3">Observații</label>
-                <textarea class="form-control bg-white {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
-                    name="observatii" rows="3">{{ old('observatii', $memento->observatii) }}</textarea>
+            <div class="col-lg-2 mb-4">
+                <label for="intocmit_de" class="mb-0 ps-3">Întocmit de<span class="text-danger">*</span></label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('intocmit_de') ? 'is-invalid' : '' }}"
+                    name="intocmit_de"
+                    value="{{ old('intocmit_de', auth()->user()->name) }}">
             </div>
         </div>
-    </div>
-    <div class="col-lg-5 px-4 py-2 mb-0">
-        <div class="row justify-content-center">
-            <div class="col-lg-12">
-                <div class="shadow-lg" style="border-radius: 40px 40px 40px 40px;">
-                    <div class="border border-secondary p-2 culoare2 text-center" style="border-radius: 40px 40px 0px 0px;">
-                        <span class="badge text-light fs-5">
-                            Alerte
-                        </span>
-                    </div>
-                </div>
-                <div class="card-body py-2 border border-secondary" style="border-radius: 0px 0px 40px 40px;">
-                    <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="mementoAlerte">
-                        <div class="col-lg-12 mb-3 d-flex justify-content-between align-items-center">
-                            <div class="d-flex align-items-center">
-                                <label for="data_selectare" class="mb-0 pe-2">Selectează data:</label>
-                                <vue-datepicker-next
-                                    {{-- data-veche="{{ old('data_selectare', $memento->data_selectare) }}"
-                                    nume-camp-db="data_selectare" --}}
-                                    tip="date"
-                                    value-type="YYYY-MM-DD"
-                                    format="DD.MM.YYYY"
-                                    :latime="{ width: '125px' }"
-                                    @trimitere_data_catre_parinte="captureDataDeLaCopil"
-                                ></vue-datepicker-next>
-                            </div>
-                            <div>
-                                <label for="data_expirare" class="mx-2 px-2 bg-success text-white rounded-3" @click="adaugaAlerta">Adaugă alertă</label>
-                            </div>
-                        </div>
-                        <div v-if="dateSelectate.length" class="col-lg-12 mb-4">
-                            <hr class="mb-4">
-                            <h4 class="card-header text-center mb-2">Alerte adăugate</h4>
-                            <div class="card-body p-0">
-                                <li v-for="data in dateSelectate" class="list-group-item d-flex justify-content-center align-items-center">
-                                    <input type="hidden" name="dateSelectate[]" :value=data>
-                                    <span class="badge bg-secondary me-1 py-0 px-1">
-                                        <h5 class="m-0">
-                                            @{{new Date(data).toLocaleDateString('ro-RO')}}
-                                        </h5>
-                                    </span>
-                                    <span type="button" class="badge badge-white p-0" title="Șterge data"
-                                        @click="stergeAlerta(data)"
-                                    ><i class="fas fa-minus-square text-danger fa-2x"></i></span>
-                                </li>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="row rounded-3 pt-4 d-flex justify-content-center"  style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
+            <div class="col-lg-12 mb-4 d-flex align-items-center justify-content-center">
+                <label for="comanda" class="mb-0 pe-2">Caută comanda</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3"
+                    style="width:150px"
+                    v-model="serieSiNumarDeCautat"
+                    placeholder="Ex: MSX-1000"
+                    v-on:keydown.enter.prevent=''
+                    v-on:keyup.enter="axiosCautaComanda()"
+                    >
+                <button type="button" class="btn btn-primary text-white" @click="axiosCautaComanda()">Caută</button>
+            </div>
+            <div v-if="afisareMesajAtentionareNegasireComanda" class="col-lg-12 mb-4 d-flex align-items-center justify-content-center">
+                <p class="px-2 rounded-3 bg-warning">Nu a fost gasită comanda!</p>
+            </div>
+            <div class="col-lg-3 mb-4">
+                <input
+                    type="hidden"
+                    class="form-control bg-white rounded-3 {{ $errors->has('comandaId') ? 'is-invalid' : '' }}"
+                    name="comandaId"
+                    v-model="comandaId">
+
+                <label for="client" class="mb-0 ps-3">Client<span class="text-danger">*</span></label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('client') ? 'is-invalid' : '' }}"
+                    name="client"
+                    v-model="client">
+            </div>
+            <div class="col-lg-2 mb-4">
+                <label for="cif" class="mb-0 ps-3">CIF</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('cif') ? 'is-invalid' : '' }}"
+                    name="cif"
+                    v-model="cif">
+            </div>
+            <div class="col-lg-5 mb-4">
+                <label for="adresa" class="mb-0 ps-3">Adresa</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('adresa') ? 'is-invalid' : '' }}"
+                    name="adresa"
+                    v-model="adresa">
+            </div>
+            <div class="col-lg-2 mb-4">
+                <label for="tara" class="mb-0 ps-3">Țara</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('tara') ? 'is-invalid' : '' }}"
+                    name="tara"
+                    v-model="tara">
+            </div>
+            <div class="col-lg-12 mb-4">
+                <label for="produse" class="mb-0 ps-3">Produse<span class="text-danger">*</span></label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('produse') ? 'is-invalid' : '' }}"
+                    name="produse"
+                    v-model="produse">
+            </div>
+            <div class="col-lg-2 mb-4">
+                <label for="valoare_contract" class="mb-0 ps-3">Valoare contract<span class="text-danger">*</span></label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('valoare_contract') ? 'is-invalid' : '' }}"
+                    name="valoare_contract"
+                    v-model="valoare_contract">
+            </div>
+            <div class="col-lg-2 mb-4">
+                <label for="moneda" class="mb-0 ps-3">Monedă<span class="text-danger">*</span></label>
+                <select name="moneda"
+                    v-model="moneda"
+                class="form-select bg-white rounded-3 {{ $errors->has('moneda') ? 'is-invalid' : '' }}">
+                    <option selected></option>
+                    @foreach ($monede as $moneda)
+                        <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-lg-2 mb-4">
+                <label for="procent_tva" class="mb-0 ps-3">Procent TVA<span class="text-danger">*</span></label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('procent_tva') ? 'is-invalid' : '' }}"
+                    name="procent_tva"
+                    v-model="procent_tva">
             </div>
         </div>
     </div>

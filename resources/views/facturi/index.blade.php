@@ -46,7 +46,9 @@
                     <thead class="text-white rounded culoare2">
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
-                            <th class="">Comanda</th>
+                            <th class="">Factura</th>
+                            <th class="">Client</th>
+                            <th class="">Valoare</th>
                             <th class="text-center">Data</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
@@ -58,28 +60,48 @@
                                     {{ ($facturi ->currentpage()-1) * $facturi ->perpage() + $loop->index + 1 }}
                                 </td>
                                 <td class="">
-                                    {{ $factura->comanda->transportator_contract ?? '' }}
+                                    {{ $factura->seria }} nr. {{ $factura->numar }}
+                                </td>
+                                <td class="">
+                                    {{ $factura->client_nume }}
+                                </td>
+                                <td class="">
+                                    {{ $factura->total_plata_moneda }} {{ $factura->moneda }}
                                 </td>
                                 <td class="text-center">
                                     {{ $factura->data ? \Carbon\Carbon::parse($factura->data)->isoFormat('DD.MM.YYYY') : '' }}
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-end">
-                                        <a href="{{ $factura->path() }}" class="flex me-1">
-                                            <span class="badge bg-success">Vizualizează</span>
-                                        </a>
-                                        <a href="{{ $factura->path() }}/modifica" class="flex me-1">
-                                            <span class="badge bg-primary">Modifică</span>
-                                        </a>
-                                        <div style="flex" class="">
-                                            <a
-                                                href="#"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#stergeFactura{{ $factura->id }}"
-                                                title="Șterge Factura"
-                                                >
-                                                <span class="badge bg-danger">Șterge</span>
-                                            </a>
+                                        @if ($factura->id === App\Models\Factura::where('seria', $factura->seria)->latest()->first()->id)
+                                            <div style="flex" class="ms-1">
+                                                <a
+                                                    href="#"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#stergeFactura{{ $factura->id }}"
+                                                    title="Șterge Factura"
+                                                    >
+                                                    <span class="badge bg-danger">Șterge</span>
+                                                </a>
+                                            </div>
+                                        @endif
+                                        <div style="" class="ms-1">
+                                            @if($factura->anulata === 1)
+                                                Anulată
+                                            @elseif($factura->anulare_factura_id_originala !== null)
+                                                Storno
+                                            @else
+                                                <a
+                                                    href="#"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#anuleazaFactura{{ $factura->id }}"
+                                                    title="Anulează Factura"
+                                                    >
+                                                        <span class="badge bg-warning">
+                                                            Anulează
+                                                        </span>
+                                                </a>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
@@ -99,13 +121,54 @@
         </div>
     </div>
 
+    {{-- Modalele pentru anulare factura --}}
+    @foreach ($facturi as $factura)
+        <div class="modal fade text-dark" id="anuleazaFactura{{ $factura->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white" id="exampleModalLabel">Factura seria {{ $factura->seria }} nr. {{ $factura->numar }}</b></h5>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{{ $factura->path() }}">
+                    @method('PATCH')
+                    @csrf
+                    <div class="modal-body" style="text-align:left;">
+                        Ești sigur ca vrei să anulezi Factura?
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label for="anulare_motiv" class="mb-0 pl-3">Motiv anulare:</label>
+                                <textarea class="form-control {{ $errors->has('anulare_motiv') ? 'is-invalid' : '' }}"
+                                    name="anulare_motiv"
+                                    rows="2"
+                                >{{ old('anulare_motiv', ($factura->anulare_motiv ?? '')) }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+
+                            <button
+                                type="submit"
+                                class="btn btn-danger text-white"
+                                >
+                                Anulează Factura
+                            </button>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endforeach
+
     {{-- Modalele pentru stergere factura --}}
     @foreach ($facturi as $factura)
         <div class="modal fade text-dark" id="stergeFactura{{ $factura->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                 <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white" id="exampleModalLabel">Factura pentru comanda: <b>{{ $factura->comanda->transportator_contract }}</b></h5>
+                    <h5 class="modal-title text-white" id="exampleModalLabel">Factura seria {{ $factura->seria }} nr. {{ $factura->numar }}</b></h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="text-align:left;">

@@ -17,13 +17,24 @@ class Factura extends Model
         return "/facturi/{$this->id}";
     }
 
-    public function comenzi()
+    // this is the recommended way for declaring event handlers
+    public static function boot() {
+        parent::boot();
+        self::deleting(function($factura) { // before delete() method call this
+             $factura->produse()->each(function($produs) {
+                $produs->delete(); // <-- direct deletion
+             });
+             // do the rest of the cleanup...
+        });
+    }
+
+    public function comanda()
     {
         return $this->belongsTo(Comanda::class, 'comanda_id');
     }
 
-    public function cursBnr()
+    public function produse()
     {
-        return $this->belongsTo(CursBnr::class, 'curs_bnr_id');
+        return $this->hasMany(FacturaProdus::class, 'factura_id');
     }
 }

@@ -111,11 +111,11 @@
                                 <i class="fa-solid fa-location-dot me-1"></i>Locuri de operare
                             </a>
                         </li>
-                        {{-- <li class="nav-item me-3">
+                        <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/facturi">
                                 <i class="fa-solid fa-file-invoice me-1"></i>Facturi
                             </a>
-                        </li> --}}
+                        </li>
                         <li class="nav-item me-3 dropdown">
                             <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-bars me-1"></i>
