@@ -388,6 +388,7 @@ const creareFactura = createApp({
             valoare_contract: valoare_contract,
             moneda: moneda,
             procent_tva: procent_tva,
+            zile_scadente: zile_scadente,
         }
     },
     methods: {
@@ -438,10 +439,10 @@ const creareFactura = createApp({
                         if (this.comandaGasita.client_moneda){
                             this.moneda = this.comandaGasita.client_moneda.id;
                         }
-
                         if (this.comandaGasita.client_procent_tva){
                             this.procent_tva = this.comandaGasita.client_procent_tva.nume;
                         }
+                        this.zile_scadente = this.comandaGasita.client_zile_scadente;
                     } else {
                         this.afisareMesajAtentionareNegasireComanda = true;
                     }

@@ -103,12 +103,14 @@ class FacturaController extends Controller
         $factura->moneda = Moneda::select('nume')->where('id', $request->moneda)->latest()->first()->nume;
         $factura->curs_moneda = CursBnr::select('valoare')->where('moneda_nume', $factura->moneda)->first()->valoare;
         $factura->intocmit_de = $request->intocmit_de;
-        $factura->total_tva_moneda = $request->valoare_contract * $request->procent_tva;
+        $factura->total_tva_moneda = $request->valoare_contract * $request->procent_tva / 100;
         $factura->total_fara_tva_moneda = $request->valoare_contract - $factura->total_tva_moneda;
         $factura->total_plata_moneda = $factura->total_tva_moneda + $factura->total_fara_tva_moneda;
         $factura->total_tva_lei = $factura->total_tva_moneda * $factura->curs_moneda;
         $factura->total_fara_tva_lei = $factura->total_fara_tva_moneda * $factura->curs_moneda;
         $factura->total_plata_lei = $factura->total_tva_lei + $factura->total_fara_tva_lei;
+        $factura->zile_scadente = $request->zile_scadente;
+        $factura->alerte_scadenta = $request->alerte_scadenta;
         $factura->save();
 
         $produs = new FacturaProdus;
@@ -202,8 +204,24 @@ class FacturaController extends Controller
                 'adresa' => 'nullable|max:500',
                 'tara' => 'nullable|max:500',
                 'produse' => 'required|max:500',
-                'valoare_contract' => 'required|numeric',
-                'procent_tva' => 'required|numeric'
+                'valoare_contract' => 'required|numeric|min:-9999999|max:9999999',
+                'procent_tva' => 'required|numeric|between:0,100',
+                'zile_scadente' => 'required|numeric|between:1,100',
+                'alerte_scadenta' =>
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value){
+                            $zileInainte = preg_split ("/\,/", $value);
+                            foreach ($zileInainte as $ziInainte){
+                                if (!(intval($ziInainte) == $ziInainte)){
+                                    $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu este completat corect');
+                                }elseif ($ziInainte < 0){
+                                    $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu poate conține valori negative');
+                                }elseif ($ziInainte > 100){
+                                    $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu poate conține valori mai mari de 100');
+                                }
+                            }
+                        }
+                    },
             ],
             [
                 // 'tara_id.required' => 'Câmpul țara este obligatoriu'

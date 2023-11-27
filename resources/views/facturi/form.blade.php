@@ -14,6 +14,7 @@
     valoare_contract = {!! json_encode(old('valoare_contract', "")) !!}
     moneda = {!! json_encode(old('moneda', "")) !!}
     procent_tva = {!! json_encode(old('procent_tva', "")) !!}
+    zile_scadente = {!! json_encode(old('zile_scadente', "")) !!}
 </script>
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="creareFactura">
@@ -49,7 +50,7 @@
                     value="{{ old('intocmit_de', auth()->user()->name) }}">
             </div>
         </div>
-        <div class="row rounded-3 pt-4 d-flex justify-content-center"  style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
+        <div class="row mb-4 rounded-3 pt-4 d-flex justify-content-center"  style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
             <div class="col-lg-12 mb-4 d-flex align-items-center justify-content-center">
                 <label for="comanda" class="mb-0 pe-2">Caută comanda</label>
                 <input
@@ -138,6 +139,28 @@
                     class="form-control bg-white rounded-3 {{ $errors->has('procent_tva') ? 'is-invalid' : '' }}"
                     name="procent_tva"
                     v-model="procent_tva">
+            </div>
+            <div class="col-lg-2 mb-4">
+                <label for="zile_scadente" class="mb-0 ps-3">Zile scadente</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('zile_scadente') ? 'is-invalid' : '' }}"
+                    name="zile_scadente"
+                    v-model="zile_scadente">
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-4 mb-4">
+                <label for="alerte_scadenta" class="mb-0 ps-3"><small>Cu câte zile înainte de scadență să se trimită memento</small></label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('alerte_scadenta') ? 'is-invalid' : '' }}"
+                    name="alerte_scadenta"
+                    placeholder=""
+                    value="{{ old('alerte_scadenta') }}">
+                <small class="ps-3">
+                    *Se pot introduce mai multe cu virgulă între ele (Ex: 1,3,7)
+                </small>
             </div>
         </div>
     </div>
