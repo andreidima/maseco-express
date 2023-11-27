@@ -61,7 +61,7 @@ class FacturaController extends Controller
     {
         $this->validateRequest($request);
 
-        // Curs BNR - se actualizeaza daca este cazil
+        // Curs BNR - se actualizeaza daca este cazul
         // Cursul bnr se actualizeaza pe site-ul BNR in fiecare zi imediat dupa ora 13:00
         $cursBnrEur = CursBnr::where('moneda_nume', 'EUR')->first();
         if ( (Carbon::now()->hour >= 14) && (Carbon::parse($cursBnrEur->updated_at)->lessThan(Carbon::now()->hour(14)))
@@ -123,7 +123,7 @@ class FacturaController extends Controller
         $produs->valoare_tva = $factura->total_tva_moneda;
         $produs->save();
 
-        return redirect($request->session()->get('facturaReturnUrl') ?? ('/facturi'))->with('status', 'Factura seria' . $factura->seria . ' nr. ' . $factura->numar . ' a fost adăugată cu succes!');
+        return redirect($request->session()->get('facturaReturnUrl') ?? ('/facturi'))->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->numar . ' a fost adăugată cu succes!');
     }
 
     /**
@@ -167,7 +167,12 @@ class FacturaController extends Controller
     {
         $factura->delete();
 
-        return back()->with('status', 'Factura seria' . $factura->seria . ' nr. ' . $factura->numar . ' a fost ștearsă cu succes!');
+        // Daca se sterge o factura Storno, cea originala se reactiveaza
+        if ($factura->anulare_factura_id_originala !== null){
+            Factura::find($factura->anulare_factura_id_originala)->update(['anulata' => 0]);;
+        }
+
+        return back()->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->numar . ' a fost ștearsă cu succes!');
     }
 
     /**
@@ -229,11 +234,16 @@ class FacturaController extends Controller
         $factura_storno->anulare_motiv = $request->anulare_motiv ?? '';
         $factura_storno->save();
 
-        $produs = $factura->produs;
+        $produs = $factura->produse()->first()->replicate();
+        $produs->factura_id = $factura_storno->id;
+        $produs->cantitate = -$produs->cantitate;
+        $produs->valoare = -$produs->valoare;
+        $produs->valoare_tva = -$produs->valoare_tva;
+        $produs->save();
 
         $factura->update(['anulata' => 1]);
 
-        return back()->with('status', 'Factura pentru „' . $factura->cumparator . '” a fost anulată și a fost generată Factură Storno cu success!');
+        return back()->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->seria . ' a fost anulată și a fost generată Factură Storno cu success!');
 
     }
 }

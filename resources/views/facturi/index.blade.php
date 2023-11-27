@@ -130,7 +130,7 @@
                     <h5 class="modal-title text-white" id="exampleModalLabel">Factura seria {{ $factura->seria }} nr. {{ $factura->numar }}</b></h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form method="POST" action="{{ $factura->path() }}">
+                <form method="POST" action="/facturi/{{ $factura->id }}/anuleaza">
                     @method('PATCH')
                     @csrf
                     <div class="modal-body" style="text-align:left;">
