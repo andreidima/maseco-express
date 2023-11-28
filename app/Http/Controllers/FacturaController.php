@@ -24,17 +24,21 @@ class FacturaController extends Controller
     {
         $request->session()->forget('facturaReturnUrl');
 
-        $searchComandaNumar = $request->searchComandaNumar;
+        $searchSeria = $request->searchSeria;
+        $searchNumar = $request->searchNumar;
 
         $query = Factura::with('comanda')
-            // ->when($searchNume, function ($query, $searchNume) {
-            //     return $query->where('nume', 'like', '%' . $searchNume . '%');
-            // })
+            ->when($searchSeria, function ($query, $searchSeria) {
+                return $query->where('seria', $searchSeria);
+            })
+            ->when($searchNumar, function ($query, $searchNumar) {
+                return $query->where('numar', $searchNumar);
+            })
             ->latest();
 
         $facturi = $query->simplePaginate(25);
 
-        return view('facturi.index', compact('facturi', 'searchComandaNumar'));
+        return view('facturi.index', compact('facturi', 'searchSeria', 'searchNumar'));
     }
 
     /**
@@ -100,6 +104,7 @@ class FacturaController extends Controller
         $factura->client_cif = $request->cif;
         $factura->client_adresa = $request->adresa;
         $factura->client_tara = $request->tara;
+        $factura->client_email = $request->email;
         $factura->moneda = Moneda::select('nume')->where('id', $request->moneda)->latest()->first()->nume;
         $factura->curs_moneda = CursBnr::select('valoare')->where('moneda_nume', $factura->moneda)->first()->valoare;
         $factura->intocmit_de = $request->intocmit_de;
@@ -171,7 +176,7 @@ class FacturaController extends Controller
 
         // Daca se sterge o factura Storno, cea originala se reactiveaza
         if ($factura->anulare_factura_id_originala !== null){
-            Factura::find($factura->anulare_factura_id_originala)->update(['anulata' => 0]);;
+            Factura::find($factura->anulare_factura_id_originala)->update(['anulata' => 0]);
         }
 
         return back()->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->numar . ' a fost ștearsă cu succes!');
@@ -203,6 +208,7 @@ class FacturaController extends Controller
                 'cif' => 'nullable|max:500',
                 'adresa' => 'nullable|max:500',
                 'tara' => 'nullable|max:500',
+                'email' => 'nullable|email:rfc,dns|max:500|required_with:alerte_scadenta',
                 'produse' => 'required|max:500',
                 'valoare_contract' => 'required|numeric|min:-9999999|max:9999999',
                 'procent_tva' => 'required|numeric|between:0,100',

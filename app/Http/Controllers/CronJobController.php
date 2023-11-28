@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Carbon\CarbonInterval;
 use Illuminate\Support\Facades\Mail;
 use App\Models\MementoAlerta;
+use App\Models\Factura;
 
 use Illuminate\Support\Facades\Validator;
 
@@ -220,45 +221,70 @@ class CronJobController extends Controller
             return ;
         }
 
-        $comenzi = Comanda::select('id', 'client_data_factura', 'client_zile_scadente', 'client_zile_inainte_de_scadenta_memento_factura')
-            ->whereDate('client_data_factura', '>', Carbon::now()->subDays(100))
+        // $comenzi = Comanda::select('id', 'client_data_factura', 'client_zile_scadente', 'client_zile_inainte_de_scadenta_memento_factura')
+        //     ->whereDate('client_data_factura', '>', Carbon::now()->subDays(100))
+        //     ->get();
+
+        // $arrayIdComenziDeTrimisMesaj = [];
+        // foreach ($comenzi as $comanda){
+        //     if ($comanda->client_zile_scadente){ // daca exista zile scadente
+        //         if (Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente) >= Carbon::now()){  // daca nu a trecut scadenta
+        //             $zileInainte = preg_split ("/\,/", $comanda->client_zile_inainte_de_scadenta_memento_factura);
+        //             foreach ($zileInainte as $ziInainte){
+        //                 // daca scandenta - ziua inainte = astazi, se salveaza in arrayul de comenzi pentru trimitere mesaj
+        //                 if (Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente - $ziInainte)->toDateString() == Carbon::today()->toDateString()){
+        //                     array_push($arrayIdComenziDeTrimisMesaj, $comanda->id,);
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
+
+        // $comenziDeTrimisMesaj = Comanda::with('client')->whereIn('id', $arrayIdComenziDeTrimisMesaj)->get();
+
+        // // Daca nu este nici un memento de trimis pentru ziua curenta, se termina functia
+        // if (count($comenziDeTrimisMesaj) === 0){
+        //     return;
+        // }
+
+
+        $facturi = Factura::select('id', 'data', 'zile_scadente', 'alerte_scadenta')
+            ->whereDate('data', '>', Carbon::now()->subDays(100))
             ->get();
 
-        $arrayIdComenziDeTrimisMesaj = [];
-        foreach ($comenzi as $comanda){
-            if ($comanda->client_zile_scadente){ // daca exista zile scadente
-                if (Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente) >= Carbon::now()){  // daca nu a trecut scadenta
-                    $zileInainte = preg_split ("/\,/", $comanda->client_zile_inainte_de_scadenta_memento_factura);
+
+        $arrayIdFacturiDeTrimisMesaj = [];
+        foreach ($facturi as $factura){
+            if ($factura->zile_scadente){ // daca exista zile scadente
+                if (Carbon::parse($factura->data)->addDays($factura->zile_scadente) >= Carbon::now()){  // daca nu a trecut scadenta
+                    $zileInainte = preg_split ("/\,/", $factura->alerte_scadenta);
                     foreach ($zileInainte as $ziInainte){
-                        // echo Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente - $ziInainte)->toDateString() . '<br>';
-                        // daca scandenta - ziua inainte = astazi, se salveaza in arrayul de comenzi pentru trimitere mesaj
-                        if (Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente - $ziInainte)->toDateString() == Carbon::today()->toDateString()){
-                            array_push($arrayIdComenziDeTrimisMesaj, $comanda->id,);
+                        // daca scandenta - ziua inainte = astazi, se salveaza in arrayul de facturi pentru trimitere mesaj
+                        if (Carbon::parse($factura->data)->addDays($factura->zile_scadente - $ziInainte)->toDateString() == Carbon::today()->toDateString()){
+                            array_push($arrayIdFacturiDeTrimisMesaj, $factura->id,);
                         }
                     }
-                    // echo '<br><br>';
                 }
             }
         }
 
-        $comenziDeTrimisMesaj = Comanda::with('client')->whereIn('id', $arrayIdComenziDeTrimisMesaj)->get();
-
+        $facturiDeTrimisMesaj = factura::with('comanda.client')->whereIn('id', $arrayIdFacturiDeTrimisMesaj)->get();
+dd($facturiDeTrimisMesaj);
         // Daca nu este nici un memento de trimis pentru ziua curenta, se termina functia
-        if (count($comenziDeTrimisMesaj) === 0){
+        if (count($facturiDeTrimisMesaj) === 0){
             return;
         }
-        // dd($comenziDeTrimisMesaj);
 
         // Trimitere email
-        foreach ($comenziDeTrimisMesaj as $comanda){
-            if (isset($comanda->client->email)){
-                $validator = Validator::make(['email' => $comanda->client->email], ['email' => 'email:rfc,dns',]);
+        foreach ($facturiDeTrimisMesaj as $factura){
+            if (isset($factura->client_email)){
+                $validator = Validator::make(['email' => $factura->client_email], ['email' => 'email:rfc,dns',]);
 
                 if ($validator->passes()){
                     $subiect = 'Scadență factură Maseco Expres';
                     $mesaj = 'Bun găsit!
                         <br><br>
-                        Îți reamintim că factura ta este scadentă la data de ' . Carbon::parse($comanda->client_data_factura)->addDays($comanda->client_zile_scadente)->isoFormat('DD.MM.YYYY') .
+                        Îți reamintim că factura ta este scadentă la data de ' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') .
                         '<br><br>
                         Mulțumim!
                         <br>
@@ -268,18 +294,15 @@ class CronJobController extends Controller
                     // Trimitere memento prin email
                     \Mail::
                         // to('masecoexpres@gmail.com')
-                        to($comanda->client->email)
+                        to($factura->client_email)
                         // to(['andrei.dima@usm.ro'])
                         // to('adima@validsoftware.ro')
                         // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
                         ->bcc(['pod@masecoexpres.net', 'adima@validsoftware.ro'])
                         ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
                     );
-                    echo $comanda->client->email;
                 }
             }
         }
-
-            // echo $mesaj;
     }
 }

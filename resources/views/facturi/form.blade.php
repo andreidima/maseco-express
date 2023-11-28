@@ -10,6 +10,7 @@
     cif = {!! json_encode(old('cif', "")) !!}
     adresa = {!! json_encode(old('adresa', "")) !!}
     tara = {!! json_encode(old('tara', "")) !!}
+    email = {!! json_encode(old('email', "")) !!}
     produse = {!! json_encode(old('produse', "")) !!}
     valoare_contract = {!! json_encode(old('valoare_contract', "")) !!}
     moneda = {!! json_encode(old('moneda', "")) !!}
@@ -67,7 +68,7 @@
             <div v-if="afisareMesajAtentionareNegasireComanda" class="col-lg-12 mb-4 d-flex align-items-center justify-content-center">
                 <p class="px-2 rounded-3 bg-warning">Nu a fost gasită comanda!</p>
             </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-6 mb-4">
                 <input
                     type="hidden"
                     class="form-control bg-white rounded-3 {{ $errors->has('comandaId') ? 'is-invalid' : '' }}"
@@ -81,7 +82,7 @@
                     name="client"
                     v-model="client">
             </div>
-            <div class="col-lg-2 mb-4">
+            <div class="col-lg-3 mb-4">
                 <label for="cif" class="mb-0 ps-3">CIF</label>
                 <input
                     type="text"
@@ -89,7 +90,15 @@
                     name="cif"
                     v-model="cif">
             </div>
-            <div class="col-lg-5 mb-4">
+            <div class="col-lg-3 mb-4">
+                <label for="tara" class="mb-0 ps-3">Țara</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('tara') ? 'is-invalid' : '' }}"
+                    name="tara"
+                    v-model="tara">
+            </div>
+            <div class="col-lg-9 mb-4">
                 <label for="adresa" class="mb-0 ps-3">Adresa</label>
                 <input
                     type="text"
@@ -97,13 +106,13 @@
                     name="adresa"
                     v-model="adresa">
             </div>
-            <div class="col-lg-2 mb-4">
-                <label for="tara" class="mb-0 ps-3">Țara</label>
+            <div class="col-lg-3 mb-4">
+                <label for="email" class="mb-0 ps-3">Email</label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('tara') ? 'is-invalid' : '' }}"
-                    name="tara"
-                    v-model="tara">
+                    class="form-control bg-white rounded-3 {{ $errors->has('email') ? 'is-invalid' : '' }}"
+                    name="email"
+                    v-model="email">
             </div>
             <div class="col-lg-12 mb-4">
                 <label for="produse" class="mb-0 ps-3">Produse<span class="text-danger">*</span></label>

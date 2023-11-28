@@ -384,6 +384,7 @@ const creareFactura = createApp({
             cif: cif,
             adresa: adresa,
             tara: tara,
+            email: email,
             produse: produse,
             valoare_contract: valoare_contract,
             moneda: moneda,
@@ -415,6 +416,7 @@ const creareFactura = createApp({
                         this.cif = this.comandaGasita.client.cif;
                         this.adresa = this.comandaGasita.client.adresa;
                         this.tara = this.comandaGasita.client.tara ? this.comandaGasita.client.tara.nume : '';
+                        this.email = this.comandaGasita.client.email;
 
                         this.produse = this.comandaGasita.client_contract ? (this.client_contract + ' // ') : '';
                         for (var i = 0; i < this.comandaGasita.locuri_operare_incarcari.length; i++) {

@@ -12,8 +12,11 @@
                 <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form justify-content-center">
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control rounded-3" id="searchComandaNumar" name="searchComandaNumar" placeholder="Comanda:serie-numar" value="{{ $searchComandaNumar }}">
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control rounded-3" id="searchSeria" name="searchSeria" placeholder="Seria" value="{{ $searchSeria }}">
+                        </div>
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control rounded-3" id="searchNumar" name="searchNumar" placeholder="Număr" value="{{ $searchNumar }}">
                         </div>
                     </div>
                     <div class="row custom-search-form justify-content-center">
@@ -60,7 +63,7 @@
                                     {{ ($facturi ->currentpage()-1) * $facturi ->perpage() + $loop->index + 1 }}
                                 </td>
                                 <td class="">
-                                    {{ $factura->seria }} nr. {{ $factura->numar }}
+                                    {{ $factura->seria }} {{ $factura->numar }}
                                 </td>
                                 <td class="">
                                     {{ $factura->client_nume }}
