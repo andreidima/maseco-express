@@ -72,8 +72,9 @@ class FacturaController extends Controller
         // Curs BNR - se actualizeaza daca este cazul
         // Cursul bnr se actualizeaza pe site-ul BNR in fiecare zi imediat dupa ora 13:00
         $cursBnrEur = CursBnr::where('moneda_nume', 'EUR')->first();
-        if ( (Carbon::now()->hour >= 14) && (Carbon::parse($cursBnrEur->updated_at)->lessThan(Carbon::now()->hour(14)))
-            || (Carbon::now()->hour < 14) && (Carbon::parse($cursBnrEur->updated_at)->lessThan(Carbon::yesterday()->hour(14)))
+        if (!($cursBnrEur && $cursBnrEur->updated_at)
+            || ((Carbon::now()->hour >= 14) && (Carbon::parse($cursBnrEur->updated_at)->lessThan(Carbon::now()->hour(14))))
+            || ((Carbon::now()->hour < 14) && (Carbon::parse($cursBnrEur->updated_at)->lessThan(Carbon::yesterday()->hour(14))))
         ){
             $xml = @simplexml_load_file('https://www.bnr.ro/nbrfxrates.xml'); // @ - error supression
             if (!$xml){ // daca xml nu este citit corect de pe site-ul bnr, se intoarce inapoi cu eroare
