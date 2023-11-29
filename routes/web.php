@@ -75,7 +75,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/facturi/axios/cauta-comanda', [FacturaController::class, 'axiosCautaComanda']);
     Route::resource('/facturi', FacturaController::class)->parameters(['facturi' => 'factura'])->only(['index', 'create', 'store', 'destroy']);
     Route::any('/facturi/{factura}/anuleaza', [FacturaController::class, 'anuleaza']);
-    Route::get('/facturi/{factura}/export/{view_type}', [FacturaController::class, 'exportPDF']);
+    Route::get('/facturi/{factura}/export/{view_type}', [FacturaController::class, 'exportPdf']);
 
     // Clear application cache:
     Route::get('/clear-cache', function() {

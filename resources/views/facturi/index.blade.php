@@ -49,7 +49,7 @@
                     <thead class="text-white rounded culoare2">
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
-                            <th class="">Factura</th>
+                            <th class="">Seria nr.</th>
                             <th class="">Client</th>
                             <th class="">Valoare</th>
                             <th class="text-center">Data</th>
@@ -88,6 +88,11 @@
                                                 </a>
                                             </div>
                                         @endif
+                                        <div class="ms-1">
+                                            <a href="{{ $factura->path() }}/export/pdf" target="_blank" class="flex">
+                                                <span class="badge bg-success">Factura</span>
+                                            </a>
+                                        </div>
                                         <div style="" class="ms-1">
                                             @if($factura->anulata === 1)
                                                 Anulată

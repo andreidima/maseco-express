@@ -108,6 +108,8 @@ class FacturaController extends Controller
         $factura->moneda = Moneda::select('nume')->where('id', $request->moneda)->latest()->first()->nume;
         $factura->curs_moneda = CursBnr::select('valoare')->where('moneda_nume', $factura->moneda)->first()->valoare;
         $factura->intocmit_de = $request->intocmit_de;
+        $factura->valoare_contract = $request->valoare_contract;
+        $factura->procent_tva = $request->procent_tva;
         $factura->total_tva_moneda = $request->valoare_contract * $request->procent_tva / 100;
         $factura->total_fara_tva_moneda = $request->valoare_contract - $factura->total_tva_moneda;
         $factura->total_plata_moneda = $factura->total_tva_moneda + $factura->total_fara_tva_moneda;
@@ -269,5 +271,18 @@ class FacturaController extends Controller
 
         return back()->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->seria . ' a fost anulată și a fost generată Factură Storno cu success!');
 
+    }
+
+    public function exportPdf(Request $request, Factura $factura)
+    {
+        if ($request->view_type === 'html') {
+            return view('facturi.export.facturaPdf', compact('factura'));
+        } elseif ($request->view_type === 'pdf') {
+            $pdf = \PDF::loadView('facturi.export.facturaPdf', compact('factura'))
+                ->setPaper('a4', 'portrait');
+            $pdf->getDomPDF()->set_option("enable_php", true);
+            // return $pdf->download('Contract ' . $comanda->transportator_contract . '.pdf');
+            return $pdf->stream();
+        }
     }
 }

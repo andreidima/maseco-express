@@ -350,7 +350,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-2 mb-4">
+            {{-- <div class="col-lg-2 mb-4">
                 <label for="client_data_factura" class="mb-0 ps-3">Dată factură</label>
                 <vue-datepicker-next
                     data-veche="{{ old('client_data_factura', $comanda->client_data_factura) }}"
@@ -372,7 +372,7 @@
                 <small class="ps-3">
                     *Se pot introduce mai multe cu virgulă între ele (Ex: 1,3,7)
                 </small>
-            </div>
+            </div> --}}
         </div>
         <div class="row px-2 pt-4 pb-1 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
             <div class="col-lg-6 mb-4">

@@ -269,7 +269,7 @@ class CronJobController extends Controller
         }
 
         $facturiDeTrimisMesaj = factura::with('comanda.client')->whereIn('id', $arrayIdFacturiDeTrimisMesaj)->get();
-dd($facturiDeTrimisMesaj);
+
         // Daca nu este nici un memento de trimis pentru ziua curenta, se termina functia
         if (count($facturiDeTrimisMesaj) === 0){
             return;
