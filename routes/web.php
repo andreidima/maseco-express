@@ -73,8 +73,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/fisiere/{categorieFisier}/{fisier}/descarca', [FisierController::class, 'descarca']);
 
     Route::post('/facturi/axios/cauta-comanda', [FacturaController::class, 'axiosCautaComanda']);
-    Route::resource('/facturi', FacturaController::class)->parameters(['facturi' => 'factura'])->only(['index', 'create', 'store', 'destroy']);
-    Route::any('/facturi/{factura}/anuleaza', [FacturaController::class, 'anuleaza']);
+    Route::resource('/facturi', FacturaController::class)->parameters(['facturi' => 'factura']);
+    Route::any('/facturi/{factura}/storneaza', [FacturaController::class, 'storneaza']);
     Route::get('/facturi/{factura}/export/{view_type}', [FacturaController::class, 'exportPdf']);
 
     // Clear application cache:

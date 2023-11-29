@@ -34,6 +34,11 @@
             margin-left: 1cm;
             margin-right: 1cm;
             margin-bottom: 1cm;
+
+            background-image: url({{ public_path('images/logo-2-background-factura.jpg') }});
+            background-repeat: no-repeat;
+            background-size: 700px;
+            background-position: center;
         }
 
         * {
@@ -192,28 +197,35 @@
                         1
                     </td>
                     <td style="text-align:left">
-                        {{ $factura->produse()->first()->denumire ?? '' }}
+                        {{ $factura->produse->first()->denumire ?? '' }}
                     </td>
                     <td style="text-align:center">
-                        {{ $factura->produse()->first()->um ?? '' }}
+                        {{ $factura->produse->first()->um ?? '' }}
                     </td>
                     <td style="text-align:center">
-                        {{ $factura->produse()->first()->cantitate ?? '' }}
+                        {{ $factura->produse->first()->cantitate ?? '' }}
                     </td>
                     <td style="text-align:right">
-                        {{ $factura->produse()->first()->pret_unitar ?? '' }}
+                        {{ $factura->produse->first()->pret_unitar ?? '' }}
                     </td>
                     <td style="text-align:right">
-                        {{ $factura->produse()->first()->valoare ?? '' }}
+                        {{ $factura->produse->first()->valoare ?? '' }}
                     </td>
                     <td style="text-align:right">
-                        {{ $factura->produse()->first()->valoare_tva ?? '' }}
+                        {{ $factura->produse->first()->valoare_tva ?? '' }}
                     </td>
                 </tr>
                 @if ($factura->moneda !== "RON")
                 <tr>
                     <td colspan="7">
                         Curs 1 {{ $factura->moneda }} = {{ $factura->curs_moneda }} lei
+                    </td>
+                </tr>
+                @endif
+                @if ($factura->facturaOriginala)
+                <tr>
+                    <td colspan="7" style="font-weight: bold">
+                        Storno factura seria {{ $factura->facturaOriginala->seria }} nr. {{ $factura->facturaOriginala->numar }} din data {{ $factura->facturaOriginala->data ? Carbon::parse($factura->facturaOriginala->data)->isoFormat("DD/MM/YYYY") : '' }}</b>
                     </td>
                 </tr>
                 @endif

@@ -6,16 +6,16 @@
 
 <script type="application/javascript">
     comandaId = {!! json_encode(old('comandaId', "")) !!}
-    client = {!! json_encode(old('client', "")) !!}
-    cif = {!! json_encode(old('cif', "")) !!}
-    adresa = {!! json_encode(old('adresa', "")) !!}
-    tara = {!! json_encode(old('tara', "")) !!}
-    email = {!! json_encode(old('email', "")) !!}
-    produse = {!! json_encode(old('produse', "")) !!}
-    valoare_contract = {!! json_encode(old('valoare_contract', "")) !!}
-    moneda = {!! json_encode(old('moneda', "")) !!}
-    procent_tva = {!! json_encode(old('procent_tva', "")) !!}
-    zile_scadente = {!! json_encode(old('zile_scadente', "")) !!}
+    client = {!! json_encode(old('client', ($factura->client_nume ?? ""))) !!}
+    cif = {!! json_encode(old('cif', ($factura->client_cif ?? ""))) !!}
+    adresa = {!! json_encode(old('adresa', ($factura->client_adresa ?? ""))) !!}
+    tara = {!! json_encode(old('tara', ($factura->client_tara ?? ""))) !!}
+    email = {!! json_encode(old('email', ($factura->client_email ?? ""))) !!}
+    produse = {!! json_encode(old('produse', ($factura->produse->first()->denumire ?? ""))) !!}
+    valoare_contract = {!! json_encode(old('valoare_contract', ($factura->valoare_contract ?? ""))) !!}
+    moneda = {!! json_encode(old('moneda', ($factura->moneda ?? ""))) !!}
+    procent_tva = {!! json_encode(old('procent_tva', ($factura->procent_tva ?? ""))) !!}
+    zile_scadente = {!! json_encode(old('zile_scadente', ($factura->zile_scadente ?? ""))) !!}
 </script>
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="creareFactura">
@@ -24,17 +24,28 @@
             <div class="col-lg-2 mb-4">
                 <label for="seria" class="mb-0 ps-3">Seria facturii<span class="text-danger">*</span></label>
                 <select name="seria"
-                    class="form-select bg-white rounded-3 {{ $errors->has('seria') ? 'is-invalid' : '' }}">
+                    class="form-select bg-white rounded-3 {{ $errors->has('seria') ? 'is-invalid' : '' }}"
+                    {{ str_contains(url()->current(), '/modifica') ? 'disabled' : '' }}>
                     <option selected></option>
-                    <option value="MAS" {{ (old('seria') === "MAS") ? 'selected' : '' }}>MAS</option>
-                    <option value="MSC" {{ (old('seria') === "MSC") ? 'selected' : '' }}>MSC</option>
-                    <option value="MSX" {{ (old('seria') === "MSX") ? 'selected' : '' }}>MSX</option>
+                    <option value="MAS" {{ (old('seria', $factura->seria) === "MAS") ? 'selected' : '' }}>MAS</option>
+                    <option value="MSC" {{ (old('seria', $factura->seria) === "MSC") ? 'selected' : '' }}>MSC</option>
+                    <option value="MSX" {{ (old('seria', $factura->seria) === "MSX") ? 'selected' : '' }}>MSX</option>
                 </select>
             </div>
+            @if (str_contains(url()->current(), '/modifica'))
+                <div class="col-lg-2 mb-4">
+                    <label for="numar" class="mb-0 ps-3">Număr</label>
+                    <input
+                        type="text"
+                        class="form-control bg-white rounded-3 {{ $errors->has('numar') ? 'is-invalid' : '' }}"
+                        value="{{ old('numar', $factura->numar) }}"
+                        disabled>
+                </div>
+            @endif
             <div class="col-lg-2 mb-4 text-center">
                 <label for="data" class="mb-0 ps-3">Data facturii<span class="text-danger">*</span></label>
                 <vue-datepicker-next
-                    data-veche="{{ old('data', Carbon::now()) }}"
+                    data-veche="{{ old('data', $factura->data) }}"
                     nume-camp-db="data"
                     tip="date"
                     value-type="YYYY-MM-DD"
@@ -48,7 +59,8 @@
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('intocmit_de') ? 'is-invalid' : '' }}"
                     name="intocmit_de"
-                    value="{{ old('intocmit_de', auth()->user()->name) }}">
+                    {{-- value="{{ old('intocmit_de', auth()->user()->name) }}"> --}}
+                    value="{{ old('intocmit_de', $factura->intocmit_de) }}">
             </div>
         </div>
         <div class="row mb-4 rounded-3 pt-4 d-flex justify-content-center"  style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
@@ -166,7 +178,7 @@
                     class="form-control bg-white rounded-3 {{ $errors->has('alerte_scadenta') ? 'is-invalid' : '' }}"
                     name="alerte_scadenta"
                     placeholder=""
-                    value="{{ old('alerte_scadenta') }}">
+                    value="{{ old('alerte_scadenta', $factura->alerte_scadenta) }}">
                 <small class="ps-3">
                     *Se pot introduce mai multe cu virgulă între ele (Ex: 1,3,7)
                 </small>
@@ -177,7 +189,7 @@
         <div class="row">
             <div class="col-lg-12 mb-2 d-flex justify-content-center">
                 <button type="submit" ref="submit" class="btn btn-lg btn-primary text-white me-3 rounded-3">{{ $buttonText }}</button>
-                <a class="btn btn-lg btn-secondary rounded-3" href="{{ Session::get('mementoReturnUrl') }}">Renunță</a>
+                <a class="btn btn-lg btn-secondary rounded-3" href="{{ Session::get('facturaReturnUrl') }}">Renunță</a>
             </div>
         </div>
     </div>

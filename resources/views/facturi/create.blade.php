@@ -19,7 +19,7 @@
                     <form  class="needs-validation" novalidate method="POST" action="/facturi">
 
                                 @include ('facturi.form', [
-                                    'factura' => new App\Models\Factura,
+                                    // 'factura' => new App\Models\Factura,
                                     'buttonText' => 'Adaugă Factura'
                                 ])
                     </form>

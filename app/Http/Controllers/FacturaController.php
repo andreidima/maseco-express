@@ -50,9 +50,13 @@ class FacturaController extends Controller
     {
         $request->session()->get('facturaReturnUrl') ?? $request->session()->put('facturaReturnUrl', url()->previous());
 
+        $factura = new Factura;
+        $factura->data = Carbon::now();
+        $factura->intocmit_de = auth()->user()->name;
+
         $monede = Moneda::select('id', 'nume')->get();
 
-        return view('facturi.create', compact('monede'));
+        return view('facturi.create', compact('factura', 'monede'));
     }
 
     /**
@@ -153,6 +157,13 @@ class FacturaController extends Controller
      */
     public function edit(Request $request, Factura $factura)
     {
+        $request->session()->get('facturaReturnUrl') ?? $request->session()->put('facturaReturnUrl', url()->previous());
+
+        $factura->moneda = Moneda::where('nume', $factura->moneda)->first()->id ?? '';
+
+        $monede = Moneda::select('id', 'nume')->get();
+
+        return view('facturi.edit', compact('factura', 'monede'));
     }
 
     /**
@@ -164,6 +175,39 @@ class FacturaController extends Controller
      */
     public function update(Request $request, Factura $factura)
     {
+        $this->validateRequest($request);
+// dd($request);
+        $datePersonale = DB::table('date_personale')->where('id', 1)->first();
+
+        $factura->data = $request->data;
+        $factura->client_nume = $request->client;
+        $factura->client_cif = $request->cif;
+        $factura->client_adresa = $request->adresa;
+        $factura->client_tara = $request->tara;
+        $factura->client_email = $request->email;
+        $factura->moneda = Moneda::select('nume')->where('id', $request->moneda)->latest()->first()->nume;
+        $factura->curs_moneda = CursBnr::select('valoare')->where('moneda_nume', $factura->moneda)->first()->valoare;
+        $factura->intocmit_de = $request->intocmit_de;
+        $factura->valoare_contract = $request->valoare_contract;
+        $factura->procent_tva = $request->procent_tva;
+        $factura->total_tva_moneda = $request->valoare_contract * $request->procent_tva / 100;
+        $factura->total_fara_tva_moneda = $request->valoare_contract - $factura->total_tva_moneda;
+        $factura->total_plata_moneda = $factura->total_tva_moneda + $factura->total_fara_tva_moneda;
+        $factura->total_tva_lei = $factura->total_tva_moneda * $factura->curs_moneda;
+        $factura->total_fara_tva_lei = $factura->total_fara_tva_moneda * $factura->curs_moneda;
+        $factura->total_plata_lei = $factura->total_tva_lei + $factura->total_fara_tva_lei;
+        $factura->zile_scadente = $request->zile_scadente;
+        $factura->alerte_scadenta = $request->alerte_scadenta;
+        $factura->save();
+
+        $produs = $factura->produse()->first();
+        $produs->denumire = $request->produse;
+        $produs->pret_unitar = $factura->total_fara_tva_moneda;
+        $produs->valoare = $factura->total_fara_tva_moneda;
+        $produs->valoare_tva = $factura->total_tva_moneda;
+        $produs->save();
+
+        return redirect($request->session()->get('facturaReturnUrl') ?? ('/facturi'))->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->numar . ' a fost modificată cu succes!');
     }
 
     /**
@@ -177,8 +221,8 @@ class FacturaController extends Controller
         $factura->delete();
 
         // Daca se sterge o factura Storno, cea originala se reactiveaza
-        if ($factura->anulare_factura_id_originala !== null){
-            Factura::find($factura->anulare_factura_id_originala)->update(['anulata' => 0]);
+        if ($factura->stornare_factura_id_originala !== null){
+            Factura::find($factura->stornare_factura_id_originala)->update(['stornata' => 0]);
         }
 
         return back()->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->numar . ' a fost ștearsă cu succes!');
@@ -202,10 +246,10 @@ class FacturaController extends Controller
 
         return $request->validate(
             [
-                'seria' => 'required|max:5',
+                'seria' => $request->isMethod('post') ? 'required|max:5' : '',
                 'data' => 'required',
                 'intocmit_de' => 'required|max:500',
-                'comandaId' => 'required',
+                'comandaId' => '',
                 'client' => 'required|max:500',
                 'cif' => 'nullable|max:500',
                 'adresa' => 'nullable|max:500',
@@ -213,6 +257,7 @@ class FacturaController extends Controller
                 'email' => 'nullable|email:rfc,dns|max:500|required_with:alerte_scadenta',
                 'produse' => 'required|max:500',
                 'valoare_contract' => 'required|numeric|min:-9999999|max:9999999',
+                'moneda' => 'required',
                 'procent_tva' => 'required|numeric|between:0,100',
                 'zile_scadente' => 'required|numeric|between:1,100',
                 'alerte_scadenta' =>
@@ -246,7 +291,7 @@ class FacturaController extends Controller
         ]);
     }
 
-    public function anuleaza(Request $request, Factura $factura = null)
+    public function storneaza(Request $request, Factura $factura = null)
     {
         $factura_storno = $factura->replicate();
         $factura_storno->numar = (Factura::select('numar')->where('seria', $factura->seria)->latest()->first()->numar ?? 0) + 1;
@@ -256,8 +301,8 @@ class FacturaController extends Controller
         $factura_storno->total_tva_lei = -$factura->total_tva_lei;
         $factura_storno->total_plata_moneda = -$factura->total_plata_moneda;
         $factura_storno->total_plata_lei = -$factura->total_plata_lei;
-        $factura_storno->anulare_factura_id_originala = $factura->id;
-        $factura_storno->anulare_motiv = $request->anulare_motiv ?? '';
+        $factura_storno->stornare_factura_id_originala = $factura->id;
+        $factura_storno->stornare_motiv = $request->stornare_motiv ?? '';
         $factura_storno->save();
 
         $produs = $factura->produse()->first()->replicate();
@@ -267,14 +312,16 @@ class FacturaController extends Controller
         $produs->valoare_tva = -$produs->valoare_tva;
         $produs->save();
 
-        $factura->update(['anulata' => 1]);
+        $factura->update(['stornata' => 1]);
 
-        return back()->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->seria . ' a fost anulată și a fost generată Factură Storno cu success!');
+        return back()->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->seria . ' a fost stornată și a fost generată Factură Storno cu success!');
 
     }
 
     public function exportPdf(Request $request, Factura $factura)
     {
+        $factura = Factura::with('produse', 'facturaOriginala')->find($factura->id);
+
         if ($request->view_type === 'html') {
             return view('facturi.export.facturaPdf', compact('factura'));
         } elseif ($request->view_type === 'pdf') {

@@ -37,4 +37,11 @@ class Factura extends Model
     {
         return $this->hasMany(FacturaProdus::class, 'factura_id');
     }
+
+    // Daca este factura STORNO, se incarca si factura originala
+    public function facturaOriginala()
+    {
+        return $this->hasOne(Factura::class, 'id', 'stornare_factura_id_originala');
+    }
+
 }
