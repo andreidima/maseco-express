@@ -258,10 +258,17 @@ class CronJobController extends Controller
             if ($factura->zile_scadente){ // daca exista zile scadente
                 if (Carbon::parse($factura->data)->addDays($factura->zile_scadente) >= Carbon::now()){  // daca nu a trecut scadenta
                     $zileInainte = preg_split ("/\,/", $factura->alerte_scadenta);
+                    // echo "Zile scadente (" . $factura->zile_scadente . ")este integer? " . is_int($factura->zile_scadente) . '<br>';
                     foreach ($zileInainte as $ziInainte){
-                        // daca scandenta - ziua inainte = astazi, se salveaza in arrayul de facturi pentru trimitere mesaj
-                        if (Carbon::parse($factura->data)->addDays($factura->zile_scadente - $ziInainte)->toDateString() == Carbon::today()->toDateString()){
-                            array_push($arrayIdFacturiDeTrimisMesaj, $factura->id,);
+                        $ziInainte = intval($ziInainte);
+                        if (is_int($ziInainte)) {
+                            // dd($factura->zile_scadente, intval($ziInainte));
+                            // echo $ziInainte . " este integer? " . is_int($factura->zile_scadente) . '<br>';
+                            // echo Carbon::parse($factura->data)->addDays($factura->zile_scadente - $ziInainte) . '<br>' . Carbon::today();
+                            // daca scandenta - ziua inainte = astazi, se salveaza in arrayul de facturi pentru trimitere mesaj
+                            if (Carbon::parse($factura->data)->addDays($factura->zile_scadente - $ziInainte)->eq(Carbon::today())){
+                                    array_push($arrayIdFacturiDeTrimisMesaj, $factura->id);
+                                }
                         }
                     }
                 }
