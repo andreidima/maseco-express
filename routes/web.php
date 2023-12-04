@@ -72,6 +72,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/fisiere/{categorieFisier}', FisierController::class)->parameters(['{categorieFisier}' => 'fisier']);
     Route::get('/fisiere/{categorieFisier}/{fisier}/descarca', [FisierController::class, 'descarca']);
 
+    Route::get('/facturi/axios/cauta-client', [FacturaController::class, 'axiosCautaClient']);
     Route::post('/facturi/axios/cauta-comanda', [FacturaController::class, 'axiosCautaComanda']);
     Route::resource('/facturi', FacturaController::class)->parameters(['facturi' => 'factura']);
     Route::any('/facturi/{factura}/storneaza', [FacturaController::class, 'storneaza']);

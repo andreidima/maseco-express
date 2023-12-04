@@ -375,29 +375,143 @@ const creareFactura = createApp({
     el: '#creareFactura',
     data() {
         return {
-            serieSiNumarDeCautat: '',
+            // cautarea si aducerea clientului din baza de date
+            firmaClient: '',
+            // firmaClientId: client_id,
+            // firmaClientNume: '',
+            firmeClienti: firmeClienti,
+            firmeClientiListaAutocomplete: [],
+
+            // datele clientului ce se adauga la factura
+            client_id: client_id,
+            client_nume: client_nume,
+            client_cif: client_cif,
+            client_adresa: client_adresa,
+            client_tara_id: client_tara_id,
+            client_telefon: client_telefon,
+            client_email: client_email,
+
+            // detele comenzii ce se adauga in lista de produse
+            numarDeCautat: '',
             comandaGasita: '',
             afisareMesajAtentionareNegasireComanda: false,
 
+            produsGasit: '',
+            produsPretulIncludeTva: false,
+
             comandaId: comandaId,
-            client: client,
-            cif: cif,
-            adresa: adresa,
-            tara: tara,
-            email: email,
             produse: produse,
-            valoare_contract: valoare_contract,
+
             moneda: moneda,
-            procent_tva: procent_tva,
+
+            procenteTva: procenteTva,
+            procent_tva_id: procent_tva_id,
+
             zile_scadente: zile_scadente,
+
+            showInfoAlerteScadenta: false, // arata sau ascunde din formular informatiile suplimentare despre cum trebuie completat campul alerte_scadenta
+
+            total_fara_tva_moneda: 0,
+            total_tva_moneda: 0,
+            total_moneda: 0,
+            total_fara_tva_lei: 0,
+            total_tva_lei: 0,
+            total_lei: 0,
+        }
+    },
+    watch: {
+        produse: {
+            handler: function (newValue) {
+                this.calculeazaSumeTotale();
+            },
+            deep: true
+        }
+        // produse() {
+        //     this.calculeazaSumeTotale();
+        //     console.log('aa');
+        // },
+        // {deep : true},
+    },
+    created: function () {
+        if (this.firmaClientId) {
+            for (var i = 0; i < this.firmeClienti.length; i++) {
+                if (this.firmeClienti[i].id == this.firmaClientId) {
+                    this.client_nume = this.firmeClienti[i].nume;
+                }
+            }
         }
     },
     methods: {
+        autocompleteFirmeClienti() {
+            this.firmeClientiListaAutocomplete = [];
+
+            for (var i = 0; i < this.firmeClienti.length; i++) {
+                if (this.firmeClienti[i].nume && this.firmeClienti[i].nume.toLowerCase().includes(this.client_nume.toLowerCase())) {
+                    this.firmeClientiListaAutocomplete.push(this.firmeClienti[i]);
+                }
+            }
+        },
+        axiosCautaClient(firmaId) {
+            axios.get('/facturi/axios/cauta-client', {
+                params: {
+                    client_id: firmaId,
+                }
+            })
+                .then(
+                    response => {
+                        if (response.data.client) {
+                            this.firmaClient = response.data.client;
+                            this.adaugaClientLaFactura();
+                        }
+                        this.firmeClientiListaAutocomplete = ''
+                    }
+                );
+        },
+        adaugaClientLaFactura() {
+            if (this.firmaClient){
+                this.client_id = this.firmaClient.id;
+                this.client_nume = this.firmaClient.nume;
+                this.client_cif = this.firmaClient.cif;
+                this.client_adresa = this.firmaClient.adresa;
+                this.client_tara_id = this.firmaClient.tara_id;
+                this.client_email = this.firmaClient.email;
+            }
+        },
+        adaugaDateFacturareLaFactura() {
+            if (this.comandaGasita) {
+                if (this.comandaGasita.client_moneda) {
+                    this.moneda = this.comandaGasita.client_moneda.id;
+                }
+                this.procent_tva_id = this.comandaGasita.client_procent_tva_id;
+                this.zile_scadente = this.comandaGasita.client_zile_scadente;
+            }
+        },
+        adaugaProdusLaFactura() {
+            if (this.comandaGasita) {
+                let pret_unitar_fara_tva = (this.produsPretulIncludeTva ? (this.comandaGasita.client_valoare_contract / 1.19) : this.comandaGasita.client_valoare_contract);
+                let valoare_tva = this.comandaGasita.client_valoare_contract - pret_unitar_fara_tva;
+
+                let produs =
+                {
+                    comanda_id: this.comandaGasita.id,
+                    // nr_crt: this.produse.length + 1,
+                    denumire: this.produsGasit,
+                    um: 'buc',
+                    cantitate: 1,
+                    procent_tva_id: this.comandaGasita.client_procent_tva_id,
+                    pretul_include_tva: 0,
+                    pret_unitar_fara_tva: pret_unitar_fara_tva,
+                    valoare: pret_unitar_fara_tva,
+                    valoare_tva: valoare_tva
+                };
+                this.produse.push(produs);
+            }
+        },
         axiosCautaComanda() {
             axios
                 .post('/facturi/axios/cauta-comanda',
                     {
-                        serieSiNumarDeCautat: this.serieSiNumarDeCautat
+                        numarDeCautat: this.numarDeCautat
                     },
                     {
                         params: {
@@ -411,48 +525,82 @@ const creareFactura = createApp({
                     if (this.comandaGasita && this.comandaGasita.client) {
                         this.afisareMesajAtentionareNegasireComanda = false;
 
-                        this.comandaId = this.comandaGasita.id
-                        this.client = this.comandaGasita.client.nume;
-                        this.cif = this.comandaGasita.client.cif;
-                        this.adresa = this.comandaGasita.client.adresa;
-                        this.tara = this.comandaGasita.client.tara ? this.comandaGasita.client.tara.nume : '';
-                        this.email = this.comandaGasita.client.email;
+                        this.firmaClient = this.comandaGasita.client;
 
-                        this.produse = this.comandaGasita.client_contract ? (this.client_contract + ' // ') : '';
+                        // this.axiosCautaClient(this.comandaGasita.client.id);
+
+                        this.comandaId = this.comandaGasita.id;
+
+                        this.produsGasit = this.comandaGasita.client_contract ? (this.comandaGasita.client_contract + ' // ') : '';
                         for (var i = 0; i < this.comandaGasita.locuri_operare_incarcari.length; i++) {
-                            if (this.comandaGasita.locuri_operare_incarcari[i].pivot){
-                                this.produse += this.comandaGasita.locuri_operare_incarcari[i].pivot.data_ora.slice(8, 10) + '.' + this.comandaGasita.locuri_operare_incarcari[i].pivot.data_ora.slice(5, 7) + '.' + this.comandaGasita.locuri_operare_incarcari[i].pivot.data_ora.slice(0, 4);
+                            if (this.comandaGasita.locuri_operare_incarcari[i].pivot && this.comandaGasita.locuri_operare_incarcari[i].pivot.data_ora){
+                                this.produsGasit += this.comandaGasita.locuri_operare_incarcari[i].pivot.data_ora.slice(8, 10) + '.' + this.comandaGasita.locuri_operare_incarcari[i].pivot.data_ora.slice(5, 7) + '.' + this.comandaGasita.locuri_operare_incarcari[i].pivot.data_ora.slice(0, 4);
                             }
-                            this.produse += ' ' + this.comandaGasita.locuri_operare_incarcari[i].oras;
-                            this.produse += ' ' + this.comandaGasita.locuri_operare_incarcari[i].tara.nume + ' / ';
+                            if (this.comandaGasita.locuri_operare_incarcari[i].oras){
+                                this.produsGasit += ' ' + this.comandaGasita.locuri_operare_incarcari[i].oras;
+                            }
+                            if (this.comandaGasita.locuri_operare_incarcari[i].tara && this.comandaGasita.locuri_operare_incarcari[i].tara.nume) {
+                                this.produsGasit += ' ' + this.comandaGasita.locuri_operare_incarcari[i].tara.nume + ' / ';
+                            }
                         }
                         for (var i = 0; i < this.comandaGasita.locuri_operare_descarcari.length; i++) {
                             if (this.comandaGasita.locuri_operare_descarcari[i].pivot) {
-                                this.produse += this.comandaGasita.locuri_operare_descarcari[i].pivot.data_ora.slice(8, 10) + '.' + this.comandaGasita.locuri_operare_descarcari[i].pivot.data_ora.slice(5, 7) + '.' + this.comandaGasita.locuri_operare_descarcari[i].pivot.data_ora.slice(0, 4);
+                                this.produsGasit += this.comandaGasita.locuri_operare_descarcari[i].pivot.data_ora.slice(8, 10) + '.' + this.comandaGasita.locuri_operare_descarcari[i].pivot.data_ora.slice(5, 7) + '.' + this.comandaGasita.locuri_operare_descarcari[i].pivot.data_ora.slice(0, 4);
                             }
-                            this.produse += ' ' + this.comandaGasita.locuri_operare_descarcari[i].oras;
-                            this.produse += ' ' + this.comandaGasita.locuri_operare_descarcari[i].tara.nume;
+                            if (this.comandaGasita.locuri_operare_descarcari[i].oras) {
+                                this.produsGasit += ' ' + this.comandaGasita.locuri_operare_descarcari[i].oras;
+                            }
+                            if (this.comandaGasita.locuri_operare_descarcari[i].tara && this.comandaGasita.locuri_operare_descarcari[i].tara.nume) {
+                                this.produsGasit += ' ' + this.comandaGasita.locuri_operare_descarcari[i].tara.nume;
+                            }
                             if (i < this.comandaGasita.locuri_operare_descarcari.length - 1){
-                                this.produse += ' / '
+                                this.produsGasit += ' / '
                             }
                         }
 
                         this.valoare_contract = this.comandaGasita.client_valoare_contract;
-                        if (this.comandaGasita.client_moneda){
-                            this.moneda = this.comandaGasita.client_moneda.id;
-                        }
-                        if (this.comandaGasita.client_procent_tva){
+                        if (this.comandaGasita.client_procent_tva) {
                             this.procent_tva = this.comandaGasita.client_procent_tva.nume;
                         }
-                        this.zile_scadente = this.comandaGasita.client_zile_scadente;
                     } else {
                         this.afisareMesajAtentionareNegasireComanda = true;
                     }
 
                 });
         },
+        calculeazaSumeTotale() {
+            this.total_fara_tva_moneda = 0;
+            this.total_tva_moneda = 0;
+            this.total_moneda = 0;
+            this.total_fara_tva_lei = 0;
+            this.total_tva_lei = 0;
+            this.total_lei = 0;
+
+            if (this.produse){
+                for (var i = 0; i < this.produse.length; i++) {
+                    console.log(this.produse[i]);
+                    this.total_fara_tva_moneda += this.produse[i].cantitate * this.produse[i].pret_unitar_fara_tva;
+                    this.total_tva_moneda += this.produse[i].cantitate * this.produse[i].valoare_tva;
+                };
+                this.total_moneda += this.total_fara_tva_moneda + this.total_tva_moneda;
+                this.total_fara_tva_lei = 0;
+                this.total_tva_lei = 0;
+                this.total_lei = 0;
+
+
+
+                // cantitate: 1,
+                //     pret_unitar_fara_tva: pret_unitar_fara_tva,
+                //         valoare: pret_unitar_fara_tva,
+                //             valoare_tva: valoare_tva
+            }
+
+        }
+
     }
 });
+
+creareFactura.directive("clickOut", clickOutside);
 creareFactura.component('vue-datepicker-next', VueDatepickerNext);
 if (document.getElementById('creareFactura') != null) {
     creareFactura.mount('#creareFactura');

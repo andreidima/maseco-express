@@ -10,9 +10,10 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <title>Factura</title>
     <style>
-        /* html {
-            margin: 0px 0px;
-        } */
+        html {
+            /* margin: 0px 0px; */
+            line-height: 70%;
+        }
         /** Define the margins of your page **/
         @page {
             margin: 0px 0px;
@@ -88,7 +89,7 @@
 
         <div style="">
 
-            <table style="font-size: 10px; border:1px solid black;">
+            <table style="border:1px solid black;">
                 <tr valign="" style="">
                     <td style="border-width:0px; padding:5px; margin:0rem; width:36%;">
                         Furnizor: {{ $factura->furnizor_nume }}
@@ -103,11 +104,11 @@
                         <br>
                         SWIFT CODE : {{ $factura->furnizor_swift_code }}
                         <br>
-                        IBAN (EUR): {{ $factura->furnizor_iban_eur }}
+                        IBAN (EUR): <span style="font-size: 10px">{{ $factura->furnizor_iban_eur }}</span>
                         <br>
                         Banca: {{ $factura->furnizor_iban_eur_banca }}
                         <br>
-                        IBAN (RON): {{ $factura->furnizor_iban_ron }}
+                        IBAN (RON): <span style="font-size: 10px">{{ $factura->furnizor_iban_ron }}</span>
                         <br>
                         Banca: {{ $factura->furnizor_iban_ron_banca }}
                         <br>
@@ -137,37 +138,37 @@
                 </tr>
             </table>
 
-            <table style="font-size: 10px; border:1px solid black;">
+            <table style="border:1px solid black;">
                 <tr valign="" style="">
-                    <td style="text-align:center">
+                    <th>
                         Nr. crt
-                    </td>
-                    <td style="text-align:center">
+                    </th>
+                    <th>
                         Denumirea produselor sau a serviciilor
-                    </td>
-                    <td style="text-align:center">
+                    </th>
+                    <th>
                         U.M.
-                    </td>
-                    <td style="text-align:center">
+                    </th>
+                    <th>
                         Cant.
-                    </td>
-                    <td style="text-align:center">
+                    </th>
+                    <th>
                         Pret unitar
                         <br>
-                        (fara TVA)
+                        (fara&nbsp;TVA)
                         <br>
                         -{{ $factura->moneda }}-
-                    </td>
-                    <td style="text-align:center">
+                    </th>
+                    <th>
                         Valoarea
                         <br>
                         -{{ $factura->moneda }}-
-                    </td>
-                    <td style="text-align:center">
+                    </th>
+                    <th>
                         Valoarea TVA
                         <br>
                         -{{ $factura->moneda }}-
-                    </td>
+                    </th>
                 </tr>
                 <tr>
                     <td style="text-align:center">
@@ -202,7 +203,7 @@
                     <td style="text-align:center">
                         {{ $factura->produse->first()->um ?? '' }}
                     </td>
-                    <td style="text-align:center">
+                    <td style="text-align:right">
                         {{ $factura->produse->first()->cantitate ?? '' }}
                     </td>
                     <td style="text-align:right">
@@ -241,11 +242,11 @@
                         <br>
                         Mijloc transport: -
                         <br>
-                        Expedierea s-a efectuat in prezenta noastra la data de ....................ora.........
+                        Expedierea s-a efectuat in prezenta noastra la data de ...................... ora ...........
                         <br>
                         Semnaturile:
                     </td>
-                    <td>
+                    <td valign="middle">
                         Total
                     </td>
                     <td style="text-align: right">
@@ -289,10 +290,10 @@
 
             </table>
 
-            <p style="margin:0px 0px; padding:0px 0px 0px 10px; font-size: 10px; color:rgb(100, 100, 100);">
+            <p style="margin:0px 0px; padding:0px 0px 0px 10px; color:rgb(100, 100, 100);">
                 Factura este valabila fara semnatura si stampila, conform art. 319 alin. 29 din legea 227/2015.
             </p>
-            <p style="margin:0px 0px; padding:0px 10px 0px 10px; text-align:right; font-size: 10px; color:rgb(100, 100, 100);">
+            <p style="margin:0px 0px; padding:0px 10px 0px 10px; text-align:right; color:rgb(100, 100, 100);">
             @if ($factura->moneda === "RON")
                 <a href="https://validsoftware.ro/dezvoltare-aplicatii-web-personalizate/" class="text-white" target="_blank" style="text-decoration:none; color:cornflowerblue">
                     Aplicație web</a> dezvoltată de
