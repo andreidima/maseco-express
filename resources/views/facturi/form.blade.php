@@ -28,14 +28,14 @@
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="creareFactura">
     <div class="col-lg-12 px-4 py-2 mb-0">
-        <div class="row mb-0 rounded-3 justify-content-center"
+        <div class="row mb-4 rounded-3 justify-content-center"
             {{-- style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod" --}}
             >
-            <div class="col-lg-12 mb-3 d-flex align-items-center justify-content-center">
+            <div class="col-lg-12 mb-0 d-flex align-items-center justify-content-center">
                 <label for="comanda" class="mb-0 pe-2">Comanda: </label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3"
+                    class="form-control form-control-sm bg-white rounded-3"
                     style="width:150px"
                     v-model="numarDeCautat"
                     placeholder="Nr. comanda"
@@ -43,39 +43,43 @@
                     v-on:keyup.enter="axiosCautaComanda()"
                     autofocus
                     >
-                <button type="button" class="btn btn-primary text-white" @click="axiosCautaComanda()">Caută</button>
+                <button type="button" class="btn btn-sm btn-primary text-white" @click="axiosCautaComanda()">Caută</button>
             </div>
-            <div v-if="afisareMesajAtentionareNegasireComanda" class="col-lg-12 mb-4 d-flex align-items-center justify-content-center">
-                <p class="px-2 rounded-3 bg-warning">Nu a fost gasită comanda!</p>
+            <div v-if="afisareMesajAtentionareNegasireComanda" class="col-lg-12 mt-2 mb-0 d-flex align-items-center justify-content-center">
+                <p class="mb-0 px-2 rounded-3 bg-warning">Nu a fost gasită comanda!</p>
             </div>
         </div>
-    </div>
-    <div v-if="comandaGasita" class="col-lg-12 px-4 py-2 mb-0">
-        <div class="row mb-0 py-0 rounded-3 justify-content-center" style="background-color:lightyellow; border-left:0px solid; border-color:goldenrod">
+        <div v-if="comandaGasita" class="row mb-4 py-0 rounded-3 justify-content-center" style="border:1px solid #e9ecef;">
+        {{-- <div class="row mb-0 py-0 rounded-3 justify-content-center" style="background-color:rgb(253, 253, 185); border-left:0px solid; border-color:goldenrod"> --}}
             <div class="col-lg-12 mb-0 px-1">
-                <button type="button" class="py-0 px-1 rounded-3 btn btn-sm text-white" style="background-color:goldenrod;" @click="adaugaDateFacturareLaFactura()">Adaugă la factură</button>
-                Date facturare: Moneda: @{{ comandaGasita.client_moneda ? comandaGasita.client_moneda.nume : '' }} / Zile scadente: @{{ comandaGasita.client_zile_scadente }} / Procent TVA: @{{ comandaGasita.client_procent_tva ? comandaGasita.client_procent_tva.nume : '' }}
+                <button type="button" class="py-0 px-1 btn btn-sm btn-primary"
+                    {{-- style="background-color:goldenrod;"  --}}
+                    @click="preiaDateFacturare()">Preia datele de facturare</button>
+                Moneda: @{{ comandaGasita.client_moneda ? comandaGasita.client_moneda.nume : '' }} / Zile scadente: @{{ comandaGasita.client_zile_scadente }} / Procent TVA: @{{ comandaGasita.client_procent_tva ? comandaGasita.client_procent_tva.nume : '' }}
             </div>
-        </div>
-        <div class="row mb-0 py-0 rounded-3 d-flex justify-content-center" style="background-color:#ddffff; border-left:0px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
+        {{-- </div> --}}
+        {{-- <div class="row mb-0 py-0 rounded-3 d-flex justify-content-center" style="background-color:#ddffff; border-left:0px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px"> --}}
             <div class="col-lg-12 mb-0 px-1">
-                <button type="button" class="py-0 px-1 rounded-3 btn btn-sm text-white" style="background-color:#2196F3;" @click="adaugaClientLaFactura()">Adaugă la factură</button>
-                Client: <b>@{{ firmaClient.nume }}</b> / CIF: @{{ firmaClient.cif  }} / Țara @{{ firmaClient.tara ? firmaClient.tara.nume : '' }} / Adresa @{{ firmaClient.cif }} / Telefon @{{ firmaClient.telefon }} / Email @{{ firmaClient.email }}
+                <button type="button" class="py-0 px-1 btn btn-sm btn-primary"
+                    {{-- style="background-color:#2196F3;"  --}}
+                    @click="preiaDateClient()">Preia datele clientului</button>
+                @{{ firmaClient.nume }} / CIF: @{{ firmaClient.cif  }} / Țara @{{ firmaClient.tara ? firmaClient.tara.nume : '' }} / Adresa @{{ firmaClient.cif }} / Telefon @{{ firmaClient.telefon }} / Email @{{ firmaClient.email }}
             </div>
-        </div>
-        <div class="row mb-0 py-0 rounded-3 d-flex justify-content-center" style="background-color:#B8FFB8; border-left:0px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
+        {{-- </div> --}}
+        {{-- <div class="row mb-0 py-0 rounded-3 d-flex justify-content-center" style="background-color:#B8FFB8; border-left:0px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px"> --}}
             <div class="col-lg-12 mb-0 px-1 align-items-center">
-                <button type="button" class="py-0 px-1 rounded-3 btn btn-sm text-white" style="background-color:mediumseagreen;" @click="adaugaProdusLaFactura()">Adaugă la factură</button>
-                Produs: @{{ produsGasit }} / Preț: @{{ comandaGasita.client_valoare_contract }} / TVA: @{{ comandaGasita.client_procent_tva ? comandaGasita.client_procent_tva.nume : '' }}
+                <button type="button" class="py-0 px-1 btn btn-sm btn-primary"
+                    {{-- style="background-color:mediumseagreen;"  --}}
+                    @click="preiaDateProdus()">Preia datele produsului</button>
+                @{{ produsGasitDenumire }} / Preț: @{{ comandaGasita.client_valoare_contract }} / TVA: @{{ comandaGasita.client_procent_tva ? comandaGasita.client_procent_tva.nume : '' }}
             </div>
         </div>
-    </div>
-    <div class="col-lg-12 px-4 py-2 mb-0">
-        <div class="row mb-2 rounded-3 justify-content-center" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
-            <div class="col-lg-2 mb-4">
+        {{-- <div class="row mb-0 py-4 rounded-3 justify-content-center" style="background-color:rgb(253, 253, 185); border-left:6px solid; border-color:goldenrod"> --}}
+        <div class="row mb-4 py-0 rounded-3 justify-content-center" style="border:1px solid #e9ecef; border-left:0.25rem #ec8575 solid">
+            <div class="col-lg-2 mb-1">
                 <label for="seria" class="mb-0 ps-3">Seria facturii<span class="text-danger">*</span></label>
                 <select name="seria"
-                    class="form-select bg-white rounded-3 {{ $errors->has('seria') ? 'is-invalid' : '' }}"
+                    class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('seria') ? 'is-invalid' : '' }}"
                     {{ str_contains(url()->current(), '/modifica') ? 'disabled' : '' }}>
                     <option selected></option>
                     <option value="MAS" {{ (old('seria', $factura->seria) === "MAS") ? 'selected' : '' }}>MAS</option>
@@ -84,7 +88,7 @@
                 </select>
             </div>
             @if (str_contains(url()->current(), '/modifica'))
-                <div class="col-lg-2 mb-4">
+                <div class="col-lg-2 mb-1">
                     <label for="numar" class="mb-0 ps-3">Număr</label>
                     <input
                         type="text"
@@ -93,7 +97,7 @@
                         disabled>
                 </div>
             @endif
-            <div class="col-lg-2 mb-4 text-center">
+            <div class="col-lg-2 mb-0 text-center">
                 <label for="data" class="mb-0 ps-0">Data facturii<span class="text-danger">*</span></label>
                 <vue-datepicker-next
                     data-veche="{{ old('data', $factura->data) }}"
@@ -104,37 +108,37 @@
                     :latime="{ width: '125px' }"
                 ></vue-datepicker-next>
             </div>
-            <div class="col-lg-2 mb-4">
+            <div class="col-lg-2 mb-1">
                 <label for="moneda" class="mb-0 ps-3">Monedă<span class="text-danger">*</span></label>
                 <select name="moneda"
                     v-model="moneda"
-                class="form-select bg-white rounded-3 {{ $errors->has('moneda') ? 'is-invalid' : '' }}">
+                class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('moneda') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($monede as $moneda)
                         <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-2 mb-4">
+            <div class="col-lg-2 mb-1">
                 <label for="procent_tva_id" class="mb-0 ps-3">Procent TVA<span class="text-danger">*</span></label>
                 <select name="procent_tva_id"
                     v-model="procent_tva_id"
-                class="form-select bg-white rounded-3 {{ $errors->has('procent_tva_id') ? 'is-invalid' : '' }}">
+                class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('procent_tva_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($procenteTva as $procent_tva)
                         <option value="{{ $procent_tva->id }}">{{ $procent_tva->nume }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-2 mb-4">
+            <div class="col-lg-2 mb-1">
                 <label for="zile_scadente" class="mb-0 ps-3">Zile scadente</label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('zile_scadente') ? 'is-invalid' : '' }}"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('zile_scadente') ? 'is-invalid' : '' }}"
                     name="zile_scadente"
                     v-model="zile_scadente">
             </div>
-            <div class="col-lg-2 mb-4">
+            <div class="col-lg-2 mb-1">
                 <label for="alerte_scadenta" class="mb-0 ps-3">
                     Alerte scadență
                     <i class="fa-solid fa-circle-info text-primary" title="Se poate seta cu câte zile înainte de scadență să se trimită mementouri. Se pot introduce mai multe mementouri, cu virgulă între ele (Ex: 1,3,7)"
@@ -142,7 +146,7 @@
                 </label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('alerte_scadenta') ? 'is-invalid' : '' }}"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('alerte_scadenta') ? 'is-invalid' : '' }}"
                     name="alerte_scadenta"
                     placeholder="Ex: 1,3,7"
                     value="{{ old('alerte_scadenta', $factura->alerte_scadenta) }}">
@@ -157,14 +161,15 @@
                 </div>
             </div>
         </div>
-        <div class="row mb-2 rounded-3 pt-4 d-flex justify-content-center" style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
+        {{-- <div class="row mb-0 py-4 rounded-3 d-flex justify-content-center" style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px"> --}}
+        <div class="row mb-4 py-0 rounded-3 justify-content-center" style="border:1px solid #e9ecef; border-left:0.25rem #6a6ba0 solid">
             <div class="col-lg-6">
                 <div class="row">
                     <div class="col-lg-12" style="position:relative;" v-click-out="() => firmeClientiListaAutocomplete = ''">
                         <label for="client_nume" class="mb-0 ps-3">Client<span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <div class="input-group-prepend d-flex align-items-center">
-                                <div v-if="!client_id" class="input-group-text" id="client_nume">?</div>
+                        <div class="input-group d-flex">
+                            <div class="input-group-prepend d-flex align-items-center h-100">
+                                <div v-if="!client_id" class="input-group-text py-1 px-2" id="client_nume">?</div>
                                 <div v-if="client_id" class="input-group-text p-2 bg-success text-white" id="client_nume"><i class="fa-solid fa-check" style="height:100%"></i></div>
                             </div>
                             <input
@@ -176,7 +181,7 @@
                                 v-model="client_nume"
                                 v-on:focus="autocompleteFirmeClienti();"
                                 v-on:keyup="autocompleteFirmeClienti(); this.client_id = '';"
-                                class="form-control bg-white rounded-3 {{ $errors->has('client_nume') ? 'is-invalid' : '' }}"
+                                class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_nume') ? 'is-invalid' : '' }}"
                                 name="client_nume"
                                 placeholder="Client"
                                 autocomplete="off"
@@ -198,64 +203,128 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-3 mb-1">
                 <label for="client_cif" class="mb-0 ps-3">CIF</label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('client_cif') ? 'is-invalid' : '' }}"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_cif') ? 'is-invalid' : '' }}"
                     name="client_cif"
                     v-model="client_cif">
             </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-3 mb-1">
                 <label for="client_tara_id" class="mb-0 ps-3">Țara</label>
                 <select name="client_tara_id"
                     v-model="client_tara_id"
-                class="form-select bg-white rounded-3 {{ $errors->has('client_tara_id') ? 'is-invalid' : '' }}">
+                class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('client_tara_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($tari as $tara)
                         <option value="{{ $tara->id }}">{{ $tara->nume }}</option>
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-6 mb-4">
+            <div class="col-lg-6 mb-1">
                 <label for="client_adresa" class="mb-0 ps-3">Adresa</label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('client_adresa') ? 'is-invalid' : '' }}"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_adresa') ? 'is-invalid' : '' }}"
                     name="client_adresa"
                     v-model="client_adresa">
             </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-3 mb-1">
                 <label for="client_telefon" class="mb-0 ps-3">Telefon</label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('client_telefon') ? 'is-invalid' : '' }}"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_telefon') ? 'is-invalid' : '' }}"
                     name="client_telefon"
                     v-model="client_telefon">
             </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-3 mb-1">
                 <label for="client_email" class="mb-0 ps-3">Email</label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('client_email') ? 'is-invalid' : '' }}"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_email') ? 'is-invalid' : '' }}"
                     name="client_email"
                     v-model="client_email">
             </div>
         </div>
-        <div class="row mb-4 rounded-3 p-0 d-flex justify-content-center" style="background-color:#B8FFB8; border-left:0px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
-            <div class="col-lg-12 p-0 table-responsive rounded">
-                <table class="table table-striped table-hover rounded">
-                    <thead class="text-white rounded" style="background-color:mediumseagreen;">
-                        <tr class="" style="padding:2rem">
-                            <th class="">#</th>
-                            <th class="text-center">Denumire produs / serviciu</th>
-                            <th class="text-center">U.M.</th>
-                            <th class="text-center">Cant.</th>
-                            <th class="text-center">Preț <br />(fără TVA)</th>
+        {{-- <div class="row mb-0 py-4 rounded-3 d-flex justify-content-center" style="background-color:#B8FFB8; border-left:0px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px"> --}}
+        <div class="row mb-4 py-0 rounded-3 justify-content-center" style="border:1px solid #e9ecef; border-left:0.25rem #ec8575 solid">
+            <div class="col-lg-5 mb-1">
+                <label for="produsDenumire" class="mb-0 ps-3">Denumire produs</label>
+                <input
+                    type="text"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('produsDenumire') ? 'is-invalid' : '' }}"
+                    name="produsDenumire"
+                    v-model="produsDenumire">
+            </div>
+            <div class="col-lg-1 mb-1">
+                <label for="produsUm" class="mb-0 ps-3">U.M.</label>
+                <input
+                    type="text"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('produsUm') ? 'is-invalid' : '' }}"
+                    name="produsUm"
+                    v-model="produsUm">
+            </div>
+            <div class="col-lg-1 mb-1">
+                <label for="produsCantitate" class="mb-0 ps-3">Cant.</label>
+                <input
+                    type="number"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('produsCantitate') ? 'is-invalid' : '' }}"
+                    name="produsCantitate"
+                    v-model="produsCantitate">
+            </div>
+            <div class="col-lg-1 mb-1">
+                <label for="produsPret" class="mb-0 ps-3">Preț</label>
+                <input
+                    type="text"
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('produsPret') ? 'is-invalid' : '' }}"
+                    name="produsPret"
+                    v-model="produsPret">
+            </div>
+            <div class="col-lg-1 mb-1">
+                <label for="produsProcentTvaId" class="mb-0 ps-3">TVA</label>
+                <select v-model="produsProcentTvaId"
+                class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('produsProcentTvaId') ? 'is-invalid' : '' }}">
+                    <option selected></option>
+                    @foreach ($procenteTva as $procent_tva)
+                        <option value="{{ $procent_tva->id }}">{{ $procent_tva->nume }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-lg-2 mb-1 text-center">
+                <label for="produsPretulIncludeTva" class="mb-0 ps-3"><small>Prețul include TVA?</small></label>
+                <div class="d-flex py-1 justify-content-center">
+                    <div class="form-check me-3">
+                        <input class="form-check-input" type="radio" value=0 id="produsPretulIncludeTva_nu" v-model="produsPretulIncludeTva">
+                        <label class="form-check-label" for="produsPretulIncludeTva_nu">Nu</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" value=1 id="produsPretulIncludeTva_da" v-model="produsPretulIncludeTva">
+                        <label class="form-check-label" for="produsPretulIncludeTva_da">Da</label>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-1 mb-1 d-flex align-items-center justify-content-end">
+                <button type="button" class="btn btn-sm btn-primary text-white" @click="adaugaProdusLaFactura()">Adaugă</button>
+            </div>
+
+            <div v-if="showDateProdusIncomplete" class="col-lg-12 text-center text-danger">
+                @{{ showDateProdusIncomplete }}
+            </div>
+
+            <div class="col-lg-12 table-responsive">
+                <table class="mb-0 table table-sm table-striped table-hover">
+                    {{-- <thead class="text-white" style="background-color:rgb(0, 0, 0);">
+                        <tr class="p-0" style="">
+                            <th class="py-0 px-1 ">#</th>
+                            <th class="py-0 px-1 text-center">Denumire produs / serviciu</th>
+                            <th class="py-0 px-1 text-center">U.M.</th>
+                            <th class="py-0 px-1 text-center">Cant.</th>
+                            <th class="py-0 px-1 text-center">Preț (fără TVA)</th>
                             <th class="text-center">Procent <br />TVA</th>
                             <th class="text-center">Prețul <br />include TVA?</th>
-                            <th class="text-center">Valoare</th>
-                            <th class="text-center">TVA</th>
+                            <th class="py-0 px-1 text-center">Valoare</th>
+                            <th class="py-0 px-1 text-center">TVA</th>
                         </tr>
                     </thead>
                     <tbody style="vertical-align:middle">
@@ -318,12 +387,6 @@
                                         <input class="form-check-input" type="radio" value="1" id="transportator_tarif_pe_km_da" v-model="produse[index].pretul_include_tva">
                                         <label class="form-check-label" for="transportator_tarif_pe_km_da">Da</label>
                                     </div>
-
-                                    {{-- <input type="radio" id="one" value="One" v-model="picked" />
-                                    <label for="one">One</label>
-
-                                    <input type="radio" id="two" value="Two" v-model="picked" />
-                                    <label for="two">Two</label> --}}
                                 </div>
                             </td>
                             <td>
@@ -344,24 +407,98 @@
                             </td>
                         </tr>
                         <tr>
-                            <td colspan="4" rowspan="2"></td>
-                            <td>
+                            <td colspan="4"></td>
+                            <td class="text-end">
                                 Total
                             </td>
-                            <td>
+                            <td class="text-end">
                                 @{{ total_fara_tva_moneda }}
                             </td>
-                            <td>
+                            <td class="text-end">
                                 @{{ total_tva_moneda }}
                             </td>
                         </tr>
                         <tr>
-                            <td>
-                                Total plata
+                            <td colspan="4"></td>
+                            <td class="text-end">
+                                Total plată
                             </td>
-                            <td>
+                            <td colspan="2" class="text-end">
                                 @{{ total_moneda }}
                             </td>
+                        </tr>
+                    </tbody> --}}
+                    <thead class="text-white" style="background-color:rgb(0, 0, 0);">
+                        <tr class="p-0" style="">
+                            <th class="py-0 px-1 ">#</th>
+                            <th class="py-0 px-1 text-start w-50">Denumire produs / serviciu</th>
+                            <th class="py-0 px-1 text-center">U.M.</th>
+                            <th class="py-0 px-1 text-center">Cant.</th>
+                            <th class="py-0 px-1 text-end">Preț (fără TVA)</th>
+                            <th class="py-0 px-1 text-end">Valoare</th>
+                            <th class="py-0 px-1 text-end">TVA</th>
+                            <th class="py-0 px-1 text-end"></th>
+                        </tr>
+                    </thead>
+                    <tbody style="vertical-align:middle">
+                        <tr v-for="(produs, index) in produse" :key="produs" style="vertical-align:top">
+                            <td class="py-0">
+                                <input
+                                    type="hidden"
+                                    :name="'produse[' + index + '][comanda_id]'"
+                                    v-model="produse[index].comanda_id">
+
+                                @{{ index+1 }}
+                            </td>
+                            <td class="py-0"> @{{ produs.denumire }} </td>
+                            <td class="py-0 text-center"> @{{ produs.um }} </td>
+                            <td class="py-0 text-center"> @{{ produs.cantitate }} </td>
+                            <td class="py-0 px-1 text-end"> @{{ produs.pret_unitar_fara_tva }} </td>
+                            <td class="py-0 px-1 text-end"> @{{ produs.valoare }} </td>
+                            <td class="py-0 px-1 text-end"> @{{ produs.valoare_tva }} </td>
+                            <td class="py-0 px-1 text-end">
+                                {{-- <button
+                                    type="button"
+                                    class="py-0 px-1 btn btn-sm btn-danger" --}}
+                                    {{-- style="background-color:mediumseagreen;"  --}}
+                                    {{-- @click="stergeProdusulDinFactura()"> --}}
+                                    <i class="fa-solid fa-xmark text-danger me-1" title="Șterge produsul din factură"
+                                        @click="produse.splice(index, 1);">
+                                    </i>
+                                {{-- </button> --}}
+
+                            </td>
+                        </tr>
+                        <tr class="">
+                            <td colspan="8">&nbsp;</td>
+                        </tr>
+                        <tr class="" style="">
+                            <td colspan="4" class="py-0 "></td>
+                            <td colspan="2" class="py-0 text-start ">
+                                Total fără TVA
+                            </td>
+                            <td colspan="2" class="py-0 text-end ">
+                                @{{ total_fara_tva_moneda }}
+                            </td>
+                        </tr>
+                        <tr class="">
+                            <td colspan="4" class="py-0 "></td>
+                            <td colspan="2" class="py-0 text-start ">
+                                Total TVA
+                            </td>
+                            <td colspan="2" class="py-0 text-end ">
+                                @{{ total_tva_moneda }}
+                            </td>
+                        </tr>
+                        <tr class="">
+                            <td colspan="4" class="py-0 "></td>
+                            <td class="py-0 text-end ">
+                                <b>Total plată</b>
+                            </td>
+                            <td colspan="2" class="py-0 text-end ">
+                                <b>@{{ total_fara_tva_moneda + total_tva_moneda }}</b>
+                            </td>
+                            <td></td>
                         </tr>
                     </tbody>
                 </table>
