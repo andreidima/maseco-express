@@ -24,6 +24,8 @@
     moneda = {!! json_encode(old('moneda', ($factura->moneda ?? ""))) !!}
     procent_tva_id = {!! json_encode(old('procent_tva_id', ($factura->procent_tva_id ?? ""))) !!}
     zile_scadente = {!! json_encode(old('zile_scadente', ($factura->zile_scadente ?? ""))) !!}
+
+    chitanta_suma_incasa = {!! json_encode(old('chitanta_suma_incasa', ($factura->chitanta_suma_incasa ?? 0))) !!}
 </script>
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="creareFactura">
@@ -469,39 +471,48 @@
 
                             </td>
                         </tr>
-                        <tr class="">
-                            <td colspan="8">&nbsp;</td>
-                        </tr>
-                        <tr class="" style="">
-                            <td colspan="4" class="py-0 "></td>
-                            <td colspan="2" class="py-0 text-start ">
-                                Total fără TVA
-                            </td>
-                            <td colspan="2" class="py-0 text-end ">
-                                @{{ total_fara_tva_moneda }}
-                            </td>
-                        </tr>
-                        <tr class="">
-                            <td colspan="4" class="py-0 "></td>
-                            <td colspan="2" class="py-0 text-start ">
-                                Total TVA
-                            </td>
-                            <td colspan="2" class="py-0 text-end ">
-                                @{{ total_tva_moneda }}
-                            </td>
-                        </tr>
-                        <tr class="">
-                            <td colspan="4" class="py-0 "></td>
-                            <td class="py-0 text-end ">
-                                <b>Total plată</b>
-                            </td>
-                            <td colspan="2" class="py-0 text-end ">
-                                <b>@{{ total_fara_tva_moneda + total_tva_moneda }}</b>
-                            </td>
-                            <td></td>
-                        </tr>
                     </tbody>
                 </table>
+            </div>
+            <div class="col-lg-12">
+                <br><br>
+            </div>
+            <div class="col-lg-12">
+                <div class="row flex-row-reverse">
+                    <div class="col-lg-4">
+                        <div v-if="produse && produse.length">
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-0">Total fără TVA</p>
+                                <p class="mb-0">@{{ total_fara_tva_moneda }}</p>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-0">Total TVA</p>
+                                <p class="mb-0">@{{ total_tva_moneda }}</p>
+                            </div>
+                            <div>
+                                <hr class="mx-0 my-2">
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <p class="mb-0"><b>TOTAL</b></p>
+                                <p class="mb-0"><b>@{{ total_fara_tva_moneda + total_tva_moneda }}</b></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <label for="chitanta_suma_incasata" class="mb-0 ps-3">Suma încasată acum</label>
+                                <input
+                                    type="text"
+                                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('chitanta_suma_incasata') ? 'is-invalid' : '' }}"
+                                    name="chitanta_suma_incasata"
+                                    v-model="chitanta_suma_incasata">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="row mb-4 justify-content-center">

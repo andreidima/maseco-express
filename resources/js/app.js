@@ -424,6 +424,8 @@ const creareFactura = createApp({
             total_fara_tva_lei: 0,
             total_tva_lei: 0,
             total_lei: 0,
+
+            chitanta_suma_incasa: chitanta_suma_incasa,
         }
     },
     watch: {
