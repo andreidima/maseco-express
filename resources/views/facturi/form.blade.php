@@ -2,7 +2,7 @@
 
 @php
     use \Carbon\Carbon;
-    // dd($firmeClienti);
+    // dd($factura->chitante->first);
 @endphp
 
 <script type="application/javascript">
@@ -21,14 +21,16 @@
     comandaId = {!! json_encode(old('comandaId', "")) !!}
     produse = {!! json_encode(old('produse', ($factura->produse ?? []))) !!}
     valoare_contract = {!! json_encode(old('valoare_contract', ($factura->valoare_contract ?? ""))) !!}
-    moneda = {!! json_encode(old('moneda', ($factura->moneda ?? ""))) !!}
+    moneda_id = {!! json_encode(old('moneda_id', ($factura->moneda_id ?? ""))) !!}
     procent_tva_id = {!! json_encode(old('procent_tva_id', ($factura->procent_tva_id ?? ""))) !!}
     zile_scadente = {!! json_encode(old('zile_scadente', ($factura->zile_scadente ?? ""))) !!}
 
-    chitanta_suma_incasata = {!! json_encode(old('chitanta_suma_incasata', ($factura->chitanta_suma_incasata ?? 0))) !!}
+    chitanta_suma_incasata = {!! json_encode(old('chitanta_suma_incasata', ($factura->chitante->first()->suma ?? ""))) !!}
 
-    dateFacturiVechi = {!! json_encode($dateFacturiVechi ?? "") !!}
-    intocmit_de = {!! json_encode(old('client_nume', ($factura->client_nume ?? ""))) !!}
+    dateFacturiIntocmitDeVechi = {!! json_encode($dateFacturiIntocmitDeVechi ?? "") !!}
+    dateFacturiDelegatVechi = {!! json_encode($dateFacturiDelegatVechi ?? "") !!}
+    dateFacturiMentiuniVechi = {!! json_encode($dateFacturiMentiuniVechi ?? "") !!}
+    intocmit_de = {!! json_encode(old('intocmit_de', ($factura->intocmit_de ?? ""))) !!}
     cnp = {!! json_encode(old('cnp', ($factura->cnp ?? ""))) !!}
     delegat = {!! json_encode(old('delegat', ($factura->delegat ?? ""))) !!}
     buletin = {!! json_encode(old('buletin', ($factura->buletin ?? ""))) !!}
@@ -45,7 +47,7 @@
                 <label for="comanda" class="mb-0 pe-2">Comanda: </label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3"
+                    class="form-control bg-white rounded-3"
                     style="width:150px"
                     v-model="numarDeCautat"
                     placeholder="Nr. comanda"
@@ -53,7 +55,7 @@
                     v-on:keyup.enter="axiosCautaComanda()"
                     autofocus
                     >
-                <button type="button" class="btn btn-sm btn-primary text-white" @click="axiosCautaComanda()">Caută</button>
+                <button type="button" class="btn btn-primary text-white" @click="axiosCautaComanda()">Caută</button>
             </div>
             <div v-if="afisareMesajAtentionareNegasireComanda" class="col-lg-12 mt-2 mb-0 d-flex align-items-center justify-content-center">
                 <p class="mb-0 px-2 rounded-3 bg-warning">Nu a fost gasită comanda!</p>
@@ -86,24 +88,25 @@
         </div>
         {{-- <div class="row mb-0 py-4 rounded-3 justify-content-center" style="background-color:rgb(253, 253, 185); border-left:6px solid; border-color:goldenrod"> --}}
         <div class="row mb-4 py-0 rounded-3 justify-content-center" style="border:1px solid #e9ecef; border-left:0.25rem #ec8575 solid">
-            <div class="col-lg-2 mb-1">
-                <label for="seria" class="mb-0 ps-3">Seria facturii<span class="text-danger">*</span></label>
-                <select name="seria"
-                    class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('seria') ? 'is-invalid' : '' }}"
-                    {{ str_contains(url()->current(), '/modifica') ? 'disabled' : '' }}>
-                    <option selected></option>
-                    <option value="MAS" {{ (old('seria', $factura->seria) === "MAS") ? 'selected' : '' }}>MAS</option>
-                    <option value="MSC" {{ (old('seria', $factura->seria) === "MSC") ? 'selected' : '' }}>MSC</option>
-                    <option value="MSX" {{ (old('seria', $factura->seria) === "MSX") ? 'selected' : '' }}>MSX</option>
-                </select>
-            </div>
-            @if (str_contains(url()->current(), '/modifica'))
+            @if (str_contains(url()->current(), '/adauga'))
                 <div class="col-lg-2 mb-1">
-                    <label for="numar" class="mb-0 ps-3">Număr</label>
+                    <label for="seria" class="mb-0 ps-3">Seria facturii<span class="text-danger">*</span></label>
+                    <select name="seria"
+                        class="form-select bg-white rounded-3 {{ $errors->has('seria') ? 'is-invalid' : '' }}"
+                        {{ str_contains(url()->current(), '/modifica') ? 'disabled' : '' }}>
+                        <option selected></option>
+                        <option value="MAS" {{ (old('seria', $factura->seria) === "MAS") ? 'selected' : '' }}>MAS</option>
+                        <option value="MSC" {{ (old('seria', $factura->seria) === "MSC") ? 'selected' : '' }}>MSC</option>
+                        <option value="MSX" {{ (old('seria', $factura->seria) === "MSX") ? 'selected' : '' }}>MSX</option>
+                    </select>
+                </div>
+            @elseif (str_contains(url()->current(), '/modifica'))
+                <div class="col-lg-2 mb-1">
+                    <label for="numar" class="mb-0 ps-3">Serie și număr</label>
                     <input
                         type="text"
                         class="form-control bg-white rounded-3 {{ $errors->has('numar') ? 'is-invalid' : '' }}"
-                        value="{{ old('numar', $factura->numar) }}"
+                        value="{{ $factura->seria }} - {{ $factura->numar }}"
                         disabled>
                 </div>
             @endif
@@ -119,10 +122,10 @@
                 ></vue-datepicker-next>
             </div>
             <div class="col-lg-2 mb-1">
-                <label for="moneda" class="mb-0 ps-3">Monedă<span class="text-danger">*</span></label>
-                <select name="moneda"
-                    v-model="moneda"
-                class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('moneda') ? 'is-invalid' : '' }}">
+                <label for="moneda_id" class="mb-0 ps-3">Monedă<span class="text-danger">*</span></label>
+                <select name="moneda_id"
+                    v-model="moneda_id"
+                class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($monede as $moneda)
                         <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
@@ -133,7 +136,7 @@
                 <label for="procent_tva_id" class="mb-0 ps-3">Procent TVA<span class="text-danger">*</span></label>
                 <select name="procent_tva_id"
                     v-model="procent_tva_id"
-                class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('procent_tva_id') ? 'is-invalid' : '' }}">
+                class="form-select bg-white rounded-3 {{ $errors->has('procent_tva_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($procenteTva as $procent_tva)
                         <option value="{{ $procent_tva->id }}">{{ $procent_tva->nume }}</option>
@@ -144,7 +147,7 @@
                 <label for="zile_scadente" class="mb-0 ps-3">Zile scadente</label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('zile_scadente') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('zile_scadente') ? 'is-invalid' : '' }}"
                     name="zile_scadente"
                     v-model="zile_scadente">
             </div>
@@ -156,7 +159,7 @@
                 </label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('alerte_scadenta') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('alerte_scadenta') ? 'is-invalid' : '' }}"
                     name="alerte_scadenta"
                     placeholder="Ex: 1,3,7"
                     value="{{ old('alerte_scadenta', $factura->alerte_scadenta) }}">
@@ -191,7 +194,7 @@
                                 v-model="client_nume"
                                 v-on:focus="autocompleteFirmeClienti();"
                                 v-on:keyup="autocompleteFirmeClienti(); this.client_id = '';"
-                                class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_nume') ? 'is-invalid' : '' }}"
+                                class="form-control bg-white rounded-3 {{ $errors->has('client_nume') ? 'is-invalid' : '' }}"
                                 name="client_nume"
                                 placeholder="Client"
                                 autocomplete="off"
@@ -217,7 +220,7 @@
                 <label for="client_cif" class="mb-0 ps-3">CIF</label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_cif') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('client_cif') ? 'is-invalid' : '' }}"
                     name="client_cif"
                     v-model="client_cif">
             </div>
@@ -225,7 +228,7 @@
                 <label for="client_tara_id" class="mb-0 ps-3">Țara</label>
                 <select name="client_tara_id"
                     v-model="client_tara_id"
-                class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('client_tara_id') ? 'is-invalid' : '' }}">
+                class="form-select bg-white rounded-3 {{ $errors->has('client_tara_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($tari as $tara)
                         <option value="{{ $tara->id }}">{{ $tara->nume }}</option>
@@ -236,7 +239,7 @@
                 <label for="client_adresa" class="mb-0 ps-3">Adresa</label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_adresa') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('client_adresa') ? 'is-invalid' : '' }}"
                     name="client_adresa"
                     v-model="client_adresa">
             </div>
@@ -244,7 +247,7 @@
                 <label for="client_telefon" class="mb-0 ps-3">Telefon</label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_telefon') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('client_telefon') ? 'is-invalid' : '' }}"
                     name="client_telefon"
                     v-model="client_telefon">
             </div>
@@ -252,7 +255,7 @@
                 <label for="client_email" class="mb-0 ps-3">Email</label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('client_email') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('client_email') ? 'is-invalid' : '' }}"
                     name="client_email"
                     v-model="client_email">
             </div>
@@ -263,7 +266,7 @@
                 <label for="produsDenumire" class="mb-0 ps-3">Denumire produs</label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('produsDenumire') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('produsDenumire') ? 'is-invalid' : '' }}"
                     name="produsDenumire"
                     v-model="produsDenumire">
             </div>
@@ -271,7 +274,7 @@
                 <label for="produsUm" class="mb-0 ps-3">U.M.</label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('produsUm') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('produsUm') ? 'is-invalid' : '' }}"
                     name="produsUm"
                     v-model="produsUm">
             </div>
@@ -279,7 +282,7 @@
                 <label for="produsCantitate" class="mb-0 ps-3">Cant.</label>
                 <input
                     type="number"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('produsCantitate') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('produsCantitate') ? 'is-invalid' : '' }}"
                     name="produsCantitate"
                     v-model="produsCantitate">
             </div>
@@ -287,14 +290,14 @@
                 <label for="produsPret" class="mb-0 ps-3">Preț</label>
                 <input
                     type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('produsPret') ? 'is-invalid' : '' }}"
+                    class="form-control bg-white rounded-3 {{ $errors->has('produsPret') ? 'is-invalid' : '' }}"
                     name="produsPret"
                     v-model="produsPret">
             </div>
             <div class="col-lg-1 mb-1">
                 <label for="produsProcentTvaId" class="mb-0 ps-3">TVA</label>
                 <select v-model="produsProcentTvaId"
-                class="form-select form-select-sm bg-white rounded-3 {{ $errors->has('produsProcentTvaId') ? 'is-invalid' : '' }}">
+                class="form-select bg-white rounded-3 {{ $errors->has('produsProcentTvaId') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($procenteTva as $procent_tva)
                         <option value="{{ $procent_tva->id }}">{{ $procent_tva->nume }}</option>
@@ -350,14 +353,14 @@
                             <td>
                                 <input
                                     type="text"
-                                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('denumire') ? 'is-invalid' : '' }}"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('denumire') ? 'is-invalid' : '' }}"
                                     :name="'produse[' + index + '][denumire]'"
                                     v-model="produse[index].denumire">
                             </td>
                             <td>
                                 <input
                                     type="text"
-                                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('um') ? 'is-invalid' : '' }}"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('um') ? 'is-invalid' : '' }}"
                                     style="width: 50px"
                                     :name="'produse[' + index + '][um]'"
                                     v-model="produse[index].um">
@@ -365,7 +368,7 @@
                             <td>
                                 <input
                                     type="text"
-                                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('cantitate') ? 'is-invalid' : '' }}"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('cantitate') ? 'is-invalid' : '' }}"
                                     style="width: 50px"
                                     :name="'produse[' + index + '][cantitate]'"
                                     v-model="produse[index].cantitate">
@@ -373,7 +376,7 @@
                             <td>
                                 <input
                                     type="text"
-                                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('pret_unitar_fara_tva') ? 'is-invalid' : '' }}"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('pret_unitar_fara_tva') ? 'is-invalid' : '' }}"
                                     style="width: 50px"
                                     :name="'produse[' + index + '][pret_unitar_fara_tva]'"
                                     v-model="produse[index].pret_unitar_fara_tva">
@@ -402,7 +405,7 @@
                             <td>
                                 <input
                                     type="text"
-                                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('valoare') ? 'is-invalid' : '' }}"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('valoare') ? 'is-invalid' : '' }}"
                                     style="width: 50px"
                                     :name="'produse[' + index + '][valoare]'"
                                     v-model="produse[index].valoare">
@@ -410,7 +413,7 @@
                             <td>
                                 <input
                                     type="text"
-                                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('valoare_tva') ? 'is-invalid' : '' }}"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('valoare_tva') ? 'is-invalid' : '' }}"
                                     style="width: 50px"
                                     :name="'produse[' + index + '][valoare_tva]'"
                                     v-model="produse[index].valoare_tva">
@@ -453,10 +456,14 @@
                     <tbody style="vertical-align:middle">
                         <tr v-for="(produs, index) in produse" :key="produs" style="vertical-align:top">
                             <td class="py-0">
-                                <input
-                                    type="hidden"
-                                    :name="'produse[' + index + '][comanda_id]'"
-                                    v-model="produse[index].comanda_id">
+                                <input type="hidden" :name="'produse[' + index + '][id]'" v-model="produse[index].id">
+                                <input type="hidden" :name="'produse[' + index + '][comanda_id]'" v-model="produse[index].comanda_id">
+                                <input type="hidden" :name="'produse[' + index + '][denumire]'" v-model="produse[index].denumire">
+                                <input type="hidden" :name="'produse[' + index + '][um]'" v-model="produse[index].um">
+                                <input type="hidden" :name="'produse[' + index + '][cantitate]'" v-model="produse[index].cantitate">
+                                <input type="hidden" :name="'produse[' + index + '][pret_unitar_fara_tva]'" v-model="produse[index].pret_unitar_fara_tva">
+                                <input type="hidden" :name="'produse[' + index + '][valoare]'" v-model="produse[index].valoare">
+                                <input type="hidden" :name="'produse[' + index + '][valoare_tva]'" v-model="produse[index].valoare_tva">
 
                                 @{{ index+1 }}
                             </td>
@@ -477,6 +484,12 @@
                                     </i>
                                 {{-- </button> --}}
 
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="hidden" name="total_fara_tva_moneda" v-model="total_fara_tva_moneda">
+                                <input type="hidden" name="total_tva_moneda" v-model="total_tva_moneda">
                             </td>
                         </tr>
                     </tbody>
@@ -514,7 +527,7 @@
                                 <label for="chitanta_suma_incasata" class="mb-0 ps-3">Suma încasată acum</label>
                                 <input
                                     type="text"
-                                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('chitanta_suma_incasata') ? 'is-invalid' : '' }}"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('chitanta_suma_incasata') ? 'is-invalid' : '' }}"
                                     name="chitanta_suma_incasata"
                                     v-model="chitanta_suma_incasata">
                             </div>
@@ -526,39 +539,120 @@
         <div class="row mb-4 py-0 rounded-3 justify-content-center" style="border:1px solid #e9ecef; border-left:0.25rem #6a6ba0 solid">
             <div class="col-lg-4">
                 <div class="row">
-                    <div class="col-lg-12" style="position:relative;" v-click-out="() => dateFacturiVechiListaAutocomplete = ''">
+                    <div class="col-lg-12" style="position:relative;" v-click-out="() => dateFacturiIntocmitDeVechiListaAutocomplete = ''">
                         <label for="intocmit_de" class="mb-0 ps-3">Întocmit de<span class="text-danger">*</span></label>
                         <div class="input-group d-flex">
                             <input
                                 type="text"
                                 v-model="intocmit_de"
-                                v-on:focus="autocompleteDateFacturiVechi('intocmit_de');"
-                                v-on:keyup="autocompleteDateFacturiVechi('intocmit_de');"
-                                class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('intocmit_de') ? 'is-invalid' : '' }}"
+                                v-on:focus="autocompleteDateFacturiIntocmitDeVechi();"
+                                v-on:keyup="autocompleteDateFacturiIntocmitDeVechi();"
+                                class="form-control bg-white rounded-3 {{ $errors->has('intocmit_de') ? 'is-invalid' : '' }}"
                                 name="intocmit_de"
                                 autocomplete="off"
                                 aria-describedby="intocmit_de"
                                 required>
                         </div>
-                        <div v-cloak v-if="dateFacturiVechiListaAutocomplete && dateFacturiVechiListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                        <div v-cloak v-if="dateFacturiIntocmitDeVechiListaAutocomplete && dateFacturiIntocmitDeVechiListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
                             <div class="list-group" style="max-height: 130px; overflow:auto;">
                                 <button type="button" class="list-group-item list-group-item list-group-item-action py-0"
-                                    v-for="dateFactura in dateFacturiVechiListaAutocomplete"
-                                    v-on:click="intocmit_de = dateFactura.intocmit_de; cnp = dateFactura.cnp">
+                                    v-for="dateFactura in dateFacturiIntocmitDeVechiListaAutocomplete"
+                                    v-on:click="intocmit_de = dateFactura.intocmit_de; cnp = dateFactura.cnp; dateFacturiIntocmitDeVechiListaAutocomplete = ''">
                                         @{{ dateFactura.intocmit_de }}
                                 </button>
                             </div>
                         </div>
                     </div>
+                    <div class="col-lg-12">
+                        <label for="cnp" class="mb-0 ps-3">CNP</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('cnp') ? 'is-invalid' : '' }}"
+                            name="cnp"
+                            v-model="cnp">
+                    </div>
+                    <div class="col-lg-12">
+                        <label for="aviz_insotire" class="mb-0 ps-3">Aviz însoțire</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('aviz_insotire') ? 'is-invalid' : '' }}"
+                            name="aviz_insotire"
+                            value="{{ old('aviz_insotire', $factura->aviz_insotire) }}">
+                    </div>
                 </div>
             </div>
-            <div class="col-lg-3 mb-1">
-                <label for="cnp" class="mb-0 ps-3">CNP</label>
-                <input
-                    type="text"
-                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('cnp') ? 'is-invalid' : '' }}"
-                    name="cnp"
-                    v-model="cnp">
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-lg-12" style="position:relative;" v-click-out="() => dateFacturiDelegatVechiListaAutocomplete = ''">
+                        <label for="delegat" class="mb-0 ps-3">Delegat</label>
+                        <div class="input-group d-flex">
+                            <input
+                                type="text"
+                                v-model="delegat"
+                                v-on:focus="autocompleteDateFacturiDelegatVechi();"
+                                v-on:keyup="autocompleteDateFacturiDelegatVechi();"
+                                class="form-control bg-white rounded-3 {{ $errors->has('delegat') ? 'is-invalid' : '' }}"
+                                name="delegat"
+                                autocomplete="off"
+                                aria-describedby="delegat"
+                                required>
+                        </div>
+                        <div v-cloak v-if="dateFacturiDelegatVechiListaAutocomplete && dateFacturiDelegatVechiListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                            <div class="list-group" style="max-height: 130px; overflow:auto;">
+                                <button type="button" class="list-group-item list-group-item list-group-item-action py-0"
+                                    v-for="dateFactura in dateFacturiDelegatVechiListaAutocomplete"
+                                    v-on:click="delegat = dateFactura.delegat; buletin = dateFactura.buletin; dateFacturiDelegatVechiListaAutocomplete = ''">
+                                        @{{ dateFactura.delegat }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <label for="buletin" class="mb-0 ps-3">Buletin</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('buletin') ? 'is-invalid' : '' }}"
+                            name="buletin"
+                            v-model="buletin">
+                    </div>
+                    <div class="col-lg-12">
+                        <label for="auto" class="mb-0 ps-3">Auto</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('auto') ? 'is-invalid' : '' }}"
+                            name="auto"
+                            value="{{ old('auto', $factura->auto) }}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-lg-12" style="position:relative;" v-click-out="() => dateFacturiMentiuniVechiListaAutocomplete = ''">
+                        <label for="mentiuni" class="mb-0 ps-3">Mențiuni</label>
+                        <div class="input-group d-flex">
+                            <textarea
+                                v-model="mentiuni"
+                                v-on:focus="autocompleteDateFacturiMentiuniVechi();"
+                                v-on:keyup="autocompleteDateFacturiMentiuniVechi();"
+                                class="form-control bg-white rounded-3 {{ $errors->has('mentiuni') ? 'is-invalid' : '' }}"
+                                name="mentiuni"
+                                autocomplete="off"
+                                aria-describedby="mentiuni"
+                                rows="3"
+                                required>
+                                </textarea>
+                        </div>
+                        <div v-cloak v-if="dateFacturiMentiuniVechiListaAutocomplete && dateFacturiMentiuniVechiListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                            <div class="list-group" style="max-height: 130px; overflow:auto;">
+                                <button type="button" class="list-group-item list-group-item list-group-item-action py-0"
+                                    v-for="dateFactura in dateFacturiMentiuniVechiListaAutocomplete"
+                                    v-on:click="mentiuni = dateFactura.mentiuni; cnp = dateFactura.cnp; dateFacturiMentiuniVechiListaAutocomplete = ''">
+                                        @{{ dateFactura.mentiuni }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

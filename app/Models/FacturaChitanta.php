@@ -5,16 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FacturaProdus extends Model
+class FacturaChitanta extends Model
 {
     use HasFactory;
 
-    protected $table = 'facturi_produse';
+    protected $table = 'facturi_chitante';
     protected $guarded = [];
 
     public function path()
     {
-        return "/facturi-produse/{$this->id}";
+        return "/facturi-chitante/{$this->id}";
     }
 
     public function factura()

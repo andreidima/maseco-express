@@ -408,7 +408,7 @@ const creareFactura = createApp({
             comandaId: comandaId,
             produse: produse,
 
-            moneda: moneda,
+            moneda_id: moneda_id,
 
             procenteTva: procenteTva,
             procent_tva_id: procent_tva_id,
@@ -420,15 +420,17 @@ const creareFactura = createApp({
 
             total_fara_tva_moneda: 0,
             total_tva_moneda: 0,
-            total_moneda: 0,
             total_fara_tva_lei: 0,
             total_tva_lei: 0,
-            total_lei: 0,
 
             chitanta_suma_incasata: chitanta_suma_incasata,
 
-            dateFacturiVechi: dateFacturiVechi,
-            dateFacturiVechiListaAutocomplete: [],
+            dateFacturiIntocmitDeVechi: dateFacturiIntocmitDeVechi,
+            dateFacturiDelegatVechi: dateFacturiDelegatVechi,
+            dateFacturiMentiuniVechi: dateFacturiMentiuniVechi,
+            dateFacturiIntocmitDeVechiListaAutocomplete: [],
+            dateFacturiDelegatVechiListaAutocomplete: [],
+            dateFacturiMentiuniVechiListaAutocomplete: [],
             intocmit_de: intocmit_de,
             cnp: cnp,
             delegat: delegat,
@@ -458,6 +460,8 @@ const creareFactura = createApp({
                 }
             }
         }
+
+        this.calculeazaSumeTotale();
     },
     methods: {
         autocompleteFirmeClienti() {
@@ -498,7 +502,7 @@ const creareFactura = createApp({
         preiaDateFacturare() {
             if (this.comandaGasita) {
                 if (this.comandaGasita.client_moneda) {
-                    this.moneda = this.comandaGasita.client_moneda.id;
+                    this.moneda_id = this.comandaGasita.client_moneda.id;
                 }
                 this.procent_tva_id = this.comandaGasita.client_procent_tva_id;
                 this.zile_scadente = this.comandaGasita.client_zile_scadente;
@@ -655,8 +659,8 @@ const creareFactura = createApp({
 
             if (this.produse){
                 for (var i = 0; i < this.produse.length; i++) {
-                    this.total_fara_tva_moneda += this.produse[i].valoare;
-                    this.total_tva_moneda += this.produse[i].valoare_tva;
+                    this.total_fara_tva_moneda += parseFloat(this.produse[i].valoare);
+                    this.total_tva_moneda += parseFloat(this.produse[i].valoare_tva);
                 };
 
                 // this.total_fara_tva_lei = 0;
@@ -664,12 +668,30 @@ const creareFactura = createApp({
                 // this.total_lei = 0;
             }
         },
-        autocompleteDateFacturiVechi(value) {
-            this.dateFacturiVechiListaAutocomplete = [];
+        autocompleteDateFacturiIntocmitDeVechi() {
+            this.dateFacturiIntocmitDeVechiListaAutocomplete = [];
 
-            for (var i = 0; i < this.dateFacturiVechi.length; i++) {
-                if (this.dateFacturiVechi[i].intocmit_de && this.dateFacturiVechi[i].intocmit_de.toLowerCase().includes(this.intocmit_de.toLowerCase())) {
-                    this.dateFacturiVechiListaAutocomplete.push(this.dateFacturiVechi[i]);
+            for (var i = 0; i < this.dateFacturiIntocmitDeVechi.length; i++) {
+                if (this.dateFacturiIntocmitDeVechi[i].intocmit_de && this.dateFacturiIntocmitDeVechi[i].intocmit_de.toLowerCase().includes(this.intocmit_de.toLowerCase())) {
+                    this.dateFacturiIntocmitDeVechiListaAutocomplete.push(this.dateFacturiIntocmitDeVechi[i]);
+                }
+            }
+        },
+        autocompleteDateFacturiDelegatVechi() {
+            this.dateFacturiDelegatVechiListaAutocomplete = [];
+
+            for (var i = 0; i < this.dateFacturiDelegatVechi.length; i++) {
+                if (this.dateFacturiDelegatVechi[i].delegat && this.dateFacturiDelegatVechi[i].delegat.toLowerCase().includes(this.delegat.toLowerCase())) {
+                    this.dateFacturiDelegatVechiListaAutocomplete.push(this.dateFacturiDelegatVechi[i]);
+                }
+            }
+        },
+        autocompleteDateFacturiMentiuniVechi() {
+            this.dateFacturiMentiuniVechiListaAutocomplete = [];
+
+            for (var i = 0; i < this.dateFacturiMentiuniVechi.length; i++) {
+                if (this.dateFacturiMentiuniVechi[i].mentiuni && this.dateFacturiMentiuniVechi[i].mentiuni.toLowerCase().includes(this.mentiuni.toLowerCase())) {
+                    this.dateFacturiMentiuniVechiListaAutocomplete.push(this.dateFacturiMentiuniVechi[i]);
                 }
             }
         },

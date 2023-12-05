@@ -12,6 +12,7 @@ use App\Models\ProcentTVA;
 use App\Models\CursBnr;
 use App\Models\Firma;
 use App\Models\Tara;
+use App\Models\FacturaChitanta;
 
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -61,9 +62,12 @@ class FacturaController extends Controller
         $tari = Tara::select('id', 'nume')->get();
         $monede = Moneda::select('id', 'nume')->get();
         $procenteTva = ProcentTVA::select('id', 'nume')->get();
-        $dateFacturiVechi = Factura::select('intocmit_de', 'cnp', 'delegat', 'buletin', 'auto', 'mentiuni')->latest()->get();
 
-        return view('facturi.create', compact('factura', 'firmeClienti', 'tari', 'monede', 'procenteTva', 'dateFacturiVechi'));
+        $dateFacturiIntocmitDeVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, intocmit_de')->groupBy('intocmit_de')->get()->pluck('id'))->select('intocmit_de', 'cnp')->orderBy('intocmit_de')->get();
+        $dateFacturiDelegatVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, delegat')->groupBy('delegat')->get()->pluck('id'))->select('delegat', 'buletin')->orderBy('delegat')->get();
+        $dateFacturiMentiuniVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, mentiuni')->groupBy('mentiuni')->get()->pluck('id'))->select('mentiuni', 'created_at')->latest()->get();
+
+        return view('facturi.create', compact('factura', 'firmeClienti', 'tari', 'monede', 'procenteTva', 'dateFacturiIntocmitDeVechi', 'dateFacturiDelegatVechi', 'dateFacturiMentiuniVechi'));
     }
 
     /**
@@ -75,7 +79,7 @@ class FacturaController extends Controller
     public function store(Request $request)
     {
         $this->validateRequest($request);
-        dd($request);
+        // dd($request);
 
         // Curs BNR - se actualizeaza daca este cazul
         // Cursul bnr se actualizeaza pe site-ul BNR in fiecare zi imediat dupa ora 13:00
@@ -95,9 +99,9 @@ class FacturaController extends Controller
             }
         }
 
-        $factura = new Factura;
-
         $datePersonale = DB::table('date_personale')->where('id', 1)->first();
+
+        $factura = new Factura;
         $factura->furnizor_nume = $datePersonale->nume;
         $factura->furnizor_reg_com = $datePersonale->reg_com;
         $factura->furnizor_cif = $datePersonale->cif;
@@ -109,47 +113,59 @@ class FacturaController extends Controller
         $factura->furnizor_iban_ron	 = $datePersonale->iban_ron;
         $factura->furnizor_iban_ron_banca = $datePersonale->iban_ron_banca;
         $factura->furnizor_capital_social = $datePersonale->capital_social;
-
         $factura->seria = $request->seria;
         $factura->numar = (Factura::select('numar')->where('seria', $request->seria)->latest()->first()->numar ?? 0) + 1;
         $factura->data = $request->data;
-        $factura->moneda_id = $request->moneda;
-        // $factura->moneda = Moneda::select('nume')->where('id', $request->moneda)->latest()->first()->nume;
-        $factura->curs_moneda = CursBnr::select('valoare')->where('moneda_nume', $factura->moneda)->first()->valoare;
+        $factura->moneda_id = $request->moneda_id;
+        $factura->curs_moneda = CursBnr::select('valoare')->where('moneda_nume', $factura->moneda->nume ?? 0)->first()->valoare;
         $factura->procent_tva_id = $request->procent_tva_id;
         $factura->zile_scadente = $request->zile_scadente;
         $factura->alerte_scadenta = $request->alerte_scadenta;
-
         $factura->client_id = $request->client_id;
         $factura->client_nume = $request->client_nume;
         $factura->client_cif = $request->client_cif;
         $factura->client_adresa = $request->client_adresa;
-        $factura->client_tara = $request->client_tara;
+        $factura->client_tara_id = $request->client_tara_id;
         $factura->client_telefon = $request->client_telefon;
         $factura->client_email = $request->client_email;
-
-        $factura->intocmit_de = $request->intocmit_de;
-        $factura->valoare_contract = $request->valoare_contract;
-        $factura->procent_tva = $request->procent_tva;
-        $factura->total_tva_moneda = $request->valoare_contract * $request->procent_tva / 100;
-        $factura->total_fara_tva_moneda = $request->valoare_contract - $factura->total_tva_moneda;
-        $factura->total_plata_moneda = $factura->total_tva_moneda + $factura->total_fara_tva_moneda;
+        $factura->total_fara_tva_moneda = $request->total_fara_tva_moneda;
+        $factura->total_tva_moneda = $request->total_tva_moneda;
+        $factura->total_moneda = $factura->total_fara_tva_moneda + $factura->total_tva_moneda;
         $factura->total_tva_lei = $factura->total_tva_moneda * $factura->curs_moneda;
         $factura->total_fara_tva_lei = $factura->total_fara_tva_moneda * $factura->curs_moneda;
-        $factura->total_plata_lei = $factura->total_tva_lei + $factura->total_fara_tva_lei;
+        $factura->total_lei = $factura->total_tva_lei + $factura->total_fara_tva_lei;
+        $factura->intocmit_de = $request->intocmit_de;
+        $factura->cnp = $request->cnp;
+        $factura->aviz_insotire = $request->aviz_insotire;
+        $factura->delegat = $request->delegat;
+        $factura->buletin = $request->buletin;
+        $factura->auto = $request->auto;
+        $factura->mentiuni = $request->mentiuni;
         $factura->save();
 
-        $produs = new FacturaProdus;
-        $produs->factura_id = $factura->id;
-        $produs->comanda_id = $request->comandaId;
-        $produs->nr_crt = 1;
-        $produs->denumire = $request->produse;
-        $produs->um = 'buc';
-        $produs->cantitate = 1;
-        $produs->pret_unitar = $factura->total_fara_tva_moneda;
-        $produs->valoare = $factura->total_fara_tva_moneda;
-        $produs->valoare_tva = $factura->total_tva_moneda;
-        $produs->save();
+        foreach ($request->produse as $key=>$produs){
+            $produsDb = new FacturaProdus;
+            $produsDb->factura_id = $factura->id;
+            $produsDb->comanda_id = $produs['comanda_id'];
+            $produsDb->nr_crt = $key + 1;
+            $produsDb->denumire = $produs['denumire'];
+            $produsDb->um = $produs['um'];
+            $produsDb->cantitate = $produs['cantitate'];
+            $produsDb->pret_unitar_fara_tva = $produs['pret_unitar_fara_tva'];
+            $produsDb->valoare = $produs['valoare'];
+            $produsDb->valoare_tva = $produs['valoare_tva'];
+            $produsDb->save();
+        }
+
+        if ($request->chitanta_suma_incasata){
+            $chitanta = new FacturaChitanta;
+            $chitanta->factura_id = $factura->id;
+            $chitanta->seria = $factura->seria;
+            $chitanta->numar = (FacturaChitanta::select('numar')->where('seria', $chitanta->seria)->latest()->first()->numar ?? 0) + 1;
+            $chitanta->data = $factura->data;
+            $chitanta->suma = $request->chitanta_suma_incasata;
+            $chitanta->save();
+        }
 
         return redirect($request->session()->get('facturaReturnUrl') ?? ('/facturi'))->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->numar . ' a fost adăugată cu succes!');
     }
@@ -174,11 +190,16 @@ class FacturaController extends Controller
     {
         $request->session()->get('facturaReturnUrl') ?? $request->session()->put('facturaReturnUrl', url()->previous());
 
-        $factura->moneda = Moneda::where('nume', $factura->moneda)->first()->id ?? '';
-
+        $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
+        $tari = Tara::select('id', 'nume')->get();
         $monede = Moneda::select('id', 'nume')->get();
+        $procenteTva = ProcentTVA::select('id', 'nume')->get();
 
-        return view('facturi.edit', compact('factura', 'monede'));
+        $dateFacturiIntocmitDeVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, intocmit_de')->groupBy('intocmit_de')->get()->pluck('id'))->select('intocmit_de', 'cnp')->orderBy('intocmit_de')->get();
+        $dateFacturiDelegatVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, delegat')->groupBy('delegat')->get()->pluck('id'))->select('delegat', 'buletin')->orderBy('delegat')->get();
+        $dateFacturiMentiuniVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, mentiuni')->groupBy('mentiuni')->get()->pluck('id'))->select('mentiuni', 'created_at')->latest()->get();
+
+        return view('facturi.edit', compact('factura', 'firmeClienti', 'tari', 'monede', 'procenteTva', 'dateFacturiIntocmitDeVechi', 'dateFacturiDelegatVechi', 'dateFacturiMentiuniVechi'));
     }
 
     /**
@@ -191,36 +212,81 @@ class FacturaController extends Controller
     public function update(Request $request, Factura $factura)
     {
         $this->validateRequest($request);
-// dd($request);
-        $datePersonale = DB::table('date_personale')->where('id', 1)->first();
+        // dd($request);
+
+        // Curs BNR - se actualizeaza daca este cazul
+        // Cursul bnr se actualizeaza pe site-ul BNR in fiecare zi imediat dupa ora 13:00
+        $cursBnrEur = CursBnr::where('moneda_nume', 'EUR')->first();
+        if ( ((Carbon::now()->hour >= 14) && (Carbon::parse($cursBnrEur->updated_at)->lessThan(Carbon::now()->hour(14))))
+            || ((Carbon::now()->hour < 14) && (Carbon::parse($cursBnrEur->updated_at)->lessThan(Carbon::yesterday()->hour(14))))
+        ){
+            $xml = @simplexml_load_file('https://www.bnr.ro/nbrfxrates.xml'); // @ - error supression
+            if (!$xml){ // daca xml nu este citit corect de pe site-ul bnr, se intoarce inapoi cu eroare
+                return back()->with('error', 'Cursul valutar nu a putut fi preluat de la „Banca Națională a României”. Reîncercați.')->withInput();
+            }
+            foreach($xml->Body->Cube->children() as $curs_bnr) {
+                $monedaDb = CursBnr::where('moneda_nume', (string) $curs_bnr['currency'])->first();
+                if ($monedaDb){
+                    $monedaDb->update(['valoare' => ($curs_bnr[0] / ($curs_bnr['multiplier'] ?? 1)), 'updated_at' => Carbon::now()]);
+                }
+            }
+        }
 
         $factura->data = $request->data;
-        $factura->client_nume = $request->client;
-        $factura->client_cif = $request->cif;
-        $factura->client_adresa = $request->adresa;
-        $factura->client_tara = $request->tara;
-        $factura->client_email = $request->email;
-        $factura->moneda = Moneda::select('nume')->where('id', $request->moneda)->latest()->first()->nume;
-        $factura->curs_moneda = CursBnr::select('valoare')->where('moneda_nume', $factura->moneda)->first()->valoare;
-        $factura->intocmit_de = $request->intocmit_de;
-        $factura->valoare_contract = $request->valoare_contract;
-        $factura->procent_tva = $request->procent_tva;
-        $factura->total_tva_moneda = $request->valoare_contract * $request->procent_tva / 100;
-        $factura->total_fara_tva_moneda = $request->valoare_contract - $factura->total_tva_moneda;
-        $factura->total_plata_moneda = $factura->total_tva_moneda + $factura->total_fara_tva_moneda;
-        $factura->total_tva_lei = $factura->total_tva_moneda * $factura->curs_moneda;
-        $factura->total_fara_tva_lei = $factura->total_fara_tva_moneda * $factura->curs_moneda;
-        $factura->total_plata_lei = $factura->total_tva_lei + $factura->total_fara_tva_lei;
+        $factura->moneda_id = $request->moneda_id;
+        $factura->curs_moneda = CursBnr::select('valoare')->where('moneda_nume', $factura->moneda->nume ?? 0)->first()->valoare;
+        $factura->procent_tva_id = $request->procent_tva_id;
         $factura->zile_scadente = $request->zile_scadente;
         $factura->alerte_scadenta = $request->alerte_scadenta;
+        $factura->client_id = $request->client_id;
+        $factura->client_nume = $request->client_nume;
+        $factura->client_cif = $request->client_cif;
+        $factura->client_adresa = $request->client_adresa;
+        $factura->client_tara_id = $request->client_tara_id;
+        $factura->client_telefon = $request->client_telefon;
+        $factura->client_email = $request->client_email;
+        $factura->total_fara_tva_moneda = $request->total_fara_tva_moneda;
+        $factura->total_tva_moneda = $request->total_tva_moneda;
+        $factura->total_moneda = $factura->total_fara_tva_moneda + $factura->total_tva_moneda;
+        $factura->total_tva_lei = $factura->total_tva_moneda * $factura->curs_moneda;
+        $factura->total_fara_tva_lei = $factura->total_fara_tva_moneda * $factura->curs_moneda;
+        $factura->total_lei = $factura->total_tva_lei + $factura->total_fara_tva_lei;
+        $factura->intocmit_de = $request->intocmit_de;
+        $factura->cnp = $request->cnp;
+        $factura->aviz_insotire = $request->aviz_insotire;
+        $factura->delegat = $request->delegat;
+        $factura->buletin = $request->buletin;
+        $factura->auto = $request->auto;
+        $factura->mentiuni = $request->mentiuni;
         $factura->save();
 
-        $produs = $factura->produse()->first();
-        $produs->denumire = $request->produse;
-        $produs->pret_unitar = $factura->total_fara_tva_moneda;
-        $produs->valoare = $factura->total_fara_tva_moneda;
-        $produs->valoare_tva = $factura->total_tva_moneda;
-        $produs->save();
+        // $produse = collect($request->produse); // creare colectie din array pentru a lucra mai usor cu datele
+
+        foreach ($request->produse as $key=>$produs){
+            // Stergerea produselor ce nu mai sunt la factura
+            FacturaProdus::where('factura_id', $factura->id)->whereNotIn('id', collect($request->produse)->whereNotNull('id')->pluck('id'))->delete();
+
+            $produs['id'] ? ($produsDb = FacturaProdus::find($produs['id'])) : ($produsDb = new FacturaProdus);
+            $produsDb->factura_id = $factura->id;
+            $produsDb->comanda_id = $produs['comanda_id'];
+            $produsDb->nr_crt = $key + 1;
+            $produsDb->denumire = $produs['denumire'];
+            $produsDb->um = $produs['um'];
+            $produsDb->cantitate = $produs['cantitate'];
+            $produsDb->pret_unitar_fara_tva = $produs['pret_unitar_fara_tva'];
+            $produsDb->valoare = $produs['valoare'];
+            $produsDb->valoare_tva = $produs['valoare_tva'];
+            $produsDb->save();
+        }
+
+        if ($request->chitanta_suma_incasata){
+            $chitanta = (FacturaChitanta::where('factura_id', $factura->id)->first()) ?? (new FacturaChitanta);
+            $chitanta->data = $factura->data;
+            $chitanta->suma = $request->chitanta_suma_incasata;
+            $chitanta->save();
+        }else {
+            FacturaChitanta::where('factura_id', $factura->id)->first()->delete();
+        }
 
         return redirect($request->session()->get('facturaReturnUrl') ?? ('/facturi'))->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->numar . ' a fost modificată cu succes!');
     }
@@ -263,28 +329,9 @@ class FacturaController extends Controller
             [
                 'seria' => $request->isMethod('post') ? 'required|max:5' : '',
                 'data' => 'required',
-                'moneda' => 'required',
+                'moneda_id' => 'required',
                 'procent_tva_id' => 'required|numeric|between:0,100',
                 'zile_scadente' => 'required|numeric|between:1,100',
-
-                // 'client_id' => 'required',
-                'client_nume' => 'required|max:500',
-                'client_cif' => 'nullable|max:500',
-                'client_adresa' => 'nullable|max:500',
-                'client_tara_id' => 'required',
-                'client_telefon' => 'nullable|max:500',
-                'client_email' => 'nullable|email:rfc,dns|max:500|required_with:alerte_scadenta',
-
-                'produse.*.comanda_id' => 'required',
-                'produse.*.denumire' => 'required',
-                'produse.*.um' => 'required',
-                'produse.*.cantitate' => 'required',
-                'produse.*.pret_unitar_fara_tva' => 'required',
-                'produse.*.valoare' => 'required',
-                'produse.*.valoare_tva' => 'required',
-
-                'intocmit_de' => 'required|max:500',
-
                 'alerte_scadenta' =>
                     function ($attribute, $value, $fail) use ($request) {
                         if ($value){
@@ -300,6 +347,33 @@ class FacturaController extends Controller
                             }
                         }
                     },
+
+                // 'client_id' => 'required',
+                'client_nume' => 'required|max:500',
+                'client_cif' => 'nullable|max:500',
+                'client_adresa' => 'nullable|max:500',
+                'client_tara_id' => 'required',
+                'client_telefon' => 'nullable|max:500',
+                'client_email' => 'nullable|email:rfc,dns|max:500|required_with:alerte_scadenta',
+
+                'produse' => 'required',
+                'produse.*.comanda_id' => 'required',
+                'produse.*.denumire' => 'required',
+                'produse.*.um' => 'required',
+                'produse.*.cantitate' => 'required',
+                'produse.*.pret_unitar_fara_tva' => 'required',
+                'produse.*.valoare' => 'required',
+                'produse.*.valoare_tva' => 'required',
+                'chitanta_suma_incasata' => 'nullable|numeric',
+
+                'intocmit_de' => 'required|max:500',
+                'cnp' => 'nullable|max:500',
+                'aviz_insotire' => 'nullable|max:500',
+                'delegat' => 'nullable|max:500',
+                'buletin' => 'nullable|max:500',
+                'auto' => 'nullable|max:500',
+                'mentiuni' => 'nullable|max:2000',
+
             ],
             [
                 'produse.*.denumire' => 'Produsul #:position trebuie sa aibă o denumire',
