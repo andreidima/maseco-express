@@ -425,7 +425,16 @@ const creareFactura = createApp({
             total_tva_lei: 0,
             total_lei: 0,
 
-            chitanta_suma_incasa: chitanta_suma_incasa,
+            chitanta_suma_incasata: chitanta_suma_incasata,
+
+            dateFacturiVechi: dateFacturiVechi,
+            dateFacturiVechiListaAutocomplete: [],
+            intocmit_de: intocmit_de,
+            cnp: cnp,
+            delegat: delegat,
+            buletin: buletin,
+            auto: auto,
+            mentiuni: mentiuni,
         }
     },
     watch: {
@@ -654,8 +663,16 @@ const creareFactura = createApp({
                 // this.total_tva_lei = 0;
                 // this.total_lei = 0;
             }
+        },
+        autocompleteDateFacturiVechi(value) {
+            this.dateFacturiVechiListaAutocomplete = [];
 
-        }
+            for (var i = 0; i < this.dateFacturiVechi.length; i++) {
+                if (this.dateFacturiVechi[i].intocmit_de && this.dateFacturiVechi[i].intocmit_de.toLowerCase().includes(this.intocmit_de.toLowerCase())) {
+                    this.dateFacturiVechiListaAutocomplete.push(this.dateFacturiVechi[i]);
+                }
+            }
+        },
 
     }
 });

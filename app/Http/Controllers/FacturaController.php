@@ -61,8 +61,9 @@ class FacturaController extends Controller
         $tari = Tara::select('id', 'nume')->get();
         $monede = Moneda::select('id', 'nume')->get();
         $procenteTva = ProcentTVA::select('id', 'nume')->get();
+        $dateFacturiVechi = Factura::select('intocmit_de', 'cnp', 'delegat', 'buletin', 'auto', 'mentiuni')->latest()->get();
 
-        return view('facturi.create', compact('factura', 'firmeClienti', 'tari', 'monede', 'procenteTva'));
+        return view('facturi.create', compact('factura', 'firmeClienti', 'tari', 'monede', 'procenteTva', 'dateFacturiVechi'));
     }
 
     /**

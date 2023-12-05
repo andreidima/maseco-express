@@ -25,7 +25,15 @@
     procent_tva_id = {!! json_encode(old('procent_tva_id', ($factura->procent_tva_id ?? ""))) !!}
     zile_scadente = {!! json_encode(old('zile_scadente', ($factura->zile_scadente ?? ""))) !!}
 
-    chitanta_suma_incasa = {!! json_encode(old('chitanta_suma_incasa', ($factura->chitanta_suma_incasa ?? 0))) !!}
+    chitanta_suma_incasata = {!! json_encode(old('chitanta_suma_incasata', ($factura->chitanta_suma_incasata ?? 0))) !!}
+
+    dateFacturiVechi = {!! json_encode($dateFacturiVechi ?? "") !!}
+    intocmit_de = {!! json_encode(old('client_nume', ($factura->client_nume ?? ""))) !!}
+    cnp = {!! json_encode(old('cnp', ($factura->cnp ?? ""))) !!}
+    delegat = {!! json_encode(old('delegat', ($factura->delegat ?? ""))) !!}
+    buletin = {!! json_encode(old('buletin', ($factura->buletin ?? ""))) !!}
+    auto = {!! json_encode(old('auto', ($factura->auto ?? ""))) !!}
+    mentiuni = {!! json_encode(old('mentiuni', ($factura->mentiuni ?? ""))) !!}
 </script>
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="creareFactura">
@@ -515,15 +523,42 @@
                 </div>
             </div>
         </div>
-        <div class="row mb-4 justify-content-center">
-            <div class="col-lg-2 mb-4">
-                <label for="intocmit_de" class="mb-0 ps-3">Întocmit de<span class="text-danger">*</span></label>
+        <div class="row mb-4 py-0 rounded-3 justify-content-center" style="border:1px solid #e9ecef; border-left:0.25rem #6a6ba0 solid">
+            <div class="col-lg-4">
+                <div class="row">
+                    <div class="col-lg-12" style="position:relative;" v-click-out="() => dateFacturiVechiListaAutocomplete = ''">
+                        <label for="intocmit_de" class="mb-0 ps-3">Întocmit de<span class="text-danger">*</span></label>
+                        <div class="input-group d-flex">
+                            <input
+                                type="text"
+                                v-model="intocmit_de"
+                                v-on:focus="autocompleteDateFacturiVechi('intocmit_de');"
+                                v-on:keyup="autocompleteDateFacturiVechi('intocmit_de');"
+                                class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('intocmit_de') ? 'is-invalid' : '' }}"
+                                name="intocmit_de"
+                                autocomplete="off"
+                                aria-describedby="intocmit_de"
+                                required>
+                        </div>
+                        <div v-cloak v-if="dateFacturiVechiListaAutocomplete && dateFacturiVechiListaAutocomplete.length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                            <div class="list-group" style="max-height: 130px; overflow:auto;">
+                                <button type="button" class="list-group-item list-group-item list-group-item-action py-0"
+                                    v-for="dateFactura in dateFacturiVechiListaAutocomplete"
+                                    v-on:click="intocmit_de = dateFactura.intocmit_de; cnp = dateFactura.cnp">
+                                        @{{ dateFactura.intocmit_de }}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-3 mb-1">
+                <label for="cnp" class="mb-0 ps-3">CNP</label>
                 <input
                     type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('intocmit_de') ? 'is-invalid' : '' }}"
-                    name="intocmit_de"
-                    {{-- value="{{ old('intocmit_de', auth()->user()->name) }}"> --}}
-                    value="{{ old('intocmit_de', $factura->intocmit_de) }}">
+                    class="form-control form-control-sm bg-white rounded-3 {{ $errors->has('cnp') ? 'is-invalid' : '' }}"
+                    name="cnp"
+                    v-model="cnp">
             </div>
         </div>
     </div>
