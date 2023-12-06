@@ -200,7 +200,7 @@
                 <tr>
                 @foreach ($factura->produse as $produs)
                     <tr valign="top" style="border-bottom:1px; border-top: 1px">
-                        <td style="text-align:center; border-bottom:0px; border-top: 0px; {{ $loop->last ? 'height:450px;' : '' }}">
+                        <td style="text-align:center; border-bottom:0px; border-top: 0px;">
                             {{ $loop->iteration }}
                         </td>
                         <td style="text-align:left; border-bottom:0px; border-top: 0px">
