@@ -51,7 +51,7 @@
                             <th class="">#</th>
                             <th class="">Seria nr.</th>
                             <th class="">Client</th>
-                            <th class="">Valoare</th>
+                            <th class="text-end">Valoare</th>
                             <th class="text-center">Data</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
@@ -68,8 +68,8 @@
                                 <td class="">
                                     {{ $factura->client_nume }}
                                 </td>
-                                <td class="">
-                                    {{ $factura->total_plata_moneda }} {{ $factura->moneda }}
+                                <td class="text-end">
+                                    {{ $factura->total_moneda }} {{ $factura->moneda->nume }}
                                 </td>
                                 <td class="text-center">
                                     {{ $factura->data ? \Carbon\Carbon::parse($factura->data)->isoFormat('DD.MM.YYYY') : '' }}

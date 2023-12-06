@@ -66,7 +66,7 @@
         }
         tr {
             border-style: solid;
-            border-width: 0px;
+            border-width: 1px;
         }
         hr {
             display: block;
@@ -87,7 +87,7 @@
 
     <main>
 
-        <div style="">
+        <div style="page-break-inside: avoid; margin-bottom:50px;">
 
             <table style="border:1px solid black;">
                 <tr valign="" style="">
@@ -121,7 +121,10 @@
                             <br>
                             Data (zi/luna/an): <b>{{ $factura->data ? Carbon::parse($factura->data)->isoFormat("DD/MM/YYYY") : '' }}</b>
                             <br>
-                            Cota TVA: {{ $factura->procent_tva }}%SDD art. 294 - conform Cod Fiscal
+                            Cota TVA: {{ $factura->procentTva->nume }}%
+                            @if ($factura->procentTva->nume === "0")
+                                SDD art. 294 - conform Cod Fiscal
+                            @endif
                         </div>
                         <br>
                         <img src="{{ public_path('images/logo-2.png') }}" width="100%">
@@ -143,6 +146,7 @@
                     <th>
                         Nr. crt
                     </th>
+                    {{-- <th style="width: 40%"> --}}
                     <th>
                         Denumirea produselor sau a serviciilor
                     </th>
@@ -157,24 +161,24 @@
                         <br>
                         (fara&nbsp;TVA)
                         <br>
-                        -{{ $factura->moneda }}-
+                        -{{ $factura->moneda->nume ?? '' }}-
                     </th>
                     <th>
                         Valoarea
                         <br>
-                        -{{ $factura->moneda }}-
+                        -{{ $factura->moneda->nume ?? '' }}-
                     </th>
                     <th>
                         Valoarea TVA
                         <br>
-                        -{{ $factura->moneda }}-
+                        -{{ $factura->moneda->nume ?? '' }}-
                     </th>
                 </tr>
                 <tr>
                     <td style="text-align:center">
                         0
                     </td>
-                    <td style="text-align:center">
+                    <td style="text-align:center;">
                         1
                     </td>
                     <td style="text-align:center">
@@ -193,33 +197,43 @@
                         6
                     </td>
                 </tr>
-                <tr valign="top">
-                    <td style="text-align:center; height:550px;">
-                        1
-                    </td>
-                    <td style="text-align:left">
-                        {{ $factura->produse->first()->denumire ?? '' }}
-                    </td>
-                    <td style="text-align:center">
-                        {{ $factura->produse->first()->um ?? '' }}
-                    </td>
-                    <td style="text-align:right">
-                        {{ $factura->produse->first()->cantitate ?? '' }}
-                    </td>
-                    <td style="text-align:right">
-                        {{ $factura->produse->first()->pret_unitar ?? '' }}
-                    </td>
-                    <td style="text-align:right">
-                        {{ $factura->produse->first()->valoare ?? '' }}
-                    </td>
-                    <td style="text-align:right">
-                        {{ $factura->produse->first()->valoare_tva ?? '' }}
-                    </td>
-                </tr>
-                @if ($factura->moneda !== "RON")
+                <tr>
+                @foreach ($factura->produse as $produs)
+                    <tr valign="top" style="border-bottom:1px; border-top: 1px">
+                        <td style="text-align:center; border-bottom:0px; border-top: 0px; {{ $loop->last ? 'height:450px;' : '' }}">
+                            {{ $loop->iteration }}
+                        </td>
+                        <td style="text-align:left; border-bottom:0px; border-top: 0px">
+                            {{ $produs->denumire ?? '' }}
+                        </td>
+                        <td style="text-align:center; border-bottom:0px; border-top: 0px">
+                            {{ $produs->um ?? '' }}
+                        </td>
+                        <td style="text-align:right; border-bottom:0px; border-top: 0px">
+                            {{ $produs->cantitate ?? '' }}
+                        </td>
+                        <td style="text-align:right; border-bottom:0px; border-top: 0px">
+                            {{ $produs->pret_unitar_fara_tva ?? '' }}
+                        </td>
+                        <td style="text-align:right; border-bottom:0px; border-top: 0px">
+                            {{ $produs->valoare ?? '' }}
+                        </td>
+                        <td style="text-align:right; border-bottom:0px; border-top: 0px">
+                            {{ $produs->valoare_tva ?? '' }}
+                        </td>
+                    </tr>
+                @endforeach
+                @if (($factura->moneda->nume ?? '') !== "RON")
                 <tr>
                     <td colspan="7">
-                        Curs 1 {{ $factura->moneda }} = {{ $factura->curs_moneda }} lei
+                        Curs 1 {{ $factura->moneda->nume ?? '' }} = {{ $factura->curs_moneda + 0 }} lei
+                    </td>
+                </tr>
+                @endif
+                @if ($factura->mentiuni)
+                <tr>
+                    <td colspan="7">
+                        {{ $factura->mentiuni }}
                     </td>
                 </tr>
                 @endif
@@ -250,21 +264,21 @@
                         Total
                     </td>
                     <td style="text-align: right">
-                        @if ($factura->moneda === "RON")
-                            {{ $factura->total_fara_tva_lei }} lei
+                        @if (($factura->moneda->nume ?? '') === "RON")
+                            {{ $factura->total_fara_tva_lei }}lei
                         @else
-                            {{ $factura->total_fara_tva_moneda }} {{ $factura->moneda }}
+                            {{ $factura->total_fara_tva_moneda }}{{ $factura->moneda->nume ?? '' }}
                             <br>
-                            ({{ $factura->total_fara_tva_lei }} lei)
+                            <span style="font-size: 90%">({{ $factura->total_fara_tva_lei }}lei)</span>
                         @endif
                     </td>
                     <td style="text-align: right">
-                        @if ($factura->moneda === "RON")
-                            {{ $factura->total_tva_lei }} lei
+                        @if (($factura->moneda->nume ?? '') === "RON")
+                            {{ $factura->total_tva_lei }}lei
                         @else
-                            {{ $factura->total_tva_moneda }} {{ $factura->moneda }}
+                            {{ $factura->total_tva_moneda }}{{ $factura->moneda->nume ?? '' }}
                             <br>
-                            ({{ $factura->total_tva_lei }} lei)
+                            <span style="font-size: 90%">({{ $factura->total_tva_lei }}lei)</span>
                         @endif
                     </td>
                 </tr>
@@ -273,12 +287,12 @@
                         Total plata
                     </td>
                     <td colspan="2" style="text-align: right">
-                        @if ($factura->moneda === "RON")
-                            {{ $factura->total_plata_lei }} lei
+                        @if (($factura->moneda->nume ?? '') === "RON")
+                            {{ $factura->total_plata_lei }}lei
                         @else
-                            {{ $factura->total_plata_moneda }} {{ $factura->moneda }}
+                            {{ $factura->total_moneda }}{{ $factura->moneda->nume ?? '' }}
                             <br>
-                            ({{ $factura->total_plata_lei }} lei)
+                            <span style="font-size: 90%">({{ $factura->total_lei }} lei)</span>
                         @endif
                     </td>
                 </tr>
@@ -294,7 +308,7 @@
                 Factura este valabila fara semnatura si stampila, conform art. 319 alin. 29 din legea 227/2015.
             </p>
             <p style="margin:0px 0px; padding:0px 10px 0px 10px; text-align:right; color:rgb(100, 100, 100);">
-            @if ($factura->moneda === "RON")
+            @if (($factura->moneda->nume ?? '') === "RON")
                 <a href="https://validsoftware.ro/dezvoltare-aplicatii-web-personalizate/" class="text-white" target="_blank" style="text-decoration:none; color:cornflowerblue">
                     Aplicație web</a> dezvoltată de
                 <a href="https://validsoftware.ro/" class="text-white" target="_blank" style="text-decoration:none; color:rgb(61, 125, 245)">validsoftware.ro</a>
@@ -303,8 +317,98 @@
                     Web application</a> developed by
                 <a href="https://validsoftware.ro/" class="text-white" target="_blank" style="text-decoration:none; color:rgb(61, 125, 245)">validsoftware.ro</a>
             @endif
+            </p>
         </div>
 
+
+        @if ($factura->chitante->first())
+            <div style="page-break-inside: avoid;">
+
+                <table style="border:1px solid black;">
+                    <tr valign="" style="border: 0px;">
+                        <td style="border-width:0px; padding:5px; margin:0rem; width:50%;">
+                            Furnizor: {{ $factura->furnizor_nume }}
+                            <br>
+                            Reg. com.: {{ $factura->furnizor_reg_com }}
+                            <br>
+                            CIF: {{ $factura->furnizor_cif }}
+                            <br>
+                            Adresa: {{ $factura->furnizor_adresa }}
+                            <br>
+                            {{ $factura->furnizor_banca }}
+                            <br>
+                            SWIFT CODE : {{ $factura->furnizor_swift_code }}
+                            <br>
+                            IBAN (EUR): <span style="font-size: 10px">{{ $factura->furnizor_iban_eur }}</span>
+                            <br>
+                            Banca: {{ $factura->furnizor_iban_eur_banca }}
+                            <br>
+                            IBAN (RON): <span style="font-size: 10px">{{ $factura->furnizor_iban_ron }}</span>
+                            <br>
+                            Banca: {{ $factura->furnizor_iban_ron_banca }}
+                            <br>
+                            Capital social: {{ $factura->furnizor_capital_social }}
+                        </td>
+                        <td valign="top" style="border-width:0px; padding:2px; margin:0rem; width:45%; text-align:center;">
+                            <img src="{{ public_path('images/logo-2.png') }}" width="200px">
+                            <h1>CHITANTA</h1>
+                            <div style="border:1px solid black;">
+                                Seria <b>{{ $factura->chitante->first()->seria ?? '' }}</b> nr. <b>{{ $factura->chitante->first()->numar ?? '' }}</b>
+                                <br>
+                                Data (zi/luna/an): <b>{{ $factura->chitante->first()->data ? Carbon::parse($factura->chitante->first()->data)->isoFormat("DD/MM/YYYY") : '' }}</b>
+                            </div>
+                            <br>
+                        </td>
+                        <td valign="top" style="border-width:0px; padding:2px; margin:0rem; width:5%; text-align:center;">
+                        </td>
+                    </tr>
+                    <tr style="border:0px;">
+                        <td colspan="3" style="border:0px;">
+                            <br>
+                            Am primit de la: {{ $factura->client_nume }}, CIF: {{ $factura->client_cif }}, Reg. com.: {{ $factura->furnizor_reg_com }}
+                            <br>
+                            Adresa: {{ $factura->client_adresa }}
+                            <br>
+                            Suma de {{ $factura->chitante->first()->suma ?? '' }} Lei, adica
+                            {{-- {{ $sumaInCuvinte = new NumberFormatter("ro", NumberFormatter::SPELLOUT)->format($factura->chitante->first()->suma) }} --}}
+                            @php
+                                $suma = $factura->chitante->first()->suma ?? 0;
+                                $exp = explode('.', $suma);
+                                $f = new NumberFormatter("ro_RO", NumberFormatter::SPELLOUT);
+                                echo $f->format($exp[0]) . ' Lei si ' . $f->format($exp[1]) . ' bani';
+                            @endphp
+                            <br>
+                            reprezentand contravaloarea facturii seria {{ $factura->seria }} nr {{ $factura->numar }} din data de {{ $factura->data ? Carbon::parse($factura->data)->isoFormat("DD/MM/YYYY") : '' }}
+                        </td>
+                    </tr>
+                    <tr style="border:0px;">
+                        <td style="border:0px;">
+                        </td>
+                        <td style="border:0px;">
+                            <br>
+                            Casier,
+                            <br>
+                            <br>
+                        </td>
+                        <td style="border:0px;">
+                        </td>
+                    </tr>
+                </table>
+
+                <p style="margin:0px 0px; padding:0px 10px 0px 10px; text-align:right; color:rgb(100, 100, 100);">
+                @if (($factura->moneda->nume ?? '') === "RON")
+                    <a href="https://validsoftware.ro/dezvoltare-aplicatii-web-personalizate/" class="text-white" target="_blank" style="text-decoration:none; color:cornflowerblue">
+                        Aplicație web</a> dezvoltată de
+                    <a href="https://validsoftware.ro/" class="text-white" target="_blank" style="text-decoration:none; color:rgb(61, 125, 245)">validsoftware.ro</a>
+                @else
+                    <a href="https://validsoftware.ro/dezvoltare-aplicatii-web-personalizate/" class="text-white" target="_blank" style="text-decoration:none; color:rgb(61, 125, 245)">
+                        Web application</a> developed by
+                    <a href="https://validsoftware.ro/" class="text-white" target="_blank" style="text-decoration:none; color:rgb(61, 125, 245)">validsoftware.ro</a>
+                @endif
+                </p>
+
+            </div>
+        @endif
 
 
         {{-- Here's the magic. This MUST be inside body tag. Page count / total, centered at bottom of page --}}

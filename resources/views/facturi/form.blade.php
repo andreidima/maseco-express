@@ -487,7 +487,7 @@
                             </td>
                         </tr>
                         <tr>
-                            <td>
+                            <td colspan="8">
                                 <input type="hidden" name="total_fara_tva_moneda" v-model="total_fara_tva_moneda">
                                 <input type="hidden" name="total_tva_moneda" v-model="total_tva_moneda">
                             </td>
@@ -627,6 +627,14 @@
             </div>
             <div class="col-lg-4">
                 <div class="row">
+                    <div class="col-lg-12">
+                        <label for="furnizor_iban_ron" class="mb-0 ps-3">Iban RON<span class="text-danger">*</span></label>
+                        <select name="furnizor_iban_ron" class="form-select bg-white rounded-3 {{ $errors->has('furnizor_iban_ron') ? 'is-invalid' : '' }}">
+                            <option selected></option>
+                            <option value="RO60BTRLRONCRT0400132501" {{ (old('furnizor_iban_ron', $factura->furnizor_iban_ron) === "RO60BTRLRONCRT0400132501") ? 'selected' : '' }}>RO60BTRLRONCRT0400132501</option>
+                            <option value="RO33BTRLRONCRT0400132502" {{ (old('furnizor_iban_ron', $factura->furnizor_iban_ron) === "RO33BTRLRONCRT0400132502") ? 'selected' : '' }}>RO33BTRLRONCRT0400132502</option>
+                        </select>
+                    </div>
                     <div class="col-lg-12" style="position:relative;" v-click-out="() => dateFacturiMentiuniVechiListaAutocomplete = ''">
                         <label for="mentiuni" class="mb-0 ps-3">Mențiuni</label>
                         <div class="input-group d-flex">

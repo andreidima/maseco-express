@@ -110,7 +110,7 @@ class FacturaController extends Controller
         $factura->furnizor_swift_code = $datePersonale->swift_code;
         $factura->furnizor_iban_eur = $datePersonale->iban_eur;
         $factura->furnizor_iban_eur_banca = $datePersonale->iban_eur_banca;
-        $factura->furnizor_iban_ron	 = $datePersonale->iban_ron;
+        $factura->furnizor_iban_ron	 = $request->furnizor_iban_ron;
         $factura->furnizor_iban_ron_banca = $datePersonale->iban_ron_banca;
         $factura->furnizor_capital_social = $datePersonale->capital_social;
         $factura->seria = $request->seria;
@@ -257,15 +257,14 @@ class FacturaController extends Controller
         $factura->delegat = $request->delegat;
         $factura->buletin = $request->buletin;
         $factura->auto = $request->auto;
+        $factura->furnizor_iban_ron	 = $request->furnizor_iban_ron;
         $factura->mentiuni = $request->mentiuni;
         $factura->save();
 
-        // $produse = collect($request->produse); // creare colectie din array pentru a lucra mai usor cu datele
-
+        // Stergerea produselor ce nu mai sunt la factura
+        FacturaProdus::where('factura_id', $factura->id)->whereNotIn('id', collect($request->produse)->whereNotNull('id')->pluck('id'))->delete();
+        // Adaugarea / modificarea produselor facturii
         foreach ($request->produse as $key=>$produs){
-            // Stergerea produselor ce nu mai sunt la factura
-            FacturaProdus::where('factura_id', $factura->id)->whereNotIn('id', collect($request->produse)->whereNotNull('id')->pluck('id'))->delete();
-
             $produs['id'] ? ($produsDb = FacturaProdus::find($produs['id'])) : ($produsDb = new FacturaProdus);
             $produsDb->factura_id = $factura->id;
             $produsDb->comanda_id = $produs['comanda_id'];
@@ -280,12 +279,21 @@ class FacturaController extends Controller
         }
 
         if ($request->chitanta_suma_incasata){
-            $chitanta = (FacturaChitanta::where('factura_id', $factura->id)->first()) ?? (new FacturaChitanta);
-            $chitanta->data = $factura->data;
-            $chitanta->suma = $request->chitanta_suma_incasata;
-            $chitanta->save();
-        }else {
-            FacturaChitanta::where('factura_id', $factura->id)->first()->delete();
+            if ($chitanta = FacturaChitanta::where('factura_id', $factura->id)->first()){
+                $chitanta->data = $factura->data;
+                $chitanta->suma = $request->chitanta_suma_incasata;
+                $chitanta->save();
+            } else {
+                $chitanta = new FacturaChitanta;
+                $chitanta->factura_id = $factura->id;
+                $chitanta->seria = $factura->seria;
+                $chitanta->numar = (FacturaChitanta::select('numar')->where('seria', $chitanta->seria)->latest()->first()->numar ?? 0) + 1;
+                $chitanta->data = $factura->data;
+                $chitanta->suma = $request->chitanta_suma_incasata;
+                $chitanta->save();
+            }
+        } else {
+            FacturaChitanta::where('factura_id', $factura->id)->delete();
         }
 
         return redirect($request->session()->get('facturaReturnUrl') ?? ('/facturi'))->with('status', 'Factura seria ' . $factura->seria . ' nr. ' . $factura->numar . ' a fost modificată cu succes!');
@@ -357,7 +365,7 @@ class FacturaController extends Controller
                 'client_email' => 'nullable|email:rfc,dns|max:500|required_with:alerte_scadenta',
 
                 'produse' => 'required',
-                'produse.*.comanda_id' => 'required',
+                'produse.*.comanda_id' => '',
                 'produse.*.denumire' => 'required',
                 'produse.*.um' => 'required',
                 'produse.*.cantitate' => 'required',
@@ -372,6 +380,7 @@ class FacturaController extends Controller
                 'delegat' => 'nullable|max:500',
                 'buletin' => 'nullable|max:500',
                 'auto' => 'nullable|max:500',
+                'furnizor_iban_ron' => 'required|max:500',
                 'mentiuni' => 'nullable|max:2000',
 
             ],

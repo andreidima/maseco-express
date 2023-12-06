@@ -53,4 +53,9 @@ class Factura extends Model
     {
         return $this->belongsTo(Moneda::class, 'moneda_id');
     }
+
+    public function procentTva()
+    {
+        return $this->belongsTo(ProcentTVA::class, 'procent_tva_id');
+    }
 }
