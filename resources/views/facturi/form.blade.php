@@ -10,6 +10,7 @@
 
     client_id = {!! json_encode(old('client_id', ($factura->client_id ?? ""))) !!}
     client_nume = {!! json_encode(old('client_nume', ($factura->client_nume ?? ""))) !!}
+    client_reg_com = {!! json_encode(old('client_reg_com', ($factura->client_reg_com ?? ""))) !!}
     client_cif = {!! json_encode(old('client_cif', ($factura->client_cif ?? ""))) !!}
     client_adresa = {!! json_encode(old('client_adresa', ($factura->client_adresa ?? ""))) !!}
     client_tara_id = {!! json_encode(old('client_tara_id', ($factura->client_tara_id ?? ""))) !!}
@@ -75,7 +76,7 @@
                 <button type="button" class="py-0 px-1 btn btn-sm btn-primary"
                     {{-- style="background-color:#2196F3;"  --}}
                     @click="preiaDateClient()">Preia datele clientului</button>
-                @{{ firmaClient.nume }} / CIF: @{{ firmaClient.cif  }} / Țara @{{ firmaClient.tara ? firmaClient.tara.nume : '' }} / Adresa @{{ firmaClient.cif }} / Telefon @{{ firmaClient.telefon }} / Email @{{ firmaClient.email }}
+                @{{ firmaClient.nume }} / Reg.com.: @{{ firmaClient.reg_com  }} / CIF: @{{ firmaClient.cif  }} / Țara @{{ firmaClient.tara ? firmaClient.tara.nume : '' }} / Adresa @{{ firmaClient.cif }} / Telefon @{{ firmaClient.telefon }} / Email @{{ firmaClient.email }}
             </div>
         {{-- </div> --}}
         {{-- <div class="row mb-0 py-0 rounded-3 d-flex justify-content-center" style="background-color:#B8FFB8; border-left:0px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px"> --}}
@@ -216,7 +217,15 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-3 mb-1">
+            <div class="col-lg-2 mb-1">
+                <label for="client_reg_com" class="mb-0 ps-3">Reg. com.</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('client_reg_com') ? 'is-invalid' : '' }}"
+                    name="client_reg_com"
+                    v-model="client_reg_com">
+            </div>
+            <div class="col-lg-2 mb-1">
                 <label for="client_cif" class="mb-0 ps-3">CIF</label>
                 <input
                     type="text"
@@ -224,7 +233,7 @@
                     name="client_cif"
                     v-model="client_cif">
             </div>
-            <div class="col-lg-3 mb-1">
+            <div class="col-lg-2 mb-1">
                 <label for="client_tara_id" class="mb-0 ps-3">Țara</label>
                 <select name="client_tara_id"
                     v-model="client_tara_id"
@@ -286,7 +295,7 @@
                     name="produsCantitate"
                     v-model="produsCantitate">
             </div>
-            <div class="col-lg-1 mb-1">
+            <div class="col-lg-2 mb-1">
                 <label for="produsPret" class="mb-0 ps-3">Preț</label>
                 <input
                     type="text"
@@ -294,7 +303,7 @@
                     name="produsPret"
                     v-model="produsPret">
             </div>
-            <div class="col-lg-1 mb-1">
+            {{-- <div class="col-lg-1 mb-1">
                 <label for="produsProcentTvaId" class="mb-0 ps-3">TVA</label>
                 <select v-model="produsProcentTvaId"
                 class="form-select bg-white rounded-3 {{ $errors->has('produsProcentTvaId') ? 'is-invalid' : '' }}">
@@ -303,7 +312,7 @@
                         <option value="{{ $procent_tva->id }}">{{ $procent_tva->nume }}</option>
                     @endforeach
                 </select>
-            </div>
+            </div> --}}
             <div class="col-lg-2 mb-1 text-center">
                 <label for="produsPretulIncludeTva" class="mb-0 ps-3"><small>Prețul include TVA?</small></label>
                 <div class="d-flex py-1 justify-content-center">
@@ -321,8 +330,10 @@
                 <button type="button" class="btn btn-sm btn-primary text-white" @click="adaugaProdusLaFactura()">Adaugă</button>
             </div>
 
-            <div v-if="showDateProdusIncomplete" class="col-lg-12 text-center text-danger">
-                @{{ showDateProdusIncomplete }}
+            <div v-if="showDateProdusIncomplete" class="col-lg-12 m-1 text-center">
+                <span class="px-3 rounded-3 bg-danger text-white">
+                    @{{ showDateProdusIncomplete }}
+                </span>
             </div>
 
             <div class="col-lg-12 table-responsive">
