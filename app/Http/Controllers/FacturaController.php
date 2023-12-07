@@ -123,6 +123,7 @@ class FacturaController extends Controller
         $factura->alerte_scadenta = $request->alerte_scadenta;
         $factura->client_id = $request->client_id;
         $factura->client_nume = $request->client_nume;
+        $factura->client_reg_com = $request->client_reg_com;
         $factura->client_cif = $request->client_cif;
         $factura->client_adresa = $request->client_adresa;
         $factura->client_tara_id = $request->client_tara_id;
@@ -240,6 +241,7 @@ class FacturaController extends Controller
         $factura->alerte_scadenta = $request->alerte_scadenta;
         $factura->client_id = $request->client_id;
         $factura->client_nume = $request->client_nume;
+        $factura->client_reg_com = $request->client_reg_com;
         $factura->client_cif = $request->client_cif;
         $factura->client_adresa = $request->client_adresa;
         $factura->client_tara_id = $request->client_tara_id;
@@ -358,6 +360,7 @@ class FacturaController extends Controller
 
                 // 'client_id' => 'required',
                 'client_nume' => 'required|max:500',
+                'client_reg_com' => 'nullable|max:500',
                 'client_cif' => 'nullable|max:500',
                 'client_adresa' => 'nullable|max:500',
                 'client_tara_id' => 'required',

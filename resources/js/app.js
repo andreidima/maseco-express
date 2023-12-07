@@ -383,6 +383,7 @@ const creareFactura = createApp({
             // datele clientului ce se adauga la factura
             client_id: client_id,
             client_nume: client_nume,
+            client_reg_com: client_reg_com,
             client_cif: client_cif,
             client_adresa: client_adresa,
             client_tara_id: client_tara_id,
@@ -402,7 +403,7 @@ const creareFactura = createApp({
             produsUm: '',
             produsCantitate: '',
             produsPret: '',
-            produsProcentTvaId: '',
+            // produsProcentTvaId: '',
             produsPretulIncludeTva: 0,
 
             comandaId: comandaId,
@@ -493,6 +494,7 @@ const creareFactura = createApp({
             if (this.firmaClient){
                 this.client_id = this.firmaClient.id;
                 this.client_nume = this.firmaClient.nume;
+                this.client_reg_com = this.firmaClient.reg_com;
                 this.client_cif = this.firmaClient.cif;
                 this.client_adresa = this.firmaClient.adresa;
                 this.client_tara_id = this.firmaClient.tara_id;
@@ -514,7 +516,7 @@ const creareFactura = createApp({
                 this.produsUm = 'um';
                 this.produsCantitate = 1;
                 this.produsPret = this.comandaGasita.client_valoare_contract;
-                this.produsProcentTvaId = this.comandaGasita.client_procent_tva_id;
+                // this.produsProcentTvaId = this.comandaGasita.client_procent_tva_id;
                 this.produsPretulIncludeTva = 0;
             }
         },
@@ -533,7 +535,7 @@ const creareFactura = createApp({
                 this.showDateProdusIncomplete = 'Completați cantitatea. ';
             } else if (!this.produsPret) {
                 this.showDateProdusIncomplete = 'Completați prețul. ';
-            } else if (!this.produsProcentTvaId) {
+            } else if (!this.procent_tva_id) {
                 this.showDateProdusIncomplete = 'Alegeți procentul TVA. ';
             } else if (!Number.isInteger(this.produsCantitate)) {
                 this.showDateProdusIncomplete += "Cantitatea trebuie să fie un număr întreg. ";
@@ -551,7 +553,7 @@ const creareFactura = createApp({
             // Se afla care este procentul TVA in functie de id
             let procentTVA = 0;
             for (var i = 0; i < this.procenteTva.length; i++) {
-                if (this.procenteTva[i].id == this.produsProcentTvaId) {
+                if (this.procenteTva[i].id == this.procent_tva_id) {
                     procentTVA = parseInt(this.procenteTva[i].nume);
                 }
             }
@@ -637,13 +639,6 @@ const creareFactura = createApp({
                                 this.produsGasitDenumire += ' / '
                             }
                         }
-
-                        this.produsGasitValoareContract = this.comandaGasita.client_valoare_contract;
-                        if (this.comandaGasita.client_procent_tva) {
-                            this.procent_tva = this.comandaGasita.client_procent_tva.nume;
-                        }
-
-
                     } else {
                         this.afisareMesajAtentionareNegasireComanda = true;
                     }

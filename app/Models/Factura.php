@@ -58,4 +58,9 @@ class Factura extends Model
     {
         return $this->belongsTo(ProcentTVA::class, 'procent_tva_id');
     }
+
+    public function clientTara()
+    {
+        return $this->belongsTo(Tara::class, 'client_tara_id');
+    }
 }

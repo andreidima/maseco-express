@@ -59,8 +59,8 @@
         }
 
         th, td {
-            padding: 2px 5px;
-            border-width: 1px;
+            padding: 2px 2px;
+            border: 0px;
             border-style: solid;
 
         }
@@ -131,50 +131,56 @@
                     </td>
                     <td valign="top" style="border-width:0px; padding:5px; margin:0rem; width:36%;">
                         Client: {{ $factura->client_nume }}
+                        @if ($factura->client_reg_com)
+                            <br>
+                            Reg. com.: {{ $factura->client_reg_com }}
+                        @endif
                         <br>
                         CIF: {{ $factura->client_cif }}
                         <br>
                         Adresa: {{ $factura->client_adresa }}
                         <br>
-                        Tara: {{ $factura->client_tara }}
+                        Tara: {{ $factura->clientTara->nume ?? '' }}
                     </td>
                 </tr>
             </table>
 
-            <table style="border:1px solid black;">
+            <br>
+
+            <table style="">
                 <tr valign="" style="">
-                    <th>
-                        Nr. crt
+                    <th width="29px">
+                        #
                     </th>
                     {{-- <th style="width: 40%"> --}}
-                    <th>
+                    <th width="330px">
                         Denumirea produselor sau a serviciilor
                     </th>
-                    <th>
+                    <th width="35px">
                         U.M.
                     </th>
-                    <th>
+                    <th width="35px">
                         Cant.
                     </th>
-                    <th>
+                    <th width="81px">
                         Pret unitar
                         <br>
                         (fara&nbsp;TVA)
                         <br>
                         -{{ $factura->moneda->nume ?? '' }}-
                     </th>
-                    <th>
+                    <th width="81px">
                         Valoarea
                         <br>
                         -{{ $factura->moneda->nume ?? '' }}-
                     </th>
-                    <th>
+                    <th width="81px" style="border-right:0px;">
                         Valoarea TVA
                         <br>
                         -{{ $factura->moneda->nume ?? '' }}-
                     </th>
                 </tr>
-                <tr>
+                {{-- <tr>
                     <td style="text-align:center">
                         0
                     </td>
@@ -196,39 +202,45 @@
                     <td style="text-align:center">
                         6
                     </td>
+                </tr> --}}
+                <tr style="border:1px solid black;">
+                    <td colspan="7" valign="top" style="padding: 0%; height: 550px;">
+                        <table style="margin:0px; padding:0px; border:0px;">
+                            @foreach ($factura->produse as $produs)
+                                <tr valign="top" style="border:1px solid black; border-left:1px; border-right:1px; border-bottom:1px; border-top: 1px">
+                                    <td style="width:29px; text-align:center; border-bottom: 1px solid black;">
+                                        {{ $loop->iteration }}
+                                    </td>
+                                    <td style="width:330px; text-align:left; border-bottom: 1px solid black;">
+                                        {{ $produs->denumire ?? '' }}
+                                    </td>
+                                    <td style="width:35px; text-align:center; border-bottom: 1px solid black;">
+                                        {{ $produs->um ?? '' }}
+                                    </td>
+                                    <td style="width:35px; text-align:center; border-bottom: 1px solid black;">
+                                        {{ $produs->cantitate ?? '' }}
+                                    </td>
+                                    <td style="width:81px; text-align:right; border-bottom: 1px solid black;">
+                                        {{ $produs->pret_unitar_fara_tva ?? '' }}
+                                    </td>
+                                    <td style="width:81px; text-align:right; border-bottom: 1px solid black;">
+                                        {{ $produs->valoare ?? '' }}
+                                    </td>
+                                    <td style="width:81px; text-align:right; border-bottom: 1px solid black;">
+                                        {{ $produs->valoare_tva ?? '' }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </table>
+                    </td>
                 </tr>
-                <tr>
-                @foreach ($factura->produse as $produs)
-                    <tr valign="top" style="border-bottom:1px; border-top: 1px">
-                        <td style="text-align:center; border-bottom:0px; border-top: 0px;">
-                            {{ $loop->iteration }}
-                        </td>
-                        <td style="text-align:left; border-bottom:0px; border-top: 0px">
-                            {{ $produs->denumire ?? '' }}
-                        </td>
-                        <td style="text-align:center; border-bottom:0px; border-top: 0px">
-                            {{ $produs->um ?? '' }}
-                        </td>
-                        <td style="text-align:right; border-bottom:0px; border-top: 0px">
-                            {{ $produs->cantitate ?? '' }}
-                        </td>
-                        <td style="text-align:right; border-bottom:0px; border-top: 0px">
-                            {{ $produs->pret_unitar_fara_tva ?? '' }}
-                        </td>
-                        <td style="text-align:right; border-bottom:0px; border-top: 0px">
-                            {{ $produs->valoare ?? '' }}
-                        </td>
-                        <td style="text-align:right; border-bottom:0px; border-top: 0px">
-                            {{ $produs->valoare_tva ?? '' }}
-                        </td>
-                    </tr>
-                @endforeach
                 @if (($factura->moneda->nume ?? '') !== "RON")
                 <tr>
                     <td colspan="7">
                         Curs 1 {{ $factura->moneda->nume ?? '' }} = {{ $factura->curs_moneda + 0 }} lei
                     </td>
                 </tr>
+                @else
                 @endif
                 @if ($factura->mentiuni)
                 <tr>
