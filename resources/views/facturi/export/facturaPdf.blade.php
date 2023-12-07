@@ -16,7 +16,7 @@
         }
         /** Define the margins of your page **/
         @page {
-            margin: 0px 0px;
+            margin: 10px 0px;
         }
 
         /* header {
@@ -85,9 +85,9 @@
         {{-- <img src="{{ asset('images/contract-header.jpg') }}" width="800px"> --}}
     {{-- </header> --}}
 
-    <main>
+    {{-- <main> --}}
 
-        <div style="page-break-inside: avoid; margin-bottom:50px;">
+        <div style="page-break-inside: avoid; margin-bottom:0px;">
 
             <table style="border:1px solid black;">
                 <tr valign="" style="">
@@ -147,185 +147,212 @@
 
             <br>
 
-            <table style="">
-                <tr valign="" style="">
-                    <th width="29px">
-                        #
-                    </th>
-                    {{-- <th style="width: 40%"> --}}
-                    <th width="330px">
-                        Denumirea produselor sau a serviciilor
-                    </th>
-                    <th width="35px">
-                        U.M.
-                    </th>
-                    <th width="35px">
-                        Cant.
-                    </th>
-                    <th width="81px">
-                        Pret unitar
-                        <br>
-                        (fara&nbsp;TVA)
-                        <br>
-                        -{{ $factura->moneda->nume ?? '' }}-
-                    </th>
-                    <th width="81px">
-                        Valoarea
-                        <br>
-                        -{{ $factura->moneda->nume ?? '' }}-
-                    </th>
-                    <th width="81px" style="border-right:0px;">
-                        Valoarea TVA
-                        <br>
-                        -{{ $factura->moneda->nume ?? '' }}-
-                    </th>
-                </tr>
-                {{-- <tr>
-                    <td style="text-align:center">
-                        0
-                    </td>
-                    <td style="text-align:center;">
-                        1
-                    </td>
-                    <td style="text-align:center">
-                        2
-                    </td>
-                    <td style="text-align:center">
-                        3
-                    </td>
-                    <td style="text-align:center">
-                        4
-                    </td>
-                    <td style="text-align:center">
-                        5 (3x4)
-                    </td>
-                    <td style="text-align:center">
-                        6
-                    </td>
-                </tr> --}}
-                <tr style="border:1px solid black;">
-                    <td colspan="7" valign="top" style="padding: 0%; height: 550px;">
-                        <table style="margin:0px; padding:0px; border:0px;">
+            <table>
+                <tr style=" border:0px;">
+                    {{-- daca are chitanta, se va scrie aceasta in josul paginii, deci nu mai este nevoie de lasat mult loc gol --}}
+                    {{-- daca sunt multe produse, nu se mai lasa spatiu gol, pentru ca va arata urat pe a doua pagina --}}
+                    <td valign="top" style="margin:0%; padding: 0%; border:0px;
+                        {{ $factura->chitante->first()
+                        ?
+                            'height: 150px;'
+                        :
+                            (($factura->produse->count() < 10) ? 'height: 550px;' : '')
+                        }}">
+                        <table style="padding: 0%; border:0px;">
+                            <tr valign="" style="border:0px;">
+                                <th width="29px">
+                                    #
+                                </th>
+                                {{-- <th style="width: 40%"> --}}
+                                <th width="330px">
+                                    Denumirea produselor sau a serviciilor
+                                </th>
+                                <th width="35px">
+                                    U.M.
+                                </th>
+                                <th width="35px">
+                                    Cant.
+                                </th>
+                                <th width="81px" style="text-align:right;">
+                                    Pret unitar
+                                    <br>
+                                    (fara&nbsp;TVA)
+                                    <br>
+                                    -{{ $factura->moneda->nume ?? '' }}-
+                                </th>
+                                <th width="81px" style="text-align:right;">
+                                    Valoarea
+                                    <br>
+                                    -{{ $factura->moneda->nume ?? '' }}-
+                                </th>
+                                <th width="81px" style="border-right:0px; text-align:right;">
+                                    Valoarea TVA
+                                    <br>
+                                    -{{ $factura->moneda->nume ?? '' }}-
+                                </th>
+                            </tr>
+                            {{-- <tr>
+                                <td style="text-align:center">
+                                    0
+                                </td>
+                                <td style="text-align:center;">
+                                    1
+                                </td>
+                                <td style="text-align:center">
+                                    2
+                                </td>
+                                <td style="text-align:center">
+                                    3
+                                </td>
+                                <td style="text-align:center">
+                                    4
+                                </td>
+                                <td style="text-align:center">
+                                    5 (3x4)
+                                </td>
+                                <td style="text-align:center">
+                                    6
+                                </td>
+                            </tr> --}}
                             @foreach ($factura->produse as $produs)
-                                <tr valign="top" style="border:1px solid black; border-left:1px; border-right:1px; border-bottom:1px; border-top: 1px">
-                                    <td style="width:29px; text-align:center; border-bottom: 1px solid black;">
+                                <tr valign="top" style="border-left:0px; border-right:0px">
+                                    <td style="width:29px; text-align:center;">
                                         {{ $loop->iteration }}
                                     </td>
-                                    <td style="width:330px; text-align:left; border-bottom: 1px solid black;">
+                                    <td style="width:330px; text-align:left;">
                                         {{ $produs->denumire ?? '' }}
                                     </td>
-                                    <td style="width:35px; text-align:center; border-bottom: 1px solid black;">
+                                    <td style="width:35px; text-align:center;">
                                         {{ $produs->um ?? '' }}
                                     </td>
-                                    <td style="width:35px; text-align:center; border-bottom: 1px solid black;">
+                                    <td style="width:35px; text-align:center;">
                                         {{ $produs->cantitate ?? '' }}
                                     </td>
-                                    <td style="width:81px; text-align:right; border-bottom: 1px solid black;">
+                                    <td style="width:81px; text-align:right;">
                                         {{ $produs->pret_unitar_fara_tva ?? '' }}
                                     </td>
-                                    <td style="width:81px; text-align:right; border-bottom: 1px solid black;">
+                                    <td style="width:81px; text-align:right;">
                                         {{ $produs->valoare ?? '' }}
                                     </td>
-                                    <td style="width:81px; text-align:right; border-bottom: 1px solid black;">
+                                    <td style="width:81px; text-align:right;">
                                         {{ $produs->valoare_tva ?? '' }}
                                     </td>
                                 </tr>
                             @endforeach
+                                            <tr style="border:0px">
+                                                <td colspan="4"></td>
+                                                <td valign="middle" style="border-bottom:1px solid black">
+                                                    Total
+                                                </td>
+                                                <td style="text-align: right; border-bottom:1px solid black">
+                                                    @if (($factura->moneda->nume ?? '') === "RON")
+                                                        {{ $factura->total_fara_tva_lei }}lei
+                                                    @else
+                                                        {{ $factura->total_fara_tva_moneda }}{{ $factura->moneda->nume ?? '' }}
+                                                        <br>
+                                                        <span style="font-size: 90%">({{ $factura->total_fara_tva_lei }}lei)</span>
+                                                    @endif
+                                                </td>
+                                                <td style="text-align: right; border-bottom:1px solid black">
+                                                    @if (($factura->moneda->nume ?? '') === "RON")
+                                                        {{ $factura->total_tva_lei }}lei
+                                                    @else
+                                                        {{ $factura->total_tva_moneda }}{{ $factura->moneda->nume ?? '' }}
+                                                        <br>
+                                                        <span style="font-size: 90%">({{ $factura->total_tva_lei }}lei)</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                            <tr style="border:0px">
+                                                <td colspan="4" style="border:0px"></td>
+                                                <td>
+                                                    Total plata
+                                                </td>
+                                                <td colspan="2" style="text-align: right;">
+                                                    @if (($factura->moneda->nume ?? '') === "RON")
+                                                        {{ $factura->total_plata_lei }}lei
+                                                    @else
+                                                        {{ $factura->total_moneda }}{{ $factura->moneda->nume ?? '' }}
+                                                        <br>
+                                                        <span style="font-size: 90%">({{ $factura->total_lei }} lei)</span>
+                                                    @endif
+                                                </td>
+                                            </tr>
                         </table>
                     </td>
                 </tr>
-                @if (($factura->moneda->nume ?? '') !== "RON")
-                <tr>
-                    <td colspan="7">
-                        Curs 1 {{ $factura->moneda->nume ?? '' }} = {{ $factura->curs_moneda + 0 }} lei
+                <tr style="border:0px">
+                    {{-- daca are chitanta, se va scrie aceasta in josul paginii, deci nu mai este nevoie de lasat mult loc gol --}}
+                    {{-- daca sunt multe produse, nu se mai lasa spatiu gol, pentru ca va arata urat pe a doua pagina --}}
+                    <td valign="bottom" style="margin:0%; padding: 0%; border:0px;
+                        {{ (!$factura->chitante->first() && ($factura->produse->count() < 10)) ? 'height: 220px;' : '' }}">
+                        <table style="padding: 0%; border:0px">
+                            @if (($factura->moneda->nume ?? '') !== "RON")
+                                <tr style="border:0px">
+                                    <td colspan="2" style="border-bottom:1px solid black; border-top:1px solid black">
+                                        Curs 1 {{ $factura->moneda->nume ?? '' }} = {{ $factura->curs_moneda + 0 }} lei
+                                    </td>
+                                </tr>
+                            @endif
+                            @if ($factura->mentiuni)
+                                <tr style="border:0px">
+                                    <td colspan="2" style="border-bottom:1px solid black;">
+                                        {{ $factura->mentiuni }}
+                                    </td>
+                                </tr>
+                            @endif
+                            @if ($factura->facturaOriginala)
+                                <tr style="border:0px;">
+                                    <td colspan="2" style="border-bottom:1px solid black;">
+                                        Storno factura seria {{ $factura->facturaOriginala->seria }} nr. {{ $factura->facturaOriginala->numar }} din data {{ $factura->facturaOriginala->data ? Carbon::parse($factura->facturaOriginala->data)->isoFormat("DD/MM/YYYY") : '' }}</b>
+                                    </td>
+                                </tr>
+                            @endif
+                                <tr style="border:0px">
+                                    <td style="padding-left:20px; border-bottom:1px solid black;">
+                                        Intocmit de: {{ $factura->intocmit_de }}
+                                        @if($factura->cnp)
+                                            <br>
+                                            CNP: {{ $factura->cnp }}
+                                        @endif
+                                        @if($factura->aviz_insotire)
+                                            <br>
+                                            Aviz insotire: {{ $factura->aviz_insotire }}
+                                        @endif
+                                    </td>
+                                    <td style="border-bottom:1px solid black;">
+                                        @if($factura->delegat)
+                                            Numele delegatului: {{ $factura->delegat }}
+                                        @endif
+                                        @if($factura->buletin)
+                                            <br>
+                                            B.I/C.I: {{ $factura->buletin }}
+                                        @endif
+                                        @if($factura->auto)
+                                            <br>
+                                            Mijloc transport: {{ $factura->auto }}
+                                        @endif
+                                    </td>
+                                </tr>
+                                <tr style="border:0px">
+                                    <td colspan="2" style="border-bottom:1px solid black;">
+                                        <br>
+                                        Expedierea s-a efectuat in prezenta noastra la data de .......................................... ora ...................
+                                    </td>
+                                </tr>
+                                <tr style="border:0px">
+                                    <td>
+                                        <br>
+                                        Semnaturile:
+                                    </td>
+                                    <td>
+                                        <br>
+                                        Semnatura de primire:
+                                    </td>
+                                </tr>
+                        </table>
                     </td>
                 </tr>
-                @else
-                @endif
-                @if ($factura->mentiuni)
-                <tr>
-                    <td colspan="7">
-                        {{ $factura->mentiuni }}
-                    </td>
-                </tr>
-                @endif
-                @if ($factura->facturaOriginala)
-                <tr>
-                    <td colspan="7" style="font-weight: bold">
-                        Storno factura seria {{ $factura->facturaOriginala->seria }} nr. {{ $factura->facturaOriginala->numar }} din data {{ $factura->facturaOriginala->data ? Carbon::parse($factura->facturaOriginala->data)->isoFormat("DD/MM/YYYY") : '' }}</b>
-                    </td>
-                </tr>
-                @endif
-                <tr valign="top">
-                    <td colspan="4" rowspan="3">
-                        Intocmit de: {{ $factura->intocmit_de }}
-                        @if($factura->cnp)
-                            <br>
-                            CNP: {{ $factura->cnp }}
-                        @endif
-                        @if($factura->aviz_insotire)
-                            <br>
-                            Aviz insotire: {{ $factura->aviz_insotire }}
-                        @endif
-                        @if($factura->delegat)
-                            <br>
-                            Numele delegatului: {{ $factura->delegat }}
-                        @endif
-                        @if($factura->buletin)
-                            <br>
-                            B.I/C.I: {{ $factura->buletin }}
-                        @endif
-                        @if($factura->auto)
-                            <br>
-                            Mijloc transport: {{ $factura->auto }}
-                        @endif
-                        <br>
-                        Expedierea s-a efectuat in prezenta noastra la data de ...................... ora ...........
-                        <br>
-                        Semnaturile:
-                    </td>
-                    <td valign="middle">
-                        Total
-                    </td>
-                    <td style="text-align: right">
-                        @if (($factura->moneda->nume ?? '') === "RON")
-                            {{ $factura->total_fara_tva_lei }}lei
-                        @else
-                            {{ $factura->total_fara_tva_moneda }}{{ $factura->moneda->nume ?? '' }}
-                            <br>
-                            <span style="font-size: 90%">({{ $factura->total_fara_tva_lei }}lei)</span>
-                        @endif
-                    </td>
-                    <td style="text-align: right">
-                        @if (($factura->moneda->nume ?? '') === "RON")
-                            {{ $factura->total_tva_lei }}lei
-                        @else
-                            {{ $factura->total_tva_moneda }}{{ $factura->moneda->nume ?? '' }}
-                            <br>
-                            <span style="font-size: 90%">({{ $factura->total_tva_lei }}lei)</span>
-                        @endif
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Total plata
-                    </td>
-                    <td colspan="2" style="text-align: right">
-                        @if (($factura->moneda->nume ?? '') === "RON")
-                            {{ $factura->total_plata_lei }}lei
-                        @else
-                            {{ $factura->total_moneda }}{{ $factura->moneda->nume ?? '' }}
-                            <br>
-                            <span style="font-size: 90%">({{ $factura->total_lei }} lei)</span>
-                        @endif
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="3">
-                        Semnatura de primire:
-                    </td>
-                </tr>
-
             </table>
 
             <p style="margin:0px 0px; padding:0px 0px 0px 10px; color:rgb(100, 100, 100);">
@@ -346,7 +373,7 @@
 
 
         @if ($factura->chitante->first())
-            <div style="page-break-inside: avoid;">
+            <div style="page-break-inside: avoid; margin-top:50px">
 
                 <table style="border:1px solid black;">
                     <tr valign="" style="border: 0px;">
@@ -387,7 +414,7 @@
                         </td>
                     </tr>
                     <tr style="border:0px;">
-                        <td colspan="3" style="border:0px;">
+                        <td colspan="3" style="border:0px; padding:5px">
                             <br>
                             Am primit de la: {{ $factura->client_nume }}, CIF: {{ $factura->client_cif }}, Reg. com.: {{ $factura->furnizor_reg_com }}
                             <br>
@@ -449,7 +476,7 @@
         </script> --}}
 
 
-    </main>
+    {{-- </main> --}}
 </body>
 
 </html>
