@@ -247,14 +247,26 @@
                 <tr valign="top">
                     <td colspan="4" rowspan="3">
                         Intocmit de: {{ $factura->intocmit_de }}
-                        <br>
-                        CNP: -
-                        <br>
-                        Numele delegatului: -
-                        <br>
-                        B.I/C.I: -
-                        <br>
-                        Mijloc transport: -
+                        @if($factura->cnp)
+                            <br>
+                            CNP: {{ $factura->cnp }}
+                        @endif
+                        @if($factura->aviz_insotire)
+                            <br>
+                            Aviz insotire: {{ $factura->aviz_insotire }}
+                        @endif
+                        @if($factura->delegat)
+                            <br>
+                            Numele delegatului: {{ $factura->delegat }}
+                        @endif
+                        @if($factura->buletin)
+                            <br>
+                            B.I/C.I: {{ $factura->buletin }}
+                        @endif
+                        @if($factura->auto)
+                            <br>
+                            Mijloc transport: {{ $factura->auto }}
+                        @endif
                         <br>
                         Expedierea s-a efectuat in prezenta noastra la data de ...................... ora ...........
                         <br>

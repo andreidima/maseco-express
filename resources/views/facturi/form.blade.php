@@ -601,7 +601,7 @@
                             <div class="list-group" style="max-height: 130px; overflow:auto;">
                                 <button type="button" class="list-group-item list-group-item list-group-item-action py-0"
                                     v-for="dateFactura in dateFacturiDelegatVechiListaAutocomplete"
-                                    v-on:click="delegat = dateFactura.delegat; buletin = dateFactura.buletin; dateFacturiDelegatVechiListaAutocomplete = ''">
+                                    v-on:click="delegat = dateFactura.delegat; buletin = dateFactura.buletin; auto = dateFactura.auto; dateFacturiDelegatVechiListaAutocomplete = ''">
                                         @{{ dateFactura.delegat }}
                                 </button>
                             </div>
@@ -621,7 +621,7 @@
                             type="text"
                             class="form-control bg-white rounded-3 {{ $errors->has('auto') ? 'is-invalid' : '' }}"
                             name="auto"
-                            value="{{ old('auto', $factura->auto) }}">
+                            v-model="auto">
                     </div>
                 </div>
             </div>

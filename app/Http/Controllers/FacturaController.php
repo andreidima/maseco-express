@@ -64,7 +64,7 @@ class FacturaController extends Controller
         $procenteTva = ProcentTVA::select('id', 'nume')->get();
 
         $dateFacturiIntocmitDeVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, intocmit_de')->groupBy('intocmit_de')->get()->pluck('id'))->select('intocmit_de', 'cnp')->orderBy('intocmit_de')->get();
-        $dateFacturiDelegatVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, delegat')->groupBy('delegat')->get()->pluck('id'))->select('delegat', 'buletin')->orderBy('delegat')->get();
+        $dateFacturiDelegatVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, delegat')->groupBy('delegat')->get()->pluck('id'))->select('delegat', 'buletin', 'auto')->orderBy('delegat')->get();
         $dateFacturiMentiuniVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, mentiuni')->groupBy('mentiuni')->get()->pluck('id'))->select('mentiuni', 'created_at')->latest()->get();
 
         return view('facturi.create', compact('factura', 'firmeClienti', 'tari', 'monede', 'procenteTva', 'dateFacturiIntocmitDeVechi', 'dateFacturiDelegatVechi', 'dateFacturiMentiuniVechi'));
@@ -196,7 +196,7 @@ class FacturaController extends Controller
         $procenteTva = ProcentTVA::select('id', 'nume')->get();
 
         $dateFacturiIntocmitDeVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, intocmit_de')->groupBy('intocmit_de')->get()->pluck('id'))->select('intocmit_de', 'cnp')->orderBy('intocmit_de')->get();
-        $dateFacturiDelegatVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, delegat')->groupBy('delegat')->get()->pluck('id'))->select('delegat', 'buletin')->orderBy('delegat')->get();
+        $dateFacturiDelegatVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, delegat')->groupBy('delegat')->get()->pluck('id'))->select('delegat', 'buletin', 'auto')->orderBy('delegat')->get();
         $dateFacturiMentiuniVechi = Factura::whereIn('id', Factura::selectRaw('max(id) as id, mentiuni')->groupBy('mentiuni')->get()->pluck('id'))->select('mentiuni', 'created_at')->latest()->get();
 
         return view('facturi.edit', compact('factura', 'firmeClienti', 'tari', 'monede', 'procenteTva', 'dateFacturiIntocmitDeVechi', 'dateFacturiDelegatVechi', 'dateFacturiMentiuniVechi'));
