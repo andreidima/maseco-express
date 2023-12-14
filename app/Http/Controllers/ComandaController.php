@@ -696,11 +696,13 @@ class ComandaController extends Controller
             $sheet->setCellValue('G' . $rand, $locOperareIncarcare->oras);
             $sheet->setCellValue('H' . $rand, $locOperareIncarcare->tara->nume ?? '');
             if ($locOperareIncarcare->pivot->data_ora){
+                $sheet->getStyle('I' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
                 $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('DD/MM/YYYY'));
                 $sheet->setCellValue('J' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('HH:mm:ss'));
 
                 $durata = Carbon::parse($locOperareIncarcare->pivot->durata);
                 $sfarsit = Carbon::parse($locOperareIncarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
+                $sheet->getStyle('K' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
                 $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD/MM/YYYY'));
                 $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
 
@@ -723,11 +725,13 @@ class ComandaController extends Controller
             $sheet->setCellValue('G' . $rand, $locOperareDescarcare->oras);
             $sheet->setCellValue('H' . $rand, $locOperareDescarcare->tara->nume ?? '');
             if ($locOperareDescarcare->pivot->data_ora){
+                $sheet->getStyle('I' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
                 $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('DD/MM/YYYY'));
                 $sheet->setCellValue('J' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('HH:mm:ss'));
 
                 $durata = Carbon::parse($locOperareDescarcare->pivot->durata);
                 $sfarsit = Carbon::parse($locOperareDescarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
+                $sheet->getStyle('K' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
                 $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD/MM/YYYY'));
                 $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
 
