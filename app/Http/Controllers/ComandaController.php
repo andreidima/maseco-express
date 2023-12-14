@@ -696,20 +696,15 @@ class ComandaController extends Controller
             $sheet->setCellValue('G' . $rand, $locOperareIncarcare->oras);
             $sheet->setCellValue('H' . $rand, $locOperareIncarcare->tara->nume ?? '');
             if ($locOperareIncarcare->pivot->data_ora){
-                $sheet->getStyle('I' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yy');
-                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('DD/MM/YY'));
+                $sheet->getStyle('I' . $rand)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
+                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('YYYY-MM-DD'));
                 $sheet->setCellValue('J' . $rand, Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('HH:mm:ss'));
 
                 $durata = Carbon::parse($locOperareIncarcare->pivot->durata);
                 $sfarsit = Carbon::parse($locOperareIncarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
-                $sheet->getStyle('K' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yy');
-                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD/MM/YY'));
+                $sheet->getStyle('K' . $rand)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
+                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('YYYY-MM-DD'));
                 $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
-
-                // $sheet->getStyle('I' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
-                // $sheet->getStyle('K' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
-                // $sheet->setCellValue('I' . $rand, '=TODAY()');
-                // $sheet->setCellValue('K' . $rand, '=TODAY()');
             }
             $sheet->setCellValue('N' . $rand, 'Loading ' . $key+1 );
             $rand ++;
@@ -725,22 +720,17 @@ class ComandaController extends Controller
             $sheet->setCellValue('G' . $rand, $locOperareDescarcare->oras);
             $sheet->setCellValue('H' . $rand, $locOperareDescarcare->tara->nume ?? '');
             if ($locOperareDescarcare->pivot->data_ora){
-                $sheet->getStyle('I' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yy');
-                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('DD/MM/YY'));
+                $sheet->getStyle('I' . $rand)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
+                $sheet->setCellValue('I' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('YYYY-MM-DD'));
                 $sheet->setCellValue('J' . $rand, Carbon::parse($locOperareDescarcare->pivot->data_ora)->isoFormat('HH:mm:ss'));
 
                 $durata = Carbon::parse($locOperareDescarcare->pivot->durata);
                 $sfarsit = Carbon::parse($locOperareDescarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
-                $sheet->getStyle('K' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yy');
-                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('DD/MM/YY'));
+                $sheet->getStyle('K' . $rand)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_DATE_YYYYMMDDSLASH);
+                $sheet->setCellValue('K' . $rand, $sfarsit->isoFormat('YYYY-MM-DD'));
                 $sheet->setCellValue('L' . $rand, $sfarsit->isoFormat('HH:mm:ss'));
 
-                // $sheet->getStyle('I' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
-                // $sheet->getStyle('K' . $rand)->getNumberFormat()->setFormatCode('dd/mm/yyyy');
-                // $sheet->setCellValue('I' . $rand, '=TODAY()');
-                // $sheet->setCellValue('K' . $rand, '=TODAY()');
             }
-            // $sheet->setCellValue('N' . $rand, $locOperareDescarcare->pivot->observatii ?? '');
             $sheet->setCellValue('N' . $rand, 'Unloading ' . $key+1 );
             $rand ++;
         }
