@@ -454,7 +454,13 @@ class FacturaController extends Controller
                 ->setPaper('a4', 'portrait');
             $pdf->getDomPDF()->set_option("enable_php", true);
             // return $pdf->download('Contract ' . $comanda->transportator_contract . '.pdf');
-            return $pdf->stream();
+            // return $pdf->stream();
+
+            $output= \Illuminate\Support\Facades\View::make('facturi.export.facturaPdf')->with(compact('factura'))->render();
+
+            //add xml header - blade does not seem to like it
+            $xml = "<?xml version=\"1.0\" ?>\n" . $output;
+            return $xml;
         }
     }
 }
