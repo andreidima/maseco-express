@@ -10,28 +10,14 @@ use Illuminate\Support\Facades\Response;
 class FileManagerPersonalizatController extends Controller
 {
     public function afisareDirectoareSiFisiere($cale = null){
-        // $files = File::allFiles(storage_path('app/filemanager/Folder 1'));
-echo $cale;
-echo '<br><br>';
         $directories = Storage::disk('filemanager')->directories($cale);
-        // dd($cale);
 
-        foreach ($directories as $directory) {
-            echo '<a href="/file-manager-personalizat/' . $directory . '">' . substr($directory, strrpos($directory, '/') + 1) . '</a>';
-            echo '<br>';
-        }
+        $fisiere = Storage::disk('filemanager')->files($cale);
 
-        $files = Storage::disk('filemanager')->files($cale);
-
-        foreach ($files as $file) {
-            echo '<a href="/file-manager-personalizat-fisier/' . $file . '" target="_blank">' . substr($file, strrpos($file, '/') + 1) . '</a>';
-            echo '<br>';
-        }
-
-        // dd($files, $directories);
+        return view('fileManagerPersonalizat.index', compact('cale', 'directories', 'fisiere'));
     }
 
-    public function showFile($cale = null)
+    public function fisierDeschide($cale = null)
     {
         //This method will look for the file and get it from drive
         try {
@@ -43,5 +29,15 @@ echo '<br><br>';
         } catch (FileNotFoundException $exception) {
             abort(404);
         }
+    }
+
+    public function fisierSterge($cale = null)
+    {
+        dd($cale);
+        Storage::delete($cale);
+
+        $exploded = explode("/", $cale);
+
+        return back()->with('status', end($exploded) . '" a fost șters cu succes!');
     }
 }

@@ -8,16 +8,16 @@
     "packages": [
         {
             "name": "alexusmai/laravel-file-manager",
-            "version": "v3.0.5",
+            "version": "v3.1.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/alexusmai/laravel-file-manager.git",
-                "reference": "5f019adfe3d92ce5b2b49e50f99189d3917aad04"
+                "reference": "c586cd858e3250c9f2363baca1f1ade8fb1cf8c9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/alexusmai/laravel-file-manager/zipball/5f019adfe3d92ce5b2b49e50f99189d3917aad04",
-                "reference": "5f019adfe3d92ce5b2b49e50f99189d3917aad04",
+                "url": "https://api.github.com/repos/alexusmai/laravel-file-manager/zipball/c586cd858e3250c9f2363baca1f1ade8fb1cf8c9",
+                "reference": "c586cd858e3250c9f2363baca1f1ade8fb1cf8c9",
                 "shasum": ""
             },
             "require": {
@@ -62,9 +62,9 @@
             ],
             "support": {
                 "issues": "https://github.com/alexusmai/laravel-file-manager/issues",
-                "source": "https://github.com/alexusmai/laravel-file-manager/tree/v3.0.5"
+                "source": "https://github.com/alexusmai/laravel-file-manager/tree/v3.1.1"
             },
-            "time": "2023-02-26T08:58:15+00:00"
+            "time": "2023-11-28T06:28:08+00:00"
         },
         {
             "name": "barryvdh/laravel-dompdf",

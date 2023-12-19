@@ -47,7 +47,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::view('file-manager', 'fileManager');
     Route::get('/file-manager-personalizat/{cale?}', [FileManagerPersonalizatController::class, 'afisareDirectoareSiFisiere'])->where('cale', '.*');
-    Route::get('/file-manager-personalizat-fisier/{cale?}', [FileManagerPersonalizatController::class, 'showFile'])->where('cale', '.*');
+    Route::get('/file-manager-personalizat-fisier/deschide/{cale?}', [FileManagerPersonalizatController::class, 'fisierDeschide'])->where('cale', '.*');
+    Route::delete('/file-manager-personalizat-fisier/sterge/{cale?}', [FileManagerPersonalizatController::class, 'fisierSterge'])->where('cale', '.*');
 
     Route::resource('/firme/{tipPartener}', FirmaController::class)->parameters(['{tipPartener}' => 'firma']);
     Route::get('/firme/{tipPartener}/{firma}/contract/{view_type}', [FirmaController::class, 'contractExportPDF']);
