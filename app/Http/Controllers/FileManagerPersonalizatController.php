@@ -10,11 +10,47 @@ use Illuminate\Support\Facades\Response;
 class FileManagerPersonalizatController extends Controller
 {
     public function afisareDirectoareSiFisiere($cale = null){
-        $directories = Storage::disk('filemanager')->directories($cale);
+        $directoare = Storage::disk('filemanager')->directories($cale);
 
         $fisiere = Storage::disk('filemanager')->files($cale);
 
-        return view('fileManagerPersonalizat.index', compact('cale', 'directories', 'fisiere'));
+        return view('fileManagerPersonalizat.index', compact('cale', 'directoare', 'fisiere'));
+    }
+
+    public function directorCreaza(Request $request)
+    {
+        $request->validate(
+            [
+                'cale' => 'required',
+                'numeDirector' => 'required',
+            ],
+        );
+
+        Storage::disk('filemanager')->makeDirectory($request->cale . '\\' . $request->numeDirector);
+
+        return back()->with('status', 'Directorul „' . $request->numeDirector . '" a fost creat cu succes!');
+    }
+
+    public function directorSterge($cale = null)
+    {
+        Storage::disk('filemanager')->deleteDirectory($cale);
+
+        $exploded = explode("/", $cale);
+
+        return back()->with('status', '„' . end($exploded) . '" a fost șters cu succes!');
+    }
+
+    public function fisiereAdauga(Request $request)
+    {
+        $request->validate(
+            [
+                'fisiere.*' => 'required|max:300000'
+            ],
+        );
+
+        Storage::disk('filemanager')->makeDirectory($request->cale . '\\' . $request->numeDirector);
+
+        return back()->with('status', 'Directorul „' . $request->numeDirector . '" a fost creat cu succes!');
     }
 
     public function fisierDeschide($cale = null)
@@ -33,11 +69,10 @@ class FileManagerPersonalizatController extends Controller
 
     public function fisierSterge($cale = null)
     {
-        dd($cale);
-        Storage::delete($cale);
+        Storage::disk('filemanager')->delete($cale);
 
         $exploded = explode("/", $cale);
 
-        return back()->with('status', end($exploded) . '" a fost șters cu succes!');
+        return back()->with('status', '„' . end($exploded) . '" a fost șters cu succes!');
     }
 }

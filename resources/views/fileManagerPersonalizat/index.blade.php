@@ -5,7 +5,7 @@
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
             <div class="col-lg-3">
                 <span class="badge culoare1 fs-5">
-                    Explorer - vizualizare și descăcare fișiere
+                    Explorer fișiere
                 </span>
             </div>
             <div class="col-lg-6">
@@ -27,9 +27,24 @@
                 </form>
             </div>
             <div class="col-lg-3 text-end">
-                <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ url()->current() }}/adauga" role="button">
-                    <i class="fas fa-plus-square text-white me-1"></i>Adaugă
-                </a>
+                <div class="d-flex">
+                    <div class="me-3">
+                        <a
+                            class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                            href="#"
+                            data-bs-toggle="modal"
+                            data-bs-target="#creazaDirector"
+                            title="Crează Director"
+                            >
+                            <i class="fas fa-plus-square text-white me-1"></i>Crează director
+                        </a>
+                    </div>
+                    <div>
+                        <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ url()->current() }}/adauga" role="button">
+                            <i class="fas fa-plus-square text-white me-1"></i>Adaugă fișiere
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -41,18 +56,38 @@
                 <table class="table table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
                         <th class="" style="">
-                            \ {{ str_replace('/', ' \ ', $cale) }}
+                            {{-- \ {{ str_replace('/', ' \ ', $cale) }} --}}
+                            Cale:
+                                    <a href="/file-manager-personalizat/" style="color:white; text-decoration: white;">
+                                        <i class="fa-solid fa-hard-drive"></i>
+                                    </a>
+                                    @php
+                                        $exploded = explode("/", $cale);
+                                        // dd($exploded, count($exploded));
+                                    @endphp
+                                    {{ $cale ? '\\' : '' }}
+                                    @foreach ($exploded as $item)
+                                        @php
+                                            $caleDirectorCurent = '';
+                                        @endphp
+                                        @for ($i = 0; $i < $loop->iteration; $i++)
+                                            @php
+                                                $caleDirectorCurent .= $exploded[$i] . '\\';
+                                            @endphp
+                                        @endfor
+                                        <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="color:white; text-decoration: underline white;">
+                                            {{ $item }}
+                                        </a>
+                                            \
+                                    @endforeach
                         </th>
                         <th class="text-end">Acțiuni</th>
                     </thead>
                     <tbody>
-                        @if ($cale)
+                        {{-- @if ($cale)
                             <tr>
                                 <td colspan="2" align="">
-                                    @php
-                                        $exploded = explode("/", $cale);
-                                    @endphp
-                                    <a href="/file-manager-personalizat/{{ substr($cale, 0, strrpos( $cale, '/')) }}" style="text-decoration:cornflowerblue">
+                                    <a href="/file-manager-personalizat-resursa/{{ substr($cale, 0, strrpos( $cale, '/')) }}" style="text-decoration:cornflowerblue">
                                         <div class="d-flex">
                                             <div class="px-1">
                                                 <i class="fa-solid fa-up-long fa-lg"></i>
@@ -62,16 +97,37 @@
                                             </div>
                                         </div>
                                     </a>
-                                    </td>
-                                </tr>
-                            @endif
-                        @foreach ($directories as $directory)
+                                    <a href="/file-manager-personalizat-resursa/{{ substr($cale, 0, strrpos( $cale, '/')) }}" style="text-decoration:cornflowerblue">
+                                        <i class="fa-solid fa-hard-drive"></i>
+                                    </a>
+                                    @php
+                                        $exploded = explode("/", $cale);
+                                    @endphp
+                                    \
+                                    @foreach ($exploded as $item)
+                                        @php
+                                            $caleDirectorCurent = '';
+                                        @endphp
+                                        @for ($i = 0; $i < $loop->iteration; $i++)
+                                            @php
+                                                $caleDirectorCurent .= $exploded[$i] . '\\';
+                                            @endphp
+                                        @endfor
+                                        <a href="/file-manager-personalizat-resursa/{{ $caleDirectorCurent }}" style="text-decoration:cornflowerblue">
+                                            {{ $item }}
+                                        </a>
+                                            \
+                                    @endforeach
+                                </td>
+                            </tr>
+                        @endif --}}
+                        @foreach ($directoare as $director)
                             @php
-                                $exploded = explode("/", $directory);
+                                $exploded = explode("/", $director);
                             @endphp
                             <tr>
                                 <td align="">
-                                    <a href="/file-manager-personalizat/{{ $directory }}" style="text-decoration:cornflowerblue">
+                                    <a href="/file-manager-personalizat/{{ $director }}" style="text-decoration:cornflowerblue">
                                         <i class="fa-solid fa-folder text-warning"></i>
                                         {{ end($exploded) }}
                                     </a>
@@ -82,7 +138,7 @@
                                             <a
                                                 href="#"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#sterge{{ str_replace([' ', '.'], '', end($exploded)) }}"
+                                                data-bs-target="#stergeDirector{{ $loop->iteration }}"
                                                 title="Șterge Director"
                                                 >
                                                 <span class="badge bg-danger">Șterge</span>
@@ -98,7 +154,7 @@
                             @endphp
                             <tr>
                                 <td align="">
-                                    <a href="/file-manager-personalizat-fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
+                                    <a href="/file-manager-personalizat-resursa/fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
                                         <i class="fa-solid fa-file"></i>
                                         {{ end($exploded) }}
                                     </a>
@@ -109,7 +165,7 @@
                                             <a
                                                 href="#"
                                                 data-bs-toggle="modal"
-                                                data-bs-target="#sterge{{ str_replace([' ', '.'], '', end($exploded)) }}"
+                                                data-bs-target="#stergeFisier{{ $loop->iteration }}"
                                                 title="Șterge Fisier"
                                                 >
                                                 <span class="badge bg-danger">Șterge</span>
@@ -125,13 +181,73 @@
         </div>
     </div>
 
+    {{-- Modalele pentru creare director --}}
+    <div class="modal fade text-dark" id="creazaDirector" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form method="POST" action="/file-manager-personalizat-resursa/director/creaza">
+                @csrf
+
+                <div class="modal-content">
+                    <div class="modal-header bg-success">
+                        <h5 class="modal-title text-white" id="exampleModalLabel">Director nou</b></h5>
+                        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="text-align:left;">
+                        <input type="hidden" class="form-control rounded-3" id="cale" name="cale" value="{{ $cale }}">
+
+                        <label for="numeDirector" class="mb-0 ps-3">Nume director<span class="text-danger">*</span></label>
+                        <input type="text" class="form-control rounded-3" id="numeDirector" name="numeDirector">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                        <button type="submit" class="btn btn-success text-white">Crează Directorul</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modalele pentru stergere directoare --}}
+    @foreach ($directoare as $director)
+        @php
+            $exploded = explode("/", $director);
+        @endphp
+        <div class="modal fade text-dark" id="stergeDirector{{ $loop->iteration }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white" id="exampleModalLabel">Director: <b>{{ end($exploded) }}</b></h5>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="text-align:left;">
+                    Ești sigur ca vrei să ștergi Directorul?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+
+                    <form method="POST" action="file-manager-personalizat-resursa/director/sterge/{{ $director }}">
+                        @method('DELETE')
+                        @csrf
+                        <button
+                            type="submit"
+                            class="btn btn-danger text-white"
+                            >
+                            Șterge Directorul
+                        </button>
+                    </form>
+
+                </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
+
     {{-- Modalele pentru stergere fisier --}}
     @foreach ($fisiere as $fisier)
         @php
             $exploded = explode("/", $fisier);
-            dd(array_combine($directories, $fisiere));
         @endphp
-        <div class="modal fade text-dark" id="sterge{{ str_replace([' ', '.'], '', end($exploded)) }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal fade text-dark" id="stergeFisier{{ $loop->iteration }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                 <div class="modal-header bg-danger">
@@ -144,7 +260,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
 
-                    <form method="POST" action="file-manager-personalizat-fisier/sterge/{{ $fisier }}">
+                    <form method="POST" action="file-manager-personalizat-resursa/fisier/sterge/{{ $fisier }}">
                         @method('DELETE')
                         @csrf
                         <button
