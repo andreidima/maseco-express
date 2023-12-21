@@ -40,7 +40,13 @@
                         </a>
                     </div>
                     <div>
-                        <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ url()->current() }}/adauga" role="button">
+                        <a
+                            class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                            href="#"
+                            data-bs-toggle="modal"
+                            data-bs-target="#adaugaFisiere"
+                            title="Adaugă fișiere"
+                            >
                             <i class="fas fa-plus-square text-white me-1"></i>Adaugă fișiere
                         </a>
                     </div>
@@ -87,7 +93,7 @@
                         {{-- @if ($cale)
                             <tr>
                                 <td colspan="2" align="">
-                                    <a href="/file-manager-personalizat-resursa/{{ substr($cale, 0, strrpos( $cale, '/')) }}" style="text-decoration:cornflowerblue">
+                                    <a href="/file-manager-personalizat/{{ substr($cale, 0, strrpos( $cale, '/')) }}" style="text-decoration:cornflowerblue">
                                         <div class="d-flex">
                                             <div class="px-1">
                                                 <i class="fa-solid fa-up-long fa-lg"></i>
@@ -97,7 +103,7 @@
                                             </div>
                                         </div>
                                     </a>
-                                    <a href="/file-manager-personalizat-resursa/{{ substr($cale, 0, strrpos( $cale, '/')) }}" style="text-decoration:cornflowerblue">
+                                    <a href="/file-manager-personalizat/{{ substr($cale, 0, strrpos( $cale, '/')) }}" style="text-decoration:cornflowerblue">
                                         <i class="fa-solid fa-hard-drive"></i>
                                     </a>
                                     @php
@@ -113,7 +119,7 @@
                                                 $caleDirectorCurent .= $exploded[$i] . '\\';
                                             @endphp
                                         @endfor
-                                        <a href="/file-manager-personalizat-resursa/{{ $caleDirectorCurent }}" style="text-decoration:cornflowerblue">
+                                        <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="text-decoration:cornflowerblue">
                                             {{ $item }}
                                         </a>
                                             \
@@ -154,7 +160,7 @@
                             @endphp
                             <tr>
                                 <td align="">
-                                    <a href="/file-manager-personalizat-resursa/fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
+                                    <a href="/file-manager-personalizat/fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
                                         <i class="fa-solid fa-file"></i>
                                         {{ end($exploded) }}
                                     </a>
@@ -181,10 +187,10 @@
         </div>
     </div>
 
-    {{-- Modalele pentru creare director --}}
+    {{-- Modala pentru creare director --}}
     <div class="modal fade text-dark" id="creazaDirector" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
-            <form method="POST" action="/file-manager-personalizat-resursa/director/creaza">
+            <form method="POST" action="/file-manager-personalizat/director/creaza">
                 @csrf
 
                 <div class="modal-content">
@@ -201,6 +207,35 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
                         <button type="submit" class="btn btn-success text-white">Crează Directorul</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- Modala pentru adăugare fisiere --}}
+    <div class="modal fade text-dark" id="adaugaFisiere" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <form method="POST" action="/file-manager-personalizat/fisiere/adauga" enctype="multipart/form-data">
+                @csrf
+
+                <div class="modal-content">
+                    <div class="modal-header bg-success">
+                        <h5 class="modal-title text-white" id="exampleModalLabel">Adaugă fișiere</b></h5>
+                        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="text-align:left;">
+                        <input type="hidden" class="form-control rounded-3" id="cale" name="cale" value="{{ $cale }}">
+
+                        <label for="file" class="form-label mb-0 ps-3">Fișiere</label>
+                        <input type="file" name="fisiere[]" class="form-control rounded-3" multiple>
+                        @if($errors->has('fisiere'))
+                            <span class="help-block text-danger">{{ $errors->first('fisiere') }}</span>
+                        @endif
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                        <button type="submit" class="btn btn-success text-white">Adaugă fișierele</button>
                     </div>
                 </div>
             </form>
@@ -225,7 +260,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
 
-                    <form method="POST" action="file-manager-personalizat-resursa/director/sterge/{{ $director }}">
+                    <form method="POST" action="file-manager-personalizat/director/sterge/{{ $director }}">
                         @method('DELETE')
                         @csrf
                         <button
@@ -260,7 +295,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
 
-                    <form method="POST" action="file-manager-personalizat-resursa/fisier/sterge/{{ $fisier }}">
+                    <form method="POST" action="file-manager-personalizat/fisier/sterge/{{ $fisier }}">
                         @method('DELETE')
                         @csrf
                         <button

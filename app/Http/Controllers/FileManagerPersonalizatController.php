@@ -48,9 +48,20 @@ class FileManagerPersonalizatController extends Controller
             ],
         );
 
-        Storage::disk('filemanager')->makeDirectory($request->cale . '\\' . $request->numeDirector);
+        foreach ($request->file('fisiere') as $fisier) {
+            $numeFisier = $fisier->getClientOriginalName();
+            if (Storage::disk('filemanager')->exists($request->cale . '/' . $numeFisier)){
+                return back()->with('error', 'Există deja un fișier cu numele „' . $numeFisier . '”. Redenumește fișierul și înccearcă din nou.');
+            }
+        }
+        foreach ($request->file('fisiere') as $fisier) {
+            $numeFisier = $fisier->getClientOriginalName();
+            if (! Storage::disk('filemanager')->putFileAs($request->cale, $fisier, $numeFisier)){
+                return back()->with('error', 'Fișierele nu au putut fi încărcate.');
+            }
+        }
 
-        return back()->with('status', 'Directorul „' . $request->numeDirector . '" a fost creat cu succes!');
+        return back()->with('status', 'Fișierele au fost adăugate cu succes!');
     }
 
     public function fisierDeschide($cale = null)
