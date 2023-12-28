@@ -9,19 +9,29 @@ use Illuminate\Support\Facades\Response;
 
 class FileManagerPersonalizatController extends Controller
 {
-    public function afisareDirectoareSiFisiere($cale = null){
+    public function afisareDirectoareSiFisiere(Request $request, $cale = null){
+        $searchFisier = $request->searchFisier;
+        $fisiereGasite = [];
+        if ($searchFisier){
+            $toateFisierele = Storage::disk('filemanager')->allFiles();
+            foreach ($toateFisierele as $fisier){
+                if (strpos(strtolower($fisier), strtolower($searchFisier))){
+                    array_push($fisiereGasite, $fisier);
+                }
+            }
+        }
         $directoare = Storage::disk('filemanager')->directories($cale);
 
         $fisiere = Storage::disk('filemanager')->files($cale);
 
-        return view('fileManagerPersonalizat.index', compact('cale', 'directoare', 'fisiere'));
+        return view('fileManagerPersonalizat.index', compact('cale', 'directoare', 'fisiere', 'searchFisier', 'fisiereGasite'));
     }
 
     public function directorCreaza(Request $request)
     {
         $request->validate(
             [
-                'cale' => 'required',
+                'cale' => '',
                 'numeDirector' => 'required',
             ],
         );
@@ -66,6 +76,7 @@ class FileManagerPersonalizatController extends Controller
 
     public function fisierDeschide($cale = null)
     {
+        // dd('here');
         //This method will look for the file and get it from drive
         try {
             $file = Storage::disk('filemanager')->get($cale);

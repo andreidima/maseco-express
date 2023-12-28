@@ -1,7 +1,7 @@
 @extends ('layouts.app')
 
 @section('content')
-<div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
+<div class="container mx-auto mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
             <div class="col-lg-3">
                 <span class="badge culoare1 fs-5">
@@ -12,9 +12,9 @@
                 <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form justify-content-center">
-                        {{-- <div class="col-lg-4">
-                            <input type="text" class="form-control rounded-3" id="search_nume" name="search_nume" placeholder="Nume" value="{{ $search_nume }}">
-                        </div> --}}
+                        <div class="col-lg-6">
+                            <input type="text" class="form-control rounded-3" id="searchFisier" name="searchFisier" placeholder="Nume fișier" value="{{ $searchFisier }}">
+                        </div>
                     </div>
                     <div class="row custom-search-form justify-content-center">
                         <button class="btn btn-sm btn-primary text-white col-md-4 me-3 border border-dark rounded-3" type="submit">
@@ -27,29 +27,27 @@
                 </form>
             </div>
             <div class="col-lg-3 text-end">
-                <div class="d-flex">
-                    <div class="me-3">
-                        <a
-                            class="btn btn-sm btn-success text-white border border-dark rounded-3"
-                            href="#"
-                            data-bs-toggle="modal"
-                            data-bs-target="#creazaDirector"
-                            title="Crează Director"
-                            >
-                            <i class="fas fa-plus-square text-white me-1"></i>Crează director
-                        </a>
-                    </div>
-                    <div>
-                        <a
-                            class="btn btn-sm btn-success text-white border border-dark rounded-3"
-                            href="#"
-                            data-bs-toggle="modal"
-                            data-bs-target="#adaugaFisiere"
-                            title="Adaugă fișiere"
-                            >
-                            <i class="fas fa-plus-square text-white me-1"></i>Adaugă fișiere
-                        </a>
-                    </div>
+                <div class="mb-2">
+                    <a
+                        class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                        href="#"
+                        data-bs-toggle="modal"
+                        data-bs-target="#creazaDirector"
+                        title="Crează Director"
+                        >
+                        <i class="fa-solid fa-folder text-white"></i> Crează director
+                    </a>
+                </div>
+                <div>
+                    <a
+                        class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                        href="#"
+                        data-bs-toggle="modal"
+                        data-bs-target="#adaugaFisiere"
+                        title="Adaugă fișiere"
+                        >
+                        <i class="fa-solid fa-file text-white"></i> Adaugă fișiere
+                    </a>
                 </div>
             </div>
         </div>
@@ -58,36 +56,68 @@
 
             @include ('errors')
 
+            @if ($searchFisier)
+                @if ($fisiereGasite)
+                    <div class="col-lg-6 mx-auto table-responsive rounded-3">
+                        <table class="table table-striped table-hover rounded-3">
+                            <thead class="text-white rounded-3 culoare2">
+                                <tr>
+                                    <th class="text-center">Fișiere găsite în urma căutării</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($fisiereGasite as $fisier)
+                                    <tr>
+                                        <td>
+                                            <a href="/file-manager-personalizat-fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
+                                                <i class="fa-solid fa-file"></i>
+                                                {{ $fisier }}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <div class="d-flex justify-content-center">
+                        <p class="px-3 bg-warning rounded" style="width:fit-content">Căutarea nu a găsit nici un fișier</p>
+                    </div>
+                @endif
+            @endif
+
             <div class="table-responsive rounded">
                 <table class="table table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
-                        <th class="" style="">
-                            {{-- \ {{ str_replace('/', ' \ ', $cale) }} --}}
-                            Cale:
-                                    <a href="/file-manager-personalizat/" style="color:white; text-decoration: white;">
-                                        <i class="fa-solid fa-hard-drive"></i>
-                                    </a>
-                                    @php
-                                        $exploded = explode("/", $cale);
-                                        // dd($exploded, count($exploded));
-                                    @endphp
-                                    {{ $cale ? '\\' : '' }}
-                                    @foreach ($exploded as $item)
-                                        @php
-                                            $caleDirectorCurent = '';
-                                        @endphp
-                                        @for ($i = 0; $i < $loop->iteration; $i++)
-                                            @php
-                                                $caleDirectorCurent .= $exploded[$i] . '\\';
-                                            @endphp
-                                        @endfor
-                                        <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="color:white; text-decoration: underline white;">
-                                            {{ $item }}
+                        <tr>
+                            <th class="" style="">
+                                {{-- \ {{ str_replace('/', ' \ ', $cale) }} --}}
+
+                                        <a href="/file-manager-personalizat/" style="color:white; text-decoration: white;">
+                                            Cale: <i class="fa-solid fa-hard-drive"></i>
                                         </a>
-                                            \
-                                    @endforeach
-                        </th>
-                        <th class="text-end">Acțiuni</th>
+                                        @php
+                                            $exploded = explode("/", $cale);
+                                            // dd($exploded, count($exploded));
+                                        @endphp
+                                        {{ $cale ? '\\' : '' }}
+                                        @foreach ($exploded as $item)
+                                            @php
+                                                $caleDirectorCurent = '';
+                                            @endphp
+                                            @for ($i = 0; $i < $loop->iteration; $i++)
+                                                @php
+                                                    $caleDirectorCurent .= $exploded[$i] . '\\';
+                                                @endphp
+                                            @endfor
+                                            <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="color:white; text-decoration: underline white;">
+                                                {{ $item }}
+                                            </a>
+                                                \
+                                        @endforeach
+                            </th>
+                            <th class="text-end">Acțiuni</th>
+                        </tr>
                     </thead>
                     <tbody>
                         {{-- @if ($cale)
@@ -160,7 +190,7 @@
                             @endphp
                             <tr>
                                 <td align="">
-                                    <a href="/file-manager-personalizat/fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
+                                    <a href="/file-manager-personalizat-fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
                                         <i class="fa-solid fa-file"></i>
                                         {{ end($exploded) }}
                                     </a>
@@ -190,7 +220,7 @@
     {{-- Modala pentru creare director --}}
     <div class="modal fade text-dark" id="creazaDirector" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
-            <form method="POST" action="/file-manager-personalizat/director/creaza">
+            <form method="POST" action="/file-manager-personalizat-director/creaza">
                 @csrf
 
                 <div class="modal-content">
@@ -216,7 +246,7 @@
     {{-- Modala pentru adăugare fisiere --}}
     <div class="modal fade text-dark" id="adaugaFisiere" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
-            <form method="POST" action="/file-manager-personalizat/fisiere/adauga" enctype="multipart/form-data">
+            <form method="POST" action="/file-manager-personalizat-fisiere/adauga" enctype="multipart/form-data">
                 @csrf
 
                 <div class="modal-content">
@@ -260,7 +290,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
 
-                    <form method="POST" action="file-manager-personalizat/director/sterge/{{ $director }}">
+                    <form method="POST" action="/file-manager-personalizat-director/sterge/{{ $director }}">
                         @method('DELETE')
                         @csrf
                         <button
@@ -295,7 +325,7 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
 
-                    <form method="POST" action="file-manager-personalizat/fisier/sterge/{{ $fisier }}">
+                    <form method="POST" action="/file-manager-personalizat-fisier/sterge/{{ $fisier }}">
                         @method('DELETE')
                         @csrf
                         <button
