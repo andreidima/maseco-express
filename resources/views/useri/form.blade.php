@@ -1,9 +1,9 @@
 @csrf
 
-@php
+{{-- @php
     dd($user, old('email', $user->email));
 
-@endphp
+@endphp --}}
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px">
     <div class="col-lg-12 px-4 py-2 mb-0 mx-auto">
