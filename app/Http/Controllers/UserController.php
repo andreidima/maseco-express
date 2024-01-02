@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
@@ -51,7 +52,9 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
-        $user = User::create($this->validateRequest($request));
+        $data = $this->validateRequest($request);
+        $data['password'] = Hash::make($data['password']);
+        $user = User::create($data);
 
         return redirect($request->session()->get('userReturnUrl') ?? ('/utilizatori'))->with('status', 'Utilizatorul „' . $user->name . '” a fost adăugat cu succes!');
     }
@@ -91,8 +94,13 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        is_null($request->password) ? $request->request->remove('password') : ''; // Daca nu se introduce nimic in campul parola, aceasta ramane aceeasi
-        $user->update($this->validateRequest($request));
+        $data = $this->validateRequest($request);
+        if (is_null($data['password'])){
+            unset($data['password']);
+        } else {
+            $data['password'] = Hash::make($data['password']);
+        }
+        $user->update($data);
 
         return redirect($request->session()->get('userReturnUrl') ?? ('/utilizatori'))->with('status', 'Utilizatorul „' . $user->name . '” a fost modificat cu succes!');
     }
