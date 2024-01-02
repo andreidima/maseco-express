@@ -15,6 +15,7 @@ use App\Http\Controllers\FisierController;
 use App\Http\Controllers\MementoController;
 use App\Http\Controllers\FileManagerPersonalizatController;
 use App\Http\Controllers\FacturaController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,6 +83,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/facturi', FacturaController::class)->parameters(['facturi' => 'factura']);
     Route::any('/facturi/{factura}/storneaza', [FacturaController::class, 'storneaza']);
     Route::get('/facturi/{factura}/export/{view_type}', [FacturaController::class, 'exportPdf']);
+
+    Route::resource('/utilizatori', UserController::class)->parameters(['utilizatori' => 'user']);
 
     // Clear application cache:
     Route::get('/clear-cache', function() {

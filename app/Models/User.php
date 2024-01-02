@@ -21,7 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'status',
+        'activ',
     ];
 
     /**
@@ -42,4 +42,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function path()
+    {
+        return "/utilizatori/{$this->id}";
+    }
 }
