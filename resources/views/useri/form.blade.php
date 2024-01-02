@@ -39,7 +39,8 @@
                     class="form-control bg-white rounded-3 {{ $errors->has('email') ? 'is-invalid' : '' }}"
                     name="email"
                     placeholder=""
-                    value="{{ old('email', $user->email) }}">
+                    value="{{ old('email', $user->email) }}"
+                    autocomplete="off">
             </div>
             <div class="col-lg-6 mb-4">
                 <label for="telefon" class="mb-0 ps-3">Telefon</label>
@@ -55,6 +56,7 @@
                 <label for="telefon" class="mb-0 ps-3">Parola</label>
                     <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password"
                         placeholder="{{ str_contains(url()->current(), '/modifica') ? '********' : '' }}"
+                        autocomplete="off"
                     >
             </div>
             <div class="col-lg-6 mb-4">
