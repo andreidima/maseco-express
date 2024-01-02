@@ -53,14 +53,14 @@
                     required>
             </div>
             <div class="col-lg-6 mb-4">
-                <label for="telefon" class="mb-0 ps-3">Parola</label>
+                <label for="password" class="mb-0 ps-3">Parola</label>
                     <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password"
                         placeholder="{{ str_contains(url()->current(), '/modifica') ? '********' : '' }}"
                         autocomplete="off"
                     >
             </div>
             <div class="col-lg-6 mb-4">
-                <label for="telefon" class="mb-0 ps-3">Confirmare parolă</label>
+                <label for="password_confirmation" class="mb-0 ps-3">Confirmare parolă</label>
                 <input id="password_confirmation" type="password" class="form-control @error('password_confirmation') is-invalid @enderror" name="password_confirmation"
                     placeholder="{{ str_contains(url()->current(), '/modifica') ? '********' : '' }}"
                 >
