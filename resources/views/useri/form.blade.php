@@ -1,7 +1,8 @@
 @csrf
 
 @php
-    dd($user);
+    dd($user, old('email', $user->email));
+
 @endphp
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px">
