@@ -24,7 +24,7 @@ class UserController extends Controller
                 return $query->where('name', 'like', '%' . $searchNume . '%');
             })
             ->where('id', '>', 1) // se sare pentru user 1, Andrei Dima
-            ->orderBy('status', 'desc')
+            ->orderBy('activ', 'desc')
             ->orderBy('name')
             ->simplePaginate(100);
 

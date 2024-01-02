@@ -77,7 +77,7 @@ class ComandaController extends Controller
 // dd($comenzi);
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
-        $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->where('status', 1)->orderBy('name')->get();
+        $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
 
         return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'useri', 'searchDataCreare', 'searchTransportatorContract', 'searchStare', 'searchUser', 'searchTransportatorId', 'searchClientId'));
     }
@@ -180,7 +180,7 @@ class ComandaController extends Controller
         }
         // dd($comanda, session()->getOldInput());
 
-        $useri = User::select('id', 'name')->where('name', '<>', 'Andrei Dima')->where('status', 1)->orderBy('name')->get();
+        $useri = User::select('id', 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $limbi = Limba::select('id', 'nume')->get();
