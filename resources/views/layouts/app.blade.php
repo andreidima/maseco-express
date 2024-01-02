@@ -154,7 +154,7 @@
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('utilizatori.index') }}">
-                                        Utilizatori
+                                        <i class="fa-solid fa-users me-1"></i>Utilizatori
                                     </a>
                                 </li>
                             </ul>
