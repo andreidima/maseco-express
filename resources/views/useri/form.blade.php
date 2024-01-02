@@ -44,7 +44,7 @@
                     class="form-control bg-white rounded-3 {{ $errors->has('email') ? 'is-invalid' : '' }}"
                     name="email"
                     placeholder=""
-                    value="{{ old('email', $user->email) }}"
+                    {{-- value="{{ old('email', $user->email) }}" --}}
                     autocomplete="off">
             </div>
             <div class="col-lg-6 mb-4">
