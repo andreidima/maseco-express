@@ -16,7 +16,7 @@
                 <div class="card-body py-2 border border-secondary"
                     style="border-radius: 0px 0px 40px 40px;"
                 >
-                    <form  class="needs-validation" novalidate method="POST" action="{{ $user->path() }}">
+                    <form  class="needs-validation" novalidate method="POST" action="{{ $user->path() }}" autocomplete="off">
                         @method('PATCH')
 
                                 @include ('useri.form', [

@@ -16,7 +16,7 @@
                 <div class="card-body py-2 border border-secondary"
                     style="border-radius: 0px 0px 40px 40px;"
                 >
-                    <form  class="needs-validation" novalidate method="POST" action="/utilizatori">
+                    <form  class="needs-validation" novalidate method="POST" action="/utilizatori" autocomplete="off">
 
                             @include ('useri.form', [
                                 'user' => new App\Models\User,
