@@ -96,6 +96,10 @@
                 </table>
             </div>
 
+            <p class="ms-5">
+                * Nu se recomandă ștergerea utilizatorilor ce au deja înregistrări în aplicație. Este suficientă închiderea conturilor.
+            </p>
+
                 <nav>
                     <ul class="pagination justify-content-center">
                         {{$useri->appends(Request::except('page'))->links()}}
