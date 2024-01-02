@@ -59,7 +59,7 @@
             </div>
             <div class="col-lg-6 mb-4">
                 <label for="password" class="mb-0 ps-3">Parola</label>
-                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="new-password"
+                    <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password"
                         placeholder="{{ str_contains(url()->current(), '/modifica') ? '********' : '' }}"
                     >
             </div>
