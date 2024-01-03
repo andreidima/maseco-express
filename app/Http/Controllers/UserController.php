@@ -26,6 +26,7 @@ class UserController extends Controller
             })
             ->where('id', '>', 1) // se sare pentru user 1, Andrei Dima
             ->orderBy('activ', 'desc')
+            ->orderBy('role')
             ->orderBy('name')
             ->simplePaginate(100);
 
@@ -136,6 +137,7 @@ class UserController extends Controller
 // dd($request, $request->isMethod('post'));
         return $request->validate(
             [
+                'role' => 'required',
                 'name' => 'required|max:255',
                 'telefon' => 'nullable|max:50',
                 'email' => 'required|max:255|email:rfc,dns|unique:users,email,' . $request->id,

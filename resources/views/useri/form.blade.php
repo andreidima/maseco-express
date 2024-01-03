@@ -21,6 +21,14 @@
                     required>
             </div>
             <div class="col-lg-3 mb-4">
+                <label for="role" class="mb-0 ps-3">Rol<span class="text-danger">*</span></label>
+                <select class="form-select bg-white rounded-3 {{ $errors->has('role') ? 'is-invalid' : '' }}" name="role">
+                    <option selected></option>
+                    <option value="1" {{ old('role', $user->role) == "1" ? 'selected' : '' }}>Admin</option>
+                    <option value="2" {{ old('role', $user->role) == "2" ? 'selected' : '' }}>Operator</option>
+                </select>
+            </div>
+            <div class="col-lg-3 mb-4">
                 <div class="text-center">
                     <label class="mb-0 ps-3">Cont activ<span class="text-danger">*</span></label>
                     <div class="d-flex py-1 justify-content-center">

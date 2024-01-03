@@ -30,6 +30,21 @@
                             </tr>
                             <tr>
                                 <td class="pe-4">
+                                    Rol
+                                </td>
+                                <td>
+                                    @switch($user->role)
+                                        @case(1)
+                                            Admin
+                                            @break
+                                        @case(2)
+                                            Operator
+                                            @break
+                                    @endswitch
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pe-4">
                                     Stare cont
                                 </td>
                                 <td>

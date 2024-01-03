@@ -84,7 +84,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('/facturi/{factura}/storneaza', [FacturaController::class, 'storneaza']);
     Route::get('/facturi/{factura}/export/{view_type}', [FacturaController::class, 'exportPdf']);
 
-    Route::resource('/utilizatori', UserController::class)->parameters(['utilizatori' => 'user']);
+
+    if (auth()->user()->role == "1"){
+        Route::resource('/utilizatori', UserController::class)->parameters(['utilizatori' => 'user']);
+    }
 
     // Clear application cache:
     Route::get('/clear-cache', function() {

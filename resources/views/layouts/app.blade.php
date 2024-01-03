@@ -45,29 +45,6 @@
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         {{-- <li class="nav-item me-3 dropdown">
-                            <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="Fisiere">
-                                <i class="fa-solid fa-folder"></i>
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li>
-                                    <a class="dropdown-item" href="/fisiere/maseco">
-                                        <i class="fa-solid fa-file me-1"></i>Fișiere Maseco
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/fisiere/masini">
-                                        <i class="fa-solid fa-file me-1"></i>Fișiere Mașini
-                                    </a>
-                                </li>
-                            </ul>
-                        </li> --}}
-                        {{-- <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/file-manager" title="File Manager">
-                                <i class="fa-solid fa-folder"></i>&nbsp;
-                            </a>
-                        </li> --}}
-                        <li class="nav-item me-3 dropdown">
                             <a class="nav-link active dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fa-solid fa-folder"></i>&nbsp;
                             </a>
@@ -84,6 +61,11 @@
                                     </a>
                                 </li>
                             </ul>
+                        </li> --}}
+                        <li class="nav-item me-3">
+                            <a class="nav-link active" aria-current="page" href="/file-manager-personalizat" title="File Explorer">
+                                <i class="fa-solid fa-folder"></i>&nbsp;
+                            </a>
                         </li>
                         <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/acasa" title="Pagina principală">
@@ -151,12 +133,14 @@
                                         SMS trimise
                                     </a>
                                 </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('utilizatori.index') }}">
-                                        <i class="fa-solid fa-users me-1"></i>Utilizatori
-                                    </a>
-                                </li>
+                                @if (auth()->user()->role == "1")
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('utilizatori.index') }}">
+                                            <i class="fa-solid fa-users me-1"></i>Utilizatori
+                                        </a>
+                                    </li>
+                                @endif
                             </ul>
                         </li>
                     </ul>

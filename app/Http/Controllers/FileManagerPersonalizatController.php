@@ -43,6 +43,10 @@ class FileManagerPersonalizatController extends Controller
 
     public function directorSterge($cale = null)
     {
+        if (auth()->user()->role != "1"){
+            return back()->with('error', 'Nu aveți dreptul să ștergeti directoare! Contactați administratorul aplicației.');
+        }
+
         Storage::disk('filemanager')->deleteDirectory($cale);
 
         $exploded = explode("/", $cale);
@@ -91,6 +95,10 @@ class FileManagerPersonalizatController extends Controller
 
     public function fisierSterge($cale = null)
     {
+        if (auth()->user()->role != "1"){
+            return back()->with('error', 'Nu aveți dreptul să ștergeti fișiere! Contactați administratorul aplicației.');
+        }
+
         Storage::disk('filemanager')->delete($cale);
 
         $exploded = explode("/", $cale);

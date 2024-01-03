@@ -47,6 +47,7 @@
                         <tr class="" style="padding:2rem">
                             <th class="culoare2 text-white">#</th>
                             <th class="culoare2 text-white">Nume</th>
+                            <th class="culoare2 text-white">Rol</th>
                             <th class="culoare2 text-white">Telefon</th>
                             <th class="culoare2 text-white">Email</th>
                             <th class="culoare2 text-white">Stare Cont</th>
@@ -61,6 +62,16 @@
                                 </td>
                                 <td class="">
                                     {{ $user->name }}
+                                </td>
+                                <td class="">
+                                    @switch($user->role)
+                                        @case(1)
+                                            Admin
+                                            @break
+                                        @case(2)
+                                            Operator
+                                            @break
+                                    @endswitch
                                 </td>
                                 <td class="">
                                     {{ $user->telefon }}

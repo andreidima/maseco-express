@@ -91,72 +91,35 @@
                     <thead class="text-white rounded culoare2">
                         <tr>
                             <th class="" style="">
-                                {{-- \ {{ str_replace('/', ' \ ', $cale) }} --}}
-
-                                        <a href="/file-manager-personalizat/" style="color:white; text-decoration: white;">
-                                            Cale: <i class="fa-solid fa-hard-drive"></i>
-                                        </a>
+                                <a href="/file-manager-personalizat/" style="color:white; text-decoration: white;">
+                                    Cale: <i class="fa-solid fa-hard-drive"></i>
+                                </a>
+                                @php
+                                    $exploded = explode("/", $cale);
+                                    // dd($exploded, count($exploded));
+                                @endphp
+                                {{ $cale ? '\\' : '' }}
+                                @foreach ($exploded as $item)
+                                    @php
+                                        $caleDirectorCurent = '';
+                                    @endphp
+                                    @for ($i = 0; $i < $loop->iteration; $i++)
                                         @php
-                                            $exploded = explode("/", $cale);
-                                            // dd($exploded, count($exploded));
+                                            $caleDirectorCurent .= $exploded[$i] . '\\';
                                         @endphp
-                                        {{ $cale ? '\\' : '' }}
-                                        @foreach ($exploded as $item)
-                                            @php
-                                                $caleDirectorCurent = '';
-                                            @endphp
-                                            @for ($i = 0; $i < $loop->iteration; $i++)
-                                                @php
-                                                    $caleDirectorCurent .= $exploded[$i] . '\\';
-                                                @endphp
-                                            @endfor
-                                            <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="color:white; text-decoration: underline white;">
-                                                {{ $item }}
-                                            </a>
-                                                \
-                                        @endforeach
+                                    @endfor
+                                    <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="color:white; text-decoration: underline white;">
+                                        {{ $item }}
+                                    </a>
+                                        \
+                                @endforeach
                             </th>
-                            <th class="text-end">Acțiuni</th>
+                            @if (auth()->user()->role == "1")
+                                <th class="text-end">Acțiuni</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- @if ($cale)
-                            <tr>
-                                <td colspan="2" align="">
-                                    <a href="/file-manager-personalizat/{{ substr($cale, 0, strrpos( $cale, '/')) }}" style="text-decoration:cornflowerblue">
-                                        <div class="d-flex">
-                                            <div class="px-1">
-                                                <i class="fa-solid fa-up-long fa-lg"></i>
-                                            </div>
-                                            <div class="d-flex align-items-end">
-                                                <i class="fa-solid fa-ellipsis fa-lg pb-2"></i>
-                                            </div>
-                                        </div>
-                                    </a>
-                                    <a href="/file-manager-personalizat/{{ substr($cale, 0, strrpos( $cale, '/')) }}" style="text-decoration:cornflowerblue">
-                                        <i class="fa-solid fa-hard-drive"></i>
-                                    </a>
-                                    @php
-                                        $exploded = explode("/", $cale);
-                                    @endphp
-                                    \
-                                    @foreach ($exploded as $item)
-                                        @php
-                                            $caleDirectorCurent = '';
-                                        @endphp
-                                        @for ($i = 0; $i < $loop->iteration; $i++)
-                                            @php
-                                                $caleDirectorCurent .= $exploded[$i] . '\\';
-                                            @endphp
-                                        @endfor
-                                        <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="text-decoration:cornflowerblue">
-                                            {{ $item }}
-                                        </a>
-                                            \
-                                    @endforeach
-                                </td>
-                            </tr>
-                        @endif --}}
                         @foreach ($directoare as $director)
                             @php
                                 $exploded = explode("/", $director);
@@ -168,6 +131,7 @@
                                         {{ end($exploded) }}
                                     </a>
                                 </td>
+                                @if (auth()->user()->role == "1")
                                 <td>
                                     <div class="d-flex justify-content-end">
                                         <div style="flex" class="">
@@ -182,6 +146,7 @@
                                         </div>
                                     </div>
                                 </td>
+                                @endif
                             </tr>
                         @endforeach
                         @foreach ($fisiere as $fisier)
@@ -195,6 +160,7 @@
                                         {{ end($exploded) }}
                                     </a>
                                 </td>
+                                @if (auth()->user()->role == "1")
                                 <td>
                                     <div class="d-flex justify-content-end">
                                         <div style="flex" class="">
@@ -209,6 +175,7 @@
                                         </div>
                                     </div>
                                 </td>
+                                @endauth
                             </tr>
                         @endforeach
                     </tbody>
