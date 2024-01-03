@@ -39,9 +39,7 @@ Route::get('cerere-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComand
 Route::post('salvare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'salvareStatusComanda']);
 Route::get('afisare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'afisareStatusComanda']);
 
-
 Route::redirect('/', '/acasa');
-
 
 Route::group(['middleware' => 'auth'], function () {
     Route::view('acasa', 'acasa');
@@ -85,9 +83,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/facturi/{factura}/export/{view_type}', [FacturaController::class, 'exportPdf']);
 
 
-    if (auth()->user()->role == "1"){
+    Route::group(['middleware' => 'role:1'], function () {
         Route::resource('/utilizatori', UserController::class)->parameters(['utilizatori' => 'user']);
-    }
+    });
 
     // Clear application cache:
     Route::get('/clear-cache', function() {
