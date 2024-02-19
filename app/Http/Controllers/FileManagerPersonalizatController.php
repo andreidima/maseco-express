@@ -24,6 +24,10 @@ class FileManagerPersonalizatController extends Controller
 
         $fisiere = Storage::disk('filemanager')->files($cale);
 
+        // natcasesort — Sort an array using a case insensitive "natural order" algorithm
+        natcasesort($directoare);
+        natcasesort($fisiere);
+
         return view('fileManagerPersonalizat.index', compact('cale', 'directoare', 'fisiere', 'searchFisier', 'fisiereGasite'));
     }
 
