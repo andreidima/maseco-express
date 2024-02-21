@@ -98,7 +98,7 @@
                                     $exploded = explode("/", $cale);
                                     // dd($exploded, count($exploded));
                                 @endphp
-                                {{ $cale ? '\\' : '' }}
+                                {{ $cale ? '/' : '' }}
                                 @foreach ($exploded as $item)
                                     @php
                                         $caleDirectorCurent = '';
@@ -111,7 +111,8 @@
                                     <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="color:white; text-decoration: underline white;">
                                         {{ $item }}
                                     </a>
-                                        \
+                                        {{-- \ --}}
+                                        /
                                 @endforeach
                             </th>
                             @if (auth()->user()->role == "1")
@@ -134,6 +135,16 @@
                                 @if (auth()->user()->role == "1")
                                 <td>
                                     <div class="d-flex justify-content-end">
+                                        <div style="flex" class="me-1">
+                                            <a
+                                                href="#"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modificaCaleNumeDirector{{ $loop->iteration }}"
+                                                title="Modifică cale nume Director"
+                                                >
+                                                <span class="badge bg-primary">Modifică</span>
+                                            </a>
+                                        </div>
                                         <div style="flex" class="">
                                             <a
                                                 href="#"
@@ -163,6 +174,16 @@
                                 @if (auth()->user()->role == "1")
                                 <td>
                                     <div class="d-flex justify-content-end">
+                                        <div style="flex" class="me-1">
+                                            <a
+                                                href="#"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#modificaCaleNumeFisier{{ $loop->iteration }}"
+                                                title="Modifică cale nume Fișier"
+                                                >
+                                                <span class="badge bg-primary">Modifică</span>
+                                            </a>
+                                        </div>
                                         <div style="flex" class="">
                                             <a
                                                 href="#"
@@ -239,6 +260,40 @@
         </div>
     </div>
 
+    {{-- Modalele pentru modificare directoare --}}
+    @foreach ($directoare as $director)
+        @php
+            $exploded = explode("/", $director);
+        @endphp
+        <div class="modal fade text-dark" id="modificaCaleNumeDirector{{ $loop->iteration }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <form method="POST" action="/file-manager-personalizat-resursa/modifica-cale-nume">
+                    @csrf
+
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <h5 class="modal-title text-white" id="exampleModalLabel">Director: <b>{{ end($exploded) }}</b></h5>
+                            <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" style="text-align:left;">
+                            Poți modifica doar numele directorului, sau îi poți schimba și locația pe hard disk modificănd calea.
+                            <br><br>
+                            <label for="caleNumeVechi" class="mb-0 ps-3">Cale/nume director - vechi</label>
+                            <input type="text" class="form-control rounded-3" name="caleNumeVechi" value="{{ $director }}" readonly>
+                            <br>
+                            <label for="caleNumeNou" class="mb-0 ps-3">Cale/nume director - nou</label>
+                            <input type="text" class="form-control rounded-3" name="caleNumeNou" value="{{ $director }}">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                            <button type="submit" class="btn btn-primary text-white">Modifică</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    @endforeach
+
     {{-- Modalele pentru stergere directoare --}}
     @foreach ($directoare as $director)
         @php
@@ -270,6 +325,40 @@
 
                 </div>
                 </div>
+            </div>
+        </div>
+    @endforeach
+
+    {{-- Modalele pentru modificare fisiere --}}
+    @foreach ($fisiere as $fisier)
+        @php
+            $exploded = explode("/", $fisier);
+        @endphp
+        <div class="modal fade text-dark" id="modificaCaleNumeFisier{{ $loop->iteration }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <form method="POST" action="/file-manager-personalizat-resursa/modifica-cale-nume">
+                    @csrf
+
+                    <div class="modal-content">
+                        <div class="modal-header bg-primary">
+                            <h5 class="modal-title text-white" id="exampleModalLabel">Fișier: <b>{{ end($exploded) }}</b></h5>
+                            <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body" style="text-align:left;">
+                            Poți modifica doar numele fișierului, sau îi poți schimba și locația pe hard disk modificănd calea.
+                            <br><br>
+                            <label for="caleNumeVechi" class="mb-0 ps-3">Cale/nume fișier - vechi</label>
+                            <input type="text" class="form-control rounded-3" name="caleNumeVechi" value="{{ $fisier }}" readonly>
+                            <br>
+                            <label for="caleNumeNou" class="mb-0 ps-3">Cale/nume fișier - nou</label>
+                            <input type="text" class="form-control rounded-3" name="caleNumeNou" value="{{ $fisier }}">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                            <button type="submit" class="btn btn-primary text-white">Modifică</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
     @endforeach

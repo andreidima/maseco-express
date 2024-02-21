@@ -109,4 +109,22 @@ class FileManagerPersonalizatController extends Controller
 
         return back()->with('status', '„' . end($exploded) . '" a fost șters cu succes!');
     }
+
+    public function modificaCaleNume(Request $request)
+    {
+        if (auth()->user()->role != "1"){
+            return back()->with('error', 'Nu aveți dreptul de modificare! Contactați administratorul aplicației.');
+        }
+
+        $request->validate(
+            [
+                'caleNumeVechi' => 'required',
+                'caleNumeNou' => 'required',
+            ],
+        );
+
+        Storage::disk('filemanager')->move($request->caleNumeVechi, $request->caleNumeNou);
+
+        return back()->with('status', '„' . $request->caleNumeNou . '" a fost modificat cu succes!');
+    }
 }
