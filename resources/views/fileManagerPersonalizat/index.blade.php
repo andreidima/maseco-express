@@ -276,13 +276,16 @@
                             <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body" style="text-align:left;">
-                            Poți modifica doar numele directorului, sau îi poți schimba și locația pe hard disk modificănd calea.
+                            Modifică numele directorului.
                             <br><br>
-                            <label for="caleNumeVechi" class="mb-0 ps-3">Cale/nume director - vechi</label>
-                            <input type="text" class="form-control rounded-3" name="caleNumeVechi" value="{{ $director }}" readonly>
+
+                            <input type="hidden" class="form-control rounded-3" id="cale" name="cale" value="{{ $cale }}">
+
+                            <label for="numeVechi" class="mb-0 ps-3">Nume director - vechi</label>
+                            <input type="text" class="form-control rounded-3" name="numeVechi" value="{{ end($exploded) }}" readonly>
                             <br>
-                            <label for="caleNumeNou" class="mb-0 ps-3">Cale/nume director - nou</label>
-                            <input type="text" class="form-control rounded-3" name="caleNumeNou" value="{{ $director }}">
+                            <label for="numeNou" class="mb-0 ps-3">Nume director - nou</label>
+                            <input type="text" class="form-control rounded-3" name="numeNou">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
@@ -345,13 +348,17 @@
                             <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body" style="text-align:left;">
-                            Poți modifica doar numele fișierului, sau îi poți schimba și locația pe hard disk modificănd calea.
+                            Modifică numele fișierului.
                             <br><br>
-                            <label for="caleNumeVechi" class="mb-0 ps-3">Cale/nume fișier - vechi</label>
-                            <input type="text" class="form-control rounded-3" name="caleNumeVechi" value="{{ $fisier }}" readonly>
+
+                            <input type="hidden" class="form-control rounded-3" name="cale" value="{{ $cale }}">
+                            <input type="hidden" class="form-control rounded-3" name="extensieFisier" value="{{ pathinfo(end($exploded), PATHINFO_EXTENSION) }}">
+
+                            <label for="numeVechi" class="mb-0 ps-3">Nume fișier - vechi</label>
+                            <input type="text" class="form-control rounded-3" name="numeVechi" value="{{ pathinfo(end($exploded), PATHINFO_FILENAME) }}" readonly>
                             <br>
-                            <label for="caleNumeNou" class="mb-0 ps-3">Cale/nume fișier - nou</label>
-                            <input type="text" class="form-control rounded-3" name="caleNumeNou" value="{{ $fisier }}">
+                            <label for="numeNou" class="mb-0 ps-3">Nume fișier - nou</label>
+                            <input type="text" class="form-control rounded-3" name="numeNou" value="">
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>

@@ -118,13 +118,24 @@ class FileManagerPersonalizatController extends Controller
 
         $request->validate(
             [
-                'caleNumeVechi' => 'required',
-                'caleNumeNou' => 'required',
+                'cale' => '',
+                'extensieFisier' => '', // necesar atunci cand este vorba de fisiere
+                'numeVechi' => 'required',
+                'numeNou' => 'required',
             ],
         );
 
-        Storage::disk('filemanager')->move($request->caleNumeVechi, $request->caleNumeNou);
+        $caleNumeVechi = $request->cale . '\\' . $request->numeVechi;
+        $caleNumeNou = $request->cale . '\\' . $request->numeNou;
 
-        return back()->with('status', '„' . $request->caleNumeNou . '" a fost modificat cu succes!');
+        // Daca este fisier, se adauga si extensia
+        if ($request->extensieFisier) {
+            $caleNumeVechi .= '.' . $request->extensieFisier;
+            $caleNumeNou .= '.' . $request->extensieFisier;
+        }
+
+        Storage::disk('filemanager')->move($caleNumeVechi, $caleNumeNou);
+
+        return back()->with('status', '„' . $request->numeNou . '" a fost modificat cu succes!');
     }
 }
