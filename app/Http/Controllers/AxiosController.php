@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 
 use App\Models\LocOperare;
 use App\Models\ComandaStatus;
+use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Mail;
 
 class AxiosController extends Controller
 {
@@ -62,6 +64,33 @@ class AxiosController extends Controller
 
         return response()->json([
             'raspuns' => $statusuri,
+        ]);
+    }
+
+    public function trimitereCodAutentificarePrinEmail(Request $request)
+    {
+        $user = User::where('email', $request->email)->first();
+
+        if (!$user){
+            $raspuns = "<span class='text-danger' style='font-size:80%'>Nu există acest email în baza de date.</span>";
+        } else {
+            $user->cod_email = rand(1000, 9999);
+            $user->save();
+
+            Mail::to($user->email)->send(new \App\Mail\trimitereCodAutentificarePrinEmail($user));
+
+            $emailTrimis = new \App\Models\MesajTrimisEmail;
+            $emailTrimis->comanda_id = null;
+            $emailTrimis->firma_id = null;
+            $emailTrimis->categorie = 6;
+            $emailTrimis->email = $user->email;
+            $emailTrimis->save();
+
+            $raspuns = "<span class='text-success' style='font-size:80%'>Codul a fost trimis prin email.</span>";
+        }
+
+        return response()->json([
+            'raspuns' => $raspuns,
         ]);
     }
 }

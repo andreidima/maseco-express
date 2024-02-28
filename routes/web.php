@@ -39,6 +39,8 @@ Route::get('cerere-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComand
 Route::post('salvare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'salvareStatusComanda']);
 Route::get('afisare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'afisareStatusComanda']);
 
+Route::get('/axios/trimitere-cod-autentificare-prin-email', [AxiosController::class, 'trimitereCodAutentificarePrinEmail']);
+
 Route::redirect('/', '/acasa');
 
 Route::group(['middleware' => 'auth'], function () {

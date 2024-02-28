@@ -699,3 +699,36 @@ creareFactura.component('vue-datepicker-next', VueDatepickerNext);
 if (document.getElementById('creareFactura') != null) {
     creareFactura.mount('#creareFactura');
 }
+
+
+// Trimitere email cu codul de autentificare
+const trimitereCodAutentificarePrinEmail = createApp({
+    el: '#trimitereCodAutentificarePrinEmail',
+    data() {
+        return {
+            email: email,
+            mesajDeAfisat: '',
+        }
+    },
+    methods: {
+        trimiteEmail() {
+            // console.log('da');
+            if (this.email) {
+                axios.get('/axios/trimitere-cod-autentificare-prin-email', {
+                    params: { email: this.email }
+                })
+                    .then(
+                        response => {
+                            this.mesajDeAfisat = response.data.raspuns;
+                        }
+                    );
+            } else {
+                this.mesajDeAfisat = "<span class='text-danger' style='font-size:80%'>Introdu emailul.</span>";
+            }
+        },
+    }
+});
+
+if (document.getElementById('trimitereCodAutentificarePrinEmail') != null) {
+    trimitereCodAutentificarePrinEmail.mount('#trimitereCodAutentificarePrinEmail');
+}

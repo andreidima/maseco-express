@@ -1,5 +1,10 @@
 @extends('layouts.app')
 
+
+<script type="application/javascript">
+    email = {!! json_encode(old('email')) !!}
+</script>
+
 @section('content')
 <div class="container" style="">
     <div class="row py-5 justify-content-center">
@@ -21,7 +26,7 @@
                     </div>
                 </div>
 
-                <div class="card-body pb-0">
+                <div class="card-body pb-0" id="trimitereCodAutentificarePrinEmail">
 
                     @include('errors')
 
@@ -39,8 +44,9 @@
                                             {{-- style="color:white; background-color:#2f5c8f" --}}
                                         ></i>
                                     </span>
-                                    <input id="email" type="text" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" autocomplete="email" autofocus
+                                    <input id="email" type="text" class="form-control @error('email') is-invalid @enderror" name="email" autocomplete="email" autofocus
                                         placeholder="{{ __('auth.E-Mail Address') }}"
+                                        v-model="email"
                                     >
                                 </div>
 
@@ -74,17 +80,42 @@
                             </div>
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-12 mb-0 text-center">
+                                <button type="button" class="btn btn-sm py-0 px-1 btn-primary text-white shadow-sm rounded-3"
+                                    {{-- style="background-color:#56af71" --}}
+                                    @click="trimiteEmail();"
+                                >
+                                    Trimite cod pe email
+                                </button>
+                            </div>
+                            <div class="col-md-12 mb-0 text-center">
+                                <div v-if="mesajDeAfisat" v-html="mesajDeAfisat">
+                                    {{-- @{{ mesajDeAfisat }} --}}
+                                </div>
+                            </div>
+                            <div class="col-md-12 mb-3">
+                                <div class="input-group">
+                                        <span class="input-group-text culoare1" id="inputGroupPrepend2">
+                                            <i class="fa-brands fa-codepen"></i>
+                                        </span>
+                                    <input id="cod_email" type="cod_email" class="form-control @error('cod_email') is-invalid @enderror" name="cod_email" placeholder="cod email">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="row mb-2">
                             <div class="col-md-12 text-center d-grid gap-2 mx-auto">
 
                                 <div class="d-flex justify-content-center my-0">
-                                    <div class="form-check d-inline-block">
+                                    {{-- Nu se mai doreste „Ține-mă minte” --}}
+                                    {{-- <div class="form-check d-inline-block">
                                         <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
 
                                         <label class="form-check-label" for="remember">
                                             {{ __('auth.Remember Me') }}
                                         </label>
-                                    </div>
+                                    </div> --}}
 
                                         @if (Route::has('password.request'))
                                             <a class="btn btn-link p-0 m-0 border-0" href="{{ route('password.request') }}">
