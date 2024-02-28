@@ -12,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 use Illuminate\Mail\Mailables\Headers;
 
-class trimitereCodAutentificarePrinEmail extends Mailable
+class TrimitereCodAutentificarePrinEmail extends Mailable
 {
     use Queueable, SerializesModels;
 

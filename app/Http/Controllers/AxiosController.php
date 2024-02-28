@@ -77,7 +77,7 @@ class AxiosController extends Controller
             $user->cod_email = rand(1000, 9999);
             $user->save();
 
-            Mail::to($user->email)->send(new \App\Mail\trimitereCodAutentificarePrinEmail($user));
+            Mail::to($user->email)->send(new \App\Mail\TrimitereCodAutentificarePrinEmail($user));
 
             $emailTrimis = new \App\Models\MesajTrimisEmail;
             $emailTrimis->comanda_id = null;
