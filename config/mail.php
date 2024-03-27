@@ -84,6 +84,25 @@ return [
                 'log',
             ],
         ],
+
+        'office' => [
+            'transport' => env('MAIL_OFFICE_MAILER', 'log'),
+            'host' => env('MAIL_OFFICE_HOST', 'smtp.mailgun.org'),
+            'port' => env('MAIL_OFFICE_PORT', 587),
+            'encryption' => env('MAIL_OFFICE_ENCRYPTION', 'ssl'),
+            'username' => env('MAIL_OFFICE_USERNAME'),
+            'password' => env('MAIL_OFFICE_PASSWORD'),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN'),
+            'from' => [
+                'address' => env('MAIL_OFFICE_FROM_ADDRESS', 'hello@example.com'),
+                'name' => env('MAIL_OFFICE_FROM_NAME', 'Example'),
+            ],
+            'reply_to' => [
+                'address' => env('MAIL_OFFICE_REPLY_TO_ADDRESS', 'hello@example.com'),
+                'name' => env('MAIL_OFFICE_REPLY_TO_NAME', 'Example'),
+            ],
+        ],
     ],
 
     /*
@@ -97,15 +116,15 @@ return [
     |
     */
 
-    'from' => [
-        'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
-    ],
+    // 'from' => [
+    //     'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
+    //     'name' => env('MAIL_FROM_NAME', 'Example'),
+    // ],
 
-    'reply_to' => [
-        'address' => env('MAIL_REPLY_TO_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_REPLY_TO_NAME', 'Example'),
-    ],
+    // 'reply_to' => [
+    //     'address' => env('MAIL_REPLY_TO_ADDRESS', 'hello@example.com'),
+    //     'name' => env('MAIL_REPLY_TO_NAME', 'Example'),
+    // ],
 
 
     /*
