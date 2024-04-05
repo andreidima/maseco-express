@@ -221,6 +221,11 @@ class CronJobController extends Controller
             return ;
         }
 
+        echo 'Trimitere memento facturi - scadenta';
+        echo 'br';
+        echo 'Mai jos se vor afisa emailurile catre care s-au trimis mementourile.';
+        echo '<br><br>';
+
         // $comenzi = Comanda::select('id', 'client_data_factura', 'client_zile_scadente', 'client_zile_inainte_de_scadenta_memento_factura')
         //     ->whereDate('client_data_factura', '>', Carbon::now()->subDays(100))
         //     ->get();
