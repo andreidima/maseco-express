@@ -312,6 +312,9 @@ class CronJobController extends Controller
                         ->bcc('adima@validsoftware.ro')
                         ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
                     );
+
+                    echo 'Mesaj trimis catre ' . $factura->client_email;
+                    echo '<br><br>';
                 }
             }
         }
