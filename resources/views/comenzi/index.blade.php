@@ -341,10 +341,17 @@
                                             </a>
                                         </div>
                                     </div>
-                                    <div class="mb-1">
-                                        <a href="{{ $comanda->path() }}/export-excel" class="flex">
-                                            <span class="badge bg-success">Excel</span>
-                                        </a>
+                                    <div class="d-flex justify-content-end">
+                                        <div class="mb-1 me-1">
+                                            <a href="/facturi-memento/deschide/{{ $comanda->id }}" class="flex">
+                                                <span class="badge bg-warning text-dark">Factura</span>
+                                            </a>
+                                        </div>
+                                        <div class="mb-1">
+                                            <a href="{{ $comanda->path() }}/export-excel" class="flex">
+                                                <span class="badge bg-success">Excel</span>
+                                            </a>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>

@@ -20,7 +20,7 @@
                     required>
             </div>
             <div class="col-lg-2 mb-2">
-                <label for="tip_partener" class="mb-0 ps-3">Tip partener<span class="text-danger">*{{ old('tip_partener') }}</span></label>
+                <label for="tip_partener" class="mb-0 ps-3">Tip partener<span class="text-danger">*</span></label>
                 <select name="tip_partener" class="form-select bg-white rounded-3 {{ $errors->has('tip_partener') ? 'is-invalid' : '' }}" disabled>
                     <option selected></option>
                     <option value="1"
@@ -163,13 +163,22 @@
                     value="{{ old('persoana_contact', $firma->persoana_contact) }}">
             </div>
             <div class="col-lg-2 mb-2">
-                <label for="email" class="mb-0 ps-3">Email</label>
+                <label for="email" class="mb-0 ps-3">Email<span class="text-danger">*</span></label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('email') ? 'is-invalid' : '' }}"
                     name="email"
                     placeholder=""
                     value="{{ old('email', $firma->email) }}">
+            </div>
+            <div class="col-lg-2 mb-2">
+                <label for="email_factura" class="mb-0 ps-3">Email factură<span class="text-danger">*</span></label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('email_factura') ? 'is-invalid' : '' }}"
+                    name="email_factura"
+                    placeholder=""
+                    value="{{ old('email_factura', $firma->email_factura) }}">
             </div>
             <div class="col-lg-2 mb-2">
                 <label for="telefon" class="mb-0 ps-3">Telefon</label>
@@ -198,7 +207,9 @@
                     placeholder=""
                     value="{{ old('fax', $firma->fax) }}">
             </div>
-            <div class="col-lg-2 mb-2">
+        </div>
+        <div class="row px-2 py-2 mb-4" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
+            <div class="col-lg-2 mb-4">
                 <label for="website" class="mb-0 ps-3">Website</label>
                 <input
                     type="text"
@@ -207,9 +218,7 @@
                     placeholder=""
                     value="{{ old('website', $firma->website) }}">
             </div>
-        </div>
-        <div class="row px-2 py-2 mb-4" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
-            <div class="col-lg-6 mb-2">
+            <div class="col-lg-4 mb-2">
                 <label for="observatii" class="form-label mb-0 ps-3">Observații</label>
                 <textarea class="form-control bg-white {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
                     name="observatii" rows="3">{{ old('observatii', $firma->observatii) }}</textarea>

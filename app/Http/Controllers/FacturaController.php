@@ -463,4 +463,60 @@ class FacturaController extends Controller
             return $xml;
         }
     }
+
+
+    // Zona doar pentru mementouri facturi, create din pagina de comenzi, eventual pana este gata modulul de facturare, daca se va mai face
+    public function createOrUpdateMementoFactura(Request $request, Comanda $comanda)
+    {
+        // Se verifica intai daca clientul acestei comenzi are email atasat, pentru ca altfel nu are unde sa se trimita comanda
+        if (!$comanda->client->email_factura){
+            return back()->with('error', 'Nu se poate crea memento pentru factură pentru că lipsește emailul de facturare al clientului. Adăugați mai întâi emailul de facturare în fișa clientului.');
+        }
+
+        $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
+
+        if (!($factura = $comanda->factura)) {
+            $factura = new Factura;
+            $factura->data = Carbon::now();
+            $factura->client_nume = $comanda->client->nume ?? '';
+            $factura->client_email = $comanda->client->email_factura ?? '';
+            $factura->save();
+
+            $comanda->factura_id = $factura->id;
+            $comanda->save();
+        }
+
+        return view('facturi.doarPentruMemento.createOrEditMementoFactura', compact('factura'));
+    }
+    public function storeOrUpdateMementoFactura(Request $request, Factura $factura)
+    {
+        $validatedRequest = $request->validate(
+            [
+                'client_email' => 'required|email:rfc,dns',
+                'seria' => 'nullable|max:5',
+                'numar' => 'required|numeric|min:1',
+                'data' => 'required',
+                'zile_scadente' => 'required|numeric|between:1,100',
+                'alerte_scadenta' => ['required',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value){
+                            $zileInainte = preg_split ("/\,/", $value);
+                            foreach ($zileInainte as $ziInainte){
+                                if (!(intval($ziInainte) == $ziInainte)){
+                                    $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu este completat corect');
+                                }elseif ($ziInainte < 0){
+                                    $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu poate conține valori negative');
+                                }elseif ($ziInainte > 100){
+                                    $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu poate conține valori mai mari de 100');
+                                }
+                            }
+                        }
+                    }],
+            ]
+        );
+
+        $factura->update($validatedRequest);
+
+        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Mementoul pentru factura „' . $factura->seria . $factura->numar . '” a fost salvat cu succes!');
+    }
 }

@@ -152,4 +152,9 @@ class Comanda extends Model
     {
         return $this->hasOne(ComandaCronJob::class, 'comanda_id');
     }
+
+    public function factura()
+    {
+        return $this->belongsTo(Factura::class, 'factura_id');
+    }
 }

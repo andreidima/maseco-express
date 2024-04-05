@@ -88,6 +88,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::any('/facturi/{factura}/storneaza', [FacturaController::class, 'storneaza']);
     Route::get('/facturi/{factura}/export/{view_type}', [FacturaController::class, 'exportPdf']);
 
+    // Doar pentru mementouri facturi, create din pagina de comenzi, eventual pana este gata modulul de facturare, daca se va mai face
+    Route::get('/facturi-memento/deschide/{comanda}', [FacturaController::class, 'createOrUpdateMementoFactura']);
+    Route::post('/facturi-memento/salveaza/{factura}', [FacturaController::class, 'storeOrUpdateMementoFactura']);
+
 
     Route::group(['middleware' => 'role:1'], function () {
         Route::resource('/utilizatori', UserController::class)->parameters(['utilizatori' => 'user']);

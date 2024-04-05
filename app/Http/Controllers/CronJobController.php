@@ -252,11 +252,10 @@ class CronJobController extends Controller
             ->whereDate('data', '>', Carbon::now()->subDays(100))
             ->get();
 
-
         $arrayIdFacturiDeTrimisMesaj = [];
         foreach ($facturi as $factura){
             if ($factura->zile_scadente){ // daca exista zile scadente
-                if (Carbon::parse($factura->data)->addDays($factura->zile_scadente) >= Carbon::now()){  // daca nu a trecut scadenta
+                if (Carbon::parse($factura->data)->addDays($factura->zile_scadente) >= Carbon::today()){  // daca nu a trecut scadenta
                     $zileInainte = preg_split ("/\,/", $factura->alerte_scadenta);
                     // echo "Zile scadente (" . $factura->zile_scadente . ")este integer? " . is_int($factura->zile_scadente) . '<br>';
                     foreach ($zileInainte as $ziInainte){
@@ -275,7 +274,7 @@ class CronJobController extends Controller
             }
         }
 
-        $facturiDeTrimisMesaj = factura::with('comanda.client')->whereIn('id', $arrayIdFacturiDeTrimisMesaj)->get();
+        $facturiDeTrimisMesaj = Factura::with('comanda.client')->whereIn('id', $arrayIdFacturiDeTrimisMesaj)->get();
 
         // Daca nu este nici un memento de trimis pentru ziua curenta, se termina functia
         if (count($facturiDeTrimisMesaj) === 0){
@@ -289,10 +288,14 @@ class CronJobController extends Controller
 
                 if ($validator->passes()){
                     $subiect = 'Scadență factură Maseco Expres';
-                    $mesaj = 'Bun găsit!
+                    $mesaj = 'Bună ' . $factura->client_nume . ',
                         <br><br>
-                        Îți reamintim că factura ta este scadentă la data de ' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') .
-                        '<br><br>
+                        Te informăm că factura ' . $factura->seria . $factura->numar . ' va fi scadentă pe ' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') .
+                        '<br>
+                        Te rugăm să confirmi dovada de plată pe <b>pod@masecoexpres.net</b>.
+                        <br>
+                        Acest mesaj este automat, te rugăm să nu răspunzi.
+                        <br><br>
                         Mulțumim!
                         <br>
                         Echipa Maseco Expres
@@ -305,7 +308,8 @@ class CronJobController extends Controller
                         // to(['andrei.dima@usm.ro'])
                         // to('adima@validsoftware.ro')
                         // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
-                        ->bcc(['pod@masecoexpres.net', 'adima@validsoftware.ro'])
+                        // ->bcc(['pod@masecoexpres.net', 'adima@validsoftware.ro'])
+                        ->bcc('adima@validsoftware.ro')
                         ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
                     );
                 }
