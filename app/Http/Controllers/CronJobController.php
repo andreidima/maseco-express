@@ -222,7 +222,7 @@ class CronJobController extends Controller
         }
 
         echo 'Trimitere memento facturi - scadenta';
-        echo 'br';
+        echo '<br>';
         echo 'Mai jos se vor afisa emailurile catre care s-au trimis mementourile.';
         echo '<br><br>';
 
