@@ -211,7 +211,9 @@ class FirmaController extends Controller
                 'observatii' => '',
             ],
             [
-                'tara_id.required' => 'Câmpul țara este obligatoriu'
+                'tara_id.required' => 'Câmpul țara este obligatoriu.',
+                'email_factura.required' => 'Câmpul email contabilitate este obligatoriu.',
+                'email_factura.email' => 'Câmpul email contabilitate trebuie să fie o adresă de e-mail validă.',
             ]
         );
     }

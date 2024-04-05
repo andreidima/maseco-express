@@ -172,7 +172,7 @@
                     value="{{ old('email', $firma->email) }}">
             </div>
             <div class="col-lg-2 mb-2">
-                <label for="email_factura" class="mb-0 ps-3">Email factură<span class="text-danger">*</span></label>
+                <label for="email_factura" class="mb-0 ps-3">Email contabilitate<span class="text-danger">*</span></label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('email_factura') ? 'is-invalid' : '' }}"
