@@ -292,19 +292,35 @@ class CronJobController extends Controller
                 $validator = Validator::make(['email' => $factura->client_email], ['email' => 'email:rfc,dns',]);
 
                 if ($validator->passes()){
-                    $subiect = 'Scadență factură Maseco Expres';
-                    $mesaj = 'Bună ' . $factura->client_nume . ',
-                        <br><br>
-                        Te informăm că factura ' . $factura->seria . $factura->numar . ' va fi scadentă pe ' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') .
-                        '<br>
-                        Te rugăm să confirmi dovada de plată pe <b>pod@masecoexpres.net</b>.
-                        <br>
-                        Acest mesaj este automat, te rugăm să nu răspunzi.
-                        <br><br>
-                        Mulțumim!
-                        <br>
-                        Echipa Maseco Expres
-                        <br>';
+                    if ($factura->client_limba_id == 1) { // limba Romana
+                        $subiect = 'Scadență factură Maseco Expres';
+                        $mesaj = 'Bună ' . $factura->client_nume . ',
+                            <br><br>
+                            Te informăm că factura <b>' . $factura->seria . $factura->numar . '</b>, pentru comanda ' . $factura->client_contract . ', va fi scadentă pe ' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') .
+                            '<br>
+                            Te rugăm să confirmi dovada de plată pe <b>pod@masecoexpres.net</b>.
+                            <br>
+                            Acest mesaj este automat, te rugăm să nu răspunzi.
+                            <br><br>
+                            Mulțumim!
+                            <br>
+                            Echipa Maseco Expres
+                            <br>';
+                    } else {
+                        $subiect = 'Invoice due date - Maseco Express';
+                        $mesaj = 'Hi ' . $factura->client_nume . ',
+                            <br><br>
+                            Please note that the invoice <b>' . $factura->seria . $factura->numar . '</b>, for order ' . $factura->client_contract . ', will be due on ' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') .
+                            '<br>
+                            Please confirm proof of payment by email <b>pod@masecoexpres.net</b>.
+                            <br>
+                            This message is automated, please do not reply.
+                            <br><br>
+                            Thank you!
+                            <br>
+                            Maseco Expres Team
+                            <br>';
+                    }
 
                     // Trimitere memento prin email
                     \Mail::

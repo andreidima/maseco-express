@@ -22,7 +22,7 @@
                         <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="datePicker">
                             <div class="col-lg-12 px-4 py-2 mb-0">
                                 <div class="row mb-4 justify-content-center">
-                                    <div class="col-lg-6 mb-1">
+                                    <div class="col-lg-4 mb-1">
                                         <label for="client_nume" class="mb-0 ps-3">Client</label>
                                         <input
                                             type="text"
@@ -32,7 +32,7 @@
                                             value="{{ old('client_nume', $factura->client_nume) }}"
                                             disabled>
                                     </div>
-                                    <div class="col-lg-6 mb-1">
+                                    <div class="col-lg-4 mb-1">
                                         <label for="client_email" class="mb-0 ps-3">Email facturare<span class="text-danger">*</span></label>
                                         <input
                                             type="text"
@@ -40,6 +40,24 @@
                                             name="client_email"
                                             placeholder=""
                                             value="{{ old('client_email', $factura->client_email) }}">
+                                    </div>
+                                    <div class="col-lg-2 mb-1">
+                                        <label for="client_contract" class="mb-0 ps-3">Contract nr.<span class="text-danger">*</span></label>
+                                        <input
+                                            type="text"
+                                            class="form-control bg-white rounded-3 {{ $errors->has('client_contract') ? 'is-invalid' : '' }}"
+                                            name="client_contract"
+                                            placeholder=""
+                                            value="{{ old('client_contract', $factura->client_contract) }}">
+                                    </div>
+                                    <div class="col-lg-2 mb-1">
+                                        <label for="client_limba_id" class="mb-0 ps-3">Limba</label>
+                                        <select name="client_limba_id" class="form-select bg-white rounded-3 {{ $errors->has('client_limba_id') ? 'is-invalid' : '' }}">
+                                            <option selected></option>
+                                            @foreach ($limbi as $limba)
+                                                <option value="{{ $limba->id }}" {{ ($limba->id === intval(old('client_limba_id', $factura->client_limba_id ?? ''))) ? 'selected' : '' }}>{{ $limba->nume }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="row mb-4 justify-content-center">

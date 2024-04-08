@@ -12,6 +12,7 @@ use App\Models\ProcentTVA;
 use App\Models\CursBnr;
 use App\Models\Firma;
 use App\Models\Tara;
+use App\Models\Limba;
 use App\Models\FacturaChitanta;
 
 use Illuminate\Support\Facades\DB;
@@ -480,19 +481,25 @@ class FacturaController extends Controller
             $factura->data = Carbon::now();
             $factura->client_nume = $comanda->client->nume ?? '';
             $factura->client_email = $comanda->client->email_factura ?? '';
+            $factura->client_contract = $comanda->client_contract ?? '';
+            $factura->client_limba_id = $comanda->client_limba_id ?? '';
             $factura->save();
 
             $comanda->factura_id = $factura->id;
             $comanda->save();
         }
 
-        return view('facturi.doarPentruMemento.createOrEditMementoFactura', compact('factura'));
+        $limbi = Limba::select('id', 'nume')->whereIn('id', [1,2])->get();
+
+        return view('facturi.doarPentruMemento.createOrEditMementoFactura', compact('limbi', 'factura'));
     }
     public function storeOrUpdateMementoFactura(Request $request, Factura $factura)
     {
         $validatedRequest = $request->validate(
             [
                 'client_email' => 'required|email:rfc,dns',
+                'client_contract' => 'nullable|max:20',
+                'client_limba_id' => '',
                 'seria' => 'nullable|max:5',
                 'numar' => 'required|numeric|min:1',
                 'data' => 'required',
