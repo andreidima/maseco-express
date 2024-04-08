@@ -293,13 +293,13 @@ class CronJobController extends Controller
 
                 if ($validator->passes()){
                     if ($factura->client_limba_id == 1) { // limba Romana
-                        $subiect = 'Scadență factură Maseco Expres';
+                        $subiect = 'SCADENȚĂ FACTURĂ Maseco Expres';
                         $mesaj = 'Bună ' . $factura->client_nume . ',
                             <br><br>
                             Te informăm că factura <b>' . $factura->seria . $factura->numar . '</b>, pentru comanda <b>' . $factura->client_contract . '</b>, va fi scadentă pe <b>' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') . '</b>' .
                             '<br>
                             Te rugăm să confirmi dovada de plată pe <b>pod@masecoexpres.net</b>.
-                            <br>
+                            <br><br>
                             Acest mesaj este automat, te rugăm să nu răspunzi.
                             <br><br>
                             Mulțumim!
@@ -307,13 +307,13 @@ class CronJobController extends Controller
                             Echipa Maseco Expres
                             <br>';
                     } else {
-                        $subiect = 'Invoice due date - Maseco Express';
+                        $subiect = 'INVOICE DUE DATE - Maseco Express';
                         $mesaj = 'Hi ' . $factura->client_nume . ',
                             <br><br>
                             Please note that the invoice <b>' . $factura->seria . $factura->numar . '</b>, for order <b>' . $factura->client_contract . '</b>, will be due on <b>' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') . '</b>' .
                             '<br>
                             Please send proof of payment to <b>pod@masecoexpres.net</b>.
-                            <br>
+                            <br><br>
                             This message is automated, please do not reply.
                             <br><br>
                             Thank you!
@@ -323,9 +323,9 @@ class CronJobController extends Controller
                     }
 
                     // Trimitere memento prin email
-                    \Mail::
+                    \Mail::mailer('office')
                         // to('masecoexpres@gmail.com')
-                        to($factura->client_email)
+                        ->to($factura->client_email)
                         // to(['andrei.dima@usm.ro'])
                         // to('adima@validsoftware.ro')
                         // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
