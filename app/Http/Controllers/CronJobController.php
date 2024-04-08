@@ -296,7 +296,7 @@ class CronJobController extends Controller
                         $subiect = 'Scadență factură Maseco Expres';
                         $mesaj = 'Bună ' . $factura->client_nume . ',
                             <br><br>
-                            Te informăm că factura <b>' . $factura->seria . $factura->numar . '</b>, pentru comanda ' . $factura->client_contract . ', va fi scadentă pe ' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') .
+                            Te informăm că factura <b>' . $factura->seria . $factura->numar . '</b>, pentru comanda <b>' . $factura->client_contract . '</b>, va fi scadentă pe <b>' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') . '</b>' .
                             '<br>
                             Te rugăm să confirmi dovada de plată pe <b>pod@masecoexpres.net</b>.
                             <br>
@@ -310,9 +310,9 @@ class CronJobController extends Controller
                         $subiect = 'Invoice due date - Maseco Express';
                         $mesaj = 'Hi ' . $factura->client_nume . ',
                             <br><br>
-                            Please note that the invoice <b>' . $factura->seria . $factura->numar . '</b>, for order ' . $factura->client_contract . ', will be due on ' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') .
+                            Please note that the invoice <b>' . $factura->seria . $factura->numar . '</b>, for order <b>' . $factura->client_contract . '</b>, will be due on <b>' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') . '</b>' .
                             '<br>
-                            Please confirm proof of payment by email <b>pod@masecoexpres.net</b>.
+                            Please send proof of payment to <b>pod@masecoexpres.net</b>.
                             <br>
                             This message is automated, please do not reply.
                             <br><br>

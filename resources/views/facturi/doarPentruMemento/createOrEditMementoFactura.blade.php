@@ -51,7 +51,7 @@
                                             value="{{ old('client_contract', $factura->client_contract) }}">
                                     </div>
                                     <div class="col-lg-2 mb-1">
-                                        <label for="client_limba_id" class="mb-0 ps-3">Limba</label>
+                                        <label for="client_limba_id" class="mb-0 ps-3">Limba<span class="text-danger">*</span></label>
                                         <select name="client_limba_id" class="form-select bg-white rounded-3 {{ $errors->has('client_limba_id') ? 'is-invalid' : '' }}">
                                             <option selected></option>
                                             @foreach ($limbi as $limba)
