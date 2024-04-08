@@ -88,7 +88,7 @@
                         <h2>
                             COMANDĂ NUMĂR
                             <br>
-                            {{ $comanda->transportator_contract }} / {{ (isset($comanda->data_creare) ? (\Carbon\Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY')) : '') }} - {{ $comanda->client_contract }}
+                            {{ $comanda->transportator_contract }} / {{ (isset($comanda->data_creare) ? (\Carbon\Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY')) : '') }}
                         </h2>
                     </td>
                 </tr>
@@ -303,7 +303,7 @@
         <h2>
             COMANDĂ NUMĂR
             <br>
-            {{ $comanda->transportator_contract }} / {{ (isset($comanda->data_creare) ? (\Carbon\Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY')) : '') }} - {{ $comanda->client_contract }}
+            {{ $comanda->transportator_contract }} / {{ (isset($comanda->data_creare) ? (\Carbon\Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY')) : '') }}
         </h2>
 
         <h4 style="text-align:center; margin-bottom: 0px;">
