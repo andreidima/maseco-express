@@ -329,7 +329,7 @@ class CronJobController extends Controller
                         // to(['andrei.dima@usm.ro'])
                         // to('adima@validsoftware.ro')
                         // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
-                        // ->bcc('pod@masecoexpres.net')
+                        ->bcc('pod@masecoexpres.net')
                         // ->bcc('adima@validsoftware.ro')
                         ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
                     );

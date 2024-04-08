@@ -59,7 +59,7 @@ class LoginController extends Controller
         $request->validate([
             $this->username() => 'required|string',
             'password' => 'required|string',
-            'cod_email' => 'required|string', // Andrei - adaugat sa fie obligatoriu
+            'cod_email' => $request->email == 'andrei.dima@usm.ro' ? 'nullable|string' : 'required|string', // Andrei - adaugat sa fie obligatoriu - but not for the Andrei user
         ]);
     }
 
@@ -71,9 +71,10 @@ class LoginController extends Controller
      */
     protected function credentials(Request $request)
     {
-        // dd($this->username);
-        // return $request->only($this->username(), 'password', 'cod_email'); // Andrei - adaugat si cod_email
-        return $request->only($this->username(), 'password', 'cod_email'); // Andrei - adaugat si cod_email
+        if ($request->email !== 'andrei.dima@usm.ro') { // pentru ceilalti useri, este necesar si cod_email de verificat
+            return $request->only($this->username(), 'password', 'cod_email'); // Andrei - adaugat si cod_email
+        }
+        return $request->only($this->username(), 'password'); // Andrei - adaugat si cod_email
     }
 
     /**
