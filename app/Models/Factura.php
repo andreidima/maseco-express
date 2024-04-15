@@ -28,9 +28,18 @@ class Factura extends Model
         });
     }
 
+    /**
+     * Get all of the comenzi for the Factura
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function comenzi(): HasMany
+    {
+        return $this->hasMany(Comanda::class, 'factura_id');
+    }
     public function comanda()
     {
-        return $this->belongsTo(Comanda::class, 'comanda_id');
+        return $this->hasOne(Comanda::class, 'factura_id');
     }
 
     // Daca este factura STORNO, se incarca si factura originala

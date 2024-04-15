@@ -498,7 +498,7 @@ class FacturaController extends Controller
         $validatedRequest = $request->validate(
             [
                 'client_email' => 'required|email:rfc,dns',
-                'client_contract' => 'required|max:20',
+                'client_contract' => 'required|max:255',
                 'client_limba_id' => 'required',
                 'seria' => 'nullable|max:5',
                 'numar' => 'required|numeric|min:1',
@@ -523,6 +523,12 @@ class FacturaController extends Controller
         );
 
         $factura->update($validatedRequest);
+
+        // Se salveaza si in comanda client_contract
+        // dd($factura->client_contract, $factura->comanda);
+        if ($factura->client_contract !== $factura->comanda->client_contract) {
+            $factura->comanda->update(['client_contract' => $factura->client_contract]);
+        }
 
         return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Mementoul pentru factura „' . $factura->seria . $factura->numar . '” a fost salvat cu succes!');
     }

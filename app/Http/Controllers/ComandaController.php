@@ -38,6 +38,7 @@ class ComandaController extends Controller
 
         $searchDataCreare = $request->searchDataCreare;
         $searchTransportatorContract = $request->searchTransportatorContract;
+        $searchClientContract = $request->searchClientContract;
         $searchStare = $request->searchStare;
         $searchUser = $request->searchUser;
         $searchTransportatorId = $request->searchTransportatorId;
@@ -52,6 +53,9 @@ class ComandaController extends Controller
             })
             ->when($searchTransportatorContract, function ($query, $searchTransportatorContract) {
                 return $query->where('transportator_contract', 'like', '%' . $searchTransportatorContract . '%');
+            })
+            ->when($searchClientContract, function ($query, $searchClientContract) {
+                return $query->where('client_contract', $searchClientContract);
             })
             ->when($searchStare, function ($query, $searchStare) {
                 return $query->where('stare', $searchStare);
@@ -79,7 +83,7 @@ class ComandaController extends Controller
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
 
-        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'useri', 'searchDataCreare', 'searchTransportatorContract', 'searchStare', 'searchUser', 'searchTransportatorId', 'searchClientId'));
+        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'useri', 'searchDataCreare', 'searchTransportatorContract', 'searchClientContract', 'searchStare', 'searchUser', 'searchTransportatorId', 'searchClientId'));
     }
 
     /**
@@ -587,7 +591,7 @@ class ComandaController extends Controller
                 'transportator_procent_tva_id' => '',
                 'transportator_metoda_de_plata_id' => '',
                 'transportator_tarif_pe_km' => '',
-                'client_contract' => 'nullable|max:20',
+                'client_contract' => 'nullable|max:255',
                 'client_limba_id' => '',
                 'client_valoare_contract' => 'required|numeric|min:-9999999|max:9999999',
                 'client_moneda_id' => 'required',
