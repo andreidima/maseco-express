@@ -65,6 +65,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/camioane', CamionController::class)->parameters(['camioane' => 'camion']);
     Route::resource('/locuri-operare', LocOperareController::class)->parameters(['locuri-operare' => 'locOperare']);
 
+    Route::view('comenzi/totaluri-luna-curenta', 'comenzi.export.totaluriLunaCurenta'); // Route to show detailed info about how is calculated the total sum, from the first page, containing the comands from this month
     Route::resource('/comenzi', ComandaController::class)->parameters(['comenzi' => 'comanda']);
     Route::get('/comenzi/{comanda}/trimite-catre-transportator', [ComandaController::class, 'comandaTrimiteCatreTransportator']);
     Route::any('/comenzi/{comanda}/adauga-resursa/{resursa}/{tip?}/{ordine?}', [ComandaController::class, 'comandaAdaugaResursa']);

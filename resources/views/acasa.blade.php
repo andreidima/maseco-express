@@ -64,11 +64,17 @@
         </div>
         <div class="col-md-4 mb-5">
             <div class="card culoare2">
-                <div class="card-header text-center">Profit comenzi luna curenta</div>
+                <div class="card-header text-center">Profit comenzi luna curenta
+                    <a href="comenzi/totaluri-luna-curenta" target="_blank">
+                        <i class="fa-solid fa-circle-info text-white" title="Detaliază"></i>
+                    </a>
+                </div>
                 <div class="card-body text-center">
                     @foreach ($monede as $moneda)
                         @if (($suma = $comenziLunaCurenta->where('client_moneda_id', $moneda->id)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', $moneda->id)->sum('transportator_valoare_contract')) !== 0)
                             <b class="fs-2">{{ $suma }} {{ $moneda->nume }}</b>
+                            {{-- (<small><a href="">Detaliază</a></small>) --}}
+                            &nbsp;&nbsp;
                             <br>
                         @endif
                     @endforeach
