@@ -69,7 +69,7 @@
                                     {{ $factura->client_nume }}
                                 </td>
                                 <td class="text-end">
-                                    {{ $factura->total_moneda }} {{ $factura->moneda->nume }}
+                                    {{ $factura->total_moneda }} {{ $factura->moneda->nume ?? '' }}
                                 </td>
                                 <td class="text-center">
                                     {{ $factura->data ? \Carbon\Carbon::parse($factura->data)->isoFormat('DD.MM.YYYY') : '' }}

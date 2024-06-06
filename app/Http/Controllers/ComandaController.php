@@ -692,7 +692,7 @@ class ComandaController extends Controller
         foreach ($comanda->locuriOperareIncarcari as $key=>$locOperareIncarcare){
             $sheet->setCellValue('A' . $rand, $comanda->transportator_contract);
             $sheet->setCellValue('B' . $rand, 'Loading');
-            $sheet->getStyle('B' . $rand)->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_BLUE);
+            $sheet->getStyle('B' . $rand)->getFont()->getColor()->setRGB('00B0F0');
             $sheet->setCellValue('C' . $rand, $locOperareIncarcare->pivot->referinta ?? '');
             $sheet->setCellValue('D' . $rand, $locOperareIncarcare->nume);
             $sheet->setCellValue('E' . $rand, $locOperareIncarcare->adresa);
@@ -716,7 +716,7 @@ class ComandaController extends Controller
         foreach ($comanda->locuriOperareDescarcari as $key=>$locOperareDescarcare){
             $sheet->setCellValue('A' . $rand, $comanda->transportator_contract);
             $sheet->setCellValue('B' . $rand, 'Unloading');
-            $sheet->getStyle('B' . $rand)->getFont()->getColor()->setARGB(\PhpOffice\PhpSpreadsheet\Style\Color::COLOR_RED);
+            $sheet->getStyle('B' . $rand)->getFont()->getColor()->setRGB('FF2F92');
             $sheet->setCellValue('C' . $rand, $locOperareDescarcare->pivot->referinta ?? '');
             $sheet->setCellValue('D' . $rand, $locOperareDescarcare->nume);
             $sheet->setCellValue('E' . $rand, $locOperareDescarcare->adresa);
