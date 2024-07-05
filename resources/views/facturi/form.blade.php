@@ -98,6 +98,7 @@
                         <option selected></option>
                         <option value="MAS" {{ (old('seria', $factura->seria) === "MAS") ? 'selected' : '' }}>MAS</option>
                         <option value="MSC" {{ (old('seria', $factura->seria) === "MSC") ? 'selected' : '' }}>MSC</option>
+                        <option value="MSO" {{ (old('seria', $factura->seria) === "MSO") ? 'selected' : '' }}>MSO</option>
                         <option value="MSX" {{ (old('seria', $factura->seria) === "MSX") ? 'selected' : '' }}>MSX</option>
                     </select>
                 </div>
