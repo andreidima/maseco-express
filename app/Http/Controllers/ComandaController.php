@@ -94,7 +94,7 @@ class ComandaController extends Controller
     public function create(Request $request)
     {
         $comanda = new Comanda;
-        $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::latest()->first()->transportator_contract ?? '0') ) + 1);
+        $comanda->transportator_contract = 'MSX-' . ( (preg_replace('/[^0-9]/', '', Comanda::orderBy('id', 'desc')->first()->transportator_contract ?? '0') ) + 1);
         $comanda->data_creare = Carbon::today();
         $comanda->interval_notificari = '03:00:00';
         $comanda->transportator_limba_id = 1; // Romana
