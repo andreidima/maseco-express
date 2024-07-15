@@ -73,6 +73,8 @@ class AxiosController extends Controller
 
         if (!$user){
             $raspuns = "<span class='text-danger' style='font-size:80%'>Nu există acest email în baza de date.</span>";
+        } elseif ($user->cod_email){
+            $raspuns = "<span class='text-danger' style='font-size:80%'>Ai deja un cod nefolosit trimis pe email.</span>";
         } else {
             $user->cod_email = rand(1000, 9999);
             $user->save();
