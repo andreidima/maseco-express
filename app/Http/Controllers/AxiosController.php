@@ -73,8 +73,17 @@ class AxiosController extends Controller
 
         if (!$user){
             $raspuns = "<span class='text-danger' style='font-size:80%'>Nu există acest email în baza de date.</span>";
-        } elseif ($user->cod_email){
-            $raspuns = "<span class='text-danger' style='font-size:80%'>Ai deja un cod nefolosit trimis pe email.</span>";
+
+        // This restriction is to stop spamming sending the code to email, because the hosting doesn't allow it (Romarg for example allow maximum 5 emails per minute thorugh PHP scripts)
+        } elseif (($user->cod_email) && (Carbon::parse($user->updated_at)->addMinutes(5)->gt(Carbon::now()))) {
+            $raspuns = "
+                <span class='text-danger' style='font-size:80%'>
+                    Ai deja un cod nefolosit trimis pe email.
+                    <br>
+                    Poți genera un cod nou la fiecare 5 minute.
+                    <br><br>
+                    Următorul cod poate fi generat la " . Carbon::parse($user->updated_at)->addMinutes(5)->isoFormat('HH:mm DD.MM.YYYY') .
+                "</span>";
         } else {
             $user->cod_email = rand(1000, 9999);
             $user->save();
