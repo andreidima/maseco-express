@@ -321,6 +321,8 @@
             NU ACCEPTĂM DOCUMENTE TRIMISE CU POȘTA
             <br>
             ATENȚIE! FIRMA NOASTRĂ ESTE PLĂTITOARE DE TVA!
+            <br>
+            Factura se va emite obligatoriu până pe data de 5 ale lunii următoare și se va trimite în SPV. Nerespectarea acestor două condiții, duce la neplata facturii.
         </h4>
 
         <ol><center><b>CONDIȚII SPECIALE ALE COMENZII DE TRANSPORT</b></center>
