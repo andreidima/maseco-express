@@ -322,7 +322,7 @@
             <br>
             ATENȚIE! FIRMA NOASTRĂ ESTE PLĂTITOARE DE TVA!
             <br>
-            Factura se va emite obligatoriu până pe data de 5 ale lunii următoare și se va trimite în SPV. Nerespectarea acestor două condiții, duce la neplata facturii.
+            FACTURA SE VA EMITE OBLIGATORIU PÂNĂ PE DATA DE 5 ALE LUNII URMĂTOARE ȘI SE VA TRIMITE ÎN SPV. NERESPECTAREA ACESTOR DOUĂ CONDIȚII, DUCE LA NEPLATA FACTURII.
         </h4>
 
         <ol><center><b>CONDIȚII SPECIALE ALE COMENZII DE TRANSPORT</b></center>
