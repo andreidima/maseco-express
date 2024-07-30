@@ -47,7 +47,7 @@ class TrimitereCodAutentificarePrinEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Codul tău de logare în aplicația Maseco Express.',
+            subject: 'Codul tău de logare în aplicația Maseco Express este.' . $user->cod_email,
         );
     }
 
