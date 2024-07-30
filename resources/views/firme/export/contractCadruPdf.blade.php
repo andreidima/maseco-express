@@ -173,6 +173,7 @@
             <p style="text-indent: -20px;"><b>3.2.</b> Comanda se consideră confirmată și acceptată prin acordul de voință manifestat de Cărăuș, exprimat în orice formă și comunicat în scris Expeditorului.</p>
             <p style="text-indent: -20px;"><b>3.3.</b> Comanda plasată de Expeditor și acceptată de Cărăuș este irevocabilă. Prin excepție, Expeditorul are dreptul de a modifica sau anula o comandă confirmată, în orice moment, în cazul în care intervin evenimente ce fac imposibilă realizarea obiectului comenzii.</p>
             <p style="text-indent: -20px;"><b>3.4.</b> Părțile au convenit ca întreaga corespondență scrisă privind plasarea și acceptarea comenzilor, dar și pe tot parcursul efectuării transportului, să se realizeze prin mijloacele de comunicare electronice utilizate de părți, cum ar fi, dar fără a se limita la: sms, email, Whatsapp,  Messenger, Facebook, Skype, etc., la alegerea Expeditorului (”mijloacele de comunicare electronice”).</p>
+            <p style="text-indent: -20px;"><b>3.5.</b> Factura se va emite obligatoriu până pe data de 5 ale lunii următoare și se va trimite în SPV. Nerespectarea acestor două condiții, duce la neplata facturii.</p>
             <br>
 
             <h3 style="margin:0; text-align:center"><b>CAP. IV. LIVRAREA MĂRFURILOR</b></h3>
