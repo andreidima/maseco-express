@@ -9,6 +9,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use Carbon\Carbon;
 
 use Illuminate\Mail\Mailables\Headers;
 
@@ -16,6 +17,7 @@ class TrimitereCodAutentificarePrinEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    public $userCodEmail;
     /**
      * Create a new message instance.
      */
@@ -23,7 +25,7 @@ class TrimitereCodAutentificarePrinEmail extends Mailable
         public User $user,
     )
     {
-        //
+        $this->userCodEmail = $user->cod_email;
     }
 
     /**
@@ -46,8 +48,11 @@ class TrimitereCodAutentificarePrinEmail extends Mailable
      */
     public function envelope(): Envelope
     {
+        $user = $this->user;
+
         return new Envelope(
-            subject: 'Codul tău de logare în aplicația Maseco Express este.' . $user->cod_email,
+            subject: 'Codul tău de logare în aplicația Maseco Express este ' . $user->cod_email .
+             '. Următorul cod poate fi generat la ' . Carbon::parse($user->updated_at)->addMinutes(5)->isoFormat('HH:mm DD.MM.YYYY') ,
         );
     }
 
