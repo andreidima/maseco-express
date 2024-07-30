@@ -221,7 +221,7 @@
             <h3 style="margin:0; text-align:center"><b>CAP. VIII. FORŢA MAJORĂ</b></h3>
             <p style="text-indent: -20px;"><b>8.1.</b> Forța majoră, așa cum este definită de lege, exonerează de răspundere partea care o invocă în condițiile legii, dacă se menține pe o perioadă mai mare de 30 de zile.</p>
             <p style="text-indent: -20px;"><b>8.2.</b> Starea de forță majoră trebuie notificată în prealabil în scris, în termen de 2 zile de la apariția cazului de forță majoră și dovedită pe baza certificatului eliberat de Camera de Comerț și Industrie autorizată unde a apărut cazul de forță majoră.</p>
-            <br>
+            <br><br>
 
             <h3 style="margin:0; text-align:center"><b>CAP. IX CONFIDENȚIALITATE</b></h3>
             <p style="text-indent: -20px;"><b>9.1.</b> Părțile au obligația de a păstra confidențialitatea tuturor  informațiile tehnice sau comerciale, furnizate cu ocazia executării prezentului contract, fiind obligate să se abțină de la divulgarea lor către terți, chiar și după încetarea relațiilor contractuale, sub sancțiunea plății de daune interese în cuantum de 10.000 euro.</p>
