@@ -297,7 +297,7 @@ class CronJobController extends Controller
         $subiectEmailCatreMaseco = 'FACTURI SCADENTE - ALERTE';
         $mesajEmailCatreMaseco = 'Bună,
             <br><br>
-            Acestea sunt următoarele alerte de facturi scadente pe ziua de astăzi:
+            Acestea sunt următoarele alerte de facturi scadente pe ziua de astăzi. Alertele au fost trimise si catre emailurile clientilor:
             <ul>';
 
         foreach ($facturiDeTrimisMesaj as $factura){
@@ -354,12 +354,12 @@ class CronJobController extends Controller
                     echo 'Mesaj trimis catre ' . $factura->client_email;
                     echo '<br><br>';
 
-                    $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b> - s-a trimis notificare prin email astăzi.</li>';
+                    $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b></li>';
                 } else {
-                    $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b> - EMAIL GREȘIT - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL.</li>';
+                    $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b><span style="color:red"> - EMAIL GREȘIT - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL</span>.</li>';
                 }
             } else {
-                $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b> - EMAIL LIPSĂ - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL.</li>';
+                $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b><span style="color:red"> - EMAIL LIPSĂ - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL</span>.</li>';
             }
 
         }
