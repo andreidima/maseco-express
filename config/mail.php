@@ -107,6 +107,25 @@ return [
                 'name' => env('MAIL_OFFICE_REPLY_TO_NAME', 'Example'),
             ],
         ],
+
+        'invoice' => [
+            'transport' => env('MAIL_INVOICE_MAILER', 'log'),
+            'host' => env('MAIL_INVOICE_HOST', 'smtp.mailgun.org'),
+            'port' => env('MAIL_INVOICE_PORT', 587),
+            'encryption' => env('MAIL_INVOICE_ENCRYPTION', 'ssl'),
+            'username' => env('MAIL_INVOICE_USERNAME'),
+            'password' => env('MAIL_INVOICE_PASSWORD'),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN'),
+            'from' => [
+                'address' => env('MAIL_INVOICE_FROM_ADDRESS', 'hello@example.com'),
+                'name' => env('MAIL_INVOICE_FROM_NAME', 'Example'),
+            ],
+            'reply_to' => [
+                'address' => env('MAIL_INVOICE_REPLY_TO_ADDRESS', 'hello@example.com'),
+                'name' => env('MAIL_INVOICE_REPLY_TO_NAME', 'Example'),
+            ],
+        ],
     ],
 
     /*

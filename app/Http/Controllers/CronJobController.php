@@ -255,8 +255,13 @@ class CronJobController extends Controller
 
         $facturi = Factura::select('id', 'data', 'zile_scadente', 'alerte_scadenta')
             ->whereDate('data', '>', Carbon::now()->subDays(100))
+            ->where(function ($query) {  // not invoices that  allready received the alert today
+                $query->whereNull('ultima_alerta_trimisa')
+                      ->orwhereDate('ultima_alerta_trimisa', '<>', Carbon::now());
+            })
             ->get();
 
+// dd($facturi->count());
         $arrayIdFacturiDeTrimisMesaj = [];
         foreach ($facturi as $factura){
             if ($factura->zile_scadente){ // daca exista zile scadente
@@ -278,24 +283,28 @@ class CronJobController extends Controller
                 }
             }
         }
-
-        $facturiDeTrimisMesaj = Factura::with('comanda.client')->whereIn('id', $arrayIdFacturiDeTrimisMesaj)->get();
+// dd($arrayIdFacturiDeTrimisMesaj);
+        $facturiDeTrimisMesaj = Factura::with('comanda.client')->whereIn('id', $arrayIdFacturiDeTrimisMesaj)->take(5)->get();
 
         // Daca nu este nici un memento de trimis pentru ziua curenta, se termina functia
         if (count($facturiDeTrimisMesaj) === 0){
             return;
         }
 
-dd($facturiDeTrimisMesaj->count());
+// dd($facturiDeTrimisMesaj->count());
 
         // Trimitere email
         foreach ($facturiDeTrimisMesaj as $factura){
+            // The invoice is marked, to not send another email to the same invoice today
+            $factura->ultima_alerta_trimisa = Carbon::today();
+            $factura->save();
+
             if (isset($factura->client_email)){
                 $validator = Validator::make(['email' => $factura->client_email], ['email' => 'email:rfc,dns',]);
 
                 if ($validator->passes()){
                     if ($factura->client_limba_id == 1) { // limba Romana
-                        $subiect = 'SCADENȚĂ FACTURĂ Maseco Expres';
+                        $subiect = 'SCADENȚĂ FACTURĂ ' . $factura->seria . $factura->numar . ', pentru comanda ' . $factura->client_contract . ' - Maseco Expres';
                         $mesaj = 'Bună ' . $factura->client_nume . ',
                             <br><br>
                             Te informăm că factura <b>' . $factura->seria . $factura->numar . '</b>, pentru comanda <b>' . $factura->client_contract . '</b>, va fi scadentă pe <b>' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') . '</b>' .
@@ -309,7 +318,7 @@ dd($facturiDeTrimisMesaj->count());
                             Echipa Maseco Expres
                             <br>';
                     } else {
-                        $subiect = 'INVOICE DUE DATE - Maseco Express';
+                        $subiect = 'INVOICE DUE DATE ' . $factura->seria . $factura->numar . ', for order ' . $factura->client_contract . ' - Maseco Express';
                         $mesaj = 'Hi ' . $factura->client_nume . ',
                             <br><br>
                             Please note that the invoice <b>' . $factura->seria . $factura->numar . '</b>, for order <b>' . $factura->client_contract . '</b>, will be due on <b>' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') . '</b>' .
@@ -325,7 +334,7 @@ dd($facturiDeTrimisMesaj->count());
                     }
 
                     // Trimitere memento prin email
-                    \Mail::mailer('office')
+                    \Mail::mailer('invoice')
                         // to('masecoexpres@gmail.com')
                         ->to($factura->client_email)
                         // to(['andrei.dima@usm.ro'])
