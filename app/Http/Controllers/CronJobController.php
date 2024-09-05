@@ -255,10 +255,10 @@ class CronJobController extends Controller
 
         $facturi = Factura::select('id', 'data', 'zile_scadente', 'alerte_scadenta')
             ->whereDate('data', '>', Carbon::now()->subDays(100))
-            ->where(function ($query) {  // not invoices that  allready received the alert today
-                $query->whereNull('ultima_alerta_trimisa')
-                      ->orwhereDate('ultima_alerta_trimisa', '<>', Carbon::now());
-            })
+            // ->where(function ($query) {  // not invoices that  allready received the alert today
+            //     $query->whereNull('ultima_alerta_trimisa')
+            //           ->orwhereDate('ultima_alerta_trimisa', '<>', Carbon::now());
+            // })
             ->get();
 
 // dd($facturi->count());
@@ -284,7 +284,7 @@ class CronJobController extends Controller
             }
         }
 // dd($arrayIdFacturiDeTrimisMesaj);
-        $facturiDeTrimisMesaj = Factura::with('comanda.client')->whereIn('id', $arrayIdFacturiDeTrimisMesaj)->take(5)->get();
+        $facturiDeTrimisMesaj = Factura::with('comanda.client')->whereIn('id', $arrayIdFacturiDeTrimisMesaj)->get();
 
         // Daca nu este nici un memento de trimis pentru ziua curenta, se termina functia
         if (count($facturiDeTrimisMesaj) === 0){
@@ -294,10 +294,16 @@ class CronJobController extends Controller
 // dd($facturiDeTrimisMesaj->count(), $facturiDeTrimisMesaj);
 
         // Trimitere email
+        $subiectEmailCatreMaseco = 'FACTURI SCADENTE - ALERTE';
+        $mesajEmailCatreMaseco = 'Bună,
+            <br><br>
+            Acestea sunt următoarele alerte de facturi scadente pe ziua de astăzi:
+            <ul>';
+
         foreach ($facturiDeTrimisMesaj as $factura){
-            // The invoice is marked, to not send another email to the same invoice today
-            $factura->ultima_alerta_trimisa = Carbon::today();
-            $factura->save();
+            // // The invoice is marked, to not send another email to the same invoice today
+            // $factura->ultima_alerta_trimisa = Carbon::today();
+            // $factura->save();
 
             if (isset($factura->client_email)){
                 $validator = Validator::make(['email' => $factura->client_email], ['email' => 'email:rfc,dns',]);
@@ -345,22 +351,37 @@ class CronJobController extends Controller
                     //     ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
                     // );
 
-                    // Trimitere memento prin email
-                    \Mail::mailer('invoice')
-                        // to('masecoexpres@gmail.com')
-                        // ->to($factura->client_email)
-                        ->to(['andrei.dima@usm.ro'])
-                        // to('adima@validsoftware.ro')
-                        // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
-                        // ->bcc('pod@masecoexpres.net')
-                        // ->bcc('adima@validsoftware.ro')
-                        ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
-                    );
-
                     echo 'Mesaj trimis catre ' . $factura->client_email;
                     echo '<br><br>';
+
+                    $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b> - s-a trimis notificare prin email astăzi.</li>';
+                } else {
+                    $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b> - EMAIL GREȘIT - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL.</li>';
                 }
+            } else {
+                $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b> - EMAIL LIPSĂ - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL.</li>';
             }
+
         }
+
+        $mesajEmailCatreMaseco .= "</ul>
+            Acest mesaj este automat, te rugăm să nu răspunzi.
+            <br><br>
+            Mulțumim!
+            <br>
+            Echipa Maseco Expres
+            <br>";
+
+        // Send email to to Maseco with today alerts
+        \Mail::mailer('invoice')
+            // to('masecoexpres@gmail.com')
+            // ->to($factura->client_email)
+            ->to(['andrei.dima@usm.ro'])
+            // to('adima@validsoftware.ro')
+            // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
+            // ->bcc('pod@masecoexpres.net')
+            // ->bcc('adima@validsoftware.ro')
+            ->send(new \App\Mail\MementoFactura($subiectEmailCatreMaseco, $mesajEmailCatreMaseco)
+        );
     }
 }
