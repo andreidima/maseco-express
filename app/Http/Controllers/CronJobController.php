@@ -291,7 +291,7 @@ class CronJobController extends Controller
             return;
         }
 
-// dd($facturiDeTrimisMesaj->count());
+dd($facturiDeTrimisMesaj->count());
 
         // Trimitere email
         foreach ($facturiDeTrimisMesaj as $factura){
