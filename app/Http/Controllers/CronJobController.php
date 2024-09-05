@@ -305,6 +305,8 @@ class CronJobController extends Controller
             // $factura->ultima_alerta_trimisa = Carbon::today();
             // $factura->save();
 
+            $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b>, scadentă <b>' . Carbon::parse($factura->data)->addDays($factura->zile_scadente)->isoFormat('DD.MM.YYYY') . '</b>';
+
             if (isset($factura->client_email)){
                 $validator = Validator::make(['email' => $factura->client_email], ['email' => 'email:rfc,dns',]);
 
@@ -354,12 +356,12 @@ class CronJobController extends Controller
                     echo 'Mesaj trimis catre ' . $factura->client_email;
                     echo '<br><br>';
 
-                    $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b></li>';
+                    $mesajEmailCatreMaseco .= '</li>';
                 } else {
-                    $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b><span style="color:red"> - EMAIL GREȘIT - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL</span>.</li>';
+                    $mesajEmailCatreMaseco .= '<span style="color:red"> - EMAIL GREȘIT - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL</span>.</li>';
                 }
             } else {
-                $mesajEmailCatreMaseco .= '<li>Client ' . $factura->client_nume . ', factura <b>' . $factura->seria . $factura->numar . '</b>, comanda <b>' . $factura->client_contract . '</b><span style="color:red"> - EMAIL LIPSĂ - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL</span>.</li>';
+                $mesajEmailCatreMaseco .= '<span style="color:red"> - EMAIL LIPSĂ - NU S-A PUTUT TRIMITE NOTIFICAREA PRIN EMAIL</span>.</li>';
             }
 
         }
