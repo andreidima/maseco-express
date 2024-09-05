@@ -339,17 +339,17 @@ class CronJobController extends Controller
                             <br>';
                     }
 
-                    // // Trimitere memento prin email
-                    // \Mail::mailer('invoice')
-                    //     // to('masecoexpres@gmail.com')
-                    //     ->to($factura->client_email)
-                    //     // to(['andrei.dima@usm.ro'])
-                    //     // to('adima@validsoftware.ro')
-                    //     // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
-                    //     ->bcc('pod@masecoexpres.net')
-                    //     // ->bcc('adima@validsoftware.ro')
-                    //     ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
-                    // );
+                    // Trimitere memento prin email
+                    \Mail::mailer('invoice')
+                        // to('masecoexpres@gmail.com')
+                        ->to($factura->client_email)
+                        // to(['andrei.dima@usm.ro'])
+                        // to('adima@validsoftware.ro')
+                        // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
+                        // ->bcc('pod@masecoexpres.net')
+                        // ->bcc('adima@validsoftware.ro')
+                        ->send(new \App\Mail\MementoFactura($subiect, $mesaj)
+                    );
 
                     echo 'Mesaj trimis catre ' . $factura->client_email;
                     echo '<br><br>';
@@ -376,7 +376,8 @@ class CronJobController extends Controller
         \Mail::mailer('invoice')
             // to('masecoexpres@gmail.com')
             // ->to($factura->client_email)
-            ->to(['andrei.dima@usm.ro'])
+            ->to('pod@masecoexpres.net')
+            ->bcc(['andrei.dima@usm.ro'])
             // to('adima@validsoftware.ro')
             // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
             // ->bcc('pod@masecoexpres.net')
