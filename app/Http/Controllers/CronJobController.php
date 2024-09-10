@@ -379,7 +379,7 @@ class CronJobController extends Controller
             // to('masecoexpres@gmail.com')
             // ->to($factura->client_email)
             ->to('pod@masecoexpres.net')
-            ->bcc(['andrei.dima@usm.ro'])
+            // ->bcc(['andrei.dima@usm.ro'])
             // to('adima@validsoftware.ro')
             // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
             // ->bcc('pod@masecoexpres.net')
