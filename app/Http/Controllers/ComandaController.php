@@ -102,6 +102,7 @@ class ComandaController extends Controller
         $comanda->client_limba_id = 1; // Romana
         $comanda->client_tarif_pe_km = 0;
         $comanda->user_id = $request->user()->id;
+        $comanda->operator_user_id = $request->user()->id;
         $comanda->cheie_unica = uniqid();
         $comanda->save();
 
@@ -634,6 +635,7 @@ class ComandaController extends Controller
                 'observatii_externe' => 'nullable|max:2000',
 
                 'user_id' => 'required',
+                'operator_user_id' => 'nullable',
 
                 // 'observatii' => 'nullable|max:2000',
             ],

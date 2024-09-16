@@ -23,6 +23,11 @@ class Comanda extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function operator()
+    {
+        return $this->belongsTo(User::class, 'operator_user_id');
+    }
+
     public function client()
     {
         return $this->belongsTo(Firma::class, 'client_client_id');

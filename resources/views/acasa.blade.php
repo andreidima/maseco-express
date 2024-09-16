@@ -9,6 +9,10 @@
 
                 <div class="card-body">
                     Bine ai venit <b>{{ auth()->user()->name ?? '' }}</b>!
+                    <br><br>
+                    Comenzi operate de tine în luna curentă: <b>{{ \App\Models\Comanda::whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
+                    <br>
+                    Comenzi operate de tine în luna trecută: <b>{{ \App\Models\Comanda::whereYear('created_at', \Carbon\Carbon::now()->subMonthNoOverflow())->whereMonth('created_at', \Carbon\Carbon::now()->subMonthNoOverflow())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
                 </div>
             </div>
         </div>
@@ -18,7 +22,7 @@
         @php
             $comenziLunaCurenta = \App\Models\Comanda::select('id', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id')
                                                         ->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->get();
-// dd($comenziLunaCurenta);
+
             $monede = \App\Models\Moneda::select('id', 'nume')->get();
             $leiLunaCurenta = $comenziLunaCurenta->where('client_moneda_id', 1)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', 1)->sum('transportator_valoare_contract')
         @endphp

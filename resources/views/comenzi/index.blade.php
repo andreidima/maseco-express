@@ -180,7 +180,7 @@
                             {{-- <th class="text-center small">Trimite Ctr.<br>pe email</th> --}}
                             <th class="text-center">Mesaje<br>trimise</th>
                             <th class="text-center">Stare</th>
-                            <th class="text-center">Utilizator</th>
+                            <th class="text-center">Utilizator<br>Operator</th>
                             <th class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -325,6 +325,8 @@
                                 </td>
                                 <td class="text-center">
                                     {{ $comanda->user->name ?? '' }}
+                                    <br>
+                                    {{ $comanda->operator->name ?? '' }}
                                 </td>
                                 <td class="text-end">
                                     <div class="d-flex justify-content-end">
