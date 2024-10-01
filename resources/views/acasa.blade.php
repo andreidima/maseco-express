@@ -10,9 +10,9 @@
                 <div class="card-body">
                     Bine ai venit <b>{{ auth()->user()->name ?? '' }}</b>!
                     <br><br>
-                    Comenzi operate de tine în luna curentă: <b>{{ \App\Models\Comanda::whereDate('data_creare', '>=', \Carbon\Carbon::today()->startOfMonth())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
+                    Comenzi operate de tine în luna curentă: <b>{{ \App\Models\Comanda::whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
                     <br>
-                    Comenzi operate de tine în luna trecută: <b>{{ \App\Models\Comanda::whereYear('data_creare', \Carbon\Carbon::now()->subMonthNoOverflow())->whereMonth('data_creare', \Carbon\Carbon::now()->subMonthNoOverflow())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
+                    Comenzi operate de tine în luna trecută: <b>{{ \App\Models\Comanda::whereYear('created_at', \Carbon\Carbon::now()->subMonthNoOverflow())->whereMonth('created_at', \Carbon\Carbon::now()->subMonthNoOverflow())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
                 </div>
             </div>
         </div>
@@ -21,7 +21,7 @@
     <div class="row justify-content-center">
         @php
             $comenziLunaCurenta = \App\Models\Comanda::select('id', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id')
-                                                        ->whereDate('data_creare', '>=', \Carbon\Carbon::today()->startOfMonth())->get();
+                                                        ->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->get();
 
             $monede = \App\Models\Moneda::select('id', 'nume')->get();
             $leiLunaCurenta = $comenziLunaCurenta->where('client_moneda_id', 1)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', 1)->sum('transportator_valoare_contract')
@@ -30,7 +30,7 @@
             <div class="card culoare2">
                 <div class="card-header text-center">Clienți noi luna curentă</div>
                 <div class="card-body text-center">
-                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 1)->whereDate('data_creare', '>=', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
+                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 1)->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
                 </div>
             </div>
         </div>
@@ -38,7 +38,7 @@
             <div class="card culoare2">
                 <div class="card-header text-center">Transportatori noi luna curentă</div>
                 <div class="card-body text-center">
-                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 2)->whereDate('data_creare', '>=', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
+                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 2)->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
                 </div>
             </div>
         </div>
