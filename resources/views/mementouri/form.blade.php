@@ -3,6 +3,8 @@
     // dd(\Illuminate\Support\Arr::flatten($memento->alerte->pluck('data')));
 @endphp
 <script type="application/javascript">
+    tip = {!! json_encode($memento->tip ?? "") !!}
+
     dateSelectate = {!! json_encode(old('dateSelectate', \Illuminate\Support\Arr::flatten($memento->alerte->pluck('data')))) !!}
     // dateSelectate = {!! json_encode(\Illuminate\Support\Arr::flatten(old('dateSelectate', ($memento->alerte['data'] ?? [])))) !!}
 </script>
@@ -11,7 +13,7 @@
     <div class="col-lg-7 px-4 py-2 mb-0">
         <div class="row mb-0">
             <div class="col-lg-12 mb-4">
-                <input type="hidden" name="tip" value="{{ $memento->tip }}">
+                <input type="hidden" name="tip" v-model="tip">
 
                 <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
                 <input

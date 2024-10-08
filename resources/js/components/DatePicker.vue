@@ -59,6 +59,16 @@ export default {
         // }
     }
   },
+    computed: {
+        inputData: {
+        get() {
+            return this.modelValue;
+        },
+        set(value) {
+            this.$emit('trimitere_data_expirare', value);
+        }
+        }
+    },
     methods: {
         notDates(date) {
             // Se blocheaza toate zilele nelucratoare venite din MySQL || se blocheaza ziua de duminica
@@ -112,10 +122,16 @@ export default {
         //     return day === 0
         // },
         captureDataExpirare() {
-            this.$emit('trimitere_data_expirare', this.time);
+            if (this.time) {
+                this.$emit('trimitere_data_expirare', this.time);
+                // console.log('1');
+            }
         },
         sendDataToParent() {
-            this.$emit('trimitere_data_catre_parinte', this.time);
+            if (this.time) {
+                this.$emit('trimitere_data_catre_parinte', this.time);
+                // console.log('2');
+            }
         },
     },
     created() {
@@ -124,12 +140,14 @@ export default {
         else {
           this.time = this.dataVeche
         }
-        this.captureDataExpirare();
+        // this.captureDataExpirare();
         this.sendDataToParent();
     },
     updated() {
         this.captureDataExpirare();
         this.sendDataToParent();
+        // this.$emit('trimitere_data_expirare', this.time);
+        // console.log('asd', this.time);
     },
 
 

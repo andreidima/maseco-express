@@ -346,6 +346,8 @@ const mementoAlerte = createApp({
     el: '#mementoAlerte',
     data() {
         return {
+            tip: tip,
+
             dataExpirare: '',
 
             dataSelectata: '',
@@ -354,14 +356,33 @@ const mementoAlerte = createApp({
     },
     methods: {
         captureDataExpirare(data) {
-            this.dataExpirare = data;
-            if ((this.dataSelectata !== null) && (!this.dateSelectate.includes(this.dataExpirare))) {
-                this.dateSelectate.push(this.dataExpirare);
+            if (this.dataExpirare !== data) { // if dataExpirare was changed
+                this.dataExpirare = data;
+                this.dateSelectate = [];
+
+                if (this.tip == 2) { // RCA
+                    var zileInainte = [3, 15];
+                } else if (this.tip == 3) { // ITP + rovinieta
+                    var zileInainte = [3, 30, 60];
+                }
+
+                for (var i = 0; i < zileInainte.length; i++) {
+                    var dataAlerta = new Date(data);
+                    dataAlerta = dataAlerta.setDate(dataAlerta.getDate() - zileInainte[i]);
+                    dataAlerta = new Date(dataAlerta).toLocaleDateString('en-CA');
+                    if ((dataAlerta !== null) && (!this.dateSelectate.includes(dataAlerta))) {
+                        this.dateSelectate.push(dataAlerta);
+                    }
+                }
             }
         },
-        captureDataDeLaCopil(data){
-            this.dataSelectata = data;
-            console.log('data de la copil');
+        captureDataDeLaCopil(data) {
+            if (this.dataSelectata !== data) {
+                this.dataSelectata = data;
+                // if ((this.dataSelectata !== null) && (!this.dateSelectate.includes(this.dataSelectata))) {
+                //     this.dateSelectate.push(this.dataSelectata);
+                // }
+            }
         },
         adaugaAlerta: function () {
             if ((this.dataSelectata !== null) && (!this.dateSelectate.includes(this.dataSelectata))) {
