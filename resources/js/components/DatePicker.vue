@@ -111,6 +111,9 @@ export default {
         //     // return day === 0 || day === 6
         //     return day === 0
         // },
+        captureDataExpirare() {
+            this.$emit('trimitere_data_expirare', this.time);
+        },
         sendDataToParent() {
             this.$emit('trimitere_data_catre_parinte', this.time);
         },
@@ -121,9 +124,11 @@ export default {
         else {
           this.time = this.dataVeche
         }
+        this.captureDataExpirare();
         this.sendDataToParent();
     },
     updated() {
+        this.captureDataExpirare();
         this.sendDataToParent();
     },
 

@@ -43,6 +43,7 @@ class ComandaController extends Controller
         $searchUser = $request->searchUser;
         $searchTransportatorId = $request->searchTransportatorId;
         $searchClientId = $request->searchClientId;
+        $searchNrAuto = $request->searchNrAuto;
 
         $query = Comanda::with('client:id,nume', 'transportator:id,nume', 'camion:id,numar_inmatriculare',
                                 'mesajeTrimiseEmail:id,comanda_id,categorie,email,created_at', 'mesajeTrimiseSms:id,categorie,subcategorie,referinta_id,telefon,mesaj,content,trimis,raspuns,created_at',
@@ -75,15 +76,20 @@ class ComandaController extends Controller
                     $query->where('id', $searchClientId);
                 });
             })
+            ->when($searchNrAuto, function ($query, $searchNrAuto) {
+                return $query->whereHas('camion', function ($query) use ($searchNrAuto) {
+                    $query->where('numar_inmatriculare', $searchNrAuto);
+                });
+            })
             ->latest();
 
         $comenzi = $query->simplePaginate(25);
-// dd($comenzi);
+
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
 
-        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'useri', 'searchDataCreare', 'searchTransportatorContract', 'searchClientContract', 'searchStare', 'searchUser', 'searchTransportatorId', 'searchClientId'));
+        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'useri', 'searchDataCreare', 'searchTransportatorContract', 'searchClientContract', 'searchStare', 'searchUser', 'searchTransportatorId', 'searchClientId', 'searchNrAuto'));
     }
 
     /**

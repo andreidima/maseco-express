@@ -346,13 +346,22 @@ const mementoAlerte = createApp({
     el: '#mementoAlerte',
     data() {
         return {
+            dataExpirare: '',
+
             dataSelectata: '',
             dateSelectate: dateSelectate,
         }
     },
     methods: {
+        captureDataExpirare(data) {
+            this.dataExpirare = data;
+            if ((this.dataSelectata !== null) && (!this.dateSelectate.includes(this.dataExpirare))) {
+                this.dateSelectate.push(this.dataExpirare);
+            }
+        },
         captureDataDeLaCopil(data){
             this.dataSelectata = data;
+            console.log('data de la copil');
         },
         adaugaAlerta: function () {
             if ((this.dataSelectata !== null) && (!this.dateSelectate.includes(this.dataSelectata))) {

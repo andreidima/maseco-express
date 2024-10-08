@@ -14,7 +14,7 @@ class Memento extends Model
 
     public function path()
     {
-        return "/mementouri/{$this->id}";
+        return "/mementouri/{$this->tip}/mementouri/{$this->id}";
     }
 
     public function alerte()

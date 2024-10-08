@@ -7,10 +7,12 @@
     // dateSelectate = {!! json_encode(\Illuminate\Support\Arr::flatten(old('dateSelectate', ($memento->alerte['data'] ?? [])))) !!}
 </script>
 
-<div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px">
+<div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="mementoAlerte">
     <div class="col-lg-7 px-4 py-2 mb-0">
         <div class="row mb-0">
             <div class="col-lg-12 mb-4">
+                <input type="hidden" name="tip" value="{{ $memento->tip }}">
+
                 <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
                 <input
                     type="text"
@@ -29,7 +31,7 @@
                     required>
             </div>
             <div class="col-lg-5 mb-4">
-                <label for="email" class="mb-0 ps-3">Email către care se trimite alerta<span class="text-danger">*</span></label>
+                <label for="email" class="mb-0 ps-3">Email către care se trimite alerta</label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('email') ? 'is-invalid' : '' }}"
@@ -37,7 +39,7 @@
                     value="{{ old('email', $memento->email) }}"
                     required>
             </div>
-            <div class="col-lg-2 mb-4 text-center" id="app">
+            <div class="col-lg-2 mb-4 text-center">
                 <label for="data_expirare" class="mb-0 ps-0">Dată expirare</label>
                 <vue-datepicker-next
                     data-veche="{{ old('data_expirare', $memento->data_expirare) }}"
@@ -46,6 +48,7 @@
                     value-type="YYYY-MM-DD"
                     format="DD.MM.YYYY"
                     :latime="{ width: '125px' }"
+                    @trimitere_data_expirare="captureDataExpirare"
                 ></vue-datepicker-next>
             </div>
             <div class="col-lg-12 mb-4">
@@ -71,7 +74,7 @@
                     </div>
                 </div>
                 <div class="card-body py-2 border border-secondary" style="border-radius: 0px 0px 40px 40px;">
-                    <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="mementoAlerte">
+                    <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px">
                         <div class="col-lg-12 mb-3 d-flex justify-content-between align-items-center">
                             <div class="d-flex align-items-center">
                                 <label for="data_selectare" class="mb-0 pe-2">Selectează data:</label>

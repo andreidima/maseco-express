@@ -139,6 +139,9 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control rounded-3" id="searchNrAuto" name="searchNrAuto" placeholder="Nr. auto" value="{{ $searchNrAuto }}">
+                        </div>
                     </div>
                     <div class="row custom-search-form justify-content-center">
                         <button class="btn btn-sm btn-primary text-white col-md-4 me-3 border border-dark rounded-3" type="submit">

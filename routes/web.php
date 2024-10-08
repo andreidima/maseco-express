@@ -74,7 +74,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/comenzi/{comanda}/stare/{stare}', [ComandaController::class, 'stare']);
 
     Route::resource('mesaje-trimise-sms', MesajTrimisSmsController::class,  ['parameters' => ['mesaje-trimise-sms' => 'mesaj_trimis_sms']]);
-    Route::resource('/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
+    Route::resource('/mementouri/{tip}/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
 
     // Extras date cu Axios
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);

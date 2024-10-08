@@ -16,10 +16,10 @@
                 <div class="card-body py-2 border border-secondary"
                     style="border-radius: 0px 0px 40px 40px;"
                 >
-                    <form  class="needs-validation" novalidate method="POST" action="/mementouri">
+                    <form  class="needs-validation" novalidate method="POST" action="/mementouri/{{ $memento->tip }}/mementouri">
 
                                 @include ('mementouri.form', [
-                                    'memento' => new App\Models\Memento,
+                                    // 'memento' => new App\Models\Memento,
                                     'buttonText' => 'Adaugă Memento'
                                 ])
                     </form>

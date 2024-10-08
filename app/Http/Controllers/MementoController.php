@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Memento;
 use App\Models\MementoAlerta;
+use Carbon\Carbon;
 
 class MementoController extends Controller
 {
@@ -14,7 +15,7 @@ class MementoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, $tip)
     {
         $request->session()->forget('mementoReturnUrl');
 
@@ -24,6 +25,7 @@ class MementoController extends Controller
             ->when($searchNume, function ($query, $searchNume) {
                 return $query->where('nume', 'like', '%' . $searchNume . '%');
             })
+            ->where('tip', $tip)
             ->latest();
 
         $mementouri = $query->simplePaginate(25);
@@ -36,11 +38,19 @@ class MementoController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create(Request $request)
+    public function create(Request $request, $tip)
     {
         $request->session()->get('mementoReturnUrl') ?? $request->session()->put('mementoReturnUrl', url()->previous());
 
-        return view('mementouri.create');
+        $memento = new Memento;
+        $memento->tip = $tip;
+        if ($memento->tip == 2) {
+            $memento->telefon = '0741099092';
+        } else if ($memento->tip == 3) {
+            $memento->telefon = '0748837489';
+        }
+
+        return view('mementouri.create', compact('memento'));
     }
 
     /**
@@ -68,7 +78,7 @@ class MementoController extends Controller
      * @param  \App\Memento  $memento
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request, Memento $memento)
+    public function show(Request $request, $tip, Memento $memento)
     {
         $request->session()->get('mementoReturnUrl') ?? $request->session()->put('mementoReturnUrl', url()->previous());
 
@@ -81,9 +91,11 @@ class MementoController extends Controller
      * @param  \App\Memento  $memento
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, Memento $memento)
+    public function edit(Request $request, $tip, Memento $memento)
     {
         $request->session()->get('mementoReturnUrl') ?? $request->session()->put('mementoReturnUrl', url()->previous());
+
+        $memento = Memento::where('id', $memento->id)->with('alerte')->first();
 
         return view('mementouri.edit', compact('memento'));
     }
@@ -95,7 +107,7 @@ class MementoController extends Controller
      * @param  \App\Memento  $memento
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Memento $memento)
+    public function update(Request $request, $tip, Memento $memento)
     {
         $memento->update($this->validateRequest($request));
 
@@ -116,7 +128,7 @@ class MementoController extends Controller
      * @param  \App\Memento  $memento
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, Memento $memento)
+    public function destroy(Request $request, $tip, Memento $memento)
     {
         $memento->alerte()->delete();
 
@@ -145,10 +157,12 @@ class MementoController extends Controller
             [
                 'nume' => 'required|max:500',
                 'telefon' => 'nullable|max:100',
-                'email' => 'required|max:500|email:rfc,dns',
+                // 'email' => 'required|max:500|email:rfc,dns',
+                'email' => 'nullable|max:500|email:rfc,dns',
                 'data_expirare' => '',
                 'descriere' => 'nullable|max:10000',
                 'observatii' => 'nullable|max:10000',
+                'tip' => '',
             ],
             [
                 // 'tara_id.required' => 'Câmpul țara este obligatoriu'
