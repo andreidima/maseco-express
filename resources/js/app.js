@@ -356,22 +356,24 @@ const mementoAlerte = createApp({
     },
     methods: {
         captureDataExpirare(data) {
-            if (this.dataExpirare !== data) { // if dataExpirare was changed
-                this.dataExpirare = data;
-                this.dateSelectate = [];
+            if (this.tip == 2) { // RCA
+                var zileInainte = [3, 15];
+            } else if (this.tip == 3) { // ITP + rovinieta
+                var zileInainte = [3, 30, 60];
+            }
 
-                if (this.tip == 2) { // RCA
-                    var zileInainte = [3, 15];
-                } else if (this.tip == 3) { // ITP + rovinieta
-                    var zileInainte = [3, 30, 60];
-                }
+            if (zileInainte) {
+                if (this.dataExpirare !== data) { // if dataExpirare was changed
+                    this.dataExpirare = data;
+                    this.dateSelectate = [];
 
-                for (var i = 0; i < zileInainte.length; i++) {
-                    var dataAlerta = new Date(data);
-                    dataAlerta = dataAlerta.setDate(dataAlerta.getDate() - zileInainte[i]);
-                    dataAlerta = new Date(dataAlerta).toLocaleDateString('en-CA');
-                    if ((dataAlerta !== null) && (!this.dateSelectate.includes(dataAlerta))) {
-                        this.dateSelectate.push(dataAlerta);
+                    for (var i = 0; i < zileInainte.length; i++) {
+                        var dataAlerta = new Date(data); // we set him as date to could work with it
+                        dataAlerta = dataAlerta.setDate(dataAlerta.getDate() - zileInainte[i]); // we remove from data a number of days (zileInainte[i])
+                        dataAlerta = new Date(dataAlerta).toLocaleDateString('en-CA'); // we set the date toLocaleDateString('en-CA'), eg. yyyy-mm-dd, so it can be saved in the database
+                        if ((dataAlerta !== null) && (!this.dateSelectate.includes(dataAlerta))) { // we add the date to dateSelectate
+                            this.dateSelectate.push(dataAlerta);
+                        }
                     }
                 }
             }
