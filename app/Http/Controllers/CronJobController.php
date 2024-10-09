@@ -201,6 +201,7 @@ class CronJobController extends Controller
 
                     // Trimitere alerta prin email
                     \Mail::
+                        // mailer('office')
                         // to('masecoexpres@gmail.com')
                         to($alerta->memento->email)
                         // to('adima@validsoftware.ro')
