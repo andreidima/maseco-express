@@ -85,7 +85,7 @@
                                         </a>
                                         <div style="flex" class="">
                                             <a
-                                                href="#"
+                                                href="about:blank"
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#stergeCamion{{ $camion->id }}"
                                                 title="Șterge Camion"
