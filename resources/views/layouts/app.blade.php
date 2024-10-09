@@ -7,6 +7,11 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
+    {{-- Disable DNS Prefetching --}}
+    <meta http-equiv="x-dns-prefetch-control" content="off">
+    {{-- Disable Link Prefetching (specific to certain browsers): --}}
+    <link rel="prefetch" href="..." disabled>
+
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Scripts -->
