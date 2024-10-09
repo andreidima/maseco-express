@@ -44,6 +44,7 @@ class MementoController extends Controller
 
         $memento = new Memento;
         $memento->tip = $tip;
+        $memento->email = 'masecoexpres@gmail.com';
         if ($memento->tip == 2) {
             $memento->telefon = '0741099092';
         } else if ($memento->tip == 3) {
