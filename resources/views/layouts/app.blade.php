@@ -128,7 +128,7 @@
                                 Utile
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                {{-- <li>
+                                <li>
                                     <a class="dropdown-item" href="/mementouri/1/mementouri">
                                         <i class="fa-solid fa-bell me-1"></i>Mementouri generale
                                     </a>
@@ -141,6 +141,12 @@
                                 <li>
                                     <a class="dropdown-item" href="/mementouri/3/mementouri">
                                         <i class="fa-solid fa-bell me-1"></i>Mementouri itp+rovinieta
+                                    </a>
+                                </li>
+                                {{-- <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/rapoarte">
+                                        Rapoarte
                                     </a>
                                 </li> --}}
                                 <li><hr class="dropdown-divider"></li>
