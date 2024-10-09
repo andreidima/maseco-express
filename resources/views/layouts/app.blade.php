@@ -10,6 +10,7 @@
     {{-- Disable DNS Prefetching --}}
     <meta http-equiv="x-dns-prefetch-control" content="off">
     {{-- Disable Link Prefetching (specific to certain browsers): --}}
+    {{-- Andrei - this one gives 404 status error --}}
     {{-- <link rel="prefetch" href="..." disabled> --}}
 
     <title>{{ config('app.name', 'Laravel') }}</title>
