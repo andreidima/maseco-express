@@ -127,12 +127,12 @@ export default {
         //         // console.log('1');
         //     }
         // },
-        sendDataToParent() {
-            if (this.time) {
-                this.$emit('trimitere_data_catre_parinte', this.time);
-                // console.log('2');
-            }
-        },
+        // sendDataToParent() {
+        //     if (this.time) {
+        //         this.$emit('trimitere_data_catre_parinte', this.time);
+        //         // console.log('2');
+        //     }
+        // },
     },
     created() {
         if (this.dataVeche == "") {
@@ -141,11 +141,11 @@ export default {
           this.time = this.dataVeche
         }
         // this.captureDataExpirare();
-        this.sendDataToParent();
+        // this.sendDataToParent();
     },
     updated() {
         // this.captureDataExpirare();
-        this.sendDataToParent();
+        // this.sendDataToParent();
         // this.$emit('trimitere_data_expirare', this.time);
         // console.log('asd', this.time);
     },
