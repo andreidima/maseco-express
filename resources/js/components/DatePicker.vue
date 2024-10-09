@@ -121,12 +121,12 @@ export default {
         //     // return day === 0 || day === 6
         //     return day === 0
         // },
-        captureDataExpirare() {
-            if (this.time) {
-                this.$emit('trimitere_data_expirare', this.time);
-                // console.log('1');
-            }
-        },
+        // captureDataExpirare() {
+        //     if (this.time) {
+        //         this.$emit('trimitere_data_expirare', this.time);
+        //         // console.log('1');
+        //     }
+        // },
         sendDataToParent() {
             if (this.time) {
                 this.$emit('trimitere_data_catre_parinte', this.time);
@@ -144,7 +144,7 @@ export default {
         this.sendDataToParent();
     },
     updated() {
-        this.captureDataExpirare();
+        // this.captureDataExpirare();
         this.sendDataToParent();
         // this.$emit('trimitere_data_expirare', this.time);
         // console.log('asd', this.time);
