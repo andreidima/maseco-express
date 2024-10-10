@@ -20,7 +20,8 @@ export default {
     'doarZiuaA',
     'doarZiuaB',
     'minuteStep',
-    'hours'],
+    'hours',
+    'range'],
   computed: {
     latimePrelucrata() {
       if (this.tip === "time") {
@@ -59,16 +60,6 @@ export default {
         // }
     }
   },
-    computed: {
-        inputData: {
-        get() {
-            return this.modelValue;
-        },
-        set(value) {
-            this.$emit('trimitere_data_expirare', value);
-        }
-        }
-    },
     methods: {
         notDates(date) {
             // Se blocheaza toate zilele nelucratoare venite din MySQL || se blocheaza ziua de duminica
@@ -135,10 +126,15 @@ export default {
         },
     },
     created() {
-        if (this.dataVeche == "") {
-        }
-        else {
-          this.time = this.dataVeche
+        if (!(this.dataVeche === "")) {
+            if (this.dataVeche.includes(",")){ // inseamna ca este interval
+                var timeArray = [];
+                timeArray[0] = this.dataVeche.substring(0, this.dataVeche.indexOf(","));
+                timeArray[1] = this.dataVeche.slice(this.dataVeche.indexOf(",") + 1);
+                this.time = timeArray;
+            } else {
+                this.time = this.dataVeche;
+            }
         }
         // this.captureDataExpirare();
         this.sendDataToParent();
@@ -168,6 +164,7 @@ export default {
         :disabled-date=notDates
         :style=latime
         :lang="langObject"
+        :range="range"
     >
     </date-picker>
   </div>

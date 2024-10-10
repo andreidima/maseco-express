@@ -143,16 +143,16 @@
                                         <i class="fa-solid fa-bell me-1"></i>Mementouri itp+rovinieta
                                     </a>
                                 </li>
-                                {{-- <li><hr class="dropdown-divider"></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="/rapoarte">
-                                        Rapoarte
+                                        <i class="fa-solid fa-chart-pie me-1"></i>Rapoarte
                                     </a>
-                                </li> --}}
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('mesaje-trimise-sms.index') }}">
-                                        SMS trimise
+                                        <i class="fa-solid fa-comment-sms me-1"></i>SMS trimise
                                     </a>
                                 </li>
                                 @if (auth()->user()->role == "1")

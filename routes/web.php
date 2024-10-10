@@ -16,6 +16,7 @@ use App\Http\Controllers\MementoController;
 use App\Http\Controllers\FileManagerPersonalizatController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RaportController;
 
 /*
 |--------------------------------------------------------------------------

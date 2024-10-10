@@ -49,4 +49,9 @@ class User extends Authenticatable
     {
         return "/utilizatori/{$this->id}";
     }
+
+    public function comenzi()
+    {
+        return $this->hasMany(Comanda::class, 'user_id');
+    }
 }
