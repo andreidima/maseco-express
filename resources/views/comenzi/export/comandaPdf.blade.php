@@ -292,6 +292,15 @@
                             +TVA
                         @endif
                         <br>
+                        {{-- If it's a command with "km_goi" and "km_plini", the calculations are made and all the necesary info is added here --}}
+                        @if (($comanda->transportator_tarif_pe_km == 1) && ($comanda->transportator_km_goi) && ($comanda->camion->pret_km_goi ?? ''))
+                            Preț km goi: {{ $comanda->transportator_km_goi }} * {{ $comanda->camion->pret_km_goi }} {{ $comanda->transportatorMoneda->nume ?? '' }} = {{ $comanda->transportator_km_goi * $comanda->camion->pret_km_goi  }} {{ $comanda->transportatorMoneda->nume ?? '' }}
+                            <br>
+                        @endif
+                        @if (($comanda->transportator_tarif_pe_km == 1) && ($comanda->transportator_km_plini) && ($comanda->camion->pret_km_plini ?? ''))
+                            Preț km plini: {{ $comanda->transportator_km_plini }} * {{ $comanda->camion->pret_km_plini }} {{ $comanda->transportatorMoneda->nume ?? '' }} = {{ $comanda->transportator_km_plini * $comanda->camion->pret_km_plini  }} {{ $comanda->transportatorMoneda->nume ?? '' }}
+                            <br>
+                        @endif
                         MODALITATE DE PLATĂ: {{ $comanda->transportatorMetodaDePlata->nume ?? '' }}
                         <br>
                         TERMEN DE PLATĂ: la {{ $comanda->transportator_zile_scadente }} de zile {{ $comanda->transportatorTermenDePlata->nume ?? '' }}

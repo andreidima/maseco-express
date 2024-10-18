@@ -14,7 +14,13 @@
 
     incarcari =  {!! json_encode(old('incarcari', $comanda->locuriOperareIncarcari()->get())) !!}
     descarcari =  {!! json_encode(old('descarcari', $comanda->locuriOperareDescarcari()->get())) !!}
+
+    transportatorTarifPeKmVechi = {!! json_encode(old('transportator_tarif_pe_km', ($comanda->transportator_tarif_pe_km ?? "0")) ?? "") !!}
 </script>
+
+@php
+    // dd(old('transportator_tarif_pe_km', ($comanda->transportator_tarif_pe_km ?? "")));
+@endphp
 
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="formularComanda">
     <div class="col-lg-12 px-4 pt-2 mb-0">
@@ -203,14 +209,40 @@
                     <div class="d-flex py-1 justify-content-center">
                         <div class="form-check me-4">
                             <input class="form-check-input" type="radio" value="1" name="transportator_tarif_pe_km" id="transportator_tarif_pe_km_da"
-                                {{ old('transportator_tarif_pe_km', $comanda->transportator_tarif_pe_km) == '1' ? 'checked' : '' }}>
+                                {{-- {{ old('transportator_tarif_pe_km', $comanda->transportator_tarif_pe_km) == '1' ? 'checked' : '' }} --}}
+                                v-model="transportatorTarifPeKm"
+                            >
                             <label class="form-check-label" for="transportator_tarif_pe_km_da">Da</label>
                         </div>
                         <div class="form-check">
                             <input class="form-check-input" type="radio" value="0" name="transportator_tarif_pe_km" id="transportator_tarif_pe_km_nu"
-                                {{ old('transportator_tarif_pe_km', $comanda->transportator_tarif_pe_km) == '0' ? 'checked' : '' }}>
+                                {{-- {{ old('transportator_tarif_pe_km', $comanda->transportator_tarif_pe_km) == '0' ? 'checked' : '' }} --}}
+                                v-model="transportatorTarifPeKm"
+                            >
                             <label class="form-check-label" for="transportator_tarif_pe_km_nu">Nu</label>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div v-if="transportatorTarifPeKm == 1" class="col-lg-12 mb-4">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-lg-2">
+                        <label for="transportator_km_goi" class="mb-0 ps-3">Km goi</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('transportator_km_goi') ? 'is-invalid' : '' }}"
+                            name="transportator_km_goi"
+                            placeholder=""
+                            value="{{ old('transportator_km_goi', $comanda->transportator_km_goi) }}">
+                    </div>
+                    <div class="col-lg-2">
+                        <label for="transportator_km_plini" class="mb-0 ps-3">Km plini</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('transportator_km_plini') ? 'is-invalid' : '' }}"
+                            name="transportator_km_plini"
+                            placeholder=""
+                            value="{{ old('transportator_km_plini', $comanda->transportator_km_plini) }}">
                     </div>
                 </div>
             </div>

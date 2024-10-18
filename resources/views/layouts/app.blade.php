@@ -135,12 +135,12 @@
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="/mementouri/2/mementouri">
-                                        <i class="fa-solid fa-bell me-1"></i>Mementouri rca
+                                        <i class="fa-solid fa-bell me-1"></i>Mementouri rca + copii conforme
                                     </a>
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="/mementouri/3/mementouri">
-                                        <i class="fa-solid fa-bell me-1"></i>Mementouri itp+rovinieta
+                                        <i class="fa-solid fa-bell me-1"></i>Mementouri itp + rovinieta
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>

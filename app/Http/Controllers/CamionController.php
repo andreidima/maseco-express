@@ -178,6 +178,8 @@ class CamionController extends Controller
             [
                 'tip_camion' => 'required|max:500',
                 'numar_inmatriculare' => 'nullable|max:500',
+                'pret_km_goi' => 'nullable|numeric|min:-9999999|max:9999999',
+                'pret_km_plini' => 'nullable|numeric|min:-9999999|max:9999999',
                 'nume_sofer' => 'nullable|max:500',
                 'telefon_sofer' => 'nullable|max:500',
                 'skype_sofer' => 'nullable|max:500',

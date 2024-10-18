@@ -11,7 +11,7 @@
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="camion">
     <div class="col-lg-12 px-4 py-2 mb-0">
         <div class="row mb-0">
-            <div class="col-lg-6 mb-5 mx-auto">
+            <div class="col-lg-4 mb-5 mx-auto">
                 <label for="nume" class="mb-0 ps-3">Tip camion<span class="text-danger">*</span></label>
                 <input
                     type="text"
@@ -40,7 +40,7 @@
                     * Completare automată
                 </small>
             </div>
-            <div class="col-lg-6 mb-5 mx-auto">
+            <div class="col-lg-4 mb-5 mx-auto">
                 <label for="numar_inmatriculare" class="mb-0 ps-3">Număr de înmatriculare</label>
                 <input
                     type="text"
@@ -51,7 +51,27 @@
                     value="{{ old('numar_inmatriculare', $camion->numar_inmatriculare) }}"
                     required>
             </div>
-            <div class="col-lg-6 mb-5 mx-auto">
+            <div class="col-lg-2 mb-5">
+                <label for="pret_km_goi" class="mb-0 ps-3">Preț km goi</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('pret_km_goi') ? 'is-invalid' : '' }}"
+                    name="pret_km_goi"
+                    placeholder=""
+                    value="{{ old('pret_km_goi', $camion->pret_km_goi) }}">
+                <small for="pret_km_goi" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
+            </div>
+            <div class="col-lg-2 mb-5">
+                <label for="pret_km_plini" class="mb-0 ps-3">Preț km plini</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('pret_km_plini') ? 'is-invalid' : '' }}"
+                    name="pret_km_plini"
+                    placeholder=""
+                    value="{{ old('pret_km_plini', $camion->pret_km_plini) }}">
+                <small for="pret_km_plini" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
+            </div>
+            <div class="col-lg-4 mb-5 mx-auto">
                 <label for="nume_sofer" class="mb-0 ps-3">Nume șofer</label>
                 <input
                     type="text"
@@ -62,7 +82,7 @@
                     value="{{ old('nume_sofer', $camion->nume_sofer) }}"
                     required>
             </div>
-            <div class="col-lg-6 mb-5 mx-auto">
+            <div class="col-lg-4 mb-5 mx-auto">
                 <label for="telefon_sofer" class="mb-0 ps-3">Telefon șofer</label>
                 <input
                     type="text"
@@ -73,7 +93,7 @@
                     value="{{ old('telefon_sofer', $camion->telefon_sofer) }}"
                     required>
             </div>
-            <div class="col-lg-6 mb-5 mx-auto">
+            <div class="col-lg-4 mb-5 mx-auto">
                 <label for="skype_sofer" class="mb-0 ps-3">Skype șofer</label>
                 <input
                     type="text"
@@ -128,7 +148,7 @@
                 <small v-if="!firma_id" class="ps-3">* Selectați un proprietar</small>
                 <small v-else class="ps-3 text-success">* Ați selectat un proprietar</small>
             </div>
-            <div class="col-lg-6 mb-2">
+            <div class="col-lg-6 mb-5">
                 <label for="observatii" class="form-label mb-0 ps-3">Observații</label>
                 <textarea class="form-control bg-white {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
                     name="observatii" rows="3">{{ old('observatii', $camion->observatii) }}</textarea>

@@ -598,6 +598,8 @@ class ComandaController extends Controller
                 'transportator_procent_tva_id' => '',
                 'transportator_metoda_de_plata_id' => '',
                 'transportator_tarif_pe_km' => '',
+                'transportator_km_goi' => 'nullable|numeric|min:0|max:99999',
+                'transportator_km_plini' => 'nullable|numeric|min:0|max:99999',
                 'client_contract' => 'nullable|max:255',
                 'client_limba_id' => '',
                 'client_valoare_contract' => 'required|numeric|min:-9999999|max:9999999',

@@ -148,9 +148,13 @@ const formularComanda = createApp({
             locuriOperareDescarcari: [],
             incarcari: ((typeof incarcari !== 'undefined') ? incarcari : []),
             descarcari: ((typeof descarcari !== 'undefined') ? descarcari : []),
+
+            transportatorTarifPeKm: ((typeof transportatorTarifPeKmVechi !== 'undefined') ? transportatorTarifPeKmVechi : ''),
         }
     },
     created: function () {
+        console.log(this.transportatorTarifPeKm, "Asd");
+
         if (this.firmaTransportatorId) {
             for (var i = 0; i < this.firmeTransportatori.length; i++) {
                 if (this.firmeTransportatori[i].id == this.firmaTransportatorId) {
