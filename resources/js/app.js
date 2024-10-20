@@ -141,6 +141,8 @@ const formularComanda = createApp({
             camionId: camionIdVechi,
             camionNumarInmatriculare: '',
             camionTipCamion: '',
+            camionPretKmGoi: '',
+            camionPretKmPlini: '',
             camioane: camioane,
             camioaneListaAutocomplete: [],
 
@@ -150,10 +152,17 @@ const formularComanda = createApp({
             descarcari: ((typeof descarcari !== 'undefined') ? descarcari : []),
 
             transportatorTarifPeKm: ((typeof transportatorTarifPeKmVechi !== 'undefined') ? transportatorTarifPeKmVechi : ''),
+            transportatorPretKmGoi: ((typeof transportatorPretKmGoiVechi !== 'undefined') ? transportatorPretKmGoiVechi : ''),
+            transportatorPretKmPlini: ((typeof transportatorPretKmPliniVechi !== 'undefined') ? transportatorPretKmPliniVechi : ''),
+            transportatorKmGoi: ((typeof transportatorKmGoiVechi !== 'undefined') ? transportatorKmGoiVechi : ''),
+            transportatorKmPlini: ((typeof transportatorKmPliniVechi !== 'undefined') ? transportatorKmPliniVechi : ''),
+            transportatorValoareKmGoi: ((typeof transportatorValoareKmGoiVechi !== 'undefined') ? transportatorValoareKmGoiVechi : ''),
+            transportatorValoareKmPlini: ((typeof transportatorValoareKmPliniVechi !== 'undefined') ? transportatorValoareKmPliniVechi : ''),
+            transportatorValoareContract: ((typeof transportatorValoareContractVechi !== 'undefined') ? transportatorValoareContractVechi : ''),
         }
     },
     created: function () {
-        console.log(this.transportatorTarifPeKm, "Asd");
+        // console.log(this.transportatorTarifPeKm, "Asd");
 
         if (this.firmaTransportatorId) {
             for (var i = 0; i < this.firmeTransportatori.length; i++) {
@@ -174,6 +183,8 @@ const formularComanda = createApp({
                 if (this.camioane[i].id == this.camionId) {
                     this.camionNumarInmatriculare = this.camioane[i].numar_inmatriculare;
                     this.camionTipCamion = this.camioane[i].tip_camion;
+                    this.camionPretKmGoi = this.camioane[i].pret_km_goi;
+                    this.camionPretKmPlini = this.camioane[i].pret_km_plini;
                 }
             }
         }

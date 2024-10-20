@@ -199,14 +199,14 @@ class ComandaController extends Controller
         $procenteTVA = ProcentTVA::select('id', 'nume')->get();
         $metodeDePlata = MetodaDePlata::select('id', 'nume')->get();
         $termeneDePlata = TermenDePlata::select('id', 'nume')->get();
-        $camioane = Camion::select('id', 'numar_inmatriculare', 'tip_camion')->orderBy('numar_inmatriculare')->get();
+        $camioane = Camion::select('id', 'numar_inmatriculare', 'tip_camion', 'pret_km_goi', 'pret_km_plini')->orderBy('numar_inmatriculare')->get();
         // $locuriOperare = LocOperare::select('id', 'nume')->orderBy('nume')->get();
         // $locuriOperare = LocOperare::select('*')->orderBy('nume')->get();
         // $incarcari = $comanda->locuriOperareIncarcari()->get();
         // $descarcari = $comanda->locuriOperareDescarcari()->get();
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
-
+// dd($comanda);
         return view('comenzi.edit', compact('comanda', 'useri', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane'));
     }
 
@@ -222,8 +222,22 @@ class ComandaController extends Controller
         // dd($request, $request->request);
         // dd($request->request, $request->except(['incarcari']), $this->validateRequest($request));
         $comanda_campuri = $this->validateRequest($request);
+
         unset($comanda_campuri['incarcari']);
         unset($comanda_campuri['descarcari']);
+        // If the prices are allready saved in the database
+        // if (($comanda->transportator_valoare_km_goi !== null) && ($comanda->transportator_valoare_km_plini !== null)) {
+        //     unset($comanda_campuri['transportator_km_goi']);
+        //     unset($comanda_campuri['transportator_km_plini']);
+        // }
+
+        // if ($comanda->transportator_tarif_pe_km) {
+        //     $transportator_valoare_km_goi = ($comanda->transportator_km_goi ?? $comanda_campuri['transportator_km_goi'] ?? 0) * ($comanda->camion->pret_km_goi ?? 0);
+        //     $transportator_valoare_km_plini = ($comanda->transportator_km_goi ?? $comanda_campuri['transportator_km_plini'] ?? 0) * ($comanda->camion->pret_km_plini ?? 0);
+        //     unset($comanda_campuri['transportator_valoare_contract']);
+        //     $comanda->transportator_valoare_contract = $transportator_valoare_km_goi + $transportator_valoare_km_plini;
+        // }
+
         $comanda->update($comanda_campuri);
 
         // Salvare in istoric a comenzii
@@ -583,7 +597,7 @@ class ComandaController extends Controller
         // }
 
         // dd($request->request);
-
+// dd($request);
         return $request->validate(
             [
                 'data_creare' => 'required',
@@ -598,8 +612,12 @@ class ComandaController extends Controller
                 'transportator_procent_tva_id' => '',
                 'transportator_metoda_de_plata_id' => '',
                 'transportator_tarif_pe_km' => '',
-                'transportator_km_goi' => 'nullable|numeric|min:0|max:99999',
-                'transportator_km_plini' => 'nullable|numeric|min:0|max:99999',
+                'transportator_pret_km_goi' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
+                'transportator_pret_km_plini' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
+                'transportator_km_goi' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
+                'transportator_km_plini' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
+                'transportator_valoare_km_goi' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
+                'transportator_valoare_km_plini' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
                 'client_contract' => 'nullable|max:255',
                 'client_limba_id' => '',
                 'client_valoare_contract' => 'required|numeric|min:-9999999|max:9999999',

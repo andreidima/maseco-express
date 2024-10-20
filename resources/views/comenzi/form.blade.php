@@ -16,6 +16,13 @@
     descarcari =  {!! json_encode(old('descarcari', $comanda->locuriOperareDescarcari()->get())) !!}
 
     transportatorTarifPeKmVechi = {!! json_encode(old('transportator_tarif_pe_km', ($comanda->transportator_tarif_pe_km ?? "0")) ?? "") !!}
+    transportatorPretKmGoiVechi = {!! json_encode(old('transportator_pret_km_goi', ($comanda->transportator_pret_km_goi ?? "")) ?? "") !!}
+    transportatorPretKmPliniVechi = {!! json_encode(old('transportator_pret_km_plini', ($comanda->transportator_pret_km_plini ?? "")) ?? "") !!}
+    transportatorKmGoiVechi = {!! json_encode(old('transportator_km_goi', ($comanda->transportator_km_goi ?? "")) ?? "") !!}
+    transportatorKmPliniVechi = {!! json_encode(old('transportator_km_plini', ($comanda->transportator_km_plini ?? "")) ?? "") !!}
+    transportatorValoareKmGoiVechi = {!! json_encode(old('transportator_valoare_km_goi', ($comanda->transportator_valoare_km_goi ?? "")) ?? "") !!}
+    transportatorValoareKmPliniVechi = {!! json_encode(old('transportator_valoare_km_plini', ($comanda->transportator_valoare_km_plini ?? "")) ?? "") !!}
+    transportatorValoareContractVechi = {!! json_encode(old('transportator_valoare_contract', ($comanda->transportator_valoare_contract ?? "")) ?? "") !!}
 </script>
 
 @php
@@ -154,7 +161,8 @@
                     class="form-control bg-white rounded-3 {{ $errors->has('transportator_valoare_contract') ? 'is-invalid' : '' }}"
                     name="transportator_valoare_contract"
                     placeholder=""
-                    value="{{ old('transportator_valoare_contract', $comanda->transportator_valoare_contract) }}">
+                    {{-- value="{{ old('transportator_valoare_contract', $comanda->transportator_valoare_contract) }}"> --}}
+                    v-model="transportatorValoareContract">
                 <small for="transportator_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
             </div>
             <div class="col-lg-2 mb-4">
@@ -227,22 +235,87 @@
             <div v-if="transportatorTarifPeKm == 1" class="col-lg-12 mb-4">
                 <div class="row d-flex justify-content-center">
                     <div class="col-lg-2">
-                        <label for="transportator_km_goi" class="mb-0 ps-3">Km goi</label>
-                        <input
-                            type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('transportator_km_goi') ? 'is-invalid' : '' }}"
-                            name="transportator_km_goi"
-                            placeholder=""
-                            value="{{ old('transportator_km_goi', $comanda->transportator_km_goi) }}">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="">
+                                    <label for="transportator_km_goi" class="mb-0 ps-3">Km goi</label>
+                                    <input
+                                        type="text"
+                                        class="form-control bg-white rounded-3 {{ $errors->has('transportator_km_goi') ? 'is-invalid' : '' }}"
+                                        name="transportator_km_goi"
+                                        placeholder=""
+                                        v-model="transportatorKmGoi">
+                                </div>
+                                <div class="">
+                                    <label for="transportator_km_plini" class="mb-0 ps-3">Km plini</label>
+                                    <input
+                                        type="text"
+                                        class="form-control bg-white rounded-3 {{ $errors->has('transportator_km_plini') ? 'is-invalid' : '' }}"
+                                        name="transportator_km_plini"
+                                        placeholder=""
+                                        v-model="transportatorKmPlini">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="col-lg-2">
-                        <label for="transportator_km_plini" class="mb-0 ps-3">Km plini</label>
-                        <input
-                            type="text"
-                            class="form-control bg-white rounded-3 {{ $errors->has('transportator_km_plini') ? 'is-invalid' : '' }}"
-                            name="transportator_km_plini"
-                            placeholder=""
-                            value="{{ old('transportator_km_plini', $comanda->transportator_km_plini) }}">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label for="transportator_pret_km_goi" class="mb-0 ps-3">Preț km goi</label>
+                                <input
+                                    type="text"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('transportator_pret_km_goi') ? 'is-invalid' : '' }}"
+                                    name="transportator_pret_km_goi"
+                                    placeholder=""
+                                    v-model="transportatorPretKmGoi">
+                            </div>
+                            <div class="col-lg-12 mb-2">
+                                <label for="transportator_pret_km_plini" class="mb-0 ps-3">Preț km plini</label>
+                                <input
+                                    type="text"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('transportator_pret_km_plini') ? 'is-invalid' : '' }}"
+                                    name="transportator_pret_km_plini"
+                                    placeholder=""
+                                    v-model="transportatorPretKmPlini">
+                            </div>
+                            <div class="col-lg-12">
+                                <button type="button" class="btn btn-primary px-0 w-100 text-white rounded-3"
+                                    v-on:click="
+                                        transportatorPretKmGoi = camionPretKmGoi;
+                                        transportatorPretKmPlini = camionPretKmPlini;
+                                    ">Preia prețurile Camionului</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-2">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <label for="transportator_valoare_km_goi" class="mb-0 ps-3">Valoare km goi</label>
+                                <input
+                                    type="text"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('transportator_valoare_km_goi') ? 'is-invalid' : '' }}"
+                                    name="transportator_valoare_km_goi"
+                                    placeholder=""
+                                    v-model="transportatorValoareKmGoi">
+                            </div>
+                            <div class="col-lg-12 mb-2">
+                                <label for="transportator_valoare_km_plini" class="mb-0 ps-3">Valoare km plini</label>
+                                <input
+                                    type="text"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('transportator_valoare_km_plini') ? 'is-invalid' : '' }}"
+                                    name="transportator_valoare_km_plini"
+                                    placeholder=""
+                                    v-model="transportatorValoareKmPlini">
+                            </div>
+                            <div class="col-lg-12">
+                                <button type="button" class="btn btn-primary px-0 w-100 text-white rounded-3"
+                                    v-on:click="
+                                        transportatorValoareKmGoi = (transportatorKmGoi * transportatorPretKmGoi).toFixed(2);
+                                        transportatorValoareKmPlini = (transportatorKmPlini * transportatorPretKmPlini).toFixed(2);
+                                        transportatorValoareContract = (Number(transportatorValoareKmGoi) + Number(transportatorValoareKmPlini)).toFixed(2);
+                                    ">Calculează valorile</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -459,6 +532,8 @@
                                 camionId = camion.id;
                                 camionNumarInmatriculare = camion.numar_inmatriculare;
                                 camionTipCamion = camion.tip_camion;
+                                camionPretKmGoi = camion.pret_km_goi;
+                                camionPretKmPlini = camion.pret_km_plini;
 
                                 camioaneListaAutocomplete = ''
                             ">
