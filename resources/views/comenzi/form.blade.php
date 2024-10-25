@@ -27,8 +27,8 @@
     transportatorPretAutostradaVechi = {!! json_encode(old('transportator_pret_autostrada', ($comanda->transportator_pret_autostrada ?? 0)) ?? "") !!}
     transportatorPretFerryVechi = {!! json_encode(old('transportator_pret_ferry', ($comanda->transportator_pret_ferry ?? 0)) ?? "") !!}
 
+    clientValoareContractInitialaVechi = {!! json_encode(old('client_valoare_contract_initiala', ($comanda->client_valoare_contract_initiala ?? "")) ?? "") !!}
     clientValoareContractVechi = {!! json_encode(old('client_valoare_contract', ($comanda->client_valoare_contract ?? "")) ?? "") !!}
-    clientValoareContractFinalaVechi = {!! json_encode(old('client_valoare_contract_finala', ($comanda->client_valoare_contract_finala ?? "")) ?? "") !!}
 </script>
 
 @php
@@ -337,7 +337,7 @@
                                         transportatorValoareKmGoi = (transportatorKmGoi * transportatorPretKmGoi).toFixed(2);
                                         transportatorValoareKmPlini = (transportatorKmPlini * transportatorPretKmPlini).toFixed(2);
                                         transportatorValoareContract = (Number(transportatorValoareKmGoi) + Number(transportatorValoareKmPlini) + Number(transportatorPretAutostrada)).toFixed(2);
-                                        clientValoareContractFinala = (clientValoareContract - transportatorPretFerry).toFixed(2);
+                                        clientValoareContract = (clientValoareContractInitiala - transportatorPretFerry).toFixed(2);
                                     ">Calculează valorile</button>
                             </div>
                         </div>
@@ -416,25 +416,25 @@
                 <small v-else class="ps-3 text-success">*Ați selectat clientul</small>
             </div>
             <div class="col-lg-2 mb-4">
-                <label for="client_valoare_contract" class="mb-0 ps-3">Valoare contract client</label>
+                <label for="client_valoare_contract_initiala" class="mb-0 ps-0">Valoare contract inițială</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract_initiala') ? 'is-invalid' : '' }}"
+                    name="client_valoare_contract_initiala"
+                    placeholder=""
+                    {{-- value="{{ old('client_valoare_contract', $comanda->client_valoare_contract) }}"> --}}
+                    v-model="clientValoareContractInitiala">
+                <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
+            </div>
+            <div class="col-lg-2 mb-4">
+                <label for="client_valoare_contract" class="mb-0 ps-3">Valoare contract finală</label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract') ? 'is-invalid' : '' }}"
                     name="client_valoare_contract"
                     placeholder=""
-                    {{-- value="{{ old('client_valoare_contract', $comanda->client_valoare_contract) }}"> --}}
                     v-model="clientValoareContract">
                 <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
-            </div>
-            <div class="col-lg-2 mb-4">
-                <label for="client_valoare_contract_finala" class="mb-0 ps-3">Valoare contract finală</label>
-                <input
-                    type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract_finala') ? 'is-invalid' : '' }}"
-                    name="client_valoare_contract_finala"
-                    placeholder=""
-                    v-model="clientValoareContractFinala">
-                <small for="client_valoare_contract_finala" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="client_moneda_id" class="mb-0 ps-3">Monedă</label>
