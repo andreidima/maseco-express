@@ -159,6 +159,12 @@ const formularComanda = createApp({
             transportatorValoareKmGoi: ((typeof transportatorValoareKmGoiVechi !== 'undefined') ? transportatorValoareKmGoiVechi : ''),
             transportatorValoareKmPlini: ((typeof transportatorValoareKmPliniVechi !== 'undefined') ? transportatorValoareKmPliniVechi : ''),
             transportatorValoareContract: ((typeof transportatorValoareContractVechi !== 'undefined') ? transportatorValoareContractVechi : ''),
+
+            transportatorPretAutostrada: ((typeof transportatorPretAutostradaVechi !== 'undefined') ? transportatorPretAutostradaVechi : ''),
+            transportatorPretFerry: ((typeof transportatorPretFerryVechi !== 'undefined') ? transportatorPretFerryVechi : ''),
+
+            clientValoareContract: ((typeof clientValoareContractVechi !== 'undefined') ? clientValoareContractVechi : ''),
+            clientValoareContractFinala: ((typeof clientValoareContractFinalaVechi !== 'undefined') ? clientValoareContractFinalaVechi : ''),
         }
     },
     created: function () {
