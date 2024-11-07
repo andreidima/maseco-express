@@ -69,7 +69,7 @@ class FileManagerPersonalizatController extends Controller
         foreach ($request->file('fisiere') as $fisier) {
             $numeFisier = $fisier->getClientOriginalName();
             if (Storage::disk('filemanager')->exists($request->cale . '/' . $numeFisier)){
-                return back()->with('error', 'Există deja un fișier cu numele „' . $numeFisier . '”. Redenumește fișierul și înccearcă din nou.');
+                return back()->with('error', 'Există deja un fișier cu numele „' . $numeFisier . '”. Redenumește fișierul și încearcă din nou.');
             }
         }
         foreach ($request->file('fisiere') as $fisier) {

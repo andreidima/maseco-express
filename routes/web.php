@@ -17,7 +17,8 @@ use App\Http\Controllers\FileManagerPersonalizatController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RaportController;
-
+use App\Http\Controllers\DiverseTesteController;
+use App\Http\Controllers\ComandaIncarcareDocumenteDeCatreTransportatorController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -41,6 +42,11 @@ Route::post('salvare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComa
 Route::get('afisare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComandaActualizatDeTransportatorController::class, 'afisareStatusComanda']);
 
 Route::get('/axios/trimitere-cod-autentificare-prin-email', [AxiosController::class, 'trimitereCodAutentificarePrinEmail']);
+
+// For transporters to upload their documents
+Route::get('comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'afisareDocumenteIncarcateDejaSiFormular']);
+Route::post('comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'salvareDocumente']);
+
 
 Route::redirect('/', '/acasa');
 
@@ -196,4 +202,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 
 
+
+
+    Route::get('/co3', [DiverseTesteController::class, 'co3']);
 });

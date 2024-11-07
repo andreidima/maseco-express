@@ -217,6 +217,14 @@
                     value="{{ old('transportator_zile_scadente', $comanda->transportator_zile_scadente) }}">
             </div>
             <div class="col-lg-2 mb-4">
+                <label for="transportator_format_documente" class="mb-0 ps-3">Format documente</label>
+                <select name="transportator_format_documente" class="form-select bg-white rounded-3 {{ $errors->has('transportator_format_documente') ? 'is-invalid' : '' }}">
+                    <option selected></option>
+                        <option value="1" {{ intval(old('transportator_format_documente', $comanda->transportator_format_documente === 1 )) ? 'selected' : '' }}>Per post</option>
+                        <option value="2" {{ intval(old('transportator_format_documente', $comanda->transportator_format_documente === 2 )) ? 'selected' : '' }}>Digital</option>
+                </select>
+            </div>
+            <div class="col-lg-2 mb-4">
                 <div class="text-center">
                     {{-- Tarif Pe Km? --}}
                     <label class="mb-0 ps-3">Tarif Pe Km</label>

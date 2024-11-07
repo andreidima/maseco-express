@@ -162,4 +162,14 @@ class Comanda extends Model
     {
         return $this->belongsTo(Factura::class, 'factura_id');
     }
+
+    public function fisiere()
+    {
+        return $this->hasMany(ComandaFisier::class, 'comanda_id');
+    }
+
+    public function fisiereIncarcateDeTransportator()
+    {
+        return $this->fisiere()->where('categorie', '1')->orderBy('nume');
+    }
 }
