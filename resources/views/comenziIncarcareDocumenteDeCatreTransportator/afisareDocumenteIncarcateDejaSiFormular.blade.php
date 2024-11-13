@@ -124,7 +124,8 @@
                                                                 @endif
                                                             </a>
                                                         @endauth
-                                                        @if (($fisier->validat != "1") && ($comanda->transportator_blocare_incarcare_documente != "1"))
+                                                        {{-- @if (($fisier->validat != "1") && ($comanda->transportator_blocare_incarcare_documente != "1")) --}}
+                                                        @if ($fisier->validat != "1")
                                                             <div style="flex" class="">
                                                                 <a
                                                                     href="#"
