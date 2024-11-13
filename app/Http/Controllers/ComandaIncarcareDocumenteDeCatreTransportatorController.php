@@ -84,7 +84,7 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
             }
         }
 
-        return redirect('comanda-incarcare-documente-de-catre-transportator/' .$cheie_unica)->success('status', 'Fișierele au fost încărcate, și pot fi vizualizate în tabelul de mai jos!');;
+        return redirect('comanda-incarcare-documente-de-catre-transportator/' .$cheie_unica)->with('status', 'Fișierele au fost încărcate, și pot fi vizualizate în tabelul de mai jos!');;
     }
 
     public function fisierDeschide($cheie_unica, $numeFisier)
