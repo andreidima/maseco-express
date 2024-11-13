@@ -342,11 +342,29 @@
                             <div class="col-lg-4 mb-2">
                                 <button type="button" class="btn btn-primary px-0 w-100 text-white rounded-3"
                                     v-on:click="
-                                        transportatorValoareKmGoi = (transportatorKmGoi * transportatorPretKmGoi).toFixed(2);
-                                        transportatorValoareKmPlini = (transportatorKmPlini * transportatorPretKmPlini).toFixed(2);
-                                        transportatorValoareContract = (Number(transportatorValoareKmGoi) + Number(transportatorValoareKmPlini) + Number(transportatorPretAutostrada)).toFixed(2);
-                                        clientValoareContract = (clientValoareContractInitiala - transportatorPretFerry).toFixed(2);
+                                        if (!clientValoareContractInitiala){
+                                            alertaCampuriNecompletate = 'Completează mai întâi câmpul: Client-Valoare contract inițială!'
+                                        } else {
+                                            alertaCampuriNecompletate = '';
+                                            transportatorValoareKmGoi = (transportatorKmGoi * transportatorPretKmGoi).toFixed(2);
+                                            transportatorValoareKmPlini = (transportatorKmPlini * transportatorPretKmPlini).toFixed(2);
+                                            transportatorValoareContract = (Number(transportatorValoareKmGoi) + Number(transportatorValoareKmPlini) + Number(transportatorPretAutostrada)).toFixed(2);
+                                            clientValoareContract = (clientValoareContractInitiala - transportatorPretFerry).toFixed(2);
+                                        }
                                     ">Calculează valorile</button>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-12 mb-2">
+                                <div v-if="alertaCampuriNecompletate" class="text-center">
+                                    <span class="px-1 bg-danger text-white rounded">
+                                        @{{ alertaCampuriNecompletate }}
+                                    </span>
+                                    <br>
+                                </div>
+                                <small>
+                                    * Completează inclusiv "Client - Valoare contract inițială" înainte de a "Calcula valorile"
+                                </small>
                             </div>
                         </div>
                     </div>

@@ -165,6 +165,8 @@ const formularComanda = createApp({
 
             clientValoareContractInitiala: ((typeof clientValoareContractInitialaVechi !== 'undefined') ? clientValoareContractInitialaVechi : ''),
             clientValoareContract: ((typeof clientValoareContractVechi !== 'undefined') ? clientValoareContractVechi : ''),
+
+            alertaCampuriNecompletate: '',
         }
     },
     created: function () {
