@@ -11,7 +11,7 @@
             {{-- format documente = 2 means digital --}}
             @if ($comanda->transportator_format_documente == "2")
                 <br><br>
-                Vă rugăm să încărcați documentele necesare direct în aplicația noastră, în format digital PDF, la adresa
+                Vă rugăm ca după livrarea acestui transport, să încărcați toate documentele aferente în aplicația noastră, în format digital PDF, la adresa
                 <a href="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica) }}">
                     {{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica) }}</a>
             @endif

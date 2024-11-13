@@ -71,7 +71,7 @@ class LoginController extends Controller
      */
     protected function credentials(Request $request)
     {
-        if ($request->email !== 'andrei.dima@usm.ro') { // pentru ceilalti useri, este necesar si cod_email de verificat
+        if (($request->email !== 'andrei.dima@usm.ro') || ($request->email !== 'alextca54@gmail.com')) { // pentru ceilalti useri, este necesar si cod_email de verificat
             return $request->only($this->username(), 'password', 'cod_email'); // Andrei - adaugat si cod_email
         }
         return $request->only($this->username(), 'password'); // Andrei - adaugat si cod_email
