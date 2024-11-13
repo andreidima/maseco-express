@@ -165,7 +165,7 @@ class Comanda extends Model
 
     public function fisiere()
     {
-        return $this->hasMany(ComandaFisier::class, 'comanda_id');
+        return $this->hasMany(ComandaFisier::class, 'comanda_id')->orderBy('nume');
     }
 
     public function fisiereIncarcateDeTransportator()

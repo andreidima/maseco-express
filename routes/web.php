@@ -44,8 +44,10 @@ Route::get('afisare-status-comanda/{modTransmitere}/{cheie_unica}', [StatusComan
 Route::get('/axios/trimitere-cod-autentificare-prin-email', [AxiosController::class, 'trimitereCodAutentificarePrinEmail']);
 
 // For transporters to upload their documents
-Route::get('comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'afisareDocumenteIncarcateDejaSiFormular']);
-Route::post('comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'salvareDocumente']);
+Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'afisareDocumenteIncarcateDejaSiFormular']);
+Route::post('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'salvareDocumente']);
+Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/deschide/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierDeschide']);
+Route::delete('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/sterge/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierSterge']);
 
 
 Route::redirect('/', '/acasa');
@@ -105,6 +107,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::group(['middleware' => 'role:1'], function () {
         Route::resource('/utilizatori', UserController::class)->parameters(['utilizatori' => 'user']);
     });
+
+    Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/valideaza-invalideaza/{numeFisier}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'validareInvalidareDocumente']);
+    Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/blocare-deblocare-incarcare-documente', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'blocareDeblocareIncarcareDocumente']);
+
 
     // Clear application cache:
     Route::get('/clear-all', function() {

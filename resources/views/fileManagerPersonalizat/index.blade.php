@@ -70,7 +70,7 @@
                                     <tr>
                                         <td>
                                             <a href="/file-manager-personalizat-fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
-                                                <i class="fa-solid fa-file"></i>
+                                                {{-- <i class="fa-solid fa-file"></i> --}}
                                                 {{ $fisier }}
                                             </a>
                                         </td>
