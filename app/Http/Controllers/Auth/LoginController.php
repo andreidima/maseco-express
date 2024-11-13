@@ -59,7 +59,7 @@ class LoginController extends Controller
         $request->validate([
             $this->username() => 'required|string',
             'password' => 'required|string',
-            'cod_email' => $request->email == 'andrei.dima@usm.ro' ? 'nullable|string' : 'required|string', // Andrei - adaugat sa fie obligatoriu - but not for the Andrei user
+            'cod_email' => ($request->email == 'andrei.dima@usm.ro') || ($request->email == 'alextca54@gmail.com') ? 'nullable|string' : 'required|string', // Andrei - adaugat sa fie obligatoriu - but not for the Andrei user
         ]);
     }
 
