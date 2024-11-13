@@ -58,7 +58,7 @@
                         @include('errors')
 
                         @guest
-                            @if ($comanda->transportator_blocare_incarcare_documente == "0")
+                            @if (!$comanda->transportator_blocare_incarcare_documente == "1")
                                 {{-- <div class="col-lg-12 mb-4 rounded-3" style="background-color:#112233"> --}}
                                 <div class="col-lg-6 mx-auto p-2 my-2 rounded-3 text-white" style="background-color:#7474b6;">
                                     <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}" enctype="multipart/form-data">
@@ -124,7 +124,7 @@
                                                                 @endif
                                                             </a>
                                                         @endauth
-                                                        @if (($fisier->validat != "1") && ($comanda->transportator_blocare_incarcare_documente == "0"))
+                                                        @if (($fisier->validat != "1") && ($comanda->transportator_blocare_incarcare_documente != "1"))
                                                             <div style="flex" class="">
                                                                 <a
                                                                     href="#"
