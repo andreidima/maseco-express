@@ -9,12 +9,12 @@
             Vă trimitem atașat comanda {{ $comanda->transportator_contract }}
 
             {{-- format documente = 2 means digital --}}
-            @if ($comanda->transportator_format_documente == "2")
+            {{-- @if ($comanda->transportator_format_documente == "2")
                 <br><br>
                 Vă rugăm ca după livrarea acestui transport, să încărcați toate documentele aferente în aplicația noastră, în format digital PDF, la adresa
                 <a href="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica) }}">
                     {{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica) }}</a>
-            @endif
+            @endif --}}
 
             {{-- <br><br>
             Acesta este un mesaj automat. Vă rugăm să nu răspundeți la acest e-mail. --}}
