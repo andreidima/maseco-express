@@ -40,8 +40,8 @@
                     * Completare automată
                 </small>
             </div>
-            <div class="col-lg-4 mb-5 mx-auto">
-                <label for="numar_inmatriculare" class="mb-0 ps-3">Număr de înmatriculare</label>
+            <div class="col-lg-2 mb-5 mx-auto">
+                <label for="numar_inmatriculare" class="mb-0 ps-0">Număr de înmatriculare</label>
                 <input
                     type="text"
                     v-on:focus="tipuriCamioaneListaAutocomplete = ''; firmeListaAutocomplete = ''"
@@ -49,6 +49,17 @@
                     name="numar_inmatriculare"
                     placeholder=""
                     value="{{ old('numar_inmatriculare', $camion->numar_inmatriculare) }}"
+                    required>
+            </div>
+            <div class="col-lg-2 mb-5 mx-auto">
+                <label for="numar_remorca" class="mb-0 ps-3">Număr remorcă</label>
+                <input
+                    type="text"
+                    v-on:focus="tipuriCamioaneListaAutocomplete = ''; firmeListaAutocomplete = ''"
+                    class="form-control bg-white rounded-3 {{ $errors->has('numar_remorca') ? 'is-invalid' : '' }}"
+                    name="numar_remorca"
+                    placeholder=""
+                    value="{{ old('numar_remorca', $camion->numar_remorca) }}"
                     required>
             </div>
             <div class="col-lg-2 mb-5">
@@ -59,7 +70,7 @@
                     name="pret_km_goi"
                     placeholder=""
                     value="{{ old('pret_km_goi', $camion->pret_km_goi) }}">
-                <small for="pret_km_goi" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
+                <small for="pret_km_goi" class="mb-0 ps-0">*Punct(.) pentru zecimale</small>
             </div>
             <div class="col-lg-2 mb-5">
                 <label for="pret_km_plini" class="mb-0 ps-3">Preț km plini</label>
@@ -69,7 +80,7 @@
                     name="pret_km_plini"
                     placeholder=""
                     value="{{ old('pret_km_plini', $camion->pret_km_plini) }}">
-                <small for="pret_km_plini" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
+                <small for="pret_km_plini" class="mb-0 ps-0">*Punct(.) pentru zecimale</small>
             </div>
             <div class="col-lg-4 mb-5 mx-auto">
                 <label for="nume_sofer" class="mb-0 ps-3">Nume șofer</label>
