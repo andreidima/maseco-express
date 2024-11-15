@@ -53,7 +53,7 @@ class TrimitereCodAutentificarePrinEmail extends Mailable
         return new Envelope(
             // subject: 'Codul tău de logare în aplicația Maseco Express este ' . $user->cod_email .
             //  '. Următorul cod poate fi generat la ' . Carbon::parse($user->updated_at)->addMinutes(5)->isoFormat('HH:mm DD.MM.YYYY') ,
-            subject: 'Codul tau de logare in aplicatia Maseco Express este ' . $user->cod_email,
+            subject: 'Cod de autentificare Maseco Express ' . $user->cod_email,
         );
     }
 
