@@ -289,7 +289,10 @@
                         PREȚ TRANSPORT: {{ $comanda->transportator_valoare_contract }} {{ $comanda->transportatorMoneda->nume ?? '' }}
                         {{-- Doar pentru romania se adauga mentiunea +TVA --}}
                         @if (($comanda->transportator->tara_id ?? '') === null || ($comanda->transportator->tara_id ?? '') === 0 || ($comanda->transportator->tara_id ?? '') === 141)
-                            +TVA
+                            {{-- If there is no mention for TVA, it should not appear -> Ionut Ciobanu 15.11.2024 --}}
+                            @if ($comanda->transportator_procent_tva_id)
+                                +TVA
+                            @endif
                         @endif
                         <br>
                         @if ($comanda->transportator_tarif_pe_km == 1)
