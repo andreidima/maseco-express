@@ -100,6 +100,7 @@
                                         </div>
                                     </form>
                                 </div>
+                            @endif
                         @endauth
 
                         <div class="col-lg-12 mb-4">
