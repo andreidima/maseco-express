@@ -83,6 +83,25 @@
                             @endif
                         @endguest
 
+                        @auth
+                            @if (!$comanda->transportator_format_documente == "2")
+                                {{-- <div class="col-lg-12 mb-4 rounded-3" style="background-color:#112233"> --}}
+                                <div class="col-lg-6 mx-auto p-2 my-2 rounded-3 text-white" style="background-color:#7474b6;">
+                                    <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}" enctype="multipart/form-data">
+                                        @csrf
+
+                                        <label for="files" class="mb-0 ps-3">Adăugați documentele necesare (doar în format PDF)<span class="text-danger">*</span></label>
+                                        <input type="file" name="fisiere[]" class="form-control mb-2 rounded-3" multiple>
+
+                                        <div class="text-center">
+                                            <button class="btn btn-success text-white border border-dark rounded-3 shadow block" type="submit">
+                                                Încarcă fișierele
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                        @endauth
+
                         <div class="col-lg-12 mb-4">
                             {{-- @guest --}}
                                 Numărul fișierelor încărcate: <b>{{ $comanda->fisiereIncarcateDeTransportator->count() }}</b>.

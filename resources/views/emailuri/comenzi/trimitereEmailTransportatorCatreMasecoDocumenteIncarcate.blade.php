@@ -11,9 +11,9 @@
             @elseif ($tipEmail == 'MasecoCatreTransportatorGoodDocuments')
                 Bună ziua, <b>{{ $comanda->transportator->nume ?? '' }}</b>,
                 <br><br>
-                Documentele încărcate au fost verificate și sunt corecte.
+                Documentele încărcate au fost verificate și validate.
                 <br>
-                Te rugam sa ne trimiti in cel mai scurt timp factura aferenta acestui transport la adresa de email <a href="mailto:pod@masecoexpres.net">pod@masecoexpres.net</a>
+                Te rugăm sa ne trimiți în cel mai scurt timp factura aferentă acestui transport la adresa de email <a href="mailto:pod@masecoexpres.net">pod@masecoexpres.net</a>
             @elseif ($tipEmail == 'MasecoCatreTransportatorBadDocuments')
                 Bună ziua, <b>{{ $comanda->transportator->nume ?? '' }}</b>,
                 <br><br>
