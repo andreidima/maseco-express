@@ -183,7 +183,7 @@
                         @endguest
 
                         @auth
-                            @if ($comanda->transportator_format_documente != "2")
+                            @if ($comanda->transportator_format_documente == "2")
                                 <div class="col-lg-12 mb-5">
                                     <br>
                                     @if ($comanda->transportator_blocare_incarcare_documente == "1")
