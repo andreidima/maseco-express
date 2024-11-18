@@ -160,8 +160,8 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
     public function trimitereEmailTransportatorCatreMasecoDocumenteIncarcate($cheie_unica)
     {
         if ($comanda = Comanda::where('cheie_unica', $cheie_unica)->first()) {
-            // Mail::to('pod@masecoexpres.net')->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
-            Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
+            // Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
+            Mail::to('pod@masecoexpres.net')->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
 
             $emailTrimis = new ComandaFisierEmail;
             $emailTrimis->comanda_id = $comanda->id;
