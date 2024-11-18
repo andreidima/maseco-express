@@ -84,7 +84,7 @@
                         @endguest
 
                         @auth
-                            @if (!$comanda->transportator_format_documente == "2")
+                            @if ($comanda->transportator_format_documente != "2")
                                 {{-- <div class="col-lg-12 mb-4 rounded-3" style="background-color:#112233"> --}}
                                 <div class="col-lg-6 mx-auto p-2 my-2 rounded-3 text-white" style="background-color:#7474b6;">
                                     <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}" enctype="multipart/form-data">
