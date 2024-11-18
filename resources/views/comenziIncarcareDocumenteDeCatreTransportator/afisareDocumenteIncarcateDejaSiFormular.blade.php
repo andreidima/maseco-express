@@ -62,7 +62,7 @@
                         @include('errors')
 
                         @guest
-                            @if (!$comanda->transportator_blocare_incarcare_documente == "1")
+                            @if ($comanda->transportator_blocare_incarcare_documente != "1")
                                 {{-- <div class="col-lg-12 mb-4 rounded-3" style="background-color:#112233"> --}}
                                 <div class="col-lg-6 mx-auto p-2 my-2 rounded-3 text-white" style="background-color:#7474b6;">
                                     <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}" enctype="multipart/form-data">
@@ -183,102 +183,104 @@
                         @endguest
 
                         @auth
-                            <div class="col-lg-12 mb-5">
-                                <br>
-                                 @if ($comanda->transportator_blocare_incarcare_documente == "1")
-                                    În acest moment transportatorul NU ARE acces la a încărca noi documente.
-                                    <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/blocare-deblocare-incarcare-documente" class="flex">
-                                        <span class="badge bg-primary me-1">Redă accesul</span>
-                                    </a>
-                                @else
-                                    În acest moment transportatorul ARE acces la a încărca noi documente.
-                                    <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/blocare-deblocare-incarcare-documente" class="flex">
-                                        <span class="badge bg-primary me-1">Oprește accesul</span>
-                                    </a>
-                                @endif
-                            </div>
-
-                            <div class="col-lg-12 mb-5 d-flex">
-                                    Notifică transportatorul privind starea documentelor:
-                                    {{-- <ul>
-                                        <li>
-                                            <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate">
-                                                @csrf
-                                                <button class="btn btn-sm btn-success py-0 text-white border border-dark rounded-3 shadow block" type="submit" name="action" value="emailGoodDocuments">
-                                                    Documentele sunt corecte
-                                                </button>
-                                                - se trimite automat un email către Transportator; i se va restricționa și accesul la adăugare/ modificare documente, putând în continuare doar sa le vizualizeze;
-                                            </form>
-                                        </li>
-                                        <li>
-                                            <a
-                                                href="#"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#emailDocumenteIncorecte"
-                                                title="Email Documente Incorecte"
-                                                >
-                                                <span class="badge bg-danger">Documentele sunt greșite</span></a>
-                                            - va trebui să completezi motivul, iar apoi se trimite automat emailul către Transportator; va avea în continuare acces deplin la platformă, mai puțin la documentele pe care le-ați validat deja că sunt corecte;
-                                        </li>
-                                    </ul> --}}
-                                    <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate">
-                                        @csrf
-                                        <button class="btn btn-sm btn-success py-0 mx-1 text-white rounded" type="submit" name="action" value="emailGoodDocuments">
-                                            Documentele sunt corecte
-                                        </button>
-                                    </form>
-                                    <a href="#"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#emailDocumenteIncorecte"
-                                        title="Email Documente Incorecte"
-                                        >
-                                        <span class="badge bg-danger">Documentele sunt greșite</span></a>
-                            </div>
-
-                            <div class="col-lg-12 mb-4">
-                                <div class="col-lg-12 mx-auto table-responsive rounded-3">
-                                    <table class="table table-striped table-hover rounded-3">
-                                        <thead class="text-white rounded-3 culoare2">
-                                            <tr>
-                                                <th colspan="3" class="text-center">
-                                                    Corespondența de pînă acum cu transportatorul
-                                                </th>
-                                            </tr>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Email</th>
-                                                <th>Data</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach ($comanda->emailuriPentruFisiereIncarcateDeTransportator as $email)
-                                                <tr>
-                                                    <td>{{ $loop->iteration }}</td>
-                                                    <td>
-                                                        @switch($email->tip)
-                                                            @case(1)
-                                                                Transportatorul a notificat Maseco că a încărcat documentele.
-                                                                @break
-                                                            @case(2)
-                                                                Maseco a notificat transportatorul că documentele sunt corecte și să trimită factura.
-                                                                @break
-                                                            @case(3)
-                                                                Maseco a notificat transportatorul că documentele nu sunt corecte. Motiv:
-                                                                <br>
-                                                                {!! nl2br($email->mesaj) !!}
-                                                                @break
-                                                            @default
-                                                        @endswitch
-                                                    </td>
-                                                    <td>
-                                                        {{ $email->created_at ? Carbon::parse($email->created_at)->isoFormat('DD.MM.YYYY HH:mm') : '' }}
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
+                            @if ($comanda->transportator_format_documente != "2")
+                                <div class="col-lg-12 mb-5">
+                                    <br>
+                                    @if ($comanda->transportator_blocare_incarcare_documente == "1")
+                                        În acest moment transportatorul NU ARE acces la a încărca noi documente.
+                                        <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/blocare-deblocare-incarcare-documente" class="flex">
+                                            <span class="badge bg-primary me-1">Redă accesul</span>
+                                        </a>
+                                    @else
+                                        În acest moment transportatorul ARE acces la a încărca noi documente.
+                                        <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/blocare-deblocare-incarcare-documente" class="flex">
+                                            <span class="badge bg-primary me-1">Oprește accesul</span>
+                                        </a>
+                                    @endif
                                 </div>
-                            </div>
+
+                                <div class="col-lg-12 mb-5 d-flex">
+                                        Notifică transportatorul privind starea documentelor:
+                                        {{-- <ul>
+                                            <li>
+                                                <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate">
+                                                    @csrf
+                                                    <button class="btn btn-sm btn-success py-0 text-white border border-dark rounded-3 shadow block" type="submit" name="action" value="emailGoodDocuments">
+                                                        Documentele sunt corecte
+                                                    </button>
+                                                    - se trimite automat un email către Transportator; i se va restricționa și accesul la adăugare/ modificare documente, putând în continuare doar sa le vizualizeze;
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <a
+                                                    href="#"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#emailDocumenteIncorecte"
+                                                    title="Email Documente Incorecte"
+                                                    >
+                                                    <span class="badge bg-danger">Documentele sunt greșite</span></a>
+                                                - va trebui să completezi motivul, iar apoi se trimite automat emailul către Transportator; va avea în continuare acces deplin la platformă, mai puțin la documentele pe care le-ați validat deja că sunt corecte;
+                                            </li>
+                                        </ul> --}}
+                                        <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate">
+                                            @csrf
+                                            <button class="btn btn-sm btn-success py-0 mx-1 text-white rounded" type="submit" name="action" value="emailGoodDocuments">
+                                                Documentele sunt corecte
+                                            </button>
+                                        </form>
+                                        <a href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#emailDocumenteIncorecte"
+                                            title="Email Documente Incorecte"
+                                            >
+                                            <span class="badge bg-danger">Documentele sunt greșite</span></a>
+                                </div>
+
+                                <div class="col-lg-12 mb-4">
+                                    <div class="col-lg-12 mx-auto table-responsive rounded-3">
+                                        <table class="table table-striped table-hover rounded-3">
+                                            <thead class="text-white rounded-3 culoare2">
+                                                <tr>
+                                                    <th colspan="3" class="text-center">
+                                                        Corespondența de pînă acum cu transportatorul
+                                                    </th>
+                                                </tr>
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Email</th>
+                                                    <th>Data</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($comanda->emailuriPentruFisiereIncarcateDeTransportator as $email)
+                                                    <tr>
+                                                        <td>{{ $loop->iteration }}</td>
+                                                        <td>
+                                                            @switch($email->tip)
+                                                                @case(1)
+                                                                    Transportatorul a notificat Maseco că a încărcat documentele.
+                                                                    @break
+                                                                @case(2)
+                                                                    Maseco a notificat transportatorul că documentele sunt corecte și să trimită factura.
+                                                                    @break
+                                                                @case(3)
+                                                                    Maseco a notificat transportatorul că documentele nu sunt corecte. Motiv:
+                                                                    <br>
+                                                                    {!! nl2br($email->mesaj) !!}
+                                                                    @break
+                                                                @default
+                                                            @endswitch
+                                                        </td>
+                                                        <td>
+                                                            {{ $email->created_at ? Carbon::parse($email->created_at)->isoFormat('DD.MM.YYYY HH:mm') : '' }}
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            @endif
 
                             <div class="col-lg-12 mb-4">
                                 <div class="text-center">
