@@ -172,4 +172,9 @@ class Comanda extends Model
     {
         return $this->fisiere()->where('categorie', '1')->orderBy('nume');
     }
+
+    public function emailuriPentruFisiereIncarcateDeTransportator()
+    {
+        return $this->hasMany(ComandaFisierEmail::class, 'comanda_id')->latest();
+    }
 }

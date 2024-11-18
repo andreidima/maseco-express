@@ -566,6 +566,10 @@ class ComandaController extends Controller
      */
     public function destroy(Request $request, Comanda $comanda)
     {
+        if($comanda->fisiereIncarcateDeTransportator->count() > 0){
+            return back()->with('error', 'Comanda „' . $comanda->transportator_contract . '” nu poate fi ștearsă pentru că are documente atașate. Verifică întâi documentele și ștergele pe fiecare în parte, și apoi poți șterge și comanda.');
+        }
+
         $comanda->locuriOperare()->detach();
         $comanda->cronjob ? $comanda->cronjob->delete() : '';
         $comanda->delete();

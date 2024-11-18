@@ -12,15 +12,18 @@ use File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
 use Closure;
+use App\Models\ComandaFisierEmail;
 
 class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
 {
     public function afisareDocumenteIncarcateDejaSiFormular(Request $request, $cheie_unica)
     {
         // se verifica pe langa cheia unica
-        $comanda = Comanda::with('transportator:id,nume', 'camion:id,numar_inmatriculare', 'locuriOperareIncarcari', 'locuriOperareDescarcari', 'fisiereIncarcateDeTransportator')->where('cheie_unica', $cheie_unica)->first();
-
-        return view('comenziIncarcareDocumenteDeCatreTransportator.afisareDocumenteIncarcateDejaSiFormular', compact('comanda'));
+        if($comanda = Comanda::with('transportator:id,nume', 'camion:id,numar_inmatriculare', 'locuriOperareIncarcari', 'locuriOperareDescarcari', 'fisiereIncarcateDeTransportator', 'emailuriPentruFisiereIncarcateDeTransportator')->where('cheie_unica', $cheie_unica)->first()){
+            return view('comenziIncarcareDocumenteDeCatreTransportator.afisareDocumenteIncarcateDejaSiFormular', compact('comanda'));
+        } else {
+            abort(404, 'Page not found');
+        }
     }
 
     public function salvareDocumente(Request $request, $cheie_unica)
@@ -152,5 +155,52 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
             }
         }
         return back()->with('error', 'Nu puteți accesa această pagină');
+    }
+
+    public function trimitereEmailTransportatorCatreMasecoDocumenteIncarcate($cheie_unica)
+    {
+        if ($comanda = Comanda::where('cheie_unica', $cheie_unica)->first()) {
+            // Mail::to('pod@masecoexpres.net')->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
+            Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
+
+            $emailTrimis = new ComandaFisierEmail;
+            $emailTrimis->comanda_id = $comanda->id;
+            $emailTrimis->tip = 1;
+            $emailTrimis->email = 'pod@masecoexpres.net';
+            $emailTrimis->save();
+
+            return back()->with('status', 'Notificarea către Maseco a fost trimisă cu succes! Mulțumim!');
+        }
+        abort(404, 'Page not found');
+    }
+
+    public function trimitereEmailCatreTransportatorPrivindDocumenteIncarcate(Request $request, $cheie_unica)
+    {
+        if ($comanda = Comanda::where('cheie_unica', $cheie_unica)->first()) {
+            if (!isset($comanda->transportator->email)){
+                return back()->with('error', 'Clientul nu are adăugat un email valid! Mergi la clienți și verifică datele clientului.');
+            }
+
+            if ($request->action == "emailGoodDocuments"){
+                $tipEmail = 'MasecoCatreTransportatorGoodDocuments';
+                $mesaj = null;
+            } elseif ($request->action == "emailBadDocuments"){
+                $request->validate(['mesaj' => 'required|max:2000'],['mesaj.required' => 'Este obligatoriu să adaugi un motiv ca să poți trimite mesajul']);
+                $tipEmail = 'MasecoCatreTransportatorBadDocuments';
+                $mesaj = $request->mesaj;
+            }
+
+            Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaTransportatorDocumente($comanda, $tipEmail, $mesaj));
+
+            $emailTrimis = new ComandaFisierEmail;
+            $emailTrimis->comanda_id = $comanda->id;
+            $emailTrimis->tip = ($tipEmail == 'MasecoCatreTransportatorGoodDocuments' ? 2 : 3);
+            $emailTrimis->email = $comanda->transportator->email;
+            $emailTrimis->mesaj = $mesaj;
+            $emailTrimis->save();
+
+            return back()->with('status', 'Mesajul către transportator a fost trimis cu succes!');
+        }
+        abort(404, 'Page not found');
     }
 }
