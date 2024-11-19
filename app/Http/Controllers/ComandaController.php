@@ -47,7 +47,7 @@ class ComandaController extends Controller
 
         $query = Comanda::with('client:id,nume', 'transportator:id,nume', 'camion:id,numar_inmatriculare',
                                 'mesajeTrimiseEmail:id,comanda_id,categorie,email,created_at', 'mesajeTrimiseSms:id,categorie,subcategorie,referinta_id,telefon,mesaj,content,trimis,raspuns,created_at',
-                                'locuriOperareIncarcari', 'locuriOperareDescarcari', 'user:id,name')
+                                'locuriOperareIncarcari', 'locuriOperareDescarcari', 'user:id,name', 'operator:id,name')
             ->withCount('contracteTrimisePeEmailCatreTransportator')
             ->when($searchDataCreare, function ($query, $searchDataCreare) {
                 return $query->whereDate('data_creare', $searchDataCreare);

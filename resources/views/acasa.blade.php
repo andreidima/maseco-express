@@ -1,7 +1,13 @@
 @extends('layouts.app')
 
+@php
+    use \App\Models\Comanda;
+    use \Carbon\Carbon;
+@endphp
+
 @section('content')
-<div class="container">
+{{-- <div class="container"> --}}
+<div class="mx-2">
     <div class="row justify-content-center">
         <div class="col-md-6 mb-5">
             <div class="card culoare2">
@@ -10,9 +16,9 @@
                 <div class="card-body">
                     Bine ai venit <b>{{ auth()->user()->name ?? '' }}</b>!
                     <br><br>
-                    Comenzi operate de tine în luna curentă: <b>{{ \App\Models\Comanda::whereDate('data_creare', '>=', \Carbon\Carbon::today()->startOfMonth())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
+                    Comenzi operate de tine în luna curentă: <b>{{ \App\Models\Comanda::whereDate('data_creare', '>=', Carbon::today()->startOfMonth())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
                     <br>
-                    Comenzi operate de tine în luna trecută: <b>{{ \App\Models\Comanda::whereYear('data_creare', \Carbon\Carbon::now()->subMonthNoOverflow())->whereMonth('data_creare', \Carbon\Carbon::now()->subMonthNoOverflow())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
+                    Comenzi operate de tine în luna trecută: <b>{{ \App\Models\Comanda::whereYear('data_creare', Carbon::now()->subMonthNoOverflow())->whereMonth('data_creare', Carbon::now()->subMonthNoOverflow())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
                 </div>
             </div>
         </div>
@@ -21,7 +27,7 @@
     <div class="row justify-content-center">
         @php
             $comenziLunaCurenta = \App\Models\Comanda::select('id', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id')
-                                                        ->whereDate('data_creare', '>=', \Carbon\Carbon::today()->startOfMonth())->get();
+                                                        ->whereDate('data_creare', '>=', Carbon::today()->startOfMonth())->get();
 
             $monede = \App\Models\Moneda::select('id', 'nume')->get();
             $leiLunaCurenta = $comenziLunaCurenta->where('client_moneda_id', 1)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', 1)->sum('transportator_valoare_contract')
@@ -30,7 +36,7 @@
             <div class="card culoare2">
                 <div class="card-header text-center">Clienți noi luna curentă</div>
                 <div class="card-body text-center">
-                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 1)->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
+                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 1)->whereDate('created_at', '>=', Carbon::today()->startOfMonth())->count() }}</b>
                 </div>
             </div>
         </div>
@@ -38,7 +44,7 @@
             <div class="card culoare2">
                 <div class="card-header text-center">Transportatori noi luna curentă</div>
                 <div class="card-body text-center">
-                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 2)->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())->count() }}</b>
+                    <b class="fs-2">{{ \App\Models\Firma::where('tip_partener', 2)->whereDate('created_at', '>=', Carbon::today()->startOfMonth())->count() }}</b>
                 </div>
             </div>
         </div>
@@ -85,23 +91,27 @@
                 </div>
             </div>
         </div>
+        <div class="col-md-12 mb-5">
+            <div class="card">
+                <div class="card-header text-center culoare2">
+                    Comenzi cu documente încărcate de mai mult de 24 de ore și nevalidate încă
+                </div>
+                <div class="card-body text-center">
+                    @foreach (Comanda::select('id', 'transportator_contract', 'cheie_unica')->whereHas('fisiereIncarcateDeTransportatorIncaNevalidateDe24Ore')->latest()->get() as $comanda)
+                        <a href="/comanda-incarcare-documente-de-catre-transportator/{{ $comanda->cheie_unica }}">
+                            {{ $comanda->transportator_contract }}</a>
+                        @if(!$loop->last)
+                            |
+                        @endif
+                    @endforeach
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="row justify-content-center">
-        {{-- <div class="col-md-6 mb-3">
-            <table class="table table-striped table-hover rounded">
-                <thead class="text-white rounded culoare2">
-                    <tr><th colspan="5" class="text-center d-flex align-items-center justify-content-center">Comenzi deschise: <b class="fs-2">{{ \App\Models\Comanda::where('stare', 1)->count() }}</b></th></tr>
-                    <tr><th colspan="5" class="text-center">Comenzi deschise: <b class="fs-2">{{ \App\Models\Comanda::where('stare', 1)->count() }}</b></th></tr>
-                    <tr><th colspan="5" class="text-center">Comenzi deschise: <b class="fs-2">{{ \App\Models\Comanda::where('stare', 1)->count() }}</b></th></tr>
-                    <tr><th colspan="5" class="text-center">Comenzi deschise: <b class="fs-2">{{ \App\Models\Comanda::where('stare', 1)->count() }}</b></th></tr>
-                    <tr><th colspan="5" class="text-center">Comenzi deschise: <b class="fs-2">{{ \App\Models\Comanda::where('stare', 1)->count() }}</b></th></tr>
-                    <tr><th colspan="5" class="text-center">Comenzi deschise: <b class="fs-2">{{ \App\Models\Comanda::where('stare', 1)->count() }}</b></th></tr>
-                </thead>
-            </table>
-        </div> --}}
 
-        <div class="col-md-6 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4 mb-5">
             <div class="table-responsive rounded">
                 <table class="table table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
@@ -125,7 +135,7 @@
             </div>
         </div>
 
-        <div class="col-md-6 mb-5">
+        <div class="col-md-4 mb-5">
             <div class="table-responsive rounded">
                 <table class="table table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
@@ -149,7 +159,7 @@
             </div>
         </div>
 
-        <div class="col-md-6 mb-5">
+        <div class="col-md-4 mb-5">
             <div class="table-responsive rounded">
                 <table class="table table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
@@ -169,7 +179,7 @@
                             <td>{{ $comandaIstoric->transportator_contract }}</td>
                             <td>{{ $comandaIstoric->operare_descriere }}</td>
                             <td>{{ $comandaIstoric->user->name ?? '' }}</td>
-                            <td>{{ $comandaIstoric->operare_data ? \Carbon\Carbon::parse($comandaIstoric->operare_data)->isoFormat('DD.MM.YYYY HH:mm') : '' }}</td>
+                            <td>{{ $comandaIstoric->operare_data ? Carbon::parse($comandaIstoric->operare_data)->isoFormat('DD.MM.YYYY HH:mm') : '' }}</td>
                         </tr>
                     @endforeach
                     </tbody>

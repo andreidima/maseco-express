@@ -173,6 +173,17 @@ class Comanda extends Model
         return $this->fisiere()->where('categorie', '1')->orderBy('nume');
     }
 
+    public function fisiereIncarcateDeTransportatorIncaNevalidateDe24Ore()
+    {
+        return $this->fisiereIncarcateDeTransportator()
+            ->where(function ($query) {
+                $query->whereNull('validat')
+                    ->orWhere('validat', '<>', 1);
+            })
+            ->whereNull('user_id')
+            ->where('created_at', '<', Carbon::now()->subDay());
+    }
+
     public function emailuriPentruFisiereIncarcateDeTransportator()
     {
         return $this->hasMany(ComandaFisierEmail::class, 'comanda_id')->latest();

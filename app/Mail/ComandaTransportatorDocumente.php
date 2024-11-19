@@ -34,7 +34,7 @@ class ComandaTransportatorDocumente extends Mailable
         return new Envelope(
             subject:
                 ($this->tipEmail == 'transportatorCatreMaseco') ?
-                    'Transportatorul a încărcat documentele necesare la comanda ' . $this->comanda->transportator_contract
+                    ($this->comanda->transportator->nume ?? 'Transportatorul') . ' a încărcat documentele necesare la comanda ' . $this->comanda->transportator_contract
                     :
                     (
                         ($this->tipEmail == 'MasecoCatreTransportatorGoodDocuments') ?

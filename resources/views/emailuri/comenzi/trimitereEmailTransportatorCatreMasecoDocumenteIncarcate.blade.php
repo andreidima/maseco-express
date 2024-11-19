@@ -7,7 +7,7 @@
             @if ($tipEmail == 'transportatorCatreMaseco')
                 Bună ziua,
                 <br><br>
-                Transportatorul a încărcat documentele la comanda {{ $comanda->transportator_contract }}.
+                {{ $comanda->transportator->nume ?? 'Transportatorul' }} a încărcat documentele la comanda {{ $comanda->transportator_contract }}.
             @elseif ($tipEmail == 'MasecoCatreTransportatorGoodDocuments')
                 Bună ziua, <b>{{ $comanda->transportator->nume ?? '' }}</b>,
                 <br><br>

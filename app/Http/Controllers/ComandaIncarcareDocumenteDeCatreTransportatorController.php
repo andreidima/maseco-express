@@ -80,6 +80,7 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                     $fisier->categorie = 1; // uploaded by Transporter
                     $fisier->cale = $cale;
                     $fisier->nume = $numeFisier;
+                    $fisier->user_id = auth()->user()->id ?? null;
                     $fisier->save();
                 } catch (Exception $e) {
                     return back()->with('error', 'Fișierul nu a putut fi încărcat.');

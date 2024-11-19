@@ -131,22 +131,28 @@
                                                     </a>
                                                 </td>
                                                 <td>
-                                                    @if ($fisier->validat == "1")
-                                                        Validat
-                                                    @else
-                                                        În proces de validare
+                                                    {{-- If the file is uploaded by operators is shouldn't require validation --}}
+                                                    @if (!$fisier->user_id)
+                                                        @if ($fisier->validat == "1")
+                                                            Validat
+                                                        @else
+                                                            În proces de validare
+                                                        @endif
                                                     @endif
                                                 </td>
                                                 <td>
                                                     <div class="d-flex">
                                                         @auth
-                                                            <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/valideaza-invalideaza/{{ $fisier->nume }}" class="flex">
-                                                                @if ($fisier->validat != "1")
-                                                                    <span class="badge bg-primary me-1">Validează</span>
-                                                                @else
-                                                                    <span class="badge bg-warning text-dark me-1">Invalidează</span>
-                                                                @endif
-                                                            </a>
+                                                            {{-- If the file is uploaded by operators is shouldn't require validation --}}
+                                                            @if (!$fisier->user_id)
+                                                                <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/valideaza-invalideaza/{{ $fisier->nume }}" class="flex">
+                                                                    @if ($fisier->validat != "1")
+                                                                        <span class="badge bg-primary me-1">Validează</span>
+                                                                    @else
+                                                                        <span class="badge bg-warning text-dark me-1">Invalidează</span>
+                                                                    @endif
+                                                                </a>
+                                                            @endif
                                                         @endauth
                                                         {{-- @if (($fisier->validat != "1") && ($comanda->transportator_blocare_incarcare_documente != "1")) --}}
                                                         @if ($fisier->validat != "1")
