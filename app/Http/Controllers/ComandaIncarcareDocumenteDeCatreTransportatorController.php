@@ -162,10 +162,10 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                 if ($fisier->nume === $numeFisier) {
                     if ($fisier->validat === 1){
                         $fisier->update(['validat' => 0]);
-                        return back()->with('status', '„' . $numeFisier . '" a fost invalidat cu succes!');
+                        // return back()->with('status', '„' . $numeFisier . '" a fost invalidat cu succes!');
                     }else{
                         $fisier->update(['validat' => 1]);
-                        return back()->with('status', '„' . $numeFisier . '" a fost validat cu succes!');
+                        // return back()->with('status', '„' . $numeFisier . '" a fost validat cu succes!');
                     }
 
                     // Istoric save
