@@ -160,13 +160,6 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
         if ($comanda = Comanda::where('cheie_unica', $cheie_unica)->with('fisiereIncarcateDeTransportator')->first()) {
             foreach ($comanda->fisiereIncarcateDeTransportator as $fisier) {
                 if ($fisier->nume === $numeFisier) {
-                    // Istoric save
-                    $fisier_istoric = new ComandaFisierIstoric;
-                    $fisier_istoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-                    $fisier_istoric->operare_user_id = auth()->user()->id ?? null;
-                    $fisier_istoric->operare_descriere = 'Validare / Invalidare';
-                    $fisier_istoric->save();
-
                     if ($fisier->validat === 1){
                         $fisier->update(['validat' => 0]);
                         return back()->with('status', '„' . $numeFisier . '" a fost invalidat cu succes!');
@@ -174,6 +167,15 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                         $fisier->update(['validat' => 1]);
                         return back()->with('status', '„' . $numeFisier . '" a fost validat cu succes!');
                     }
+
+                    // Istoric save
+                    $fisier_istoric = new ComandaFisierIstoric;
+                    $fisier_istoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                    $fisier_istoric->operare_user_id = auth()->user()->id ?? null;
+                    $fisier_istoric->operare_descriere = 'Validare / Invalidare';
+                    $fisier_istoric->save();
+
+                    return back()->with('status', '„' . $numeFisier . '" a fost ' . (($fisier->validat == 1) ? 'validat' : 'invalidat') . ' cu succes!');
                 }
             }
         }
