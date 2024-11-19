@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Comanda;
 use App\Models\ComandaFisier;
+use App\Models\ComandaFisierIstoric;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
 use File;
@@ -82,13 +83,24 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                     $fisier->nume = $numeFisier;
                     $fisier->user_id = auth()->user()->id ?? null;
                     $fisier->save();
+
+                    // Istoric save
+                    $fisier_istoric = new ComandaFisierIstoric;
+                    $fisier_istoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                    $fisier_istoric->operare_user_id = auth()->user()->id ?? null;
+                    $fisier_istoric->operare_descriere = 'Adaugare';
+                    $fisier_istoric->save();
                 } catch (Exception $e) {
                     return back()->with('error', 'Fișierul nu a putut fi încărcat.');
                 }
             }
         }
 
-        return redirect('comanda-incarcare-documente-de-catre-transportator/' .$cheie_unica)->with('status', 'Fișierele au fost încărcate, și pot fi vizualizate în tabelul de mai jos!');;
+        if (auth()->user()){
+            return redirect('comanda-documente-transportator/' .$cheie_unica)->with('status', 'Fișierele au fost încărcate, și pot fi vizualizate în tabelul de mai jos!');
+        } else{
+            return redirect('comanda-incarcare-documente-de-catre-transportator/' .$cheie_unica)->with('status', 'Fișierele au fost încărcate, și pot fi vizualizate în tabelul de mai jos!');
+        }
     }
 
     public function fisierDeschide($cheie_unica, $numeFisier)
@@ -117,8 +129,25 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
         if ($comanda = Comanda::where('cheie_unica', $cheie_unica)->with('fisiereIncarcateDeTransportator')->first()) {
             foreach ($comanda->fisiereIncarcateDeTransportator as $fisier) {
                 if (($fisier->nume === $numeFisier) && ($fisier->validat !== 1)) {
+
                     Storage::delete($fisier->cale . '/' . $fisier->nume);
                     $fisier->delete();
+
+                    // Istoric save
+                    $fisier_istoric = new ComandaFisierIstoric;
+                    $fisier_istoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                    $fisier_istoric->operare_user_id = auth()->user()->id ?? null;
+                    $fisier_istoric->operare_descriere = 'Stergere';
+                    $fisier_istoric->save();
+
+                    // Delete the directories too if they are empty
+                    if (empty($files = Storage::allFiles($fisier->cale))){ // fisiereIncarcateDeTransportator directory
+                        Storage::deleteDirectory($fisier->cale);
+                        if (empty($files = Storage::allFiles(dirname($fisier->cale)))){ // If the parent directory (comand directory) is empty too, it will be deleted aswell
+                            Storage::deleteDirectory(dirname($fisier->cale));
+                        }
+                    }
+
                     return back()->with('status', '„' . $numeFisier . '" a fost șters cu succes!');
                 }
             }
@@ -131,6 +160,13 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
         if ($comanda = Comanda::where('cheie_unica', $cheie_unica)->with('fisiereIncarcateDeTransportator')->first()) {
             foreach ($comanda->fisiereIncarcateDeTransportator as $fisier) {
                 if ($fisier->nume === $numeFisier) {
+                    // Istoric save
+                    $fisier_istoric = new ComandaFisierIstoric;
+                    $fisier_istoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                    $fisier_istoric->operare_user_id = auth()->user()->id ?? null;
+                    $fisier_istoric->operare_descriere = 'Validare / Invalidare';
+                    $fisier_istoric->save();
+
                     if ($fisier->validat === 1){
                         $fisier->update(['validat' => 0]);
                         return back()->with('status', '„' . $numeFisier . '" a fost invalidat cu succes!');

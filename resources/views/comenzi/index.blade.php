@@ -363,7 +363,7 @@
                                     </div>
                                     <div class="d-flex justify-content-end">
                                         <div class="mb-1">
-                                            <a href="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica) }}" class="flex">
+                                            <a href="{{ url('/comanda-documente-transportator/' . $comanda->cheie_unica) }}" class="flex">
                                                 <span class="badge bg-secondary">Documente</span>
                                             </a>
                                         </div>

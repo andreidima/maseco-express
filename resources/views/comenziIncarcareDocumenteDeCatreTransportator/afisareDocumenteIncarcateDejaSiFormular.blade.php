@@ -61,6 +61,26 @@
 
                         @include('errors')
 
+                        @auth
+                            @if ($comanda->transportator_format_documente != "2")
+                                {{-- <div class="col-lg-12 mb-4 rounded-3" style="background-color:#112233"> --}}
+                                <div class="col-lg-6 mx-auto p-2 my-2 rounded-3 text-white" style="background-color:#7474b6;">
+                                    <form method="POST" action="/comanda-documente-transportator/{{$comanda->cheie_unica}}" enctype="multipart/form-data">
+                                        @csrf
+
+                                        <label for="files" class="mb-0 ps-3">Adăugați documentele necesare (doar în format PDF)<span class="text-danger">*</span></label>
+                                        <input type="file" name="fisiere[]" class="form-control mb-2 rounded-3" multiple>
+
+                                        <div class="text-center">
+                                            <button class="btn btn-success text-white border border-dark rounded-3 shadow block" type="submit">
+                                                Încarcă fișierele
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            @endif
+                        @endauth
+
                         @guest
                             @if ($comanda->transportator_blocare_incarcare_documente != "1")
                                 {{-- <div class="col-lg-12 mb-4 rounded-3" style="background-color:#112233"> --}}
@@ -82,26 +102,6 @@
                                 Adminstratorul aplicației a blocat posibilitatea de a încărca noi documente.
                             @endif
                         @endguest
-
-                        @auth
-                            @if ($comanda->transportator_format_documente != "2")
-                                {{-- <div class="col-lg-12 mb-4 rounded-3" style="background-color:#112233"> --}}
-                                <div class="col-lg-6 mx-auto p-2 my-2 rounded-3 text-white" style="background-color:#7474b6;">
-                                    <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}" enctype="multipart/form-data">
-                                        @csrf
-
-                                        <label for="files" class="mb-0 ps-3">Adăugați documentele necesare (doar în format PDF)<span class="text-danger">*</span></label>
-                                        <input type="file" name="fisiere[]" class="form-control mb-2 rounded-3" multiple>
-
-                                        <div class="text-center">
-                                            <button class="btn btn-success text-white border border-dark rounded-3 shadow block" type="submit">
-                                                Încarcă fișierele
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
-                            @endif
-                        @endauth
 
                         <div class="col-lg-12 mb-4">
                             {{-- @guest --}}
@@ -145,7 +145,7 @@
                                                         @auth
                                                             {{-- If the file is uploaded by operators is shouldn't require validation --}}
                                                             @if (!$fisier->user_id)
-                                                                <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/valideaza-invalideaza/{{ $fisier->nume }}" class="flex">
+                                                                <a href="/comanda-documente-transportator/{{$comanda->cheie_unica}}/valideaza-invalideaza/{{ $fisier->nume }}" class="flex">
                                                                     @if ($fisier->validat != "1")
                                                                         <span class="badge bg-primary me-1">Validează</span>
                                                                     @else
@@ -194,12 +194,12 @@
                                     <br>
                                     @if ($comanda->transportator_blocare_incarcare_documente == "1")
                                         În acest moment transportatorul NU ARE acces la a încărca noi documente.
-                                        <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/blocare-deblocare-incarcare-documente" class="flex">
+                                        <a href="/comanda-documente-transportator/{{$comanda->cheie_unica}}/blocare-deblocare-incarcare-documente" class="flex">
                                             <span class="badge bg-primary me-1">Redă accesul</span>
                                         </a>
                                     @else
                                         În acest moment transportatorul ARE acces la a încărca noi documente.
-                                        <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/blocare-deblocare-incarcare-documente" class="flex">
+                                        <a href="/comanda-documente-transportator/{{$comanda->cheie_unica}}/blocare-deblocare-incarcare-documente" class="flex">
                                             <span class="badge bg-primary me-1">Oprește accesul</span>
                                         </a>
                                     @endif
@@ -228,7 +228,7 @@
                                                 - va trebui să completezi motivul, iar apoi se trimite automat emailul către Transportator; va avea în continuare acces deplin la platformă, mai puțin la documentele pe care le-ați validat deja că sunt corecte;
                                             </li>
                                         </ul> --}}
-                                        <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate">
+                                        <form method="POST" action="/comanda-documente-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate">
                                             @csrf
                                             <button class="btn btn-sm btn-success py-0 mx-1 text-white rounded" type="submit" name="action" value="emailGoodDocuments">
                                                 Documentele sunt corecte
@@ -360,28 +360,30 @@
 @endforeach
 
 {{-- Modal for sending negative email - when the documents are not allright --}}
-<div class="modal fade text-dark" id="emailDocumenteIncorecte" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate">
-            @csrf
-                <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white" id="exampleModalLabel">Comanda: <b>{{ $comanda->transportator_contract }}</b></h5>
-                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="text-align:left;">
+@auth
+    <div class="modal fade text-dark" id="emailDocumenteIncorecte" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="POST" action="/comanda-documente-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate">
+                @csrf
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title text-white" id="exampleModalLabel">Comanda: <b>{{ $comanda->transportator_contract }}</b></h5>
+                        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="text-align:left;">
 
-                <label for="mesaj" class="mb-0 ps-3">Motiv documente greșite</label>
-                <textarea class="form-control bg-white {{ $errors->has('mesaj') ? 'is-invalid' : '' }}"
-                    name="mesaj" rows="5">{{ old('mesaj') }}</textarea>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
-                    <button type="submit" class="btn btn-primary text-white" name="action" value="emailBadDocuments">Trimite emailul</button>
-                </div>
-            </form>
+                    <label for="mesaj" class="mb-0 ps-3">Motiv documente greșite</label>
+                    <textarea class="form-control bg-white {{ $errors->has('mesaj') ? 'is-invalid' : '' }}"
+                        name="mesaj" rows="5">{{ old('mesaj') }}</textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                        <button type="submit" class="btn btn-primary text-white" name="action" value="emailBadDocuments">Trimite emailul</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
-</div>
+@endauth
 
 @endsection
