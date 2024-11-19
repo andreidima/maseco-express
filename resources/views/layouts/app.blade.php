@@ -151,6 +151,12 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
+                                    <a class="dropdown-item" href="/statii-peco">
+                                        <i class="fa-solid fa-gas-pump me-1"></i>Stații peco
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
                                     <a class="dropdown-item" href="{{ route('mesaje-trimise-sms.index') }}">
                                         <i class="fa-solid fa-comment-sms me-1"></i>SMS trimise
                                     </a>

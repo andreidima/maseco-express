@@ -19,6 +19,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\RaportController;
 use App\Http\Controllers\DiverseTesteController;
 use App\Http\Controllers\ComandaIncarcareDocumenteDeCatreTransportatorController;
+use App\Http\Controllers\StatiePecoController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -116,6 +117,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/comanda-documente-transportator/{cheie_unica}/blocare-deblocare-incarcare-documente', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'blocareDeblocareIncarcareDocumente']);
     Route::post('/comanda-documente-transportator/{cheie_unica}/trimitere-email-catre-transportator-privind-documente-incarcate', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailCatreTransportatorPrivindDocumenteIncarcate']);
 
+    Route::get('/statii-peco', [StatiePecoController::class, 'index']);
 
     // Clear application cache:
     Route::get('/clear-all', function() {
