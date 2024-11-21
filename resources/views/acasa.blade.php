@@ -1,8 +1,10 @@
 @extends('layouts.app')
 
 @php
-    use \App\Models\Comanda;
     use \Carbon\Carbon;
+    use \App\Models\Comanda;
+    use \App\Models\ComandaIstoric;
+    use \App\Models\ComandaFisierEmail;
 @endphp
 
 @section('content')
@@ -16,9 +18,9 @@
                 <div class="card-body">
                     Bine ai venit <b>{{ auth()->user()->name ?? '' }}</b>!
                     <br><br>
-                    Comenzi operate de tine în luna curentă: <b>{{ \App\Models\Comanda::whereDate('data_creare', '>=', Carbon::today()->startOfMonth())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
+                    Comenzi operate de tine în luna curentă: <b>{{ Comanda::whereDate('data_creare', '>=', Carbon::today()->startOfMonth())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
                     <br>
-                    Comenzi operate de tine în luna trecută: <b>{{ \App\Models\Comanda::whereYear('data_creare', Carbon::now()->subMonthNoOverflow())->whereMonth('data_creare', Carbon::now()->subMonthNoOverflow())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
+                    Comenzi operate de tine în luna trecută: <b>{{ Comanda::whereYear('data_creare', Carbon::now()->subMonthNoOverflow())->whereMonth('data_creare', Carbon::now()->subMonthNoOverflow())->where('operator_user_id', auth()->user()->id)->count(); }}</b>
                 </div>
             </div>
         </div>
@@ -26,7 +28,7 @@
 
     <div class="row justify-content-center">
         @php
-            $comenziLunaCurenta = \App\Models\Comanda::select('id', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id')
+            $comenziLunaCurenta = Comanda::select('id', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id')
                                                         ->whereDate('data_creare', '>=', Carbon::today()->startOfMonth())->get();
 
             $monede = \App\Models\Moneda::select('id', 'nume')->get();
@@ -52,7 +54,7 @@
             <div class="card culoare2">
                 <div class="card-header text-center">Total comenzi</div>
                 <div class="card-body text-center">
-                    <b class="fs-2">{{ \App\Models\Comanda::where('stare', '<>', 3)->count() }}</b>
+                    <b class="fs-2">{{ Comanda::where('stare', '<>', 3)->count() }}</b>
                 </div>
             </div>
         </div>
@@ -60,7 +62,7 @@
             <div class="card culoare2">
                 <div class="card-header text-center">Comenzi deschise</div>
                 <div class="card-body text-center">
-                    <b class="fs-2">{{ \App\Models\Comanda::where('stare', 1)->count() }}</b>
+                    <b class="fs-2">{{ Comanda::where('stare', 1)->count() }}</b>
                 </div>
             </div>
         </div>
@@ -91,14 +93,38 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-12 mb-5">
+        <div class="col-md-4 mb-5">
+            <div class="card">
+                <div class="card-header text-center culoare2">
+                    Comenzi cu documente complete din ultimele 24 de ore
+                </div>
+                <div class="card-body text-center">
+                    @php
+                        $comenziCuEmailuri = Comanda::select('id', 'transportator_contract')
+                            ->with('ultimulEmailPentruFisiereIncarcateDeTransportator:id,comanda_id,created_at')
+                            ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator')->latest()->get();
+                            // dd($comenziCuEmailuri);
+                    @endphp
+                    {{ $comenziCuEmailuri->where('ultimulEmailPentruFisiereIncarcateDeTransportator.created_at', '>', Carbon::now()->subDay())->count() }}
+                    {{-- @foreach ($comenziCuEmailuri->where('ultimulEmailPentruFisiereIncarcateDeTransportator.created_at', '>', Carbon::now()->subDay()) as $comanda)
+                        <a href="/comanda-documente-transportator/{{ $comanda->cheie_unica }}">
+                            {{ $comanda->transportator_contract }}</a>
+                            {{ $comanda->id }}</a>
+                        @if(!$loop->last)
+                            |
+                        @endif
+                    @endforeach --}}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-5">
             <div class="card">
                 <div class="card-header text-center culoare2">
                     Comenzi cu documente încărcate de mai mult de 24 de ore și nevalidate încă
                 </div>
                 <div class="card-body text-center">
                     @foreach (Comanda::select('id', 'transportator_contract', 'cheie_unica')->whereHas('fisiereIncarcateDeTransportatorIncaNevalidateDe24Ore')->latest()->get() as $comanda)
-                        <a href="/comanda-incarcare-documente-de-catre-transportator/{{ $comanda->cheie_unica }}">
+                        <a href="/comanda-documente-transportator/{{ $comanda->cheie_unica }}">
                             {{ $comanda->transportator_contract }}</a>
                         @if(!$loop->last)
                             |
@@ -123,7 +149,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @foreach (\App\Models\Comanda::where('observatii_interne', '<>', null)->latest()->take(20)->get() as $comanda)
+                    @foreach (Comanda::where('observatii_interne', '<>', null)->latest()->take(20)->get() as $comanda)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $comanda->transportator_contract }}</td>
@@ -147,7 +173,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @foreach (\App\Models\Comanda::where('observatii_externe', '<>', null)->latest()->take(20)->get() as $comanda)
+                    @foreach (Comanda::where('observatii_externe', '<>', null)->latest()->take(20)->get() as $comanda)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $comanda->transportator_contract }}</td>
@@ -173,7 +199,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @foreach (\App\Models\ComandaIstoric::with('user')->orderBy('id_pk', 'desc')->take(20)->get() as $comandaIstoric)
+                    @foreach (ComandaIstoric::with('user')->orderBy('id_pk', 'desc')->take(20)->get() as $comandaIstoric)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $comandaIstoric->transportator_contract }}</td>

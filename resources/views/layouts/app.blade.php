@@ -90,24 +90,36 @@
                         </li> --}}
                         <li class="nav-item me-3 dropdown">
                             <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-users me-1"></i>
-                                Firme
+                                <i class="fa-solid fa-list-ul me-1"></i>
+                                Resurse
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
                                     <a class="dropdown-item" href="/firme/clienti">
-                                        <i class="fa-solid fa-users me-1"></i>Clienți
+                                        <i class="fa-solid fa-users me-1"></i>Firme Clienți
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="/firme/transportatori">
-                                        <i class="fa-solid fa-people-carry-box me-1"></i>Transportatori
+                                        <i class="fa-solid fa-people-carry-box me-1"></i>Firme Transportatori
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/camioane">
+                                        <i class="fa-solid fa-truck me-1"></i>Camioane
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/locuri-operare">
+                                        <i class="fa-solid fa-location-dot me-1"></i>Locuri de operare
                                     </a>
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item me-3">
+                        {{-- <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/camioane">
                                 <i class="fa-solid fa-truck me-1"></i>Camioane
                             </a>
@@ -116,11 +128,30 @@
                             <a class="nav-link active" aria-current="page" href="/locuri-operare">
                                 <i class="fa-solid fa-location-dot me-1"></i>Locuri de operare
                             </a>
-                        </li>
-                        <li class="nav-item me-3">
+                        </li> --}}
+                        {{-- <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/facturi">
                                 <i class="fa-solid fa-file-invoice me-1"></i>Facturi
                             </a>
+                        </li> --}}
+                        <li class="nav-item me-3 dropdown">
+                            <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-table-list me-1"></i>
+                                Rapoarte
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="/rapoarte/incasari-utilizatori">
+                                        <i class="fa-solid fa-chart-pie me-1"></i>Încasări utilizatori
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/rapoarte/documente-transportatori">
+                                        <i class="fa-solid fa-file me-1"></i>Documente transportatori
+                                    </a>
+                                </li>
+                            </ul>
                         </li>
                         <li class="nav-item me-3 dropdown">
                             <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -144,15 +175,21 @@
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li>
+                                {{-- <li>
                                     <a class="dropdown-item" href="/rapoarte">
                                         <i class="fa-solid fa-chart-pie me-1"></i>Rapoarte
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="/statii-peco">
                                         <i class="fa-solid fa-gas-pump me-1"></i>Stații peco
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/facturi">
+                                        <i class="fa-solid fa-file-invoice me-1"></i>Facturi
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>

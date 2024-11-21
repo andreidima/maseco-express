@@ -98,6 +98,14 @@ class Comanda extends Model
         return $this->locuriOperare()->where('tip', '2')->orderByDesc('data_ora')->first();
     }
 
+    public function getUltimaDescarcareAttribute()
+    {
+        return $this->locuriOperare()
+            ->where('tip', '2')
+            ->orderByDesc('data_ora')
+            ->first();
+    }
+
     public function statusuri()
     {
         return $this->hasMany(ComandaStatus::class);
@@ -188,4 +196,15 @@ class Comanda extends Model
     {
         return $this->hasMany(ComandaFisierEmail::class, 'comanda_id')->latest();
     }
+
+    public function ultimulEmailPentruFisiereIncarcateDeTransportator()
+    {
+        return $this->hasOne(ComandaFisierEmail::class, 'comanda_id')->latest();
+    }
+
+    // comenzi with ultimaDescarcare > 24h, with no transporter documents added
+    // public function ultimulEmailPentruFisiereIncarcateDeTransportator()
+    // {
+    //     return $this->hasOne(ComandaFisierEmail::class, 'comanda_id')->latest();
+    // }
 }

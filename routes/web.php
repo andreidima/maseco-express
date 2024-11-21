@@ -104,7 +104,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/facturi-memento/deschide/{comanda}', [FacturaController::class, 'createOrUpdateMementoFactura']);
     Route::post('/facturi-memento/salveaza/{factura}', [FacturaController::class, 'storeOrUpdateMementoFactura']);
 
-    Route::get('/rapoarte', [RaportController::class, 'index']);
+    Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);
+    Route::get('/rapoarte/documente-transportatori', [RaportController::class, 'documenteTransportatori']);
 
     Route::group(['middleware' => 'role:1'], function () {
         Route::resource('/utilizatori', UserController::class)->parameters(['utilizatori' => 'user']);
