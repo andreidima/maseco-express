@@ -76,7 +76,7 @@
                             <thead class="text-white rounded culoare2">
                                 <tr>
                                     <th colspan="3" class="text-center">
-                                        Comenzi cu documente greșite care nu au mai fost actualizate de peste de 24 de ore
+                                        Comenzi cu documente în lucru care nu au mai fost actualizate de peste de 24 de ore
                                         <br>
                                         @php
                                             // dd($comenzi);
@@ -93,7 +93,7 @@
                                 <tr class="" style="padding:2rem">
                                     <th class="">#</th>
                                     <th class="">Comanda</th>
-                                    <th class="text-end">Data finalizare documente</th>
+                                    <th class="text-end">Data ultimului mesaj</th>
                                 </tr>
                             </thead>
                             <tbody>
