@@ -323,6 +323,13 @@
             CMR-UL ȘI DOCUMENTELE SPECIFICE AFERENTE COMENZII TREBUIE TRIMISE ÎN FORMAT PDF ÎN ZIUA ÎN CURS AEFECTUĂRII TRANSPORTULUI LA: pod@masecoexpres.net
         </h4>
         <h4 style="text-align:center; color:red">
+            @if ($comanda->transportator_format_documente == "2")
+                DACĂ DOCUMENTELE NU SUNT ÎNCĂRCATE ÎN 24 ORE DE LA FINALIZAREA TRANSPORTULUI,
+                <br>
+                TERMENUL DE PLATA SE PRELUNGEȘTE CU 30 DE ZILE!
+                <br>
+                <br>
+            @endif
             !!!ADRESĂ CORESPONDENȚĂ!!!DOAR CURIERI!!!
             <br>
             STRADA FÂNTAÂNA ALBĂ, NR. 2, BL. 2A, SC. A, ET. 1, AP. 4, 720264 SUCEAVA

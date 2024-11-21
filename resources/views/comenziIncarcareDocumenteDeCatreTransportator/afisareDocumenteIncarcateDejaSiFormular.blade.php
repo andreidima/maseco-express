@@ -181,10 +181,17 @@
                                 <br>
                                 După ce ai încărcat toate documentele necesare, trimite o notificare către Maseco
                                 <br>
-                                <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-transportator-catre-maseco-documente-incarcate" class="btn btn-primary">
-                                    {{-- <span class="badge bg-primary me-1">Notifică Maseco</span> --}}
-                                    Notifică Maseco
-                                </a>
+                                <div id="disableButton">
+                                    <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-transportator-catre-maseco-documente-incarcate" class="btn btn-primary"
+                                        v-on:click="disableButton = true"
+                                        :hidden="disableButton ? true : false"
+                                    >
+                                        Notifică Maseco
+                                    </a>
+                                    <span class="text-center"
+                                        :hidden="disableButton ? false : true"
+                                    >Se trimite notificarea</span>
+                                </div>
                             </div>
                         @endguest
 
@@ -228,11 +235,15 @@
                                                 - va trebui să completezi motivul, iar apoi se trimite automat emailul către Transportator; va avea în continuare acces deplin la platformă, mai puțin la documentele pe care le-ați validat deja că sunt corecte;
                                             </li>
                                         </ul> --}}
-                                        <form method="POST" action="/comanda-documente-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate">
+                                        <form method="POST" action="/comanda-documente-transportator/{{$comanda->cheie_unica}}/trimitere-email-catre-transportator-privind-documente-incarcate" id="disableButton">
                                             @csrf
-                                            <button class="btn btn-sm btn-success py-0 mx-1 text-white rounded" type="submit" name="action" value="emailGoodDocuments">
-                                                Documentele sunt corecte
-                                            </button>
+                                                <button class="btn btn-sm btn-success py-0 mx-1 text-white rounded" type="submit" name="action" value="emailGoodDocuments"
+                                                    v-on:click="disableButton = true" :hidden="disableButton ? true : false">
+                                                    Documentele sunt corecte
+                                                </button>
+                                                <span class="text-center"
+                                                    :hidden="disableButton ? false : true"
+                                                >Se trimite emailul</span>
                                         </form>
                                         <a href="#"
                                             data-bs-toggle="modal"
@@ -376,9 +387,16 @@
                     <textarea class="form-control bg-white {{ $errors->has('mesaj') ? 'is-invalid' : '' }}"
                         name="mesaj" rows="5">{{ old('mesaj') }}</textarea>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer" id="disableButton">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
-                        <button type="submit" class="btn btn-primary text-white" name="action" value="emailBadDocuments">Trimite emailul</button>
+
+                        <button type="submit" class="btn btn-primary text-white" name="action" value="emailBadDocuments"
+                            v-on:click="disableButton = true" :hidden="disableButton ? true : false">
+                            Trimite emailul
+                        </button>
+                        <span class="text-center"
+                            :hidden="disableButton ? false : true"
+                        >Se trimite emailul</span>
                     </div>
                 </form>
             </div>

@@ -791,7 +791,19 @@ const trimitereCodAutentificarePrinEmail = createApp({
         },
     }
 });
-
 if (document.getElementById('trimitereCodAutentificarePrinEmail') != null) {
     trimitereCodAutentificarePrinEmail.mount('#trimitereCodAutentificarePrinEmail');
+}
+
+// Disable button to prevent multiple submissions
+const disableButton = createApp({
+    el: '#app1',
+    data() {
+        return {
+            disableButton: false,
+        }
+    },
+});
+if (document.getElementById('disableButton') != null) {
+    disableButton.mount('#disableButton');
 }

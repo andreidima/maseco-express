@@ -14,6 +14,10 @@
                 Vă rugăm ca după livrarea acestui transport, să încărcați toate documentele aferente în aplicația noastră, în format digital PDF, la adresa
                 <a href="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica) }}">
                     {{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica) }}</a>
+                <br><br>
+                <span style="color: red">
+                    Dacă documentele nu sunt încărcate în 24 ore de la finalizarea transportului, termenul de plata se prelungește cu 30 de zile!
+                </span>
             @endif
 
             {{-- <br><br>
