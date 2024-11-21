@@ -551,30 +551,36 @@
     </div>
 
     {{-- Modalele pentru trimitere comanda catre transportator --}}
-    @foreach ($comenzi as $comanda)
-        <div class="modal fade text-dark" id="trimiteCatreTransportator{{ $comanda->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white" id="exampleModalLabel">Comanda: <b>{{ $comanda->transportator_contract }}</b></h5>
-                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="text-align:left;">
-                    Ești sigur ca vrei să trimiți Comanda către transportator?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+    <div id="disableButton1">
+        @foreach ($comenzi as $comanda)
+            <div class="modal fade text-dark" id="trimiteCatreTransportator{{ $comanda->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title text-white" id="exampleModalLabel">Comanda: <b>{{ $comanda->transportator_contract }}</b></h5>
+                        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="text-align:left;">
+                        Ești sigur ca vrei să trimiți Comanda către transportator?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
 
-                    <a href="{{ $comanda->path() }}/trimite-catre-transportator" class="btn btn-primary flex">
-                            Trimite
-                            <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
-                    </a>
+                        <a href="{{ $comanda->path() }}/trimite-catre-transportator" class="btn btn-primary flex"
+                            v-on:click="disableButton = true" :hidden="disableButton ? true : false">
+                                Trimite
+                                <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                        </a>
+                        <span class="text-center"
+                            :hidden="disableButton ? false : true"
+                        >Se trimite emailul</span>
 
-                </div>
+                    </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    @endforeach
+        @endforeach
+    </div>
 
     {{-- Modalele pentru stergere comanda --}}
     @foreach ($comenzi as $comanda)

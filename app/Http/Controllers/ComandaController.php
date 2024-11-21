@@ -615,7 +615,7 @@ class ComandaController extends Controller
                 'transportator_transportator_id' => 'required',
                 'transportator_procent_tva_id' => '',
                 'transportator_metoda_de_plata_id' => '',
-                'transportator_format_documente' => '',
+                'transportator_format_documente' => 'required',
                 'transportator_tarif_pe_km' => '',
                 'transportator_pret_km_goi' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
                 'transportator_pret_km_plini' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',

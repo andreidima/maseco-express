@@ -301,6 +301,10 @@
                             Preț km plini: {{ $comanda->transportator_km_plini }} km * {{ $comanda->transportator_pret_km_plini }} {{ $comanda->transportatorMoneda->nume ?? '' }} = {{ $comanda->transportator_valoare_km_plini }} {{ $comanda->transportatorMoneda->nume ?? '' }}
                             <br>
                         @endif
+                        @if ($comanda->transportator_pret_autostrada && ($comanda->transportator_pret_autostrada > 0))
+                            Preț autostrada: {{ $comanda->transportator_pret_autostrada }} {{ $comanda->transportatorMoneda->nume ?? '' }}
+                            <br>
+                        @endif
                         MODALITATE DE PLATĂ: {{ $comanda->transportatorMetodaDePlata->nume ?? '' }}
                         <br>
                         TERMEN DE PLATĂ: la {{ $comanda->transportator_zile_scadente }} de zile {{ $comanda->transportatorTermenDePlata->nume ?? '' }}

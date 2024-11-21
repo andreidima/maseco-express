@@ -49,7 +49,8 @@ Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', 
 Route::post('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'salvareDocumente']);
 Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/deschide/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierDeschide']);
 Route::delete('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/sterge/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierSterge']);
-Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/trimitere-email-transportator-catre-maseco-documente-incarcate', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailTransportatorCatreMasecoDocumenteIncarcate']);
+Route::post('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/trimitere-email-transportator-catre-maseco-documente-incarcate', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailTransportatorCatreMasecoDocumenteIncarcate']);
+Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/mesaj-succes-trimitere-notificare', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailTransportatorCatreMasecoDocumenteIncarcateMesajSucces']);
 
 
 Route::redirect('/', '/acasa');

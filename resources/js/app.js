@@ -796,7 +796,7 @@ if (document.getElementById('trimitereCodAutentificarePrinEmail') != null) {
 }
 
 // Disable button to prevent multiple submissions
-const disableButton = createApp({
+const disableButton1 = createApp({
     el: '#app1',
     data() {
         return {
@@ -804,6 +804,32 @@ const disableButton = createApp({
         }
     },
 });
-if (document.getElementById('disableButton') != null) {
-    disableButton.mount('#disableButton');
+if (document.getElementById('disableButton1') != null) {
+    disableButton1.mount('#disableButton1');
+}
+
+// Disable button to prevent multiple submissions
+const disableButton2 = createApp({
+    el: '#app1',
+    data() {
+        return {
+            disableButton: false,
+        }
+    },
+});
+if (document.getElementById('disableButton2') != null) {
+    disableButton2.mount('#disableButton2');
+}
+
+// Disable button to prevent multiple submissions
+const disableButton3 = createApp({
+    el: '#app1',
+    data() {
+        return {
+            disableButton: false,
+        }
+    },
+});
+if (document.getElementById('disableButton3') != null) {
+    disableButton3.mount('#disableButton3');
 }

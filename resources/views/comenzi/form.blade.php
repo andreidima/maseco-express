@@ -161,7 +161,7 @@
                 <small v-else class="ps-3 text-success">*Ați selectat transportatorul</small>
             </div>
             <div class="col-lg-2 mb-4">
-                <label for="transportator_valoare_contract" class="mb-0 ps-3">Valoare contract</label>
+                <label for="transportator_valoare_contract" class="mb-0 ps-3">Valoare contract<span class="text-danger">*</span></label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('transportator_valoare_contract') ? 'is-invalid' : '' }}"
@@ -172,7 +172,7 @@
                 <small for="transportator_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
             </div>
             <div class="col-lg-2 mb-4">
-                <label for="transportator_moneda_id" class="mb-0 ps-3">Monedă</label>
+                <label for="transportator_moneda_id" class="mb-0 ps-3">Monedă<span class="text-danger">*</span></label>
                 <select name="transportator_moneda_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_moneda_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($monede as $moneda)
@@ -217,7 +217,7 @@
                     value="{{ old('transportator_zile_scadente', $comanda->transportator_zile_scadente) }}">
             </div>
             <div class="col-lg-2 mb-4">
-                <label for="transportator_format_documente" class="mb-0 ps-3">Format documente</label>
+                <label for="transportator_format_documente" class="mb-0 ps-3">Format documente<span class="text-danger">*</span></label>
                 <select name="transportator_format_documente" class="form-select bg-white rounded-3 {{ $errors->has('transportator_format_documente') ? 'is-invalid' : '' }}">
                     <option selected></option>
                         <option value="1" {{ intval(old('transportator_format_documente', $comanda->transportator_format_documente === 1 )) ? 'selected' : '' }}>Per post</option>
@@ -442,7 +442,7 @@
                 <small v-else class="ps-3 text-success">*Ați selectat clientul</small>
             </div>
             <div class="col-lg-2 mb-4">
-                <label for="client_valoare_contract_initiala" class="mb-0 ps-0">Valoare contract inițială</label>
+                <label for="client_valoare_contract_initiala" class="mb-0 ps-0 small">Valoare contract inițială<span class="text-danger">*</span></label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract_initiala') ? 'is-invalid' : '' }}"
@@ -453,7 +453,7 @@
                 <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
             </div>
             <div class="col-lg-2 mb-4">
-                <label for="client_valoare_contract" class="mb-0 ps-3">Valoare contract finală</label>
+                <label for="client_valoare_contract" class="mb-0 ps-0 small">Valoare contract finală<span class="text-danger">*</span></label>
                 <input
                     type="text"
                     class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract') ? 'is-invalid' : '' }}"
@@ -463,7 +463,7 @@
                 <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
             </div>
             <div class="col-lg-2 mb-4">
-                <label for="client_moneda_id" class="mb-0 ps-3">Monedă</label>
+                <label for="client_moneda_id" class="mb-0 ps-3">Monedă<span class="text-danger">*</span></label>
                 <select name="client_moneda_id" class="form-select bg-white rounded-3 {{ $errors->has('client_moneda_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($monede as $moneda)

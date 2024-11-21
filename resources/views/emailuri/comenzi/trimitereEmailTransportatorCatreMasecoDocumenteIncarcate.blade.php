@@ -8,6 +8,8 @@
                 Bună ziua,
                 <br><br>
                 {{ $comanda->transportator->nume ?? 'Transportatorul' }} a încărcat documentele la comanda {{ $comanda->transportator_contract }}.
+                <br><br>
+                Acest mesaj a fost trimis în același timp către <b>Maseco Expres</b>, dar și către <b>{{ $comanda->transportator->nume ?? 'transportator' }}</b>, pentru a avea confirmarea trimiterii.
             @elseif ($tipEmail == 'MasecoCatreTransportatorGoodDocuments')
                 Bună ziua, <b>{{ $comanda->transportator->nume ?? '' }}</b>,
                 <br><br>

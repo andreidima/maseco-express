@@ -200,7 +200,7 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
     {
         if ($comanda = Comanda::where('cheie_unica', $cheie_unica)->first()) {
             // Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
-            Mail::to('pod@masecoexpres.net')->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
+            Mail::to(['pod@masecoexpres.net', $comanda->transportator->email])->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
 
             $emailTrimis = new ComandaFisierEmail;
             $emailTrimis->comanda_id = $comanda->id;
@@ -208,7 +208,16 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
             $emailTrimis->email = 'pod@masecoexpres.net';
             $emailTrimis->save();
 
-            return back()->with('status', 'Notificarea către Maseco a fost trimisă cu succes! Mulțumim!');
+            // return back()->with('status', 'Notificarea către Maseco a fost trimisă cu succes! Mulțumim!');
+            return redirect('comanda-incarcare-documente-de-catre-transportator/' . $cheie_unica . '/mesaj-succes-trimitere-notificare')->with('status', 'Mulțumim, notificarea către Maseco a fost transmisă cu success! O copie a notificării a fost trimisă și către adresa ta de email pentru a o avea ca și confirmare.');
+        }
+        abort(404, 'Page not found');
+    }
+
+    public function trimitereEmailTransportatorCatreMasecoDocumenteIncarcateMesajSucces($cheie_unica)
+    {
+        if ($comanda = Comanda::where('cheie_unica', $cheie_unica)->first()) {
+            return view('comenziIncarcareDocumenteDeCatreTransportator.mesajSuccesTrimitereNotificare', compact('comanda'));
         }
         abort(404, 'Page not found');
     }
