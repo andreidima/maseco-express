@@ -121,9 +121,11 @@
                             <br>
                             Data (zi/luna/an): <b>{{ $factura->data ? Carbon::parse($factura->data)->isoFormat("DD/MM/YYYY") : '' }}</b>
                             <br>
-                            Cota TVA: {{ $factura->procentTva->nume }}%
-                            @if ($factura->procentTva->nume === "0")
-                                SDD art. 294 - conform Cod Fiscal
+                            Cota TVA: {{ $factura->procentTva->nume ?? '' }}%
+                            @if (isset($factura->procentTva->nume))
+                                @if ($factura->procentTva->nume === "0")
+                                    SDD art. 294 - conform Cod Fiscal
+                                @endif
                             @endif
                         </div>
                         <br>
