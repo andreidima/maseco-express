@@ -93,46 +93,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-5">
-            <div class="card">
-                <div class="card-header text-center culoare2">
-                    Comenzi cu documente complete din ultimele 24 de ore
-                </div>
-                <div class="card-body text-center">
-                    @php
-                        $comenziCuEmailuri = Comanda::select('id', 'transportator_contract')
-                            ->with('ultimulEmailPentruFisiereIncarcateDeTransportator:id,comanda_id,created_at')
-                            ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator')->latest()->get();
-                            // dd($comenziCuEmailuri);
-                    @endphp
-                    {{ $comenziCuEmailuri->where('ultimulEmailPentruFisiereIncarcateDeTransportator.created_at', '>', Carbon::now()->subDay())->count() }}
-                    {{-- @foreach ($comenziCuEmailuri->where('ultimulEmailPentruFisiereIncarcateDeTransportator.created_at', '>', Carbon::now()->subDay()) as $comanda)
-                        <a href="/comanda-documente-transportator/{{ $comanda->cheie_unica }}">
-                            {{ $comanda->transportator_contract }}</a>
-                            {{ $comanda->id }}</a>
-                        @if(!$loop->last)
-                            |
-                        @endif
-                    @endforeach --}}
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-5">
-            <div class="card">
-                <div class="card-header text-center culoare2">
-                    Comenzi cu documente încărcate de mai mult de 24 de ore și nevalidate încă
-                </div>
-                <div class="card-body text-center">
-                    @foreach (Comanda::select('id', 'transportator_contract', 'cheie_unica')->whereHas('fisiereIncarcateDeTransportatorIncaNevalidateDe24Ore')->latest()->get() as $comanda)
-                        <a href="/comanda-documente-transportator/{{ $comanda->cheie_unica }}">
-                            {{ $comanda->transportator_contract }}</a>
-                        @if(!$loop->last)
-                            |
-                        @endif
-                    @endforeach
-                </div>
-            </div>
-        </div>
     </div>
 
 
