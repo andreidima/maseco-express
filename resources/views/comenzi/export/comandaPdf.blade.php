@@ -323,8 +323,8 @@
             ATENȚIE!!! ACEASTĂ PAGINĂ NU SE ÎNMÂNEAZĂ ȘOFERULUI!!!
             <br>
             CONTRAVALOAREA FACTURII DE TRANSPORT VA FI ACHITATĂ CU CONDIȚIA RECEPȚIONĂRII FACTURII DE TRANSPORT ȘI 2 CMR-URI ÎN ORIGINAL, PLUS AVIZELE AFERENTE CURSEI, DACĂ ESTE NECESAR.
-            <br>
-            CMR-UL ȘI DOCUMENTELE SPECIFICE AFERENTE COMENZII TREBUIE TRIMISE ÎN FORMAT PDF ÎN ZIUA ÎN CURS AEFECTUĂRII TRANSPORTULUI LA: pod@masecoexpres.net
+            {{-- <br>
+            CMR-UL ȘI DOCUMENTELE SPECIFICE AFERENTE COMENZII TREBUIE TRIMISE ÎN FORMAT PDF ÎN ZIUA ÎN CURS AEFECTUĂRII TRANSPORTULUI LA: pod@masecoexpres.net --}}
         </h4>
         <h4 style="text-align:center; color:red">
             @if ($comanda->transportator_format_documente == "2")
@@ -356,7 +356,8 @@
             <li>Cărăușul se va asigura că la momentul încărcării mărfurile sunt integrale, nedeteriorate, ambalate și asigurate corespunzător. Orice lipsuri ori deficiențe în privința mărfurilor, neanunțate in momentul încărcării, vor fi considerate ca fiind produse pe timpul transportului, culpa revenind exclusiv Cărăușului.</li>
             <li>Imediat după încărcarea mărfurilor, Cărăușul este obligat sa comunice Expeditorului fotografii ale mărfurilor încărcate în autocamion și copii ale documentele de transport. Cărăușul nu va părăsi locul de încărcare, fără acordul scris din partea Expeditorului.</li>
             <li>Cărăușul are obligația să asigure supravegherea, conservarea, paza și integritatea bunurilor pe tot parcursul transportului, având pe deplin responsabilitatea oricăror lipsuri sau deficiențe provocate.</li>
-            <li>Imediat după descărcarea mărfurilor, Cărăușul va comunica Expeditorului copii ale CMR, semnat si acceptat fără obiecțiuni, prin mijloacele de comunicare electronice utilizate de părți și la adresa de email. pod@masecoexpres.net, sub sancțiunea amânării plății cursei cu până la 30 de zile. Cărăușul nu va părăsi locul de descărcare decât după primirea acceptului scris din partea Expeditorului.</li>
+            {{-- <li>Imediat după descărcarea mărfurilor, Cărăușul va comunica Expeditorului copii ale CMR, semnat si acceptat fără obiecțiuni, prin mijloacele de comunicare electronice utilizate de părți și la adresa de email pod@masecoexpres.net, sub sancțiunea amânării plății cursei cu până la 30 de zile. Cărăușul nu va părăsi locul de descărcare decât după primirea acceptului scris din partea Expeditorului.</li> --}}
+            <li>Imediat după descărcarea mărfurilor, Cărăușul va comunica Expeditorului copii ale CMR, semnat si acceptat fără obiecțiuni, prin mijloacele de comunicare electronice utilizate de părți și încărcarea documentelor aferent cursei în linkul primit pe adresa transportatorului de mail, sub sancțiunea amânării plății cursei cu până la 30 de zile. Cărăușul nu va părăsi locul de descărcare decât după primirea acceptului scris din partea Expeditorului.</li>
             <li>Întârzierea efectuării transportului de Cărăuș, poate atrage plata de daune interese de 100 euro pentru fiecare oră de întârziere, sau în cuantum egal cu cele aplicate Expeditorului de către beneficiarului transportului, dacă au fost reclamate și depășesc această valoare.</li>
             <li>Cărăușul declară că înțelege și acceptă că pot exista eventuale întârzieri (de câteva ore) la încărcare și/sau la descărcare mărfurilor.</li>
             <li>În cazul în care, prin acordul părților încărcarea și/sau descărcarea mărfurilor se va face de către Transportator, manual, Cărăușul are obligația de a comunica imediat Expeditorului fotografii doveditoare.</li>
@@ -366,6 +367,7 @@
             <li>Dacă părțile convin asupra prețului transportului în EUR, plățile se vor efectua la cursul BNR din ziua emiterii facturii. Cărăușul are obligația sa menționeze în cuprinsul facturilor contravaloarea serviciilor în ambele valute (RON si EURO). Lipsa acestor informații, poate atrage refuzul plății facturii până la remediere.</li>
             <li>Părțile se obligă să respecte legislația cu privire la protecția, confidențialitatea și prelucrarea datelor cu caracter personal, respectiv Regulamentul UE 679/2016, Legea nr. 190/2018 și orice alte acte normative în domeniu în vigoare.</li>
             <li>Pentru cursele la care clientul nostru ne obligă să folosim aplicatia Zekju, șoferul are obligația la primirea link-ului de la noi să acceseze acel link urmând pașii. Nefolosirea link-ului gps duce la o penalitate de 50e.</li>
+            <li>Pentru cursele cu vamă aferent țărilor care nu fac parte din UE tranzitul se calculează fară timpi de așteptare în vamă.</li>
 
             {{-- <li>Aceasta comanda de transport este sustinuta de Conventiile CMR si TIR, pentru transportul specificat in continutul sau.</li>
             <li>Prezentul contract este considerat acceptat de ambele parti, pentru suma convenita si trebuie executat conform cerintelor mentionate.</li>
