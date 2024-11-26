@@ -144,7 +144,8 @@
                                                 $durata = Carbon::parse($ultimaDescarcare->pivot->durata);
                                                 $dataUltimaDescarcarePlusDurata = Carbon::parse($ultimaDescarcare->pivot->data_ora)->addHours($durata->hour)->addMinutes($durata->minute);
 
-                                                $diferenta_fus_orar = 3-substr($ultimaDescarcare->tara->gmt_offset, 0, -3);
+                                                // echo $ultimaDescarcare->tara->gmt_offset . '<br><br>';
+                                                $diferenta_fus_orar = 3-substr(($ultimaDescarcare->tara->gmt_offset ?? '+00:00'), 0, -3);
                                                 $dataUltimaDescarcarePlusDurataPlusGmtOffset = $dataUltimaDescarcarePlusDurata->addHours($diferenta_fus_orar);
                                             @endphp
                                             {{-- {{ Carbon::parse($ultimaDescarcare->pivot->data_ora) }}
@@ -155,10 +156,12 @@
                                             <br>
                                             {{ $dataUltimaDescarcarePlusDurata }}
                                             <br> --}}
-                                            @if ($dataUltimaDescarcarePlusDurataPlusGmtOffset->lt(Carbon::now()->subDay()))
-                                                @php
-                                                    $dataUltimaDescarcareDeAfisat = $dataUltimaDescarcarePlusDurataPlusGmtOffset;
-                                                @endphp
+                                            @if (isset($dataUltimaDescarcarePlusDurataPlusGmtOffset))
+                                                @if ($dataUltimaDescarcarePlusDurataPlusGmtOffset->lt(Carbon::now()->subDay()))
+                                                    @php
+                                                        $dataUltimaDescarcareDeAfisat = $dataUltimaDescarcarePlusDurataPlusGmtOffset;
+                                                    @endphp
+                                                @endif
                                             @endif
                                         @endif
                                     @elseif (Carbon::parse($comanda->data_creare)->lt(Carbon::now()->subDay()))
