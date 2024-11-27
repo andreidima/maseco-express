@@ -25,7 +25,7 @@
                             <input type="text" class="form-control rounded-3" id="searchAn" name="searchAn" placeholder="An" value="{{ $searchAn }}">
                         </div> --}}
 
-                        <div class="col-lg-8 d-flex align-items-center" id="datePicker">
+                        <div class="col-lg-6 d-flex align-items-center" id="datePicker">
                             <label for="searchInterval" class="pe-1">Interval:</label>
                             <vue-datepicker-next
                                 data-veche="{{ $searchInterval }}"
