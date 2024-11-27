@@ -178,7 +178,7 @@
                             <th class="">Încărcări</th>
                             <th class="">Descărcări</th>
                             <th class="">Nr. auto</th>
-                            <th class="text-center small">Status</th>
+                            <th class="text-center small">Status<br>FrmDoc</th>
                             <th class="text-center small">Contract</th>
                             {{-- <th class="text-center small">Trimite Ctr.<br>pe email</th> --}}
                             <th class="text-center">Mesaje<br>trimise</th>
@@ -230,10 +230,10 @@
                                     {{ $comanda->camion->numar_inmatriculare ?? ''}}
                                 </td>
                                 <td>
-                                    <div class="d-flex justify-content-center">
+                                    <div class="text-center">
                                         {{-- <a data-bs-toggle="collapse" href="#status{{ $comanda->id }}" role="button" aria-expanded="false" aria-controls="Status"> --}}
                                             {{-- <span class="badge bg-primary" @click="setComandaId({{ $comanda->id}})"> --}}
-                                            <span class="badge bg-info"
+                                            <span class="badge bg-info mb-1"
                                                 v-on:click="
                                                     if (comandaId === {{$comanda->id}}){
                                                         comandaId = '';
@@ -250,6 +250,12 @@
                                                 <i class="fa-solid fa-arrows-up-down" style=""></i>
                                             </span>
                                         {{-- </a> --}}
+                                        <br>
+                                        @if ($comanda->transportator_format_documente == "1")
+                                            <i class="fa-solid fa-envelope text-danger" title="Documentele se trimit prin posta"></i>
+                                        @elseif ($comanda->transportator_format_documente == "2")
+                                            <i class="fa-solid fa-at text-success" title="Documentele se trimit digital"></i>
+                                        @endif
                                     </div>
                                 </td>
                                 <td>

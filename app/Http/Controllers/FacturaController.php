@@ -469,10 +469,13 @@ class FacturaController extends Controller
     // Zona doar pentru mementouri facturi, create din pagina de comenzi, eventual pana este gata modulul de facturare, daca se va mai face
     public function createOrUpdateMementoFactura(Request $request, Comanda $comanda)
     {
-        // Se verifica intai daca clientul acestei comenzi are email atasat, pentru ca altfel nu are unde sa se trimita comanda
-        if (!$comanda->client->email_factura){
-            return back()->with('error', 'Nu se poate crea memento pentru factură pentru că lipsește emailul de facturare al clientului. Adăugați mai întâi emailul de facturare în fișa clientului.');
-        }
+        // if (!$comanda->client()->exists()){
+        //     return back()->with('error', 'Nu se poate gestiona factura pentru că nu există încă un client adăugat la comanda.');
+        // }
+        // Se verifica daca clientul acestei comenzi are email atasat, pentru ca altfel nu are unde sa se trimita comanda
+        // if (!$comanda->client->email_factura){
+        //     return back()->with('error', 'Nu se poate gestiona factura pentru că lipsește emailul de facturare al clientului. Adăugați mai întâi emailul de facturare în fișa clientului.');
+        // }
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
@@ -493,6 +496,7 @@ class FacturaController extends Controller
 
         return view('facturi.doarPentruMemento.createOrEditMementoFactura', compact('limbi', 'factura'));
     }
+
     public function storeOrUpdateMementoFactura(Request $request, Factura $factura)
     {
         $validatedRequest = $request->validate(
@@ -503,8 +507,8 @@ class FacturaController extends Controller
                 'seria' => 'nullable|max:5',
                 'numar' => 'required|numeric|min:1',
                 'data' => 'required',
-                'zile_scadente' => 'required|numeric|between:1,100',
-                'alerte_scadenta' => ['required',
+                'zile_scadente' => 'nullable|numeric|between:1,100',
+                'alerte_scadenta' => ['nullable',
                     function ($attribute, $value, $fail) use ($request) {
                         if ($value){
                             $zileInainte = preg_split ("/\,/", $value);
@@ -519,13 +523,13 @@ class FacturaController extends Controller
                             }
                         }
                     }],
+                'data_plata_transportator' => 'nullable',
             ]
         );
 
         $factura->update($validatedRequest);
 
         // Se salveaza si in comanda client_contract
-        // dd($factura->client_contract, $factura->comanda);
         if ($factura->client_contract !== $factura->comanda->client_contract) {
             $factura->comanda->update(['client_contract' => $factura->client_contract]);
         }

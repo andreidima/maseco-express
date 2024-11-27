@@ -151,6 +151,12 @@
                                         <i class="fa-solid fa-file me-1"></i>Documente transportatori
                                     </a>
                                 </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/intermedieri">
+                                        <i class="fa-solid fa-file me-1"></i>Intermedieri
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item me-3 dropdown">
@@ -180,7 +186,7 @@
                                         <i class="fa-solid fa-chart-pie me-1"></i>Rapoarte
                                     </a>
                                 </li> --}}
-                                <li><hr class="dropdown-divider"></li>
+                                {{-- <li><hr class="dropdown-divider"></li> --}}
                                 <li>
                                     <a class="dropdown-item" href="/statii-peco">
                                         <i class="fa-solid fa-gas-pump me-1"></i>Stații peco

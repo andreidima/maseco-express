@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Comanda extends Model
 {
@@ -207,4 +208,14 @@ class Comanda extends Model
     // {
     //     return $this->hasOne(ComandaFisierEmail::class, 'comanda_id')->latest();
     // }
+
+    /**
+     * Get the intermediere associated with the Comanda
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
+    public function intermediere(): HasOne
+    {
+        return $this->hasOne(Intermediere::class, 'comanda_id');
+    }
 }

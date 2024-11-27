@@ -20,6 +20,7 @@ use App\Http\Controllers\RaportController;
 use App\Http\Controllers\DiverseTesteController;
 use App\Http\Controllers\ComandaIncarcareDocumenteDeCatreTransportatorController;
 use App\Http\Controllers\StatiePecoController;
+use App\Http\Controllers\IntermediereController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -120,6 +121,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/comanda-documente-transportator/{cheie_unica}/trimitere-email-catre-transportator-privind-documente-incarcate', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailCatreTransportatorPrivindDocumenteIncarcate']);
 
     Route::get('/statii-peco', [StatiePecoController::class, 'index']);
+
+    Route::resource('/intermedieri', IntermediereController::class)->parameters(['intermedieri' => 'intermediere']);
 
     // Clear application cache:
     Route::get('/clear-all', function() {

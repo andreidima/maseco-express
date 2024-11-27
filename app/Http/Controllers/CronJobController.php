@@ -255,6 +255,8 @@ class CronJobController extends Controller
 
 
         $facturi = Factura::select('id', 'data', 'zile_scadente', 'alerte_scadenta')
+            ->whereNotNull('zile_scadente')
+            ->whereNotNull('alerte_scadenta')
             ->whereDate('data', '>', Carbon::now()->subDays(100))
             // ->where(function ($query) {  // not invoices that  allready received the alert today
             //     $query->whereNull('ultima_alerta_trimisa')
@@ -262,7 +264,7 @@ class CronJobController extends Controller
             // })
             ->get();
 
-// dd($facturi->count());
+        // dd($facturi->count());
         $arrayIdFacturiDeTrimisMesaj = [];
         foreach ($facturi as $factura){
             if ($factura->zile_scadente){ // daca exista zile scadente
@@ -284,7 +286,7 @@ class CronJobController extends Controller
                 }
             }
         }
-// dd($arrayIdFacturiDeTrimisMesaj);
+        // dd($arrayIdFacturiDeTrimisMesaj);
         $facturiDeTrimisMesaj = Factura::with('comanda.client')->whereIn('id', $arrayIdFacturiDeTrimisMesaj)->get();
 
         // Daca nu este nici un memento de trimis pentru ziua curenta, se termina functia
@@ -292,7 +294,7 @@ class CronJobController extends Controller
             return;
         }
 
-// dd($facturiDeTrimisMesaj->count(), $facturiDeTrimisMesaj);
+        // dd($facturiDeTrimisMesaj->count(), $facturiDeTrimisMesaj);
 
         // Trimitere email
         $subiectEmailCatreMaseco = 'FACTURI SCADENTE - ALERTE';
