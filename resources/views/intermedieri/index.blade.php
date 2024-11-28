@@ -107,11 +107,11 @@
                                     {{ $comanda->transportator_contract }}
                                 </td>
                                 <td class="fs-6">
-                                    {{ $comanda->transportator->nume ?? '' }}
-                                </td>
-                                <td class="fs-6">
                                     {{-- {{ $comanda->client->nume ?? '' }} --}}
                                     {{ $comanda->factura->client_nume ?? '' }}
+                                </td>
+                                <td class="fs-6">
+                                    {{ $comanda->transportator->nume ?? '' }}
                                 </td>
                                 <td class="fs-6 text-end">
                                     {{ $comanda->client_valoare_contract_initiala }} {{ $comanda->clientMoneda->nume ?? null }}
@@ -174,7 +174,7 @@
                                 </td>
                                 <td class="fs-6">
                                     <div class="d-flex justify-content-end">
-                                        <div class="mb-1 me-1">
+                                        <div class="mb-1">
                                             @if (!$comanda->intermediere)
                                                 <a href="{{ url()->current() }}/adauga?comandaId={{ $comanda->id }}" class="flex">
                                                     <span class="badge bg-primary">Modifică</span>
