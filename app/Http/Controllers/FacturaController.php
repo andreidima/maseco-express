@@ -501,6 +501,7 @@ class FacturaController extends Controller
     {
         $validatedRequest = $request->validate(
             [
+                'client_nume' => 'required|max:255',
                 'client_email' => 'required|email:rfc,dns',
                 'client_contract' => 'required|max:255',
                 'client_limba_id' => 'required',
