@@ -84,7 +84,7 @@
                             <th class="fs-6 text-end">Job value</th>
                             {{-- <th class="text-end">Prima încărcare</th> --}}
                             <th class="fs-6 text-center">Dată creare</th>
-                            <th class="fs-6">Contract client</th>
+                            <th class="fs-6 text-center">Contract client</th>
                             <th class="fs-6">Frm<br>Doc</th>
                             <th class="fs-6">Nr. factură</th>
                             <th class="fs-6">Data factură</th>
@@ -134,7 +134,7 @@
                                 <td class="fs-6 text-center">
                                     {{ $comanda->data_creare ? Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY') : null }}
                                 </td>
-                                <td class="fs-6">
+                                <td class="fs-6 text-center">
                                     {{ $comanda->factura->client_contract ?? '' }}
                                 </td>
                                 <td class="fs-6">
