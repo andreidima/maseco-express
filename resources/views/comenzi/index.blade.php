@@ -21,13 +21,13 @@
                 <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form d-flex justify-content-center">
-                        <div class="col-lg-2">
+                        <div class="col-lg-4">
                             <input type="text" class="form-control rounded-3" id="searchTransportatorContract" name="searchTransportatorContract" placeholder="Comandă MASECO" value="{{ $searchTransportatorContract }}">
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-4">
                             <input type="text" class="form-control rounded-3" id="searchClientContract" name="searchClientContract" placeholder="Comandă CLIENT" value="{{ $searchClientContract }}">
                         </div>
-                        <div class="col-lg-3 d-flex justify-content-center align-items-center">
+                        <div class="col-lg-4 d-flex justify-content-center align-items-center">
                             <label for="searchDataCreare" class="mb-0 align-self-center me-1"><small>Dată creare:</small></label>
                             <vue-datepicker-next
                                 data-veche="{{ $searchDataCreare }}"
@@ -39,7 +39,7 @@
                                 style="margin-right: 20px;"
                             ></vue-datepicker-next>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-4">
                             <select name="searchStare" id="searchStare" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
                                 <option value="" selected>Selectează Stare</option>
                                 <option value="1" {{ intval($searchStare) === 1 ? 'selected' : '' }}>Deschise</option>
@@ -47,11 +47,19 @@
                                 <option value="3" {{ intval($searchStare) === 3 ? 'selected' : '' }}>Anulate</option>
                             </select>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-4">
                             <select name="searchUser" id="searchUser" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
                                 <option value="" selected>Selectează Utilizator</option>
                                 @foreach ($useri as $user)
                                     <option value="{{ $user->id }}" {{ intval($searchUser) === $user->id ? 'selected' : ''  }}>{{ $user->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-lg-4">
+                            <select name="searchOperatorUser" id="searchOperatorUser" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
+                                <option value="" selected>Selectează Operator</option>
+                                @foreach ($useri as $user)
+                                    <option value="{{ $user->id }}" {{ intval($searchOperatorUser) === $user->id ? 'selected' : ''  }}>{{ $user->name }}</option>
                                 @endforeach
                             </select>
                         </div>

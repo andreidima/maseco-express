@@ -41,6 +41,7 @@ class ComandaController extends Controller
         $searchClientContract = $request->searchClientContract;
         $searchStare = $request->searchStare;
         $searchUser = $request->searchUser;
+        $searchOperatorUser = $request->searchOperatorUser;
         $searchTransportatorId = $request->searchTransportatorId;
         $searchClientId = $request->searchClientId;
         $searchNrAuto = $request->searchNrAuto;
@@ -66,6 +67,11 @@ class ComandaController extends Controller
                     $query->where('id', $searchUser);
                 });
             })
+            ->when($searchOperatorUser, function ($query, $searchOperatorUser) {
+                return $query->whereHas('operator', function ($query) use ($searchOperatorUser) {
+                    $query->where('operator_user_id', $searchOperatorUser);
+                });
+            })
             ->when($searchTransportatorId, function ($query, $searchTransportatorId) {
                 return $query->whereHas('transportator', function ($query) use ($searchTransportatorId) {
                     $query->where('id', $searchTransportatorId);
@@ -89,7 +95,7 @@ class ComandaController extends Controller
         $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
 
-        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'useri', 'searchDataCreare', 'searchTransportatorContract', 'searchClientContract', 'searchStare', 'searchUser', 'searchTransportatorId', 'searchClientId', 'searchNrAuto'));
+        return view('comenzi.index', compact('comenzi', 'firmeClienti', 'firmeTransportatori', 'useri', 'searchDataCreare', 'searchTransportatorContract', 'searchClientContract', 'searchStare', 'searchUser', 'searchOperatorUser', 'searchTransportatorId', 'searchClientId', 'searchNrAuto'));
     }
 
     /**
