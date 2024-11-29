@@ -2,6 +2,7 @@
 
 @php
     use \Carbon\Carbon;
+    $azi = Carbon::today();
 @endphp
 
 @section('content')
@@ -72,7 +73,7 @@
             @include ('errors')
 
             <div class="table-responsive rounded">
-                <table class="table table-sm table-striped table-hover rounded" style="font-size: 0.8rem !important;">
+                <table class="table table-sm table-hover rounded" style="font-size: 0.8rem !important;">
                     <thead class="text-white rounded culoare2">
                         <tr class="" style="padding:2rem">
                             <th class="fs-6">#</th>
@@ -86,20 +87,33 @@
                             <th class="fs-6 text-center">Dată creare</th>
                             <th class="fs-6 text-center">Contract client</th>
                             <th class="fs-6">Frm<br>Doc</th>
-                            <th class="fs-6">Nr. factură</th>
+                            <th class="fs-6">Factură Maseco</th>
+                            <th class="fs-6">Factură Transp.</th>
                             <th class="fs-6">Data factură</th>
-                            <th class="fs-6">Aplicație</th>
                             <th class="fs-6">Achitat</th>
                             <th class="fs-6">Observații</th>
                             <th class="fs-6">Număr mașină</th>
                             <th class="fs-6">Motis</th>
                             <th class="fs-6">DKV</th>
+                            <th class="fs-6">Astra</th>
                             <th class="fs-6 text-end">Acțiuni</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($comenzi as $comanda)
-                            <tr>
+                            @if (
+                                    // Documents are per post and at leat 1 is uploaded by an operator
+                                    (($comanda->transportator_format_documente == "1") && ($comanda->fisiereTransportatorIncarcateDeOperator->count() > 0))
+                                    ||
+                                    // Documents are digital and the operator sent the last email that they are good
+                                    (($comanda->transportator_format_documente == "2") && (($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator->tip ?? null) == "2"))
+                                )
+                                <tr style="background-color: rgb(171, 196, 255)">
+                            @elseif (isset($comanda->factura->data_plata_transportator) && ($comanda->factura->data_plata_transportator <= $azi))
+                                <tr style="background-color: rgb(174, 255, 171)">
+                            @else
+                                <tr>
+                            @endif
                                 <td class="fs-6" align="">
                                     {{ ($comenzi ->currentpage()-1) * $comenzi ->perpage() + $loop->index + 1 }}
                                 </td>
@@ -122,15 +136,6 @@
                                 <td class="fs-6 text-end">
                                     {{ $comanda->transportator_valoare_contract }} {{ $comanda->transportatorMoneda->nume ?? null }}
                                 </td>
-                                {{-- <td class="text-end">
-                                    @foreach ($comanda->locuriOperareIncarcari as $locOperareIncarcare)
-                                        @if($loop->first)
-                                            <p class="mb-0" style="display: inline-block">
-                                                {{ $locOperareIncarcare->pivot->data_ora ? Carbon::parse($locOperareIncarcare->pivot->data_ora)->isoFormat('DD.MM.YYYY HH:mm') : '' }}
-                                            </p>
-                                        @endif
-                                    @endforeach
-                                </td> --}}
                                 <td class="fs-6 text-center">
                                     {{ $comanda->data_creare ? Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY') : null }}
                                 </td>
@@ -148,12 +153,12 @@
                                     {{ $comanda->factura->seria ?? null }} {{ $comanda->factura->numar ?? null }}
                                 </td>
                                 <td class="fs-6">
+                                    {{ $comanda->factura->factura_transportator ?? null }}
+                                </td>
+                                <td class="fs-6">
                                     @if ($comanda->factura)
                                         {{ $comanda->factura->data ? Carbon::parse($comanda->factura->data)->isoFormat('DD.MM.YYYY') : null }}
                                     @endif
-                                </td>
-                                <td class="fs-6">
-                                    {{ $comanda->intermediere->aplicatie ?? null }}
                                 </td>
                                 <td class="fs-6">
                                     @if ($comanda->factura)
@@ -173,6 +178,9 @@
                                     {{ $comanda->intermediere->dkv ?? null }}
                                 </td>
                                 <td class="fs-6">
+                                    {{ $comanda->intermediere->astra ?? null }}
+                                </td>
+                                <td class="fs-6">
                                     <div class="d-flex justify-content-end">
                                         <div class="mb-1">
                                             @if (!$comanda->intermediere)
@@ -190,6 +198,28 @@
                             </tr>
                         @empty
                         @endforelse
+                            <tr class="" style="padding:2rem">
+                                <th class="fs-6"></th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6 text-end">{{ $comenzi->sum('client_valoare_contract_initiala') }} {{ $comanda->clientMoneda->nume ?? null }}</th>
+                                <th class="fs-6 text-end">{{ $comenzi->sum('client_valoare_contract') }} {{ $comanda->clientMoneda->nume ?? null }}</th>
+                                <th class="fs-6 text-end">{{ $comenzi->sum('transportator_valoare_contract') }} {{ $comanda->transportatorMoneda->nume ?? null }}</th>
+                                <th class="fs-6 text-end"></th>
+                                {{-- <th class="text-end">Prima încărcare</th> --}}
+                                <th class="fs-6 text-center"></th>
+                                <th class="fs-6 text-center"></th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->motis ?? 0) }}</th>
+                                <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->dkv ?? 0) }}</th>
+                                <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->astra ?? 0) }}</th>
+                            </tr>
                         </tbody>
                 </table>
             </div>

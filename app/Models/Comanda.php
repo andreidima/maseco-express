@@ -193,6 +193,11 @@ class Comanda extends Model
             ->where('created_at', '<', Carbon::now()->subDay());
     }
 
+    public function fisiereTransportatorIncarcateDeOperator()
+    {
+        return $this->fisiereIncarcateDeTransportator()->whereNotNull('user_id');
+    }
+
     public function emailuriPentruFisiereIncarcateDeTransportator()
     {
         return $this->hasMany(ComandaFisierEmail::class, 'comanda_id')->latest();

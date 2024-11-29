@@ -25,7 +25,10 @@ class IntermediereController extends Controller
         // $searchAn = $request->searchAn ?? Carbon::now()->year;
         $searchInterval = $request->searchInterval;
 
-        $comenzi = Comanda::with('intermediere', 'user:id,name', 'client:id,nume', 'transportator:id,nume', 'camion:id,numar_inmatriculare', 'clientMoneda', 'transportatorMoneda', 'locuriOperareIncarcari', 'factura:id,client_nume,client_contract,seria,numar,data,data_plata_transportator')
+        $comenzi = Comanda::with('intermediere', 'user:id,name', 'client:id,nume', 'transportator:id,nume', 'camion:id,numar_inmatriculare', 'clientMoneda', 'transportatorMoneda',
+                                    'factura:id,client_nume,client_contract,seria,numar,data,factura_transportator,data_plata_transportator',
+                                    'ultimulEmailPentruFisiereIncarcateDeTransportator:id,comanda_id,tip', 'fisiereTransportatorIncarcateDeOperator'
+                                )
             ->when($searchUser, function ($query, $searchUser) {
                 return $query->whereHas('user', function ($query) use ($searchUser) {
                     $query->where('id', $searchUser);
@@ -42,6 +45,7 @@ class IntermediereController extends Controller
             ->when($searchInterval, function ($query, $searchInterval) {
                 return $query->whereBetween('data_creare', [strtok($searchInterval, ','), strtok( '' )]);
             })
+            // ->sum('intermediere.motis')
             // ->latest()
             ->orderBy('data_creare')
             ->simplePaginate(100);
@@ -115,10 +119,10 @@ class IntermediereController extends Controller
 
         return $request->validate(
             [
-                'aplicatie' => 'nullable|max:255',
                 'observatii' => 'nullable|max:2000',
-                'motis' => 'nullable|max:255',
-                'dkv' => 'nullable|max:255',
+                'motis' => 'nullable|numeric|min:-9999999|max:9999999',
+                'dkv' => 'nullable|numeric|min:-9999999|max:9999999',
+                'astra' => 'nullable|numeric|min:-9999999|max:9999999',
             ],
             [
                 // 'tara_id.required' => 'Câmpul țara este obligatoriu'

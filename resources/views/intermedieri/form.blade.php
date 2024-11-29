@@ -4,15 +4,6 @@
     <div class="col-lg-12 px-4 py-2 mb-0">
         <div class="row mb-0">
             <div class="col-lg-12 mb-4">
-                <label for="aplicatie" class="mb-0 ps-3">Aplicație</label>
-                <input
-                    type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('aplicatie') ? 'is-invalid' : '' }}"
-                    name="aplicatie"
-                    value="{{ old('aplicatie', $intermediere->aplicatie) }}"
-                    required>
-            </div>
-            <div class="col-lg-12 mb-4">
                 <label for="observatii" class="mb-0 ps-3">Observații</label>
                 <input
                     type="text"
@@ -37,6 +28,15 @@
                     class="form-control bg-white rounded-3 {{ $errors->has('dkv') ? 'is-invalid' : '' }}"
                     name="dkv"
                     value="{{ old('dkv', $intermediere->dkv) }}"
+                    required>
+            </div>
+            <div class="col-lg-12 mb-4">
+                <label for="astra" class="mb-0 ps-3">Astra</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('astra') ? 'is-invalid' : '' }}"
+                    name="astra"
+                    value="{{ old('astra', $intermediere->astra) }}"
                     required>
             </div>
         </div>

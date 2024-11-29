@@ -96,7 +96,7 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-4 mb-4">
-                                        <label for="client_email" class="mb-0 ps-3">Email facturare<span class="text-danger">*</span></label>
+                                        <label for="client_email" class="mb-0 ps-3">Email facturare</label>
                                         <input
                                             type="text"
                                             class="form-control bg-white rounded-3 {{ $errors->has('client_email') ? 'is-invalid' : '' }}"
@@ -121,7 +121,22 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-lg-12 mb-4 d-flex align-items-center">
+                                    <div class="col-lg-12 mb-4">
+                                        <hr class="rounded" style="border: 3px black solid;">
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-lg-2 mb-4">
+                                        <label for="factura_transportator" class="mb-0 ps-3">Factură transportator</label>
+                                        <input
+                                            type="text"
+                                            class="form-control bg-white rounded-3 {{ $errors->has('factura_transportator') ? 'is-invalid' : '' }}"
+                                            name="factura_transportator"
+                                            placeholder=""
+                                            value="{{ old('factura_transportator', $factura->factura_transportator) }}">
+                                    </div>
+                                    <div class="col-lg-3 mb-4 align-items-center">
                                         <label for="data_plata_transportator" class="mb-0 me-1">Dată plată transportator</label>
                                         <vue-datepicker-next
                                             data-veche="{{ old('data_plata_transportator', $factura->data_plata_transportator) }}"

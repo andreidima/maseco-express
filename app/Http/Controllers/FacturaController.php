@@ -502,7 +502,7 @@ class FacturaController extends Controller
         $validatedRequest = $request->validate(
             [
                 'client_nume' => 'required|max:255',
-                'client_email' => 'required|email:rfc,dns',
+                'client_email' => 'nullable|email:rfc,dns',
                 'client_contract' => 'required|max:255',
                 'client_limba_id' => 'required',
                 'seria' => 'nullable|max:5',
@@ -524,6 +524,7 @@ class FacturaController extends Controller
                             }
                         }
                     }],
+                'factura_transportator' => 'nullable|max:255',
                 'data_plata_transportator' => 'nullable',
             ]
         );
