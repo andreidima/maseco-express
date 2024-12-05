@@ -29,7 +29,7 @@
     <div class="row justify-content-center">
         <div class="col-md-12 mb-3">
             <div class="card culoare2">
-                <div class="card-header text-center">KPI (performanță 2025)</div>
+                <div class="card-header text-center h3">KPI (performanță 2025)</div>
                 <div class="card-body text-center">
                 </div>
             </div>
