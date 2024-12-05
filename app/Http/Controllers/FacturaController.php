@@ -506,7 +506,7 @@ class FacturaController extends Controller
                 'client_contract' => 'required|max:255',
                 'client_limba_id' => 'required',
                 'seria' => 'nullable|max:5',
-                'numar' => 'required|numeric|min:1',
+                'numar' => 'required|max:255',
                 'data' => 'required',
                 'zile_scadente' => 'nullable|numeric|between:1,100',
                 'alerte_scadenta' => ['nullable',
