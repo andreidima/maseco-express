@@ -18,6 +18,9 @@
                 <span style="color: red">
                     Dacă documentele nu sunt încărcate în 24 ore de la finalizarea transportului, termenul de plata se prelungește cu 30 de zile!
                 </span>
+            @else
+                <br><br>
+                <h3 style="margin: 0px">Documentele aferente acestui transport trebuie trimise în original prin curier, în maxim 15 zile de la finalizarea descărcării, la adresa menționată în comanda de transport!</h3>
             @endif
 
             {{-- <br><br>
