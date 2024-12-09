@@ -140,7 +140,12 @@
                                     {{ $comanda->data_creare ? Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY') : null }}
                                 </td>
                                 <td class="fs-6 text-center">
-                                    {{ $comanda->factura->client_contract ?? '' }}
+                                    @if ($comanda->factura && $comanda->factura->client_contract)
+                                        @foreach(explode('+', $comanda->factura->client_contract) as $part)
+                                            {{ $part }}
+                                            <br>
+                                        @endforeach
+                                    @endif
                                 </td>
                                 <td class="fs-6">
                                     @if ($comanda->transportator_format_documente == "1")
