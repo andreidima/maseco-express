@@ -86,7 +86,7 @@
         </div>
         <div class="col-md-4 mb-5">
             <div class="card culoare2">
-                <div class="card-header text-center">Profit comenzi luna curenta
+                <div class="card-header text-center">Profit comenzi luna curentă
                     <a href="comenzi/totaluri-luna-curenta" target="_blank">
                         <i class="fa-solid fa-circle-info text-white" title="Detaliază"></i>
                     </a>

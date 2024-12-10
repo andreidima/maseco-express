@@ -122,6 +122,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/statii-peco', [StatiePecoController::class, 'index']);
 
+    Route::get('/intermedieri/export-html', [IntermediereController::class, 'exportHtml']);
+    Route::get('/intermedieri/schimbaPredatLaContabilitate/{comanda}', [IntermediereController::class, 'schimbaPredatLaContabilitate']);
     Route::resource('/intermedieri', IntermediereController::class)->parameters(['intermedieri' => 'intermediere']);
 
     // Clear application cache:

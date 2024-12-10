@@ -17,16 +17,7 @@
                 <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form justify-content-center">
-                        {{-- <div class="col-lg-4 d-flex">
-                            <label for="searchLuna" class="mb-0 align-self-center me-1">Luna:</label>
-                            <input type="text" class="form-control rounded-3" id="searchLuna" name="searchLuna" placeholder="Luna" value="{{ $searchLuna }}">
-                        </div>
-                        <div class="col-lg-4 d-flex">
-                            <label for="searchAn" class="mb-0 align-self-center me-1">An:</label>
-                            <input type="text" class="form-control rounded-3" id="searchAn" name="searchAn" placeholder="An" value="{{ $searchAn }}">
-                        </div> --}}
-
-                        <div class="col-lg-6 d-flex align-items-center" id="datePicker">
+                        <div class="col-lg-6 d-flex align-items-center justify-content-center" id="datePicker">
                             <label for="searchInterval" class="pe-1">Interval:</label>
                             <vue-datepicker-next
                                 data-veche="{{ $searchInterval }}"
@@ -46,10 +37,17 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="col-lg-2">
+                            <select name="searchPredat" id="searchPredat" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
+                                <option value="" selected>Predat</option>
+                                <option value="NU" {{ $searchPredat == "NU" ? 'selected' : '' }}>NU</option>
+                                <option value="DA" {{ $searchPredat == "DA" ? 'selected' : '' }}>DA</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="row custom-search-form justify-content-center">
                         <div class="col-lg-4">
-                            <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit">
+                            <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit" name="action" value="cauta">
                                 <i class="fas fa-search text-white me-1"></i>Caută
                             </button>
                         </div>
@@ -58,14 +56,19 @@
                                 <i class="far fa-trash-alt text-white me-1"></i>Resetează căutarea
                             </a>
                         </div>
+                        <div class="col-lg-4">
+                            <button class="btn btn-sm w-100 btn-success text-white border border-dark rounded-3" type="submit" name="action" value="export">
+                                <i class="fa-solid fa-table text-white me-1"></i>Exportare date
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
-            {{-- <div class="col-lg-3 text-end">
-                <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ url()->current() }}/adauga" role="button">
-                    <i class="fas fa-plus-square text-white me-1"></i>Adaugă memento
-                </a>
-            </div> --}}
+            <div class="col-lg-3 text-end">
+                {{-- <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="/intermedieri/export-html?interval={{ $searchInterval }}&utilizator={{ $searchUser }}" role="button" target="_blank">
+                    <i class="fa-solid fa-table text-white me-1"></i>Exportare date
+                </a> --}}
+            </div>
         </div>
 
         <div class="card-body px-0 py-3">
@@ -96,6 +99,7 @@
                             <th class="fs-6">Motis</th>
                             <th class="fs-6">DKV</th>
                             <th class="fs-6">Astra</th>
+                            <th class="fs-6 text-center">Predat<br> contab.</th>
                             <th class="fs-6 text-end">Acțiuni</th>
                         </tr>
                     </thead>
@@ -185,7 +189,16 @@
                                 <td class="fs-6">
                                     {{ $comanda->intermediere->astra ?? null }}
                                 </td>
-                                <td class="fs-6">
+                                <td class="fs-6 text-center">
+                                    <a href="/intermedieri/schimbaPredatLaContabilitate/{{ $comanda->id }}" class="flex">
+                                        @if (($comanda->intermediere->predat_la_contabilitate ?? null) == 1)
+                                            <span class="badge bg-success">DA</span>
+                                        @else
+                                            <span class="badge bg-danger">NU</span>
+                                        @endif
+                                    </a>
+                                </td>
+                                    <td class="fs-6">
                                     <div class="d-flex justify-content-end">
                                         <div class="mb-1">
                                             @if (!$comanda->intermediere)
@@ -224,6 +237,8 @@
                                 <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->motis ?? 0) }}</th>
                                 <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->dkv ?? 0) }}</th>
                                 <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->astra ?? 0) }}</th>
+                                <th class="fs-6"></th>
+                                <th class="fs-6"></th>
                             </tr>
                         </tbody>
                 </table>

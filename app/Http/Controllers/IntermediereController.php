@@ -21,11 +21,10 @@ class IntermediereController extends Controller
         $request->session()->forget('intermediereReturnUrl');
 
         $searchUser = $request->searchUser;
-        // $searchLuna = $request->searchLuna ?? Carbon::now()->month;
-        // $searchAn = $request->searchAn ?? Carbon::now()->year;
         $searchInterval = $request->searchInterval;
+        $searchPredat = $request->searchPredat;
 
-        $comenzi = Comanda::with('intermediere', 'user:id,name', 'client:id,nume', 'transportator:id,nume', 'camion:id,numar_inmatriculare', 'clientMoneda', 'transportatorMoneda',
+        $query = Comanda::with('intermediere', 'user:id,name', 'client:id,nume', 'transportator:id,nume', 'camion:id,numar_inmatriculare', 'clientMoneda', 'transportatorMoneda',
                                     'factura:id,client_nume,client_contract,seria,numar,data,factura_transportator,data_plata_transportator',
                                     'ultimulEmailPentruFisiereIncarcateDeTransportator:id,comanda_id,tip', 'fisiereTransportatorIncarcateDeOperator'
                                 )
@@ -36,24 +35,39 @@ class IntermediereController extends Controller
             }, function ($q) { // return nothing if there is no user selected
                 return $q->where('id', -1);
             })
-            // ->when($searchLuna, function ($query, $searchLuna) {
-            //     $query->whereMonth('data_creare', $searchLuna);
-            // })
-            // ->when($searchAn, function ($query, $searchAn) {
-            //     $query->whereYear('data_creare', $searchAn);
-            // })
             ->when($searchInterval, function ($query, $searchInterval) {
                 return $query->whereBetween('data_creare', [strtok($searchInterval, ','), strtok( '' )]);
             })
-            // ->sum('intermediere.motis')
-            // ->latest()
-            ->orderBy('data_creare')
-            ->simplePaginate(100);
+            ->when($searchPredat, function ($query, $searchPredat) {
+                if ($searchPredat == 'DA') {
+                    return $query->whereHas('intermediere', function ($query) {
+                        $query->where('predat_la_contabilitate', 1);
+                    });
+                } else {
+                    $query->where(function ($query) {
+                        $query->whereHas('intermediere', function ($query) {
+                                $query->whereNull('predat_la_contabilitate')
+                                    ->orwhere('predat_la_contabilitate', '<>', 1);
+                            })->orWhereDoesntHave('intermediere');
+                    });
+                }
+            })
+            ->orderBy('data_creare');
 
-
-        $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
-
-        return view('intermedieri.index', compact('comenzi', 'useri', 'searchUser', 'searchInterval'));
+        if ($request->action == "export"){
+            if (!$searchInterval) {
+                return back()->with('error', 'Trebuie să selectați un interval pentru a putea exporta date.');
+            }
+            if (Carbon::parse(strtok($searchInterval, ','))->diffInDays(Carbon::parse(strtok( '' ))) > 101){
+                return back()->with('error', 'Trebuie să selectați un interval de maxim 100 de zile.');
+            }
+            $comenzi = $query->get();
+            return view('intermedieri.export.exportHtml', compact('comenzi', 'searchUser', 'searchInterval', 'searchPredat'));
+        } else {
+            $comenzi = $query->simplePaginate(50);
+            $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
+            return view('intermedieri.index', compact('comenzi', 'useri', 'searchUser', 'searchInterval', 'searchPredat'));
+        }
     }
 
     /**
@@ -128,5 +142,26 @@ class IntermediereController extends Controller
                 // 'tara_id.required' => 'Câmpul țara este obligatoriu'
             ]
         );
+    }
+
+    public function schimbaPredatLaContabilitate(Request $request, Comanda $comanda){
+        $intermediere = $comanda->intermediere ?? Intermediere::make(['comanda_id' => $comanda->id]);
+
+        if ($intermediere->predat_la_contabilitate == 1) {
+            $intermediere->predat_la_contabilitate = 0;
+            $intermediere->save();
+            // dd('da');
+        } else {
+            $intermediere->predat_la_contabilitate = 1;
+            $intermediere->save();
+            // dd($intermediere);
+            // dd('nu');
+        };
+
+        return back()->with('status', 'Predat la contabilitate a fost modificat cu succes!');
+    }
+
+    public function exportHtml(Request $request){
+        dd($request);
     }
 }
