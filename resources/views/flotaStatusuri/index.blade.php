@@ -21,7 +21,7 @@
 
             @include ('errors')
 
-            <div class="table-responsive rounded">
+            <div class="table-responsive rounded mb-5">
                 <table class="table table-sm table-striped table-hover table-bordered border-dark rounded">
                     <thead class="text-white rounded culoare2">
                         <tr class="" style="padding:2rem">
