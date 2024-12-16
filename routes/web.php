@@ -21,6 +21,8 @@ use App\Http\Controllers\DiverseTesteController;
 use App\Http\Controllers\ComandaIncarcareDocumenteDeCatreTransportatorController;
 use App\Http\Controllers\StatiePecoController;
 use App\Http\Controllers\IntermediereController;
+use App\Http\Controllers\FlotaStatusController;
+use App\Http\Controllers\FlotaStatusInformatieController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -125,6 +127,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/intermedieri/export-html', [IntermediereController::class, 'exportHtml']);
     Route::get('/intermedieri/schimbaPredatLaContabilitate/{comanda}', [IntermediereController::class, 'schimbaPredatLaContabilitate']);
     Route::resource('/intermedieri', IntermediereController::class)->parameters(['intermedieri' => 'intermediere']);
+
+    Route::resource('/flota-statusuri', FlotaStatusController::class)->parameters(['flota-statusuri' => 'flotaStatus']);
+    Route::resource('/flota-statusuri-informatii', FlotaStatusInformatieController::class)->parameters(['flota-statusuri-informatii' => 'flotaStatusInformatie']);
 
     // Clear application cache:
     Route::get('/clear-all', function() {

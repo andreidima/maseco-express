@@ -95,6 +95,12 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
+                                    <a class="dropdown-item" href="/flota-statusuri">
+                                        <i class="fa-solid fa-truck me-1"></i>Flotă statusuri
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
                                     <a class="dropdown-item" href="/firme/clienti">
                                         <i class="fa-solid fa-users me-1"></i>Firme Clienți
                                     </a>
