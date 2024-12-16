@@ -110,7 +110,7 @@
                 </nav>
 
             <div class="row">
-                <div class="col-lg-2 d-flex">
+                <div class="col-lg-3 mb-4 d-flex justify-content-around">
                     <div>
                         <table class="me-4">
                             @foreach ($utilizatori as $utilizator)
@@ -132,7 +132,7 @@
                         </table>
                     </div>
                 </div>
-                <div class="col-lg-10">
+                <div class="col-lg-9">
                     <div class="table-responsive rounded text-center">
                         <table class="table table-sm table-striped table-hover table-bordered border-dark rounded">
                             <thead class="text-white rounded culoare2">
