@@ -95,7 +95,7 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                                 <li>
-                                    <a class="dropdown-item" href="/flota-statusuri">
+                                    <a class="dropdown-item" href="/flota-statusuri" target="_blank">
                                         <i class="fa-solid fa-truck me-1"></i>Flotă statusuri
                                     </a>
                                 </li>
