@@ -340,7 +340,7 @@
                                         </a>
                                     </div>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center small">
                                     {{ $comanda->user->name ?? '' }}
                                     <br>
                                     {{ $comanda->operator->name ?? '' }}
