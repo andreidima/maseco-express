@@ -213,9 +213,6 @@
                                 </td>
                                 <td class="">
                                     {{ $comanda->transportator->nume ?? ''}}
-                                        <a href="{{ url('/comanda-documente-transportator/' . $comanda->cheie_unica) }}" class="flex" title="Documente transportator">
-                                            <span class="badge bg-secondary">DT</span>
-                                        </a>
                                 </td>
                                 <td class="">
                                     {{ $comanda->client->nume ?? ''}}
@@ -377,9 +374,16 @@
                                                 <span class="badge bg-success">Xls</span>
                                             </a>
                                         </div>
+                                    </div>
+                                    <div class="d-flex justify-content-end">
+                                        <div class="mb-1 me-1">
+                                            <a href="{{ url('/comanda-documente-transportator/' . $comanda->cheie_unica) }}" class="flex" title="Documente transportator">
+                                                <span class="badge culoare1">Doc. Trans.</span>
+                                            </a>
+                                        </div>
                                         <div class="mb-1">
                                             <a href="{{ url('/comenzi/' . $comanda->id . '/fisiere-interne') }}" class="flex" title="Documente interne">
-                                                <span class="badge bg-secondary">DI</span>
+                                                <span class="badge bg-secondary">Doc. Int.</span>
                                             </a>
                                         </div>
                                     </div>
