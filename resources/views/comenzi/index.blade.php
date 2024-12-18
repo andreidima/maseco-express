@@ -173,7 +173,7 @@
             @include ('errors')
 
             <div class="table-responsive rounded">
-                <table class="table table-striped table-hover rounded">
+                <table class="table table-sm table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
                     {{-- <thead class="text-white rounded" style="background-color: #69A1B1"> --}}
                         <tr class="" style="padding:2rem">
