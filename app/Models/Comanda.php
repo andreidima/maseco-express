@@ -177,6 +177,11 @@ class Comanda extends Model
         return $this->hasMany(ComandaFisier::class, 'comanda_id')->orderBy('nume');
     }
 
+    public function fisiereInterne()
+    {
+        return $this->fisiere()->where('categorie', '2')->orderBy('nume');
+    }
+
     public function fisiereIncarcateDeTransportator()
     {
         return $this->fisiere()->where('categorie', '1')->orderBy('nume');

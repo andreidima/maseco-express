@@ -18,6 +18,7 @@ use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RaportController;
 use App\Http\Controllers\DiverseTesteController;
+use App\Http\Controllers\ComandaFisierInternController;
 use App\Http\Controllers\ComandaIncarcareDocumenteDeCatreTransportatorController;
 use App\Http\Controllers\StatiePecoController;
 use App\Http\Controllers\IntermediereController;
@@ -80,13 +81,22 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/camioane', CamionController::class)->parameters(['camioane' => 'camion']);
     Route::resource('/locuri-operare', LocOperareController::class)->parameters(['locuri-operare' => 'locOperare']);
 
+
     Route::view('comenzi/totaluri-luna-curenta', 'comenzi.export.totaluriLunaCurenta'); // Route to show detailed info about how is calculated the total sum, from the first page, containing the comands from this month
+
+    // Maseco intern documents
+    Route::get('/comenzi/{comanda}/fisiere-interne', [ComandaFisierInternController::class, 'afisareFisiereIncarcateDejaSiFormular']);
+    Route::post('/comenzi/{comanda}/fisiere-interne', [ComandaFisierInternController::class, 'salvareDocumente']);
+    Route::get('/comenzi/{comanda}/fisiere-interne/deschide/{numeFisier?}', [ComandaFisierInternController::class, 'fisierDeschide']);
+    Route::delete('/comenzi/{comanda}/fisiere-interne/sterge/{numeFisier?}', [ComandaFisierInternController::class, 'fisierSterge']);
+
     Route::resource('/comenzi', ComandaController::class)->parameters(['comenzi' => 'comanda']);
     Route::get('/comenzi/{comanda}/trimite-catre-transportator', [ComandaController::class, 'comandaTrimiteCatreTransportator']);
     Route::any('/comenzi/{comanda}/adauga-resursa/{resursa}/{tip?}/{ordine?}', [ComandaController::class, 'comandaAdaugaResursa']);
     Route::get('/comenzi/{comanda}/export-excel', [ComandaController::class, 'comandaExportExcel']);
     Route::get('/comenzi/{comanda}/{view_type}', [ComandaController::class, 'comandaExportPDF']);
     Route::get('/comenzi/{comanda}/stare/{stare}', [ComandaController::class, 'stare']);
+
 
     Route::resource('mesaje-trimise-sms', MesajTrimisSmsController::class,  ['parameters' => ['mesaje-trimise-sms' => 'mesaj_trimis_sms']]);
     Route::resource('/mementouri/{tip}/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
@@ -123,6 +133,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/comanda-documente-transportator/{cheie_unica}/trimitere-email-catre-transportator-privind-documente-incarcate', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailCatreTransportatorPrivindDocumenteIncarcate']);
 
     Route::get('/statii-peco', [StatiePecoController::class, 'index']);
+    Route::post('/statii-peco/excel-import', [StatiePecoController::class, 'excelImport']);
 
     Route::get('/intermedieri/export-html', [IntermediereController::class, 'exportHtml']);
     Route::get('/intermedieri/schimbaPredatLaContabilitate/{comanda}', [IntermediereController::class, 'schimbaPredatLaContabilitate']);

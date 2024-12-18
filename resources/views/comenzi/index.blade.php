@@ -213,6 +213,9 @@
                                 </td>
                                 <td class="">
                                     {{ $comanda->transportator->nume ?? ''}}
+                                        <a href="{{ url('/comanda-documente-transportator/' . $comanda->cheie_unica) }}" class="flex" title="Documente transportator">
+                                            <span class="badge bg-secondary">DT</span>
+                                        </a>
                                 </td>
                                 <td class="">
                                     {{ $comanda->client->nume ?? ''}}
@@ -366,19 +369,17 @@
                                     <div class="d-flex justify-content-end">
                                         <div class="mb-1 me-1">
                                             <a href="/facturi-memento/deschide/{{ $comanda->id }}" class="flex">
-                                                <span class="badge bg-warning text-dark">Factura</span>
+                                                <span class="badge bg-warning text-dark">Fact.</span>
                                             </a>
                                         </div>
-                                        <div class="mb-1">
+                                        <div class="mb-1 me-1">
                                             <a href="{{ $comanda->path() }}/export-excel" class="flex">
-                                                <span class="badge bg-success">Excel</span>
+                                                <span class="badge bg-success">Xls</span>
                                             </a>
                                         </div>
-                                    </div>
-                                    <div class="d-flex justify-content-end">
                                         <div class="mb-1">
-                                            <a href="{{ url('/comanda-documente-transportator/' . $comanda->cheie_unica) }}" class="flex">
-                                                <span class="badge bg-secondary">Documente</span>
+                                            <a href="{{ url('/comenzi/' . $comanda->id . '/fisiere-interne') }}" class="flex" title="Documente interne">
+                                                <span class="badge bg-secondary">DI</span>
                                             </a>
                                         </div>
                                     </div>

@@ -37,7 +37,7 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                     'fisiere' => 'required',
                     'fisiere.*' => ['mimes:pdf', 'max:10240',
                         function (string $attribute, mixed $value, Closure $fail) use ($comanda) {
-                            foreach ($comanda->fisiere as $fisier) {
+                            foreach ($comanda->fisiereIncarcateDeTransportator as $fisier) {
                                 if ($fisier->nume === $value->getClientOriginalName()){
                                     $fail("Nu puteți încărca de mai multe ori același fișier. Există deja un fișier încărcat cu denumirea " . $value->getClientOriginalName());
                                 }
