@@ -37,7 +37,7 @@
 
             @include ('errors')
 
-            <div class="table-responsive rounded">
+            {{-- <div class="table-responsive rounded">
                 <table class="table table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
                         <tr class="" style="padding:2rem">
@@ -77,6 +77,19 @@
                         @endforelse
                         </tbody>
                 </table>
+            </div> --}}
+
+            <div class="row">
+                @forelse ($documenteWord as $documentWord)
+                    <div class="col-lg-2 mb-4 text-center">
+                        <a href="{{ $documentWord->path() }}/modifica" class="flex me-1">
+                            <i class="fa-solid fa-file-word fa-5x me-1"></i>
+                            <br>
+                            {{ $documentWord->nume }}
+                        </a>
+                    </div>
+                @empty
+                @endforelse
             </div>
 
                 <nav>
@@ -88,7 +101,7 @@
     </div>
 
     {{-- Modalele pentru stergere documentWord --}}
-    @foreach ($documenteWord as $documentWord)
+    {{-- @foreach ($documenteWord as $documentWord)
         <div class="modal fade text-dark" id="stergeDocumentWord{{ $documentWord->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -117,6 +130,6 @@
                 </div>
             </div>
         </div>
-    @endforeach
+    @endforeach --}}
 
 @endsection

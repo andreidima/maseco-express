@@ -24,6 +24,7 @@ class DocumentWordController extends Controller
             when($searchNume, function ($query, $searchNume) {
                 return $query->where('nume', 'like', '%' . $searchNume . '%');
             })
+            ->orderBy('nume')
             ->latest();
 
         $documenteWord = $query->simplePaginate(25);
@@ -134,7 +135,8 @@ class DocumentWordController extends Controller
         $documentWordIstoric->operare_descriere = 'Stergere';
         $documentWordIstoric->save();
 
-        return back()->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost șters cu succes!');
+        // return back()->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost șters cu succes!');
+        return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost șters cu succes!');
     }
 
     /**
