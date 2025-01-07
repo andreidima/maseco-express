@@ -62,6 +62,7 @@ class LocOperareController extends Controller
      */
     public function store(Request $request)
     {
+        // dd($request->all());
         $locOperare = LocOperare::create($this->validateRequest($request));
 
         // Salvare in istoric

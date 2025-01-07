@@ -187,15 +187,15 @@
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
-                                {{-- <li>
-                                    <a class="dropdown-item" href="/rapoarte">
-                                        <i class="fa-solid fa-chart-pie me-1"></i>Rapoarte
-                                    </a>
-                                </li> --}}
-                                {{-- <li><hr class="dropdown-divider"></li> --}}
                                 <li>
                                     <a class="dropdown-item" href="/statii-peco">
                                         <i class="fa-solid fa-gas-pump me-1"></i>Stații peco
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/documente-word">
+                                        <i class="fa-solid fa-file-word me-1"></i>Documente word
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>

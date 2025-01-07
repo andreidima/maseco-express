@@ -24,6 +24,7 @@ use App\Http\Controllers\StatiePecoController;
 use App\Http\Controllers\IntermediereController;
 use App\Http\Controllers\FlotaStatusController;
 use App\Http\Controllers\FlotaStatusInformatieController;
+use App\Http\Controllers\DocumentWordController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -142,6 +143,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/flota-statusuri', FlotaStatusController::class)->parameters(['flota-statusuri' => 'flotaStatus']);
     Route::resource('/flota-statusuri-informatii', FlotaStatusInformatieController::class)->parameters(['flota-statusuri-informatii' => 'flotaStatusInformatie']);
 
+    Route::resource('/documente-word', DocumentWordController::class)->parameters(['documente-word' => 'documentWord']);
+
     // Clear application cache:
     Route::get('/clear-all', function() {
         Artisan::call('cache:clear');
@@ -150,6 +153,8 @@ Route::group(['middleware' => 'auth'], function () {
         Artisan::call('view:clear');
         return 'All caches cleared';
     });
+
+    Route::view('teste', 'teste');
 
 
 

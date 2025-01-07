@@ -9,8 +9,6 @@ import './bootstrap';
 import '../sass/app.scss'
 import '../css/andrei.css'
 
-import { createApp } from 'vue';
-// import { createApp } from 'vue/dist/vue.esm-bundler.js'
 
 /**
  * Next, we will create a fresh Vue application instance. You may then begin
@@ -18,13 +16,18 @@ import { createApp } from 'vue';
  * to use in your application's views. An example is included for you.
  */
 
+import { createApp } from 'vue';
+
+// Import other components
+import VueDatepickerNext from './components/DatePicker.vue';
+import TiptapEditor from './components/TiptapEditor.vue'; // Import your Tiptap component
+
+// Create Vue app
 const app = createApp({});
 
-import ExampleComponent from './components/ExampleComponent.vue';
-// app.component('example-component', ExampleComponent);
-
-import VueDatepickerNext from './components/DatePicker.vue';
-// app.component('vue-datepicker-next', VueDatepickerNext);
+// Register components globally (optional but recommended for reuse)
+app.component('VueDatepickerNext', VueDatepickerNext);
+// app.component('TiptapEditor', TiptapEditor);
 
 /**
  * The following block of code may be used to automatically register your
@@ -43,8 +46,6 @@ import VueDatepickerNext from './components/DatePicker.vue';
  * an "id" attribute of "app". This element is included with the "auth"
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
-
-app.component('vue-datepicker-next', VueDatepickerNext);
 
 if (document.getElementById('app') != null) {
     app.mount('#app');
@@ -832,4 +833,18 @@ const disableButton3 = createApp({
 });
 if (document.getElementById('disableButton3') != null) {
     disableButton3.mount('#disableButton3');
+}
+
+// WYSIWYG editors testing and implementation
+const wysiwyg = createApp({
+    el: '#app1',
+    data() {
+        return {
+            disableButton: false,
+        }
+    },
+});
+wysiwyg.component('TiptapEditor', TiptapEditor);
+if (document.getElementById('wysiwyg') != null) {
+    wysiwyg.mount('#wysiwyg');
 }

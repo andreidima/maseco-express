@@ -81,8 +81,9 @@
                             <div class="d-flex align-items-center">
                                 <label for="data_selectare" class="mb-0 pe-2">Selectează data:</label>
                                 <vue-datepicker-next
-                                    {{-- data-veche="{{ old('data_selectare', $memento->data_selectare) }}"
-                                    nume-camp-db="data_selectare" --}}
+                                    {{-- data-veche="{{ old('data_selectare', $memento->data_selectare) }}" --}}
+                                    data-veche=""
+                                    {{-- nume-camp-db="data_selectare" --}}
                                     tip="date"
                                     value-type="YYYY-MM-DD"
                                     format="DD.MM.YYYY"
