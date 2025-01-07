@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class DocumentWordIstoric extends Model
+class StatiePecoIstoric extends Model
 {
     use HasFactory;
 
     public $timestamps = false;
 
-    protected $table = 'documente_word_istoric';
+    protected $table = 'statii_peco_istoric';
     protected $primaryKey = 'id_pk';
     protected $guarded = [];
 }

@@ -5,7 +5,11 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\StatiePeco;
+use App\Models\StatiePecoIstoric;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use Carbon\Carbon;
 
 class StatiePecoController extends Controller
 {
@@ -29,8 +33,25 @@ class StatiePecoController extends Controller
         $totalCount = $statiiPeco->count();
 
         if ($request->action === "massDelete") {
-            // dd($totalCount);
+            // Fetch the records as a Collection
+            $statiiPecoRecords = $statiiPeco->get();
+
+            // Prepare the data for the history table
+            $historyData = $statiiPecoRecords->map(function ($statiePeco) {
+                $data = $statiePeco->makeHidden(['created_at', 'updated_at'])->toArray();
+                $data['operare_user_id'] = auth()->user()->id ?? null;
+                $data['operare_descriere'] = 'Stergere';
+                return $data;
+            });
+
+            // Chunk the data and insert in batches
+            $historyData->chunk(1000)->each(function ($chunk) {
+                StatiePecoIstoric::insert($chunk->toArray());
+            });
+
+            // Now delete the records
             $statiiPeco->delete();
+
             return back()->with('status', 'Au fost șterse ' . $totalCount . ' stații peco cu succes!');
         }
 
@@ -56,21 +77,56 @@ class StatiePecoController extends Controller
             $sheet = $spreadsheet->getActiveSheet();
             $rows = $sheet->toArray();
 
-            // Skip the first row if it contains headers
+            // Skip the header row
+            // $header = array_shift($rows);
+
+            // Prepare data for bulk insert
+            $dataToInsert = [];
             foreach ($rows as $index => $row) {
-                // if ($index === 0) {
-                //     continue; // Skip the first row
+                // $validator = Validator::make($row, [
+                //     '0' => 'required|string', // numar_statie
+                //     '1' => 'required|string', // nume
+                //     '2' => 'required|string', // strada
+                //     '3' => 'nullable|string', // cod_postal
+                //     '4' => 'required|string', // localitate
+                //     '5' => 'nullable|string', // coordonate
+                // ]);
+
+                // if ($validator->fails()) {
+                //     continue; // Skip invalid rows
                 // }
 
-                // Insert into database (adjust fields to your table structure)
-                StatiePeco::create([
-                    'numar_statie' => $row[0], // First column
-                    'nume' => $row[1], // Second column
+                $record = [
+                    'numar_statie' => $row[0],
+                    'nume' => $row[1],
                     'strada' => $row[2],
                     'cod_postal' => $row[3],
                     'localitate' => $row[4],
                     'coordonate' => $row[5],
+                ];
+
+                $dataToInsert[] = $record;
+
+                // Prepare history data
+                $historyData[] = array_merge($record, [
+                    'operare_user_id' => auth()->user()->id ?? null,
+                    'operare_descriere' => 'Adaugare',
                 ]);
+            }
+
+            // Insert data in chunks
+            if (!empty($dataToInsert)) {
+                DB::transaction(function () use ($dataToInsert, $historyData) {
+                    // Insert into main table
+                    foreach (array_chunk($dataToInsert, 1000) as $chunk) {
+                        StatiePeco::insert($chunk);
+                    }
+
+                    // Insert into history table
+                    foreach (array_chunk($historyData, 1000) as $chunk) {
+                        StatiePecoIstoric::insert($chunk);
+                    }
+                });
             }
 
             return back()->with('success', 'Stațiile peco au fost importate cu success!');

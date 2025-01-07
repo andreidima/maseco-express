@@ -98,16 +98,6 @@
                 <textarea class="form-control bg-white {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
                     name="observatii" rows="3">{{ old('observatii', $locOperare->observatii) }}</textarea>
             </div>
-            <div class="col-lg-12 mb-2" id="wysiwyg">
-                <label for="observatii" class="form-label mb-0 ps-3">Tip tap editor</label>
-                <tiptap-editor
-                    :inputvalue='@json(old('tiptapeditor', $locOperare->tiptapeditor ?? ''))'
-                    {{-- inputvalue='@json($locOperare->tiptapeditor)' --}}
-                    {{-- inputname="tiptapeditor" --}}
-                    inputname="tiptapeditor"
-                    :height="600"
-                ></tiptap-editor>
-            </div>
         </div>
         <div class="row">
             <div class="col-lg-12 mb-2 d-flex justify-content-center">
