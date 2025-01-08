@@ -84,11 +84,11 @@ class DocumentWordController extends Controller
      */
     public function show(Request $request, DocumentWord $documentWord)
     {
-        $this->authorize('update', $documentWord);
+        // $this->authorize('update', $documentWord);
 
-        $request->session()->get('documentWordReturnUrl') ?? $request->session()->put('documentWordReturnUrl', url()->previous());
+        // $request->session()->get('documentWordReturnUrl') ?? $request->session()->put('documentWordReturnUrl', url()->previous());
 
-        return view('documenteWord.show', compact('documentWord'));
+        // return view('documenteWord.show', compact('documentWord'));
     }
 
     /**
@@ -99,6 +99,11 @@ class DocumentWordController extends Controller
      */
     public function edit(Request $request, DocumentWord $documentWord)
     {
+        // Check if the user is not admin and the document has just 'admin' rights
+        if (auth()->user()->role !== 1 && $documentWord->nivel_acces === 1) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $request->session()->get('documentWordReturnUrl') ?? $request->session()->put('documentWordReturnUrl', url()->previous());
 
         return view('documenteWord.edit', compact('documentWord'));
@@ -113,6 +118,11 @@ class DocumentWordController extends Controller
      */
     public function update(Request $request, DocumentWord $documentWord)
     {
+        // Check if the user is not admin and the document has just 'admin' rights
+        if (auth()->user()->role !== 1 && $documentWord->nivel_acces === 1) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $documentWord->update($this->validateRequest($request));
 
         // Salvare in istoric
@@ -135,6 +145,11 @@ class DocumentWordController extends Controller
      */
     public function destroy(Request $request, DocumentWord $documentWord)
     {
+        // Check if the user is not admin and the document has just 'admin' rights
+        if (auth()->user()->role !== 1 && $documentWord->nivel_acces === 1) {
+            abort(403, 'Unauthorized action.');
+        }
+
         $documentWord->delete();
 
         // Salvare in istoric
