@@ -3,7 +3,7 @@
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="client">
     <div class="col-lg-12 mb-0">
         <div class="row mb-0">
-            <div class="col-lg-12 mb-4">
+            <div class="col-lg-9 mb-4">
                 <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
                 <input
                     type="text"
@@ -13,6 +13,15 @@
                     value="{{ old('nume', $documentWord->nume) }}"
                     required>
             </div>
+            @can('is-admin')
+                <div class="col-lg-3 mb-4">
+                    <label for="nivel_acces" class="mb-0 ps-3">Nivel acces<span class="text-danger">*</span></label>
+                    <select class="form-select bg-white rounded-3 {{ $errors->has('nivel_acces') ? 'is-invalid' : '' }}" name="nivel_acces">
+                        <option value="1" {{ old('nivel_acces', $documentWord->nivel_acces) == "1" ? 'selected' : '' }}>Admin</option>
+                        <option value="2" {{ old('nivel_acces', $documentWord->nivel_acces) == "2" ? 'selected' : '' }}>Operator</option>
+                    </select>
+                </div>
+            @endcan
             <div class="col-lg-12 mb-2" id="wysiwyg">
                 <label for="continut" class="form-label mb-0 ps-3">Conținut</label>
                 <tiptap-editor

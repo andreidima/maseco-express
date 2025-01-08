@@ -83,7 +83,7 @@
                 @forelse ($documenteWord as $documentWord)
                     <div class="col-lg-2 mb-4 text-center">
                         <a href="{{ $documentWord->path() }}/modifica" class="flex me-1">
-                            <i class="fa-solid fa-file-word fa-5x me-1"></i>
+                            <i class="fa-solid fa-file-word fa-3x me-1"></i>
                             <br>
                             {{ $documentWord->nume }}
                         </a>

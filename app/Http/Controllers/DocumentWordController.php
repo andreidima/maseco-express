@@ -24,6 +24,10 @@ class DocumentWordController extends Controller
             when($searchNume, function ($query, $searchNume) {
                 return $query->where('nume', 'like', '%' . $searchNume . '%');
             })
+            ->when(auth()->user()->role !== 1, function ($query) {
+                // Non-admin users can see only "operator" documents
+                return $query->where('nivel_acces', 2);
+            })
             ->orderBy('nume')
             ->latest();
 
@@ -42,6 +46,7 @@ class DocumentWordController extends Controller
         $request->session()->get('documentWordReturnUrl') ?? $request->session()->put('documentWordReturnUrl', url()->previous());
 
         $documentWord = new DocumentWord;
+        $documentWord->nivel_acces = 2;
 
         return view('documenteWord.create', compact('documentWord'));
     }
@@ -158,6 +163,7 @@ class DocumentWordController extends Controller
         return $request->validate(
             [
                 'nume' => 'required|max:255',
+                'nivel_acces' => 'required|integer|between:1,2',
                 'continut' => 'json',
             ],
             [
