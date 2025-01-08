@@ -33,6 +33,11 @@ class StatiePecoController extends Controller
         $totalCount = $statiiPeco->count();
 
         if ($request->action === "massDelete") {
+            // Check if the user is not admin and the document has just 'admin' rights
+            if (auth()->user()->role !== 1) {
+                abort(403, 'Unauthorized action.');
+            }
+
             // Fetch the records as a Collection
             $statiiPecoRecords = $statiiPeco->get();
 
@@ -78,26 +83,29 @@ class StatiePecoController extends Controller
             $rows = $sheet->toArray();
 
             // Skip the header row
-            // $header = array_shift($rows);
+            $header = array_shift($rows);
 
-            // Prepare data for bulk insert
+
             $dataToInsert = [];
-            foreach ($rows as $index => $row) {
-                // $validator = Validator::make($row, [
-                //     '0' => 'required|string', // numar_statie
-                //     '1' => 'required|string', // nume
-                //     '2' => 'required|string', // strada
-                //     '3' => 'nullable|string', // cod_postal
-                //     '4' => 'required|string', // localitate
-                //     '5' => 'nullable|string', // coordonate
-                // ]);
+            $historyData = [];
+            $userId = auth()->id(); // Retrieve authenticated user ID once
 
-                // if ($validator->fails()) {
-                //     continue; // Skip invalid rows
-                // }
+
+            // Fetch existing 'numar_statie' values from the database
+            $existingNumarStaties = StatiePeco::pluck('numar_statie')->toArray();
+
+            foreach ($rows as $index => $row) {
+                if (!isset($row[0])) continue; // Skip empty rows
+
+                $numarStatie = $row[0];
+
+                // Skip if 'numar_statie' already exists in the database
+                if (in_array($numarStatie, $existingNumarStaties)) {
+                    continue;
+                }
 
                 $record = [
-                    'numar_statie' => $row[0],
+                    'numar_statie' => $numarStatie,
                     'nume' => $row[1],
                     'strada' => $row[2],
                     'cod_postal' => $row[3],
@@ -109,7 +117,7 @@ class StatiePecoController extends Controller
 
                 // Prepare history data
                 $historyData[] = array_merge($record, [
-                    'operare_user_id' => auth()->user()->id ?? null,
+                    'operare_user_id' => $userId,
                     'operare_descriere' => 'Adaugare',
                 ]);
             }

@@ -42,14 +42,17 @@
                     >
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă stații peco
                 </a>
-                <br>
-                <a href="#"
-                    class="btn btn-sm btn-danger text-white border border-dark rounded-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#stergeStatiiPeco"
-                    title="Șterge stații peco"
-                    >
-                    <i class="far fa-trash-alt text-white me-1"></i>Șterge stațiile căutate</a>
+
+                @can('is-admin')
+                    <br>
+                    <a href="#"
+                        class="btn btn-sm btn-danger text-white border border-dark rounded-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#stergeStatiiPeco"
+                        title="Șterge stații peco"
+                        >
+                        <i class="far fa-trash-alt text-white me-1"></i>Șterge stațiile căutate</a>
+                @endcan
             </div>
         </div>
 
@@ -113,7 +116,7 @@
                         <div class="modal-body" style="text-align:left;">
                             Încarcă un fișier cu stații peco.
                             <br>
-                            Șterge capul de tabel înainte de încărcare.
+                            NU șterge capul de tabel înainte de încărcare.
                             <br>
                             Coloanele trebuie să fie în ordinea din tabel: numar statie, nume, strada, cod_postal, localitate, coordonate.
                             <br><br>
@@ -147,6 +150,7 @@
     </div>
 
     {{-- Modal to mass delete statii peco --}}
+    @can('is-admin')
     <div id="disableButton2">
     <div class="modal fade text-dark" id="stergeStatiiPeco" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -185,4 +189,5 @@
         </div>
     </div>
     </div>
+    @endcan
 @endsection
