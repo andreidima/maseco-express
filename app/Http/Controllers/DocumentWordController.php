@@ -59,10 +59,14 @@ class DocumentWordController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->all());
+        // Check if 'nivel_acces' exists, and set a default if missing
+        if (!$request->has('nivel_acces')) {
+            $request->merge(['nivel_acces' => 2]);
+        }
+
         $documentWord = DocumentWord::create($this->validateRequest($request));
 
-        // Salvare in istoric
+        // History save
         $documentWordIstoric = new DocumentWordIstoric;
         $documentWordIstoric->fill($documentWord->makeHidden(['created_at', 'updated_at'])->attributesToArray());
         $documentWordIstoric->operare_user_id = auth()->user()->id ?? null;
