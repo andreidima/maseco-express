@@ -32,8 +32,8 @@ class IntermediereController extends Controller
                 return $query->whereHas('user', function ($query) use ($searchUser) {
                     $query->where('id', $searchUser);
                 });
-            }, function ($q) { // return nothing if there is no user selected
-                return $q->where('id', -1);
+            // }, function ($q) { // return nothing if there is no user selected
+            //     return $q->where('id', -1);
             })
             ->when($searchInterval, function ($query, $searchInterval) {
                 return $query->whereBetween('data_creare', [strtok($searchInterval, ','), strtok( '' )]);
