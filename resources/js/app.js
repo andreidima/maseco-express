@@ -128,7 +128,6 @@ const formularComanda = createApp({
         return {
             firmaTransportatorId: firmaTransportatorIdVechi,
             firmaTransportatorNume: '',
-            firmaTransportatorDescriereLunga: '', // used to show many informations about the transporter when it's first added in the order, to be sure that this is the wanted transporter.
             firmeTransportatori: firmeTransportatori,
             firmeTransportatoriListaAutocomplete: [],
 

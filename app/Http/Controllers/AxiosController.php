@@ -53,8 +53,8 @@ class AxiosController extends Controller
         $raspuns = '';
         switch ($_GET['request']) {
             case 'clienti':
-                $raspuns = Firma::select('id', 'nume')
-                    ->with('tara')
+                $raspuns = Firma::select('id', 'tara_id', 'nume', 'cui', 'oras', 'judet', 'adresa', 'cod_postal')
+                    ->with('tara:id,nume')
                     ->where('nume', 'like', '%' . $request->nume . '%')
                     ->where('tip_partener', 1) // just the clients
                     ->orderBy('nume')

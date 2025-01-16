@@ -108,15 +108,6 @@
                     @endforeach
                 </select>
             </div>
-            {{-- <div class="col-lg-3 mb-4">
-                <label for="transportator_transportator_id" class="mb-0 ps-3">Transportator</label>
-                <select name="transportator_transportator_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_transportator_id') ? 'is-invalid' : '' }}">
-                    <option selected></option>
-                    @foreach ($firmeTransportatori as $firmaTransportator)
-                        <option value="{{ $firmaTransportator->id }}" {{ ($firmaTransportator->id === intval(old('transportator_transportator_id', $comanda->transportator_transportator_id ?? ''))) ? 'selected' : '' }}>{{ $firmaTransportator->nume }}</option>
-                    @endforeach
-                </select>
-            </div> --}}
             <div class="col-lg-4 mb-4" style="position:relative;" v-click-out="() => firmeTransportatoriListaAutocomplete = ''">
                 <label for="transportator_transportator_id" class="mb-0 ps-3">Transportator<span class="text-danger">*</span></label>
                 <input
@@ -152,20 +143,20 @@
                     <div class="list-group" style="max-height: 218px; overflow:auto;">
                         <button class="list-group-item list-group-item-action py-0"
                             v-for="firma in firmeTransportatoriListaAutocomplete"
-                            v-on:click="
-                                firmaTransportatorId = firma.id;
-                                firmaTransportatorNume = firma.nume;
-                                firmaTransportatorDescriereLunga =
-                                    (firma.tara?.nume ?? '') + ', ' +
+                            :title="(firma.tara?.nume ?? '') + ', ' +
                                     (firma.cui ?? '') + ', ' +
                                     (firma.oras ?? '') + ', ' +
                                     (firma.judet ?? '') + ', ' +
                                     (firma.adresa ?? '') + ', ' +
-                                    (firma.cod_postal ?? '');
+                                    (firma.cod_postal ?? '')"
+                            v-on:click="
+                                firmaTransportatorId = firma.id;
+                                firmaTransportatorNume = firma.nume;
 
                                 firmeTransportatoriListaAutocomplete = ''
                             ">
                                 @{{ firma.nume }}
+                                <small class="px-2 rounded-3" style="color:white; background-color:#2196F3"> i </small>
                         </button>
                     </div>
                 </div>
@@ -609,6 +600,12 @@
                             <div class="list-group" style="max-height: 218px; overflow:auto;">
                                 <button class="list-group-item list-group-item list-group-item-action py-0"
                                     v-for="client in clientiListaTotiDinDB[index]"
+                                    :title="(client.tara?.nume ?? '') + ', ' +
+                                            (client.cui ?? '') + ', ' +
+                                            (client.oras ?? '') + ', ' +
+                                            (client.judet ?? '') + ', ' +
+                                            (client.adresa ?? '') + ', ' +
+                                            (client.cod_postal ?? '')"
                                     v-on:click="
                                         clientiAtasatiLaComanda[index].id = client.id;
                                         clientiAtasatiLaComanda[index].nume = client.nume;
@@ -618,7 +615,9 @@
                                         clientiListaTotiDinDB = ''
                                     ">
                                         @{{ client.nume }}
+                                <small class="px-2 rounded-3" style="color:white; background-color:#2196F3"> i </small>
                                 </button>
+                        </button>
                             </div>
                         </div>
                         <small v-if="!clientiAtasatiLaComanda[index].nume || (clientiAtasatiLaComanda[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
@@ -772,17 +771,19 @@
                                     </div>
                                     <div class="text-start">
                                         <label for="client_moneda_id" class="mb-0 ps-0">Moneda<span class="text-danger">*</span></label>
-                                        <select
-                                            name="client_moneda_id"
-                                            v-model="clientiAtasatiLaComanda[0].pivot.moneda_id"
-                                            class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}"
-                                            readonly
-                                        >
-                                            <option value="" selected disabled></option>
-                                            @foreach ($monede as $moneda)
-                                                <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
-                                            @endforeach
-                                        </select>
+                                        <div v-if="clientiAtasatiLaComanda?.[0]?.pivot">
+                                            <select
+                                                name="client_moneda_id"
+                                                v-model="clientiAtasatiLaComanda[0].pivot.moneda_id"
+                                                class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}"
+                                                readonly
+                                            >
+                                                <option value="" selected disabled></option>
+                                                @foreach ($monede as $moneda)
+                                                    <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
