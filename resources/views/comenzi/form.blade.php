@@ -354,30 +354,9 @@
                             <div class="col-lg-4 mb-2">
                                 <button type="button" class="btn btn-primary px-0 w-100 text-white rounded-3"
                                     v-on:click="
-                                        let hasMissingValues = false;
-                                        let alertaMessage = '';
-                                        let totalValoareContractInitiala = 0;
-
-                                        clientiAtasatiLaComanda.forEach((client, index) => {
-                                            if (!client.pivot.valoare_contract_initiala) {
-                                                hasMissingValues = true;
-                                                alertaMessage += `Completează mai întâi câmpul pentru client ${index + 1}: Valoare contract inițială!\n`;
-                                            } else {
-                                                totalValoareContractInitiala += Number(client.pivot.valoare_contract_initiala);
-                                            }
-                                        });
-
-                                        if (hasMissingValues) {
-                                            alertaCampuriNecompletate = alertaMessage.trim();
-                                        } else {
-                                            alertaCampuriNecompletate = '';
-                                            transportatorValoareKmGoi = (transportatorKmGoi * transportatorPretKmGoi).toFixed(2);
-                                            transportatorValoareKmPlini = (transportatorKmPlini * transportatorPretKmPlini).toFixed(2);
-                                            transportatorValoareContract = (Number(transportatorValoareKmGoi) + Number(transportatorValoareKmPlini) + Number(transportatorPretAutostrada)).toFixed(2);
-
-                                            // Calculate the general clientValoareContract
-                                            clientValoareContract = (totalValoareContractInitiala - transportatorPretFerry).toFixed(2);
-                                        }
+                                        transportatorValoareKmGoi = (transportatorKmGoi * transportatorPretKmGoi).toFixed(2);
+                                        transportatorValoareKmPlini = (transportatorKmPlini * transportatorPretKmPlini).toFixed(2);
+                                        transportatorValoareContract = (Number(transportatorValoareKmGoi) + Number(transportatorValoareKmPlini) + Number(transportatorPretAutostrada)).toFixed(2);
                                     ">Calculează valorile</button>
                             </div>
                         </div>
@@ -737,36 +716,65 @@
                     </div>
                     <div class="col-lg-12 mb-0">
                         <div class="row d-flex justify-content-between">
-                            <div class="col-lg-4 mb-0 text-center">
+                            <div class="col-lg-5 mb-0 text-center">
                                 &nbsp;
                             </div>
-                            <div class="col-lg-4 mb-4 d-flex justify-content-center align-items-end">
+                            <div class="col-lg-2 mb-4 d-flex justify-content-center align-items-end">
                                 <button type="button" class="btn btn-success text-white" @click="adaugaClientGol()">Adaugă client</button>
                             </div>
-                            <div class="col-lg-4 d-flex justify-content-end">
-                                <div class="text-start me-2">
-                                    <label for="client_valoare_contract" class="mb-0 ps-0 small">Valoare contract finală<span class="text-danger">*</span></label>
-                                    <input
-                                        type="text"
-                                        class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract') ? 'is-invalid' : '' }}"
-                                        name="client_valoare_contract"
-                                        placeholder=""
-                                        v-model="clientValoareContract">
-                                    <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
-                                </div>
-                                <div class="text-start">
-                                    <label for="client_moneda_id" class="mb-0 ps-0">Moneda<span class="text-danger">*</span></label>
-                                    <select
-                                        name="client_moneda_id"
-                                        v-model="clientiAtasatiLaComanda[0].pivot.moneda_id"
-                                        class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}"
-                                        readonly
-                                    >
-                                        <option value="" selected disabled></option>
-                                        @foreach ($monede as $moneda)
-                                            <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
-                                        @endforeach
-                                    </select>
+                            <div class="col-lg-5 d-flex justify-content-end">
+                                <div class="d-flex px-2 rounded-3" style="border:2px solid rgb(15, 97, 52);">
+                                    <div class="text-start me-2">
+                                        <br>
+                                        <button type="button" class="btn btn-primary w-100 text-white rounded-3"
+                                            v-on:click="
+                                                let hasMissingValues = false;
+                                                let alertaMessage = '';
+                                                let totalValoareContractInitiala = 0;
+
+                                                clientiAtasatiLaComanda.forEach((client, index) => {
+                                                    if (!client.pivot.valoare_contract_initiala) {
+                                                        hasMissingValues = true;
+                                                        alertaMessage += `Completează mai întâi câmpul pentru client ${index + 1}: Valoare contract inițială!\n`;
+                                                    } else {
+                                                        totalValoareContractInitiala += Number(client.pivot.valoare_contract_initiala);
+                                                    }
+                                                });
+
+                                                if (hasMissingValues) {
+                                                    alertaCampuriNecompletate = alertaMessage.trim();
+                                                } else {
+                                                    alertaCampuriNecompletate = '';
+
+                                                    // Calculate the general clientValoareContract
+                                                    clientValoareContract = (totalValoareContractInitiala - transportatorPretFerry).toFixed(2);
+                                                }
+                                            ">Calculează</button>
+                                    </div>
+                                    <div class="text-start me-2">
+                                        <label for="client_valoare_contract" class="mb-0 ps-0 small">Valoare contract finală<span class="text-danger">*</span></label>
+                                        <input
+                                            type="text"
+                                            class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract') ? 'is-invalid' : '' }}"
+                                            name="client_valoare_contract"
+                                            placeholder=""
+                                            v-model="clientValoareContract">
+                                        <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
+                                    </div>
+                                    <div class="text-start">
+                                        <label for="client_moneda_id" class="mb-0 ps-0">Moneda<span class="text-danger">*</span></label>
+                                        <select
+                                            name="client_moneda_id"
+                                            v-model="clientiAtasatiLaComanda[0].pivot.moneda_id"
+                                            class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}"
+                                            readonly
+                                        >
+                                            <option value="" selected disabled></option>
+                                            @foreach ($monede as $moneda)
+                                                <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
