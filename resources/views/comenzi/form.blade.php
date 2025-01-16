@@ -186,7 +186,7 @@
                 </select>
             </div>
             <div class="col-lg-1 mb-4">
-                <label for="transportator_procent_tva_id" class="mb-0 ps-0 small">Procent TVA</label>
+                <label for="transportator_procent_tva_id" class="mb-0 ps-3 small">% TVA</label>
                 <select name="transportator_procent_tva_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_procent_tva_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($procenteTVA as $procentTVA)
@@ -659,8 +659,8 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-lg-2 mb-2">
-                        <label for="procent_tva_id" class="mb-0 ps-3">Procent TVA</label>
+                    <div class="col-lg-1 mb-2">
+                        <label for="procent_tva_id" class="mb-0 ps-3">% TVA</label>
                         <select
                             :name="'clienti[' + index + '][pivot][procent_tva_id]'"
                             v-model="clientiAtasatiLaComanda[index].pivot.procent_tva_id"
@@ -685,7 +685,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-lg-3 mb-2">
+                    <div class="col-lg-3 mb-3">
                         <label for="termen_plata_id" class="mb-0 ps-3">Termen de plată</label>
                         <select
                             :name="'clienti[' + index + '][pivot][termen_plata_id]'"
@@ -718,8 +718,8 @@
                             <option value="0">NU</option>
                         </select>
                     </div>
-                    <div class="col-lg-1 mb-2 d-flex justify-content-end align-items-end">
-                        <button type="btn" title="Șterge descărcarea" class="btn btn-danger px-1" @click="this.clientiAtasatiLaComanda.splice(index, 1);">
+                    <div class="col-lg-2 mb-2 d-flex justify-content-end align-items-end">
+                        <button type="btn" title="Șterge descărcarea" class="btn btn-danger px-1 mb-2" @click="this.clientiAtasatiLaComanda.splice(index, 1);">
                             <span class="badge bg-danger p-0 mb-0">Șterge clientul</span>
                         </button>
                     </div>
@@ -731,8 +731,9 @@
                     <div class="col-lg-12 mb-0">
                         <div class="row d-flex justify-content-between">
                             <div class="col-lg-2 mb-0 text-center">
+                                &nbsp;
                             </div>
-                            <div class="col-lg-2 mb-4 d-flex text-center align-items-end">
+                            <div class="col-lg-2 mb-4 d-flex justify-content-center align-items-end">
                                 <button type="button" class="btn btn-success text-white" @click="adaugaClientGol()">Adaugă client</button>
                             </div>
                             <div class="col-lg-2 text-end">
