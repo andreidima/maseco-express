@@ -780,6 +780,7 @@ class ComandaController extends Controller
                 'clienti.*.pivot.client_zile_scadente' => 'nullable|numeric|min:-100|max:300',
                 'clienti.*.pivot.client_tarif_pe_km' => '',
 
+                'client_valoare_contract' => 'required|numeric|min:-9999999|max:9999999', // this is the summ value for all clients
 
                 'descriere_marfa' => 'nullable|max:500',
                 'camion_id' => '',
