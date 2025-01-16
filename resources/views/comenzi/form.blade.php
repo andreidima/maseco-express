@@ -737,14 +737,14 @@
                     </div>
                     <div class="col-lg-12 mb-0">
                         <div class="row d-flex justify-content-between">
-                            <div class="col-lg-2 mb-0 text-center">
+                            <div class="col-lg-4 mb-0 text-center">
                                 &nbsp;
                             </div>
-                            <div class="col-lg-2 mb-4 d-flex justify-content-center align-items-end">
+                            <div class="col-lg-4 mb-4 d-flex justify-content-center align-items-end">
                                 <button type="button" class="btn btn-success text-white" @click="adaugaClientGol()">Adaugă client</button>
                             </div>
-                            <div class="col-lg-2 text-end">
-                                <div class="text-start">
+                            <div class="col-lg-4 d-flex justify-content-end">
+                                <div class="text-start me-2">
                                     <label for="client_valoare_contract" class="mb-0 ps-0 small">Valoare contract finală<span class="text-danger">*</span></label>
                                     <input
                                         type="text"
@@ -753,6 +753,20 @@
                                         placeholder=""
                                         v-model="clientValoareContract">
                                     <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
+                                </div>
+                                <div class="text-start">
+                                    <label for="client_moneda_id" class="mb-0 ps-0">Moneda<span class="text-danger">*</span></label>
+                                    <select
+                                        name="client_moneda_id"
+                                        v-model="clientiAtasatiLaComanda[0].pivot.moneda_id"
+                                        class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}"
+                                        readonly
+                                    >
+                                        <option value="" selected disabled></option>
+                                        @foreach ($monede as $moneda)
+                                            <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
+                                        @endforeach
+                                    </select>
                                 </div>
                             </div>
                         </div>

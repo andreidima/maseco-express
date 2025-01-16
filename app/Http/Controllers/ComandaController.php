@@ -780,7 +780,9 @@ class ComandaController extends Controller
                 'clienti.*.pivot.client_zile_scadente' => 'nullable|numeric|min:-100|max:300',
                 'clienti.*.pivot.client_tarif_pe_km' => '',
 
-                'client_valoare_contract' => 'required|numeric|min:-9999999|max:9999999', // this is the summ value for all clients
+                // those 2 fields are used for all raports: is the summ value for all clients
+                'client_valoare_contract' => 'required|numeric|min:-9999999|max:9999999',
+                'client_moneda_id' => 'required',
 
                 'descriere_marfa' => 'nullable|max:500',
                 'camion_id' => '',
@@ -816,6 +818,12 @@ class ComandaController extends Controller
                 'clienti.*.pivot.valoare_contract_initiala.required' => 'Câmpul Valoare Contract Inițială pentru clientul #:position este obligatoriu',
                 'clienti.*.pivot.valoare_contract_initiala.numeric' => 'Câmpul Valoare Contract Inițială pentru clientul #:position trebuie să fie un număr',
                 'clienti.*.pivot.valoare_contract_initiala.between' => 'Câmpul Valoare Contract Inițială pentru clientul #:position trebuie să fie între -9999999 și 9999999',
+
+                'client_valoare_contract.required' => 'Câmpul Valoare contract finală este obligatoriu',
+                'client_valoare_contract.numeric' => 'Câmpul Valoare contract finală trebuie să fie numeric',
+                'client_valoare_contract.min' => 'Câmpul Valoare contract finală poate fi minim 9999999',
+                'client_valoare_contract.max' => 'Câmpul Valoare contract finală poate fi maxim 9999999',
+                'client_moneda_id.required' => 'Câmpul Moneda de la Valoare contract finală este obligatoriu',
 
                 'incarcari.*.id' => 'Încărcarea #:position este obligatoriu de selectat din baza de date',
                 'incarcari.*.pivot.data_ora' => 'Câmpul Data și ora pentru încărcarea #:position este obligatoriu',
