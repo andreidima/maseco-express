@@ -46,8 +46,8 @@
                                 <td align="">
                                     {{ ($flotaStatusuri ->currentpage()-1) * $flotaStatusuri ->perpage() + $loop->index + 1 }}
                                 </td>
-                                <td class="text-center text-white" style="background-color: {{ $status->utilizator->culoare ?? '' }}">
-                                    {{ $status->nr_auto }}
+                                <td class="text-center" style="color: {{ $status->utilizator->culoare_text ?? '' }}; background-color: {{ $status->utilizator->culoare_background ?? '' }}">
+                                    {{ $status->nr_auto }} {{ $status->utilizator->culoare_text ?? '' }}
                                 </td>
                                 <td class="text-center">
                                     {{ $status->dimenssions }}
@@ -115,7 +115,7 @@
                         <table class="me-4">
                             @foreach ($utilizatori as $utilizator)
                                 <tr>
-                                    <td class="px-5 text-white text-center" style="background-color: {{ $utilizator->culoare }}">
+                                    <td class="px-5 text-center border border-dark border-1" style="color: {{ $utilizator->culoare_text ?? '' }}; background-color: {{ $utilizator->culoare_background ?? '' }}">
                                         {{ $utilizator->nume }}
                                     </td>
                                 </tr>

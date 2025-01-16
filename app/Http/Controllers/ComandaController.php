@@ -204,7 +204,8 @@ class ComandaController extends Controller
 
         $useri = User::select('id', 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
-        $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+        // $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
+        $firmeTransportatori = Firma::select('id', 'tara_id', 'nume', 'cui', 'oras', 'judet', 'adresa', 'cod_postal')->with('tara:id,nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $limbi = Limba::select('id', 'nume')->get();
         $monede = Moneda::select('id', 'nume')->get();
         $procenteTVA = ProcentTVA::select('id', 'nume')->get();
@@ -770,6 +771,7 @@ class ComandaController extends Controller
 
                 // Added on 14.01.2025 - after that we went to more that one client to a command
                 'clienti.*.id' => 'required',
+                'clienti.*.pivot.contract' => 'required|max:255',
                 'clienti.*.pivot.valoare_contract_initiala' => 'required|numeric|between:-9999999,9999999',
                 'clienti.*.pivot.moneda_id' => 'required',
                 'clienti.*.pivot.client_procent_tva_id' => '',
@@ -807,6 +809,8 @@ class ComandaController extends Controller
                 'client_client_id.required' => 'Câmpul Client este obligatoriu',
                 // Added on 14.01.2025 - after that we went to more that one client to a command
                 'clienti.*.id' => 'Clientul #:position este obligatoriu de selectat din baza de date',
+                'clienti.*.pivot.contract.required' => 'Câmpul Contract pentru clientul #:position este obligatoriu',
+                'clienti.*.pivot.contract.max' => 'Câmpul Contract pentru clientul #:position nu poate avea mai mult de 255 de caractere',
                 'clienti.*.pivot.moneda_id' => 'Câmpul Moneda pentru clientul #:position este obligatoriu',
                 'clienti.*.pivot.valoare_contract_initiala.required' => 'Câmpul Valoare Contract Inițială pentru clientul #:position este obligatoriu',
                 'clienti.*.pivot.valoare_contract_initiala.numeric' => 'Câmpul Valoare Contract Inițială pentru clientul #:position trebuie să fie un număr',

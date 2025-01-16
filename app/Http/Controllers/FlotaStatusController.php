@@ -20,7 +20,7 @@ class FlotaStatusController extends Controller
     {
         $request->session()->forget('flotaStatusReturnUrl');
 
-        $utilizatori = FlotaStatusUtilizator::select('id' , 'nume', 'culoare', 'ordine_afisare')->orderBy('ordine_afisare')->get();
+        $utilizatori = FlotaStatusUtilizator::select('id' , 'nume', 'culoare_background', 'culoare_text', 'ordine_afisare')->orderBy('ordine_afisare')->get();
 
         $flotaStatusuri = FlotaStatus::with('utilizator')->orderByRaw('FIELD(utilizator_id, ' . implode(',', $utilizatori->pluck('id')->toArray()) . ')')->simplePaginate(100);
 

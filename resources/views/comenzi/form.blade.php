@@ -155,6 +155,13 @@
                             v-on:click="
                                 firmaTransportatorId = firma.id;
                                 firmaTransportatorNume = firma.nume;
+                                firmaTransportatorDescriereLunga =
+                                    (firma.tara?.nume ?? '') + ', ' +
+                                    (firma.cui ?? '') + ', ' +
+                                    (firma.oras ?? '') + ', ' +
+                                    (firma.judet ?? '') + ', ' +
+                                    (firma.adresa ?? '') + ', ' +
+                                    (firma.cod_postal ?? '');
 
                                 firmeTransportatoriListaAutocomplete = ''
                             ">
@@ -561,7 +568,7 @@
                             v-model="clientiAtasatiLaComanda[index].pivot.id"
                             >
 
-                        <label for="contract" class="mb-0 ps-3">Contract</label>
+                        <label for="contract" class="mb-0 ps-3">Contract<span class="text-danger">*</span></label>
                         <input
                             type="text"
                             class="form-control bg-white rounded-3 {{ $errors->has('contract') ? 'is-invalid' : '' }}"
