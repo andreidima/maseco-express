@@ -7,8 +7,13 @@
 <script type="application/javascript">
     firmeTransportatori = {!! json_encode($firmeTransportatori) !!}
     firmaTransportatorIdVechi = {!! json_encode(old('transportator_transportator_id', ($comanda->transportator_transportator_id ?? "")) ?? "") !!}
+
+    // Comented on 14.01.2025 - after that we went to more that one client to a command
     firmeClienti = {!! json_encode($firmeClienti) !!}
     firmaClientIdVechi = {!! json_encode(old('client_client_id', ($comanda->client_client_id ?? "")) ?? "") !!}
+    // Added on 14.01.2025 - after that we went to more that one client to a command
+    clientiAtasatiLaComanda =  {!! json_encode(old('clienti', $comanda->clienti()->get())) !!}
+
     camioane = {!! json_encode($camioane) !!}
     camionIdVechi = {!! json_encode(old('camion_id', ($comanda->camion_id ?? "")) ?? "") !!}
 
@@ -180,8 +185,8 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-2 mb-4">
-                <label for="transportator_procent_tva_id" class="mb-0 ps-3">Procent TVA</label>
+            <div class="col-lg-1 mb-4">
+                <label for="transportator_procent_tva_id" class="mb-0 ps-0 small">Procent TVA</label>
                 <select name="transportator_procent_tva_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_procent_tva_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($procenteTVA as $procentTVA)
@@ -342,14 +347,29 @@
                             <div class="col-lg-4 mb-2">
                                 <button type="button" class="btn btn-primary px-0 w-100 text-white rounded-3"
                                     v-on:click="
-                                        if (!clientValoareContractInitiala){
-                                            alertaCampuriNecompletate = 'Completează mai întâi câmpul: Client-Valoare contract inițială!'
+                                        let hasMissingValues = false;
+                                        let alertaMessage = '';
+                                        let totalValoareContractInitiala = 0;
+
+                                        clientiAtasatiLaComanda.forEach((client, index) => {
+                                            if (!client.pivot.valoare_contract_initiala) {
+                                                hasMissingValues = true;
+                                                alertaMessage += `Completează mai întâi câmpul pentru client ${index + 1}: Valoare contract inițială!\n`;
+                                            } else {
+                                                totalValoareContractInitiala += Number(client.pivot.valoare_contract_initiala);
+                                            }
+                                        });
+
+                                        if (hasMissingValues) {
+                                            alertaCampuriNecompletate = alertaMessage.trim();
                                         } else {
                                             alertaCampuriNecompletate = '';
                                             transportatorValoareKmGoi = (transportatorKmGoi * transportatorPretKmGoi).toFixed(2);
                                             transportatorValoareKmPlini = (transportatorKmPlini * transportatorPretKmPlini).toFixed(2);
                                             transportatorValoareContract = (Number(transportatorValoareKmGoi) + Number(transportatorValoareKmPlini) + Number(transportatorPretAutostrada)).toFixed(2);
-                                            clientValoareContract = (clientValoareContractInitiala - transportatorPretFerry).toFixed(2);
+
+                                            // Calculate the general clientValoareContract
+                                            clientValoareContract = (totalValoareContractInitiala - transportatorPretFerry).toFixed(2);
                                         }
                                     ">Calculează valorile</button>
                             </div>
@@ -363,7 +383,7 @@
                                     <br>
                                 </div>
                                 <small>
-                                    * Completează inclusiv "Client - Valoare contract inițială" înainte de a "Calcula valorile"
+                                    * Completează inclusiv „Clienți - Valoare contract inițială” înainte de a „Calcula valorile”
                                 </small>
                             </div>
                         </div>
@@ -371,7 +391,9 @@
                 </div>
             </div>
         </div>
-        <div class="row px-2 pt-4 pb-1 d-flex justify-content-center" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
+
+        {{-- Removed on 14.01.2025 - to set more clients to a command, not just one --}}
+        {{-- <div class="row px-2 pt-4 pb-1 d-flex justify-content-center" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
             <div class="col-lg-12 mb-4 text-center">
                 <span class="fs-4 badge text-white" style="background-color:mediumseagreen;">Client</span>
             </div>
@@ -448,7 +470,6 @@
                     class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract_initiala') ? 'is-invalid' : '' }}"
                     name="client_valoare_contract_initiala"
                     placeholder=""
-                    {{-- value="{{ old('client_valoare_contract', $comanda->client_valoare_contract) }}"> --}}
                     v-model="clientValoareContractInitiala">
                 <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
             </div>
@@ -509,7 +530,6 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <div class="text-center">
-                    {{-- Tarif Pe Km? --}}
                     <label class="mb-0 ps-3">Tarif Pe Km</label>
                     <div class="d-flex py-1 justify-content-center">
                         <div class="form-check me-4">
@@ -525,29 +545,212 @@
                     </div>
                 </div>
             </div>
-            {{-- <div class="col-lg-2 mb-4">
-                <label for="client_data_factura" class="mb-0 ps-3">Dată factură</label>
-                <vue-datepicker-next
-                    data-veche="{{ old('client_data_factura', $comanda->client_data_factura) }}"
-                    nume-camp-db="client_data_factura"
-                    tip="date"
-                    value-type="YYYY-MM-DD"
-                    format="DD.MM.YYYY"
-                    :latime="{ width: '125px' }"
-                ></vue-datepicker-next>
+        </div> --}}
+
+        {{-- Added on 14.01.2025 - to set more clients to a command, not just one --}}
+        <div class="row px-2 pt-4 pb-1 d-flex justify-content-center" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
+            <div class="col-lg-12 mb-4 text-center">
+                <span class="fs-4 badge text-white" style="background-color:mediumseagreen;">Clienți</span>
             </div>
-            <div class="col-lg-4 mb-4">
-                <label for="client_zile_inainte_de_scadenta_memento_factura" class="mb-0 ps-3"><small>Cu câte zile înainte de scadență să se trimită memento</small></label>
-                <input
-                    type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('client_zile_inainte_de_scadenta_memento_factura') ? 'is-invalid' : '' }}"
-                    name="client_zile_inainte_de_scadenta_memento_factura"
-                    placeholder=""
-                    value="{{ old('client_zile_inainte_de_scadenta_memento_factura', $comanda->client_zile_inainte_de_scadenta_memento_factura) }}">
-                <small class="ps-3">
-                    *Se pot introduce mai multe cu virgulă între ele (Ex: 1,3,7)
-                </small>
-            </div> --}}
+            <div class="col-lg-12 mb-4">
+                <div class="row mb-2" v-for="(client, index) in clientiAtasatiLaComanda" :key="client" style="border:2px solid rgb(15, 97, 52);">
+                    <div class="col-lg-2 mb-2">
+                        <input
+                            type="hidden"
+                            :name="'clienti[' + index + '][pivot][id]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.id"
+                            >
+
+                        <label for="contract" class="mb-0 ps-3">Contract</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('contract') ? 'is-invalid' : '' }}"
+                            :name="'clienti[' + index + '][pivot][contract]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.contract">
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="limba_id" class="mb-0 ps-3">Limba</label>
+                        <select
+                            :name="'clienti[' + index + '][pivot][limba_id]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.limba_id"
+                            class="form-select bg-white rounded-3 {{ $errors->has('limba_id') ? 'is-invalid' : '' }}"
+                        >
+                            <option value="" selected disabled></option>
+                            @foreach ($limbi as $limba)
+                                <option value="{{ $limba->id }}">{{ $limba->nume }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-4 mb-2" style="position:relative;"
+                        v-click-out="() => clientiListaTotiDinDB[index] = ''"
+                        >
+                        <label for="nume" class="mb-0 ps-3">Client @{{ index+1 }}<span class="text-danger">*</span></label>
+                        <small v-if="(clientiListaTotiDinDB[index]) && (clientiListaTotiDinDB[index].length >= 100)" class="ps-3 text-danger">Căutarea dvs. returnează mai mult de 100 de înregistrări. Sistemul va afișa primele 100 de înregistrări găsite în baza de date. Vă rugăm să introduceți mai multe caractere pentru a regăsi înregistrările dorite!</small>
+                        <input
+                            type="hidden"
+                            :name="'clienti[' + index + '][id]'"
+                            v-model="clientiAtasatiLaComanda[index].id"
+                            >
+                        <div class="d-flex">
+                            <div class="input-group-prepend d-flex align-items-center">
+                                <div v-if="!clientiAtasatiLaComanda[index].id" class="input-group-text" id="firmaClientNume">?</div>
+                                <div v-if="clientiAtasatiLaComanda[index].id" class="input-group-text p-2 bg-success text-white" id="firmaClientNume"><i class="fa-solid fa-check" style="height:100%"></i></div>
+                            </div>
+                            <div class="input-group">
+                                <input
+                                    type="text"
+                                    class="form-control bg-white rounded-3 {{ $errors->has('nume') ? 'is-invalid' : '' }}"
+                                    :name="'clienti[' + index + '][nume]'"
+                                    v-model="clientiAtasatiLaComanda[index].nume"
+                                    v-on:focus="getClienti(index);"
+                                    v-on:keyup="getClienti(index);"
+                                    placeholder=""
+                                    autocomplete="off"
+                                    aria-describedby=""
+                                    required>
+                                    <div class="input-group-prepend d-flex align-items-center">
+                                    </div>
+                            </div>
+                            <div class="input-group-prepend d-flex align-items-center">
+                                <div v-if="clientiAtasatiLaComanda[index].id" class="input-group-text p-2 text-danger" id="" v-on:click="clientiAtasatiLaComanda[index].id = null; clientiAtasatiLaComanda[index].nume = ''"><i class="fa-solid fa-xmark"></i></div>
+                            </div>
+                            <div class="input-group-prepend ms-2 d-flex align-items-center">
+                                <button type="submit" ref="submit" :formaction="'{{ $comanda->path() }}/adauga-resursa/client/client/' + index" class="btn btn-success text-white rounded-3 py-0 px-2"
+                                    style="font-size: 30px; line-height: 1.2;" title="Adaugă client nou">+</button>
+                            </div>
+                        </div>
+                        <div v-cloak v-if="clientiListaTotiDinDB[index] && clientiListaTotiDinDB[index].length" class="panel-footer" style="width:100%; position:absolute; z-index: 1000;">
+                            <div class="list-group" style="max-height: 218px; overflow:auto;">
+                                <button class="list-group-item list-group-item list-group-item-action py-0"
+                                    v-for="client in clientiListaTotiDinDB[index]"
+                                    v-on:click="
+                                        clientiAtasatiLaComanda[index].id = client.id;
+                                        clientiAtasatiLaComanda[index].nume = client.nume;
+                                        clientiAtasatiLaComanda[index].client_limba_id = 1;
+                                        clientiAtasatiLaComanda[index].client_tarif_pe_km = 0;
+
+                                        clientiListaTotiDinDB = ''
+                                    ">
+                                        @{{ client.nume }}
+                                </button>
+                            </div>
+                        </div>
+                        <small v-if="!clientiAtasatiLaComanda[index].nume || (clientiAtasatiLaComanda[index].nume.length < 3)" class="ps-3">* Introduceți minim 3 caractere</small>
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="valoare_contract_initiala" class="mb-0 ps-0 small">Valoare contract inițială<span class="text-danger">*</span></label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('valoare_contract_initiala') ? 'is-invalid' : '' }}"
+                            :name="'clienti[' + index + '][pivot][valoare_contract_initiala]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.valoare_contract_initiala">
+                        <small for="valoare_contract_initiala" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="moneda_id" class="mb-0 ps-3">Moneda<span class="text-danger">*</span></label>
+                        <select
+                            :name="'clienti[' + index + '][pivot][moneda_id]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.moneda_id"
+                            class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}"
+                        >
+                            <option value="" selected disabled></option>
+                            @foreach ($monede as $moneda)
+                                <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="procent_tva_id" class="mb-0 ps-3">Procent TVA</label>
+                        <select
+                            :name="'clienti[' + index + '][pivot][procent_tva_id]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.procent_tva_id"
+                            class="form-select bg-white rounded-3 {{ $errors->has('procent_tva_id') ? 'is-invalid' : '' }}"
+                        >
+                            <option value="" selected disabled></option>
+                            @foreach ($procenteTVA as $procentTVA)
+                                <option value="{{ $procentTVA->id }}">{{ $procentTVA->nume }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="metoda_de_plata_id" class="mb-0 ps-3">Metoda de plată</label>
+                        <select
+                            :name="'clienti[' + index + '][pivot][metoda_de_plata_id]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.metoda_de_plata_id"
+                            class="form-select bg-white rounded-3 {{ $errors->has('metoda_de_plata_id') ? 'is-invalid' : '' }}"
+                        >
+                            <option value="" selected disabled></option>
+                            @foreach ($metodeDePlata as $metodaDePlata)
+                                <option value="{{ $metodaDePlata->id }}">{{ $metodaDePlata->nume }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-3 mb-2">
+                        <label for="termen_plata_id" class="mb-0 ps-3">Termen de plată</label>
+                        <select
+                            :name="'clienti[' + index + '][pivot][termen_plata_id]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.termen_plata_id"
+                            class="form-select bg-white rounded-3 {{ $errors->has('termen_plata_id') ? 'is-invalid' : '' }}"
+                        >
+                            <option value="" selected disabled></option>
+                            @foreach ($termeneDePlata as $termenDePlata)
+                                <option value="{{ $termenDePlata->id }}">{{ $termenDePlata->nume }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="zile_scadente" class="mb-0 ps-0 small">Zile scadente</label>
+                        <input
+                            type="text"
+                            class="form-control bg-white rounded-3 {{ $errors->has('zile_scadente') ? 'is-invalid' : '' }}"
+                            :name="'clienti[' + index + '][pivot][zile_scadente]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.zile_scadente">
+                    </div>
+                    <div class="col-lg-2 mb-2">
+                        <label for="tarif_pe_km" class="mb-0 ps-3">Tarif Pe Km</label>
+                        <select
+                            :name="'clienti[' + index + '][pivot][tarif_pe_km]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.tarif_pe_km"
+                            class="form-select bg-white rounded-3 {{ $errors->has('tarif_pe_km') ? 'is-invalid' : '' }}"
+                        >
+                            <option value="" selected disabled></option>
+                            <option value="1">DA</option>
+                            <option value="0">NU</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-1 mb-2 d-flex justify-content-end align-items-end">
+                        <button type="btn" title="Șterge descărcarea" class="btn btn-danger px-1" @click="this.clientiAtasatiLaComanda.splice(index, 1);">
+                            <span class="badge bg-danger p-0 mb-0">Șterge clientul</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div v-if="(clientiAtasatiLaComanda && clientiAtasatiLaComanda.length > 0)" class="col-lg-12">
+                        <small class="ps-3">* Puteți căuta clienți în baza de date introducănd minim 3 caractere la numele clientului</small>
+                    </div>
+                    <div class="col-lg-12 mb-0">
+                        <div class="row d-flex justify-content-between">
+                            <div class="col-lg-2 mb-0 text-center">
+                            </div>
+                            <div class="col-lg-2 mb-4 d-flex text-center align-items-end">
+                                <button type="button" class="btn btn-success text-white" @click="adaugaClientGol()">Adaugă client</button>
+                            </div>
+                            <div class="col-lg-2 text-end">
+                                <div class="text-start">
+                                    <label for="client_valoare_contract" class="mb-0 ps-0 small">Valoare contract finală<span class="text-danger">*</span></label>
+                                    <input
+                                        type="text"
+                                        class="form-control bg-white rounded-3 {{ $errors->has('client_valoare_contract') ? 'is-invalid' : '' }}"
+                                        name="client_valoare_contract"
+                                        placeholder=""
+                                        v-model="clientValoareContract">
+                                    <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="row px-2 pt-4 pb-1 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
             <div class="col-lg-6 mb-4">

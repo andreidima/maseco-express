@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Comanda extends Model
 {
@@ -29,9 +30,28 @@ class Comanda extends Model
         return $this->belongsTo(User::class, 'operator_user_id');
     }
 
+    // Removed on 14.01.2025 - to set more clients to a command, not just one
     public function client()
     {
         return $this->belongsTo(Firma::class, 'client_client_id');
+    }
+
+    // Added on 14.01.2025 - to set more clients to a command, not just one
+    /**
+     * Get all of the clientiComanda for the Comanda
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function clientiComanda(): HasMany
+    {
+        return $this->hasMany(ComandaClient::class, 'comanda_id');
+    }
+
+    public function clienti()
+    {
+        return $this->belongsToMany(Firma::class, 'comenzi_clienti', 'comanda_id', 'client_id')->with('tara')
+            ->withPivot('id', 'contract', 'limba_id', 'ordine_afisare', 'valoare_contract_initiala', 'moneda_id', 'zile_scadente', 'termen_plata_id', 'procent_tva_id', 'metoda_de_plata_id', 'tarif_pe_km')
+            ->withTimestamps();
     }
 
     public function transportator()
@@ -167,9 +187,15 @@ class Comanda extends Model
         return $this->hasOne(ComandaCronJob::class, 'comanda_id');
     }
 
+    // Removed on 14.01.2025 - to set more clients to a command, not just one
     public function factura()
     {
         return $this->belongsTo(Factura::class, 'factura_id');
+    }
+    // Added on 14.01.2025 - to set more clients to a command, not just one
+    public function facturi()
+    {
+        return $this->hasManyThrough(Factura::class, ComandaClient::class, 'comanda_id', 'comanda_client_id');
     }
 
     public function fisiere()

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Models\LocOperare;
+use App\Models\Firma;
 use App\Models\ComandaStatus;
 use App\Models\User;
 use Carbon\Carbon;
@@ -32,6 +33,30 @@ class AxiosController extends Controller
                     //         $query->where('oras', 'like', '%' . $request->nume . '%');
                     //     }
                     // })
+                    ->orderBy('nume')
+                    ->take(100)
+                    ->get();
+                break;
+            default:
+                break;
+        }
+        return response()->json([
+            'raspuns' => $raspuns,
+        ]);
+    }
+
+    /**
+     * Get clients "Firme"
+     */
+    public function clienti(Request $request)
+    {
+        $raspuns = '';
+        switch ($_GET['request']) {
+            case 'clienti':
+                $raspuns = Firma::select('id', 'nume')
+                    ->with('tara')
+                    ->where('nume', 'like', '%' . $request->nume . '%')
+                    ->where('tip_partener', 1) // just the clients
                     ->orderBy('nume')
                     ->take(100)
                     ->get();

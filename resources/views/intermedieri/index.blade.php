@@ -125,14 +125,22 @@
                                     {{ $comanda->transportator_contract }}
                                 </td>
                                 <td class="fs-6">
-                                    {{-- {{ $comanda->client->nume ?? '' }} --}}
-                                    {{ $comanda->factura->client_nume ?? '' }}
+                                    {{-- {{ $comanda->factura->client_nume ?? '' }} --}}
+                                    @foreach ($comanda->clientiComanda as $clientComanda)
+                                        {{ $clientComanda->factura->client_nume ?? '' }}
+                                        <br>
+                                    @endforeach
                                 </td>
                                 <td class="fs-6">
                                     {{ $comanda->transportator->nume ?? '' }}
                                 </td>
                                 <td class="fs-6 text-end">
-                                    {{ $comanda->client_valoare_contract_initiala }} {{ $comanda->clientMoneda->nume ?? null }}
+                                    {{-- {{ $comanda->client_valoare_contract_initiala }} {{ $comanda->clientMoneda->nume ?? null }}
+                                    <br> --}}
+                                    @foreach ($comanda->clientiComanda as $clientComanda)
+                                        {{ $clientComanda->valoare_contract_initiala ?? '' }} {{ $clientComanda->moneda->nume ?? null }}
+                                        <br>
+                                    @endforeach
                                 </td>
                                 <td class="fs-6 text-end">
                                     {{ $comanda->client_valoare_contract }} {{ $comanda->clientMoneda->nume ?? null }}
@@ -144,12 +152,20 @@
                                     {{ $comanda->data_creare ? Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY') : null }}
                                 </td>
                                 <td class="fs-6 text-center">
-                                    @if ($comanda->factura && $comanda->factura->client_contract)
+                                    {{-- @if ($comanda->factura && $comanda->factura->client_contract)
                                         @foreach(explode('+', $comanda->factura->client_contract) as $part)
                                             {{ $part }}
                                             <br>
                                         @endforeach
-                                    @endif
+                                    @endif --}}
+                                    @foreach ($comanda->clientiComanda as $clientComanda)
+                                        @if ($clientComanda->factura && $clientComanda->factura->client_contract)
+                                            @foreach(explode('+', $clientComanda->factura->client_contract) as $part)
+                                                {{ $part }}
+                                                <br>
+                                            @endforeach
+                                        @endif
+                                    @endforeach
                                 </td>
                                 <td class="fs-6">
                                     @if ($comanda->transportator_format_documente == "1")
@@ -221,9 +237,15 @@
                                 <th class="fs-6"></th>
                                 <th class="fs-6"></th>
                                 <th class="fs-6"></th>
-                                <th class="fs-6 text-end">{{ $comenzi->sum('client_valoare_contract_initiala') }} {{ $comanda->clientMoneda->nume ?? null }}</th>
-                                <th class="fs-6 text-end">{{ $comenzi->sum('client_valoare_contract') }} {{ $comanda->clientMoneda->nume ?? null }}</th>
-                                <th class="fs-6 text-end">{{ $comenzi->sum('transportator_valoare_contract') }} {{ $comanda->transportatorMoneda->nume ?? null }}</th>
+                                <th class="fs-6 text-end">
+                                    {{-- {{ $comenzi->sum('client_valoare_contract_initiala') }} {{ $comanda->clientMoneda->nume ?? null }} --}}
+                                </th>
+                                <th class="fs-6 text-end">
+                                    {{-- {{ $comenzi->sum('client_valoare_contract') }} {{ $comanda->clientMoneda->nume ?? null }} --}}
+                                </th>
+                                <th class="fs-6 text-end">
+                                    {{-- {{ $comenzi->sum('transportator_valoare_contract') }} {{ $comanda->transportatorMoneda->nume ?? null }} --}}
+                                </th>
                                 <th class="fs-6 text-end"></th>
                                 {{-- <th class="text-end">Prima încărcare</th> --}}
                                 <th class="fs-6 text-center"></th>

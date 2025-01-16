@@ -24,6 +24,7 @@ class FirmaController extends Controller
         $request->session()->forget('firma_return_url');
 
         $search_nume = $request->search_nume;
+        $search_cui = $request->search_cui;
         $search_telefon = $request->search_telefon;
         $search_email = $request->search_email;
 
@@ -32,6 +33,9 @@ class FirmaController extends Controller
             ->when($search_nume, function ($query, $search_nume) {
                 return $query->where('nume', 'like', '%' . $search_nume . '%');
             })
+            ->when($search_cui, function ($query, $search_cui) {
+                return $query->where('cui', $search_cui);
+            })
             ->when($search_telefon, function ($query, $search_telefon) {
                 return $query->where('telefon', 'like', '%' . $search_telefon . '%');
             })
@@ -39,11 +43,12 @@ class FirmaController extends Controller
                 return $query->where('email', 'like', '%' . $search_email . '%');
             })
             ->where('tip_partener' , (($tipPartener === 'clienti') ? 1 : (($tipPartener === 'transportatori') ? 2 : '')))
-            ->latest();
+            // ->latest();
+            ->orderBy('nume');
 
         $firme = $query->simplePaginate(25);
 
-        return view('firme.index', compact('firme', 'search_nume', 'search_telefon', 'search_email', 'tipPartener'));
+        return view('firme.index', compact('firme', 'search_nume', 'search_cui', 'search_telefon', 'search_email', 'tipPartener'));
     }
 
     /**
@@ -190,7 +195,7 @@ class FirmaController extends Controller
                 'nume' => 'required|max:500',
                 'tip_partener' => 'required',
                 'tara_id' => 'nullable|numeric',
-                'cui' => 'nullable|max:500',
+                'cui' => 'required|max:500',
                 'reg_com' => 'nullable|max:500',
                 'oras' => 'nullable|max:500',
                 'judet' => 'nullable|max:500',

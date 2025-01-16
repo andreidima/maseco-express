@@ -181,7 +181,7 @@
                             <th class="">Contract</th>
                             <th class="">Dată creare</th>
                             <th class="">Transportator</th>
-                            <th class="">Client</th>
+                            <th class="">Clienți</th>
                             <th class="text-center small">Zile scadente<br>Ctr. Client</th>
                             <th class="">Încărcări</th>
                             <th class="">Descărcări</th>
@@ -215,7 +215,11 @@
                                     {{ $comanda->transportator->nume ?? ''}}
                                 </td>
                                 <td class="">
-                                    {{ $comanda->client->nume ?? ''}}
+                                    @foreach ($comanda->clienti as $client)
+                                        {{ $client->nume }}
+                                        <br>
+                                    @endforeach
+                                    {{-- {{ $comanda->client->nume ?? ''}} --}}
                                 </td>
                                 <td class="text-center">
                                     {{ $comanda->client_zile_scadente }}
@@ -365,7 +369,7 @@
                                     </div>
                                     <div class="d-flex justify-content-end">
                                         <div class="mb-1 me-1">
-                                            <a href="/facturi-memento/deschide/{{ $comanda->id }}" class="flex">
+                                            <a href="/facturi-memento/deschide/comanda/{{ $comanda->id }}" class="flex">
                                                 <span class="badge bg-warning text-dark">Fact.</span>
                                             </a>
                                         </div>

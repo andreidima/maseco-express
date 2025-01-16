@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Factura extends Model
 {
@@ -71,5 +72,17 @@ class Factura extends Model
     public function clientTara()
     {
         return $this->belongsTo(Tara::class, 'client_tara_id');
+    }
+
+
+    // Added on 14.01.2025 - to set more clients to a command, not just one
+    /**
+     * Get the comandaClient that owns with the Factura
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function comandaClient(): BelongsTo
+    {
+        return $this->belongsTo(comandaClient::class, 'comanda_client_id',);
     }
 }

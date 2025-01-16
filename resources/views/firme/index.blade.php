@@ -3,7 +3,7 @@
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <span class="badge culoare1 fs-5">
                     @switch($tipPartener)
                         @case('clienti')
@@ -19,17 +19,20 @@
                     {{-- <i class="fa-solid fa-building me-1"></i>Firme --}}
                 </span>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-8">
                 <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form justify-content-center">
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <input type="text" class="form-control rounded-3" id="search_nume" name="search_nume" placeholder="Nume" value="{{ $search_nume }}">
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
+                            <input type="text" class="form-control rounded-3" id="search_cui" name="search_cui" placeholder="Cui" value="{{ $search_cui }}">
+                        </div>
+                        <div class="col-lg-3">
                             <input type="text" class="form-control rounded-3" id="search_telefon" name="search_telefon" placeholder="Telefon" value="{{ $search_telefon }}">
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-3">
                             <input type="text" class="form-control rounded-3" id="search_email" name="search_email" placeholder="Email" value="{{ $search_email }}">
                         </div>
                     </div>
@@ -43,7 +46,7 @@
                     </div>
                 </form>
             </div>
-            <div class="col-lg-3 text-end">
+            <div class="col-lg-2 text-end">
                 <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ url()->current() }}/adauga" role="button">
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă firmă
                 </a>
@@ -61,6 +64,7 @@
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
                             <th class="">Nume</th>
+                            <th class="">Cui</th>
                             <th class="">Telefon</th>
                             <th class="">Email</th>
                             <th class="">Țara</th>
@@ -80,6 +84,9 @@
                                 </td>
                                 <td class="">
                                     {{ $firma->nume }}
+                                </td>
+                                <td class="">
+                                    {{ $firma->cui }}
                                 </td>
                                 <td class="">
                                     {{ $firma->telefon }}

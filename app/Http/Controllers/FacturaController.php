@@ -479,37 +479,84 @@ class FacturaController extends Controller
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
 
-        if (!($factura = $comanda->factura)) {
-            $factura = new Factura;
-            $factura->data = Carbon::now();
-            $factura->client_nume = $comanda->client->nume ?? '';
-            $factura->client_email = $comanda->client->email_factura ?? '';
-            $factura->client_contract = $comanda->client_contract ?? '';
-            $factura->client_limba_id = $comanda->client_limba_id ?? '';
-            $factura->save();
+        // Removed on 14.01.2025 - to set more clients to a command, not just one
+        // if (!($factura = $comanda->factura)) {
+        //     $factura = new Factura;
+        //     $factura->data = Carbon::now();
+        //     $factura->client_nume = $comanda->client->nume ?? '';
+        //     $factura->client_email = $comanda->client->email_factura ?? '';
+        //     $factura->client_contract = $comanda->client_contract ?? '';
+        //     $factura->client_limba_id = $comanda->client_limba_id ?? '';
+        //     $factura->save();
 
-            $comanda->factura_id = $factura->id;
-            $comanda->save();
-        }
+        //     $comanda->factura_id = $factura->id;
+        //     $comanda->save();
+        // }
 
+        // Added on 14.01.2025 - to set more clients to a command, not just one
+
+        $comanda = Comanda::find($comanda->id);
+        $facturi = $comanda->facturi;
         $limbi = Limba::select('id', 'nume')->whereIn('id', [1,2])->get();
-
-        return view('facturi.doarPentruMemento.createOrEditMementoFactura', compact('limbi', 'factura'));
+        // dd($comanda->clienti, $comanda->facturi, $facturi);
+        return view('facturi.doarPentruMemento.createOrEditMementoFactura', compact('limbi', 'comanda', 'facturi'));
     }
 
-    public function storeOrUpdateMementoFactura(Request $request, Factura $factura)
+    public function storeOrUpdateMementoFactura(Request $request, Comanda $comanda)
     {
+        // Removed on 14.01.2025 - to set more clients to a command, not just one
+        // $validatedRequest = $request->validate(
+        //     [
+        //         'client_nume' => 'required|max:255',
+        //         'client_email' => 'nullable|email:rfc,dns',
+        //         'client_contract' => 'required|max:255',
+        //         'client_limba_id' => 'required',
+        //         'seria' => 'nullable|max:5',
+        //         'numar' => 'required|max:255',
+        //         'data' => 'required',
+        //         'zile_scadente' => 'nullable|numeric|between:1,100',
+        //         'alerte_scadenta' => ['nullable',
+        //             function ($attribute, $value, $fail) use ($request) {
+        //                 if ($value){
+        //                     $zileInainte = preg_split ("/\,/", $value);
+        //                     foreach ($zileInainte as $ziInainte){
+        //                         if (!(intval($ziInainte) == $ziInainte)){
+        //                             $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu este completat corect');
+        //                         }elseif ($ziInainte < 0){
+        //                             $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu poate conține valori negative');
+        //                         }elseif ($ziInainte > 100){
+        //                             $fail('Câmpul „Cu câte zile înainte de scadență să se trimită memento” nu poate conține valori mai mari de 100');
+        //                         }
+        //                     }
+        //                 }
+        //             }],
+        //         'factura_transportator' => 'nullable|max:255',
+        //         'data_plata_transportator' => 'nullable',
+        //     ]
+        // );
+
+        // $factura->update($validatedRequest);
+
+        // // Se salveaza si in comanda client_contract
+        // if ($factura->client_contract !== $factura->comanda->client_contract) {
+        //     $factura->comanda->update(['client_contract' => $factura->client_contract]);
+        // }
+
+        // return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Mementoul pentru factura „' . $factura->seria . $factura->numar . '” a fost salvat cu succes!');
+
+        // Added on 14.01.2025 - to set more clients to a command, not just one
         $validatedRequest = $request->validate(
             [
-                'client_nume' => 'required|max:255',
-                'client_email' => 'nullable|email:rfc,dns',
-                'client_contract' => 'required|max:255',
-                'client_limba_id' => 'required',
-                'seria' => 'nullable|max:5',
-                'numar' => 'required|max:255',
-                'data' => 'required',
-                'zile_scadente' => 'nullable|numeric|between:1,100',
-                'alerte_scadenta' => ['nullable',
+                'facturi.*.id' => 'required',
+                'facturi.*.client_nume' => 'required|max:255',
+                'facturi.*.client_email' => 'nullable|email:rfc,dns',
+                'facturi.*.client_contract' => 'required|max:255',
+                'facturi.*.client_limba_id' => 'required',
+                'facturi.*.seria' => 'nullable|max:5',
+                'facturi.*.numar' => 'required|max:255',
+                'facturi.*.data' => 'required',
+                'facturi.*.zile_scadente' => 'nullable|numeric|between:1,100',
+                'facturi.*.alerte_scadenta' => ['nullable',
                     function ($attribute, $value, $fail) use ($request) {
                         if ($value){
                             $zileInainte = preg_split ("/\,/", $value);
@@ -526,16 +573,75 @@ class FacturaController extends Controller
                     }],
                 'factura_transportator' => 'nullable|max:255',
                 'data_plata_transportator' => 'nullable',
-            ]
+            ],
+            [],
+            collect($request->input('facturi', []))
+                ->keys()
+                ->flatMap(fn($index) => [
+                    "facturi.$index.client_nume" => "Factura " . ($index + 1) . " - Nume Client",
+                    "facturi.$index.client_email" => "Factura " . ($index + 1) . " - Email Client",
+                    "facturi.$index.client_contract" => "Factura " . ($index + 1) . " - Contract Client",
+                    "facturi.$index.client_limba_id" => "Factura " . ($index + 1) . " - Limba ID Client",
+                    "facturi.$index.seria" => "Factura " . ($index + 1) . " - Seria",
+                    "facturi.$index.numar" => "Factura " . ($index + 1) . " - Număr",
+                    "facturi.$index.data" => "Factura " . ($index + 1) . " - Dată",
+                    "facturi.$index.zile_scadente" => "Factura " . ($index + 1) . " - Zile Scadente",
+                    "facturi.$index.alerte_scadenta" => "Factura " . ($index + 1) . " - Alerte Scadență",
+                ])
+                ->all()
         );
 
-        $factura->update($validatedRequest);
+        // I commented all that is here, because the invoices are not anymore created here, they are created in commandController, here are just updated
+        // // Check if 'facturi' exists and is not empty in the validated request
+        // if (!empty($validatedRequest['facturi']) && is_array($validatedRequest['facturi'])) {
+        //     $existingFacturiIds = $comanda->facturi->pluck('id')->toArray(); // Get all existing factura IDs for the comanda
+        //     $requestFacturiIds = array_column($validatedRequest['facturi'], 'id'); // Get all factura IDs from the request
 
-        // Se salveaza si in comanda client_contract
-        if ($factura->client_contract !== $factura->comanda->client_contract) {
-            $factura->comanda->update(['client_contract' => $factura->client_contract]);
+        //     // Find IDs that are in the database but not in the request
+        //     $facturiToDelete = array_diff($existingFacturiIds, $requestFacturiIds);
+
+        //     // Delete the facturi that are no longer in the request
+        //     if (!empty($facturiToDelete)) {
+        //         Factura::whereIn('id', $facturiToDelete)->delete();
+        //     }
+
+        //     // Process the remaining facturi from the request
+        //     foreach ($validatedRequest['facturi'] as $factura) {
+        //         if (!empty($factura['id'])) {
+        //             // Update existing record
+        //             $id = $factura['id']; // Extract the ID
+        //             unset($factura['id']); // Remove the 'id' from the update data
+        //             Factura::where('id', $id)->update($factura);
+        //         } else {
+        //             // Add $comanda->id to the new record
+        //             $factura['comanda_id'] = $comanda->id; // Set the comanda ID
+        //             Factura::create($factura); // Insert the new record
+        //         }
+        //     }
+        // } else {
+        //     // If no facturi in the request, delete all facturi for this comanda
+        //     $comanda->facturi()->delete();
+        // }
+
+        // Process each factura
+        foreach ($validatedRequest['facturi'] as $facturaData) {
+            if (isset($facturaData['id']) && ($factura = Factura::find($facturaData['id']))) {
+                // Update existing record
+                $factura->update($facturaData);
+
+                // If client_contract has been modified, it will be updated in comandaCLient too
+                if ($factura->client_contract !== $factura->comandaClient->client_contract) {
+                    $factura->comandaClient->update(['contract' => $factura->client_contract]);
+                }
+            }
         }
 
-        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Mementoul pentru factura „' . $factura->seria . $factura->numar . '” a fost salvat cu succes!');
+        // Update the $comanda model with validated data
+        $comanda->update([
+            'factura_transportator' => $validatedRequest['factura_transportator'] ?? null,
+            'data_plata_transportator' => $validatedRequest['data_plata_transportator'] ?? null,
+        ]);
+
+        return redirect($request->session()->get('ComandaReturnUrl') ?? ('/comenzi'))->with('status', 'Facturile aferente comenzii ' . $comanda->transportator_contract . ' au fost salvate cu succes!');
     }
 }

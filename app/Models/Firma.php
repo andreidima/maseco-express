@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Firma extends Model
 {
@@ -33,10 +34,15 @@ class Firma extends Model
         return $this->hasMany(Camion::class);
     }
 
-    public function comenziCaSiClient()
-    {
-        return $this->hasMany(Comanda::class, 'client_client_id');
-    }
+    // public function comenziCaSiClient()
+    // {
+    //     return $this->hasMany(Comanda::class, 'client_client_id');
+    // }
+    /**
+     * Get the comandaPivotInfo associated with the Firma
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     */
 
     public function comenziCaSiTransportator()
     {

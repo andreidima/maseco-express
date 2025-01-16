@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Comanda;
 use App\Models\ComandaIstoric;
 use App\Models\ComandaCronjob;
+use App\Models\ComandaClient;
+use App\Models\ComandaClientIstoric;
 use App\Models\ComandaLocOperareIstoric;
 use App\Models\Firma;
 use App\Models\Limba;
@@ -17,6 +19,7 @@ use App\Models\TermenDePlata;
 use App\Models\Camion;
 use App\Models\LocOperare;
 use App\Models\User;
+use App\Models\Factura;
 
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -46,7 +49,7 @@ class ComandaController extends Controller
         $searchClientId = $request->searchClientId;
         $searchNrAuto = $request->searchNrAuto;
 
-        $query = Comanda::with('client:id,nume', 'transportator:id,nume', 'camion:id,numar_inmatriculare',
+        $query = Comanda::with('clienti:id,nume', 'transportator:id,nume', 'camion:id,numar_inmatriculare',
                                 'mesajeTrimiseEmail:id,comanda_id,categorie,email,created_at', 'mesajeTrimiseSms:id,categorie,subcategorie,referinta_id,telefon,mesaj,content,trimis,raspuns,created_at',
                                 'locuriOperareIncarcari', 'locuriOperareDescarcari', 'user:id,name', 'operator:id,name')
             ->withCount('contracteTrimisePeEmailCatreTransportator')
@@ -111,8 +114,8 @@ class ComandaController extends Controller
         $comanda->interval_notificari = '03:00:00';
         $comanda->transportator_limba_id = 1; // Romana
         $comanda->transportator_tarif_pe_km = 0;
-        $comanda->client_limba_id = 1; // Romana
-        $comanda->client_tarif_pe_km = 0;
+        // $comanda->client_limba_id = 1; // Romana
+        // $comanda->client_tarif_pe_km = 0;
         $comanda->user_id = $request->user()->id;
         $comanda->operator_user_id = $request->user()->id;
         $comanda->cheie_unica = uniqid();
@@ -173,11 +176,13 @@ class ComandaController extends Controller
     {
         // Daca a fost adaugat un transportator din comanda, se revine in formularul comenzii si campurile trebuie sa se recompleteze automat
         if ($request->session()->exists('comandaRequest')) {
-            echo '1';
             session()->put('_old_input', $request->session()->pull('comandaRequest', 'default'));
             if ($request->session()->exists('comandaFirmaTip')) {
                 if ($request->session()->pull('comandaFirmaTip') === 'clienti') {
-                    session()->put('_old_input.client_client_id', $request->session()->pull('comandaFirmaId', ''));
+                    $firma = Firma::find($request->session()->pull('comandaFirmaId', ''));
+                    $clientOrdine = $request->session()->pull('comandaFirmaOrdine', '');
+                    session()->put('_old_input.clienti.' . $clientOrdine . '.id', $firma->id);
+                    session()->put('_old_input.clienti.' . $clientOrdine . '.nume', $firma->nume);
                 } else {
                     session()->put('_old_input.transportator_transportator_id', $request->session()->pull('comandaFirmaId', ''));
                 }
@@ -229,6 +234,7 @@ class ComandaController extends Controller
         // dd($request->request, $request->except(['incarcari']), $this->validateRequest($request));
         $comanda_campuri = $this->validateRequest($request);
 
+        unset($comanda_campuri['clienti']);
         unset($comanda_campuri['incarcari']);
         unset($comanda_campuri['descarcari']);
         // If the prices are allready saved in the database
@@ -253,6 +259,99 @@ class ComandaController extends Controller
             $comanda_istoric->operare_user_id = auth()->user()->id ?? null;
             $comanda_istoric->operare_descriere = 'Modificare';
             $comanda_istoric->save();
+        }
+
+
+        // Added on 14.01.2025 - after that we went to more that one client to a command
+        // Curent clients from pivot table
+        $currentClients = $comanda->clienti->mapWithKeys(function ($client) {
+            return [$client->pivot->id => $client->pivot->toArray()];
+        });
+
+        $newClients = collect($request->clienti); // Clients from the request
+
+        $newClients->each(function ($client, $index) use ($comanda, $currentClients) {
+            $clientId = $client['pivot']['id'];
+            $newPivotData = [
+                'comanda_id' => $comanda->id,
+                'client_id' => $client['id'],
+                'ordine_afisare' => $index + 1,
+                'contract' => $client['pivot']['contract'] ?? null,
+                'limba_id' => $client['pivot']['limba_id'] ?? null,
+                'valoare_contract_initiala' => $client['pivot']['valoare_contract_initiala'] ?? null,
+                'moneda_id' => $client['pivot']['moneda_id'] ?? null,
+                'procent_tva_id' => $client['pivot']['procent_tva_id'] ?? null,
+                'metoda_de_plata_id' => $client['pivot']['metoda_de_plata_id'] ?? null,
+                'termen_plata_id' => $client['pivot']['termen_plata_id'] ?? null,
+                'zile_scadente' => $client['pivot']['zile_scadente'] ?? null,
+                'tarif_pe_km' => $client['pivot']['tarif_pe_km'] ?? null,
+            ];
+
+            $historyData = array_merge($newPivotData, [
+                'id' => $clientId,
+                'operare_user_id' => auth()->user()->id ?? null,
+                'operare_data' => now(),
+            ]);
+
+            if (isset($currentClients[$clientId])) { // The client exists in the current clients
+                // Compare pivot data
+                $currentPivotData = $currentClients[$clientId];
+
+                if ($newPivotData != array_intersect_key($currentPivotData, $newPivotData)) {
+                    // Update the pivot data if it's changed
+                    ComandaClient::where('id', $clientId) // Find by pivot ID
+                        ->update($newPivotData); // Update with new data
+
+                    // Add an entry to the history table
+                    $historyData['operare_descriere'] = 'Modificare';
+                    ComandaClientIstoric::create($historyData);
+                }
+            } else {
+                // Add new relationship
+                $comandaClient = ComandaClient::create($newPivotData);
+                // Create a factura for it aswell
+                $factura = new Factura();
+                $factura->comanda_client_id = $comandaClient->id;
+                $factura->data = Carbon::now();
+                $factura->client_nume = $client['nume'] ?? '';
+                $factura->client_email = $client['email_factura'] ?? '';
+                $factura->client_contract = $comandaClient['contract'] ?? '';
+                $factura->client_limba_id = $comandaClient['limba_id'] ?? '';
+                $factura->save();
+
+                // Add an entry to the history table
+                $historyData['operare_descriere'] = 'Adaugare';
+                $historyData['id'] = $comandaClient->id;
+                ComandaClientIstoric::create($historyData);
+            }
+        });
+
+        // Handle deleted clients
+        $currentClientIds = $currentClients->keys()->toArray(); // Extract current client IDs
+        $newClientIds = $newClients->pluck('pivot.id')->toArray(); // Extract new client IDs
+        $clientsToDelete = array_diff($currentClientIds, $newClientIds); // IDs to be deleted
+
+        foreach ($clientsToDelete as $clientId) {
+                $comandaClient = ComandaClient::find($clientId); // Retrieve the instance by ID
+
+                if ($comandaClient) {
+                    // Delete the associated factura if it exists
+                    if ($comandaClient->factura) {
+                        $comandaClient->factura->delete();
+                    }
+
+                    // Delete the ComandaClient instance
+                    $comandaClient->delete();
+
+                    // Add an entry to the history table
+                    ComandaClientIstoric::create([
+                        'id' => $comandaClient->id,
+                        'comanda_id' => $comanda->id,
+                        'operare_user_id' => auth()->user()->id ?? null,
+                        'operare_descriere' => 'Stergere',
+                        'operare_data' => now(),
+                    ]);
+                }
         }
 
 
@@ -578,7 +677,12 @@ class ComandaController extends Controller
 
         $comanda->locuriOperare()->detach();
         $comanda->cronjob ? $comanda->cronjob->delete() : '';
+        foreach ($comanda->facturi as $factura) {
+            $factura->delete();
+        }
+        $comanda->clienti()->detach();
         $comanda->delete();
+
 
         // Salvare in istoric
         $comanda_istoric = new ComandaIstoric;
@@ -631,17 +735,22 @@ class ComandaController extends Controller
                 'transportator_valoare_km_plini' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
                 'transportator_pret_autostrada' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
                 'transportator_pret_ferry' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
-                'client_contract' => 'nullable|max:255',
-                'client_limba_id' => '',
-                'client_valoare_contract_initiala' => 'required|numeric|min:-9999999|max:9999999',
-                'client_valoare_contract' => 'required|numeric|min:-9999999|max:9999999',
-                'client_moneda_id' => 'required',
-                'client_zile_scadente' => 'nullable|numeric|min:-100|max:300',
-                'client_termen_plata_id' => '',
-                'client_client_id' => 'required',
-                'client_procent_tva_id' => '',
-                'client_metoda_de_plata_id' => '',
-                'client_tarif_pe_km' => '',
+
+
+                // Comented on 14.01.2025 - after that we went to more that one client to a command
+                // 'client_contract' => 'nullable|max:255',
+                // 'client_limba_id' => '',
+                // 'client_valoare_contract_initiala' => 'required|numeric|min:-9999999|max:9999999',
+                // 'client_valoare_contract' => 'required|numeric|min:-9999999|max:9999999',
+                // 'client_moneda_id' => 'required',
+                // 'client_zile_scadente' => 'nullable|numeric|min:-100|max:300',
+                // 'client_termen_plata_id' => '',
+                // 'client_client_id' => 'required',
+                // 'client_procent_tva_id' => '',
+                // 'client_metoda_de_plata_id' => '',
+                // 'client_tarif_pe_km' => '',
+
+                // This was commented before 2024
                 // 'client_data_factura' => '',
                 // 'client_zile_inainte_de_scadenta_memento_factura' =>
                 //     function ($attribute, $value, $fail) use ($request) {
@@ -658,6 +767,18 @@ class ComandaController extends Controller
                 //             }
                 //         }
                 //     },
+
+                // Added on 14.01.2025 - after that we went to more that one client to a command
+                'clienti.*.id' => 'required',
+                'clienti.*.pivot.valoare_contract_initiala' => 'required|numeric|between:-9999999,9999999',
+                'clienti.*.pivot.moneda_id' => 'required',
+                'clienti.*.pivot.client_procent_tva_id' => '',
+                'clienti.*.pivot.client_metoda_de_plata_id' => '',
+                'clienti.*.pivot.client_termen_plata_id' => '',
+                'clienti.*.pivot.client_zile_scadente' => 'nullable|numeric|min:-100|max:300',
+                'clienti.*.pivot.client_tarif_pe_km' => '',
+
+
                 'descriere_marfa' => 'nullable|max:500',
                 'camion_id' => '',
 
@@ -681,7 +802,16 @@ class ComandaController extends Controller
             ],
             [
                 'transportator_transportator_id.required' => 'Câmpul Transportator este obligatoriu',
+
+                // Comented on 14.01.2025 - after that we went to more that one client to a command
                 'client_client_id.required' => 'Câmpul Client este obligatoriu',
+                // Added on 14.01.2025 - after that we went to more that one client to a command
+                'clienti.*.id' => 'Clientul #:position este obligatoriu de selectat din baza de date',
+                'clienti.*.pivot.moneda_id' => 'Câmpul Moneda pentru clientul #:position este obligatoriu',
+                'clienti.*.pivot.valoare_contract_initiala.required' => 'Câmpul Valoare Contract Inițială pentru clientul #:position este obligatoriu',
+                'clienti.*.pivot.valoare_contract_initiala.numeric' => 'Câmpul Valoare Contract Inițială pentru clientul #:position trebuie să fie un număr',
+                'clienti.*.pivot.valoare_contract_initiala.between' => 'Câmpul Valoare Contract Inițială pentru clientul #:position trebuie să fie între -9999999 și 9999999',
+
                 'incarcari.*.id' => 'Încărcarea #:position este obligatoriu de selectat din baza de date',
                 'incarcari.*.pivot.data_ora' => 'Câmpul Data și ora pentru încărcarea #:position este obligatoriu',
                 'incarcari.*.pivot.durata' => 'Câmpul Durata pentru încărcarea #:position este obligatoriu',
@@ -853,7 +983,9 @@ class ComandaController extends Controller
                 return redirect('/firme/transportatori/adauga');
                 break;
             case 'client':
+                // dd('here', $ordine);
                 $request->session()->put('firma_return_url', url()->previous());
+                $request->session()->put('comandaFirmaOrdine', $ordine);
                 return redirect('/firme/clienti/adauga');
                 break;
             case 'camion':

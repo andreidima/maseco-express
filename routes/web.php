@@ -104,6 +104,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     // Extras date cu Axios
     Route::get('/axios/locuri-operare', [AxiosController::class, 'locuriOperare']);
+    Route::get('/axios/clienti', [AxiosController::class, 'clienti']);
     Route::get('/axios/statusuri', [AxiosController::class, 'statusuri']);
 
     Route::resource('/fisiere/{categorieFisier}', FisierController::class)->parameters(['{categorieFisier}' => 'fisier']);
@@ -116,8 +117,12 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/facturi/{factura}/export/{view_type}', [FacturaController::class, 'exportPdf']);
 
     // Doar pentru mementouri facturi, create din pagina de comenzi, eventual pana este gata modulul de facturare, daca se va mai face
-    Route::get('/facturi-memento/deschide/{comanda}', [FacturaController::class, 'createOrUpdateMementoFactura']);
-    Route::post('/facturi-memento/salveaza/{factura}', [FacturaController::class, 'storeOrUpdateMementoFactura']);
+    // Removed on 14.01.2025 - to set more clients to a command, so more invoices, not just one
+    // Route::get('/facturi-memento/deschide/{comanda}', [FacturaController::class, 'createOrUpdateMementoFactura']);
+    // Route::post('/facturi-memento/salveaza/{factura}', [FacturaController::class, 'storeOrUpdateMementoFactura']);
+    // Added on 14.01.2025 - to set more clients to a command, so more invoices, not just one
+    Route::get('/facturi-memento/deschide/comanda/{comanda}', [FacturaController::class, 'createOrUpdateMementoFactura']);
+    Route::post('/facturi-memento/salveaza/comanda/{comanda}', [FacturaController::class, 'storeOrUpdateMementoFactura']);
 
     Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);
     Route::get('/rapoarte/documente-transportatori', [RaportController::class, 'documenteTransportatori']);

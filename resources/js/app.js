@@ -122,9 +122,6 @@ if (document.getElementById('camion') != null) {
 }
 
 
-
-
-
 const formularComanda = createApp({
     el: '#formularComanda',
     data() {
@@ -134,10 +131,14 @@ const formularComanda = createApp({
             firmeTransportatori: firmeTransportatori,
             firmeTransportatoriListaAutocomplete: [],
 
+            // Comented on 14.01.2025 - after that we went to more that one client to a command
             firmaClientId: firmaClientIdVechi,
             firmaClientNume: '',
             firmeClienti: firmeClienti,
             firmeClientiListaAutocomplete: [],
+            // Added on 14.01.2025 - after that we went to more that one client to a command
+            clientiListaTotiDinDB: [],
+            clientiAtasatiLaComanda: ((typeof clientiAtasatiLaComanda !== 'undefined') ? clientiAtasatiLaComanda : []),
 
             camionId: camionIdVechi,
             camionNumarInmatriculare: '',
@@ -226,6 +227,25 @@ const formularComanda = createApp({
                 }
             }
         },
+
+        // getLocuriOperareIncarcari(incarcare, value, categorie) {
+        getClienti(client) {
+            this.clientiListaTotiDinDB = [];
+            // console.log(incarcare, value, categorie);
+            // console.log(incarcari[incarcare].nume, incarcari[incarcare].oras);
+            // if (value.length > 2) {
+            if ((clientiAtasatiLaComanda[client].nume && clientiAtasatiLaComanda[client].nume.length > 2)) {
+                axios.get('/axios/clienti', {
+                    params: {
+                        request: 'clienti',
+                        nume: clientiAtasatiLaComanda[client].nume,
+                    }
+                })
+                    .then(
+                        response => (this.clientiListaTotiDinDB[client] = response.data.raspuns)
+                    );
+            }
+        },
         // getLocuriOperareIncarcari(incarcare, value, categorie) {
         getLocuriOperareIncarcari(incarcare) {
             this.locuriOperareIncarcari = [];
@@ -266,12 +286,24 @@ const formularComanda = createApp({
                     );
             }
         },
+        adaugaClientGol() {
+            let client =
+            {
+                // id : '',
+                // nume: '',
+                // oras: '',
+                // tara: { id: '', nume: '' },
+                tara: {},
+                pivot: {},
+            };
+            this.clientiAtasatiLaComanda.push(client);
+        },
         adaugaIncarcareGoala() {
             let locOperare =
                 {
                     // id : '',
                     // nume: '',
-                    // oras: '',
+                    data_ora: 'qweqweqwe',
                     // tara: { id: '', nume: '' },
                     tara: {},
                     pivot: {},
@@ -847,4 +879,21 @@ const wysiwyg = createApp({
 wysiwyg.component('TiptapEditor', TiptapEditor);
 if (document.getElementById('wysiwyg') != null) {
     wysiwyg.mount('#wysiwyg');
+}
+
+
+// Added on 14.01.2025 - to set more clients to a command, not just one
+// Tablou comenzi - factura
+const facturaMemento = createApp({
+    el: '#facturaMemento',
+    data() {
+        return {
+            facturi: facturi,
+        }
+    }
+});
+
+facturaMemento.component('vue-datepicker-next', VueDatepickerNext);
+if (document.getElementById('facturaMemento') != null) {
+    facturaMemento.mount('#facturaMemento');
 }

@@ -26,7 +26,8 @@ class IntermediereController extends Controller
 
         $query = Comanda::with('intermediere', 'user:id,name', 'client:id,nume', 'transportator:id,nume', 'camion:id,numar_inmatriculare', 'clientMoneda', 'transportatorMoneda',
                                     'factura:id,client_nume,client_contract,seria,numar,data,factura_transportator,data_plata_transportator',
-                                    'ultimulEmailPentruFisiereIncarcateDeTransportator:id,comanda_id,tip', 'fisiereTransportatorIncarcateDeOperator'
+                                    'ultimulEmailPentruFisiereIncarcateDeTransportator:id,comanda_id,tip', 'fisiereTransportatorIncarcateDeOperator',
+                                    'clientiComanda.factura', 'clientiComanda.moneda'
                                 )
             ->when($searchUser, function ($query, $searchUser) {
                 return $query->whereHas('user', function ($query) use ($searchUser) {

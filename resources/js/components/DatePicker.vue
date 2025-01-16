@@ -126,7 +126,8 @@ export default {
         },
     },
     created() {
-        if (!(this.dataVeche === "")) {
+        // if ((typeof this.dataVeche !== 'undefined') && (this.dataVeche !== "")) {
+        if (this.dataVeche != null && this.dataVeche !== "") {
             if (this.dataVeche.includes(",")){ // inseamna ca este interval
                 var timeArray = [];
                 timeArray[0] = this.dataVeche.substring(0, this.dataVeche.indexOf(","));
