@@ -47,7 +47,7 @@
                                     {{ ($flotaStatusuri ->currentpage()-1) * $flotaStatusuri ->perpage() + $loop->index + 1 }}
                                 </td>
                                 <td class="text-center" style="color: {{ $status->utilizator->culoare_text ?? '' }}; background-color: {{ $status->utilizator->culoare_background ?? '' }}">
-                                    {{ $status->nr_auto }} {{ $status->utilizator->culoare_text ?? '' }}
+                                    {{ $status->nr_auto }}
                                 </td>
                                 <td class="text-center">
                                     {{ $status->dimenssions }}
