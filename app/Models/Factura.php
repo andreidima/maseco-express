@@ -83,6 +83,6 @@ class Factura extends Model
      */
     public function comandaClient(): BelongsTo
     {
-        return $this->belongsTo(comandaClient::class, 'comanda_client_id',);
+        return $this->belongsTo(ComandaClient::class, 'comanda_client_id',);
     }
 }
