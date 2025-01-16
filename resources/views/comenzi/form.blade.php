@@ -360,7 +360,7 @@
                                     ">Calculează valorile</button>
                             </div>
                         </div>
-                        <div class="row">
+                        {{-- <div class="row">
                             <div class="col-lg-12 mb-2">
                                 <div v-if="alertaCampuriNecompletate" class="text-center">
                                     <span class="px-1 bg-danger text-white rounded">
@@ -372,7 +372,7 @@
                                     * Completează inclusiv „Clienți - Valoare contract inițială” înainte de a „Calcula valorile”
                                 </small>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -714,6 +714,15 @@
                     <div v-if="(clientiAtasatiLaComanda && clientiAtasatiLaComanda.length > 0)" class="col-lg-12">
                         <small class="ps-3">* Puteți căuta clienți în baza de date introducănd minim 3 caractere la numele clientului</small>
                     </div>
+                    <div v-if="alertaCampuriNecompletate" class="col-lg-12 mb-2">
+                        <div class="text-center">
+                            <span class="px-1 bg-danger text-white rounded" v-html="alertaCampuriNecompletate"></span>
+                            <br>
+                        </div>
+                        {{-- <small>
+                            * Completează inclusiv „Clienți - Valoare contract inițială” înainte de a „Calcula valorile”
+                        </small> --}}
+                    </div>
                     <div class="col-lg-12 mb-0">
                         <div class="row d-flex justify-content-between">
                             <div class="col-lg-5 mb-0 text-center">
@@ -735,7 +744,7 @@
                                                 clientiAtasatiLaComanda.forEach((client, index) => {
                                                     if (!client.pivot.valoare_contract_initiala) {
                                                         hasMissingValues = true;
-                                                        alertaMessage += `Completează mai întâi câmpul pentru client ${index + 1}: Valoare contract inițială!\n`;
+                                                        alertaMessage += `Completează mai întâi câmpul pentru client ${index + 1}: Valoare contract inițială!<br>`;
                                                     } else {
                                                         totalValoareContractInitiala += Number(client.pivot.valoare_contract_initiala);
                                                     }
