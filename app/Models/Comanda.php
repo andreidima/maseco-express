@@ -239,6 +239,12 @@ class Comanda extends Model
         return $this->hasOne(ComandaFisierEmail::class, 'comanda_id')->latest();
     }
 
+    public function ultimulEmailPentruFisiereIncarcateDeTransportatorEsteSauNuTip2()
+    {
+        $lastEmail = $this->ultimulEmailPentruFisiereIncarcateDeTransportator;
+        return $lastEmail && $lastEmail->tip == 2;
+    }
+
     // comenzi with ultimaDescarcare > 24h, with no transporter documents added
     // public function ultimulEmailPentruFisiereIncarcateDeTransportator()
     // {

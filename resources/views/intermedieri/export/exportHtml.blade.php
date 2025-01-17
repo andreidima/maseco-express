@@ -112,7 +112,7 @@
                     <th class="">Factură Maseco</th>
                     <th class="">Factură Transp.</th>
                     <th class="">Data factură</th>
-                    <th class="">Achitat</th>
+                    <th class="">Achitat Transp.</th>
                     <th class="">Observații</th>
                     <th class="">Număr mașină</th>
                     <th class="">Motis</th>

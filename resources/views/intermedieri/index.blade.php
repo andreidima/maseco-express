@@ -13,11 +13,11 @@
                     <i class="fa-solid fa-file me-1"></i>Intermedieri
                 </span>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-9">
                 <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form justify-content-center">
-                        <div class="col-lg-6 d-flex align-items-center justify-content-center" id="datePicker">
+                        <div class="col-lg-3 d-flex align-items-center justify-content-center" id="datePicker">
                             <label for="searchInterval" class="pe-1">Interval:</label>
                             <vue-datepicker-next
                                 data-veche="{{ $searchInterval }}"
@@ -29,7 +29,7 @@
                                 :latime="{ width: '210px' }"
                             ></vue-datepicker-next>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-2">
                             <select name="searchUser" id="searchUser" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
                                 <option value="" selected>Selectează Utilizator</option>
                                 @foreach ($useri as $user)
@@ -42,6 +42,17 @@
                                 <option value="" selected>Predat</option>
                                 <option value="NU" {{ $searchPredat == "NU" ? 'selected' : '' }}>NU</option>
                                 <option value="DA" {{ $searchPredat == "DA" ? 'selected' : '' }}>DA</option>
+                            </select>
+                        </div>
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control rounded-3" id="searchFacturaMasecoNumar" name="searchFacturaMasecoNumar" placeholder="Fact Maseco. nr." value="{{ $searchFacturaMasecoNumar }}">
+                        </div>
+                        <div class="col-lg-2">
+                            <select name="searchCondition" id="searchCondition" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
+                                <option value="" selected>Toate</option>
+                                <option value="condition1" {{ $searchCondition == "condition1" ? 'selected' : '' }}>Culoare albastră</option>
+                                <option value="condition2" {{ $searchCondition == "condition2" ? 'selected' : '' }}>Culoare verde</option>
+                                <option value="condition3" {{ $searchCondition == "condition3" ? 'selected' : '' }}>Culoare albă</option>
                             </select>
                         </div>
                     </div>
@@ -93,18 +104,22 @@
                             <th class="fs-6">Factură Maseco</th>
                             <th class="fs-6">Factură Transp.</th>
                             <th class="fs-6">Data factură</th>
-                            <th class="fs-6">Achitat</th>
+                            <th class="fs-6">Achitat Transp.</th>
                             <th class="fs-6">Observații</th>
                             <th class="fs-6">Număr mașină</th>
                             <th class="fs-6">Motis</th>
                             <th class="fs-6">DKV</th>
                             <th class="fs-6">Astra</th>
+                            <th class="fs-6">Plată client</th>
                             <th class="fs-6 text-center">Predat<br> contab.</th>
                             <th class="fs-6 text-end">Acțiuni</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($comenzi as $comanda)
+                        {{-- @php
+                            dd($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator);
+                        @endphp --}}
                             @if (
                                     // Documents are per post and at leat 1 is uploaded by an operator
                                     (($comanda->transportator_format_documente == "1") && ($comanda->fisiereTransportatorIncarcateDeOperator->count() > 0))
@@ -113,7 +128,7 @@
                                     (($comanda->transportator_format_documente == "2") && (($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator->tip ?? null) == "2"))
                                 )
                                 <tr style="background-color: rgb(171, 196, 255)">
-                            @elseif (isset($comanda->factura->data_plata_transportator) && ($comanda->factura->data_plata_transportator <= $azi))
+                            @elseif (isset($comanda->data_plata_transportator) && ($comanda->data_plata_transportator <= $azi))
                                 <tr style="background-color: rgb(174, 255, 171)">
                             @else
                                 <tr>
@@ -175,20 +190,22 @@
                                     @endif
                                 </td>
                                 <td class="fs-6">
-                                    {{ $comanda->factura->seria ?? null }} {{ $comanda->factura->numar ?? null }}
+                                    @foreach ($comanda->clientiComanda as $clientComanda)
+                                        {{ $clientComanda->factura->seria ?? null }} {{ $clientComanda->factura->numar ?? null }}
+                                        <br>
+                                    @endforeach
                                 </td>
                                 <td class="fs-6">
-                                    {{ $comanda->factura->factura_transportator ?? null }}
+                                    {{ $comanda->factura_transportator ?? null }}
                                 </td>
                                 <td class="fs-6">
-                                    @if ($comanda->factura)
-                                        {{ $comanda->factura->data ? Carbon::parse($comanda->factura->data)->isoFormat('DD.MM.YYYY') : null }}
-                                    @endif
+                                    @foreach ($comanda->clientiComanda as $clientComanda)
+                                        {{ $clientComanda->factura->data ? Carbon::parse($clientComanda->factura->data)->isoFormat('DD.MM.YYYY') : null }}
+                                        <br>
+                                    @endforeach
                                 </td>
                                 <td class="fs-6">
-                                    @if ($comanda->factura)
-                                        {{ $comanda->factura->data_plata_transportator ? Carbon::parse($comanda->factura->data_plata_transportator)->isoFormat('DD.MM.YYYY') : null }}
-                                    @endif
+                                    {{ $comanda->data_plata_transportator ? Carbon::parse($comanda->data_plata_transportator)->isoFormat('DD.MM.YYYY') : null }}
                                 </td>
                                 <td class="fs-6">
                                     {{ $comanda->intermediere->observatii ?? null }}
@@ -205,6 +222,9 @@
                                 <td class="fs-6">
                                     {{ $comanda->intermediere->astra ?? null }}
                                 </td>
+                                <td class="fs-6">
+                                    {{ $comanda->intermediere->plata_client ?? null }}
+                                </td>
                                 <td class="fs-6 text-center">
                                     <a href="/intermedieri/schimbaPredatLaContabilitate/{{ $comanda->id }}" class="flex">
                                         @if (($comanda->intermediere->predat_la_contabilitate ?? null) == 1)
@@ -217,6 +237,8 @@
                                     <td class="fs-6">
                                     <div class="d-flex justify-content-end">
                                         <div class="mb-1">
+                                            <a href="/facturi-memento/deschide/comanda/{{ $comanda->id }}" class="flex me-1">
+                                                <span class="badge bg-warning text-dark">Fact.</span></a>
                                             @if (!$comanda->intermediere)
                                                 <a href="{{ url()->current() }}/adauga?comandaId={{ $comanda->id }}" class="flex">
                                                     <span class="badge bg-primary">Modifică</span>
@@ -261,6 +283,7 @@
                                 <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->astra ?? 0) }}</th>
                                 <th class="fs-6"></th>
                                 <th class="fs-6"></th>
+                                <th class="fs-6"></th>
                             </tr>
                         </tbody>
                 </table>
@@ -271,39 +294,21 @@
                         {{$comenzi->appends(Request::except('page'))->links()}}
                     </ul>
                 </nav>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <p class="small">
+                        * Culoare albastră: (Documentele sunt pe suport fizic și au fost încărcate de operator) SAU (Documentele sunt în format digital, iar ultimul email din corespondența cu transportatorul este trimis de operator prin care confirmă că documentele sunt corecte).
+                        <br>
+                        ** Culoare verde: Comenzile pentru care plata transportatorului a fost efectuată.
+                        <br>
+                        *** Culoare albă: Toate celelalte comenzi care nu se încadrează în condițiile de mai sus.
+                    </p>
+                </div>
+
+            </div>
+
         </div>
     </div>
-
-    {{-- Modalele pentru stergere memento --}}
-    {{-- @foreach ($comenzi as $memento)
-        <div class="modal fade text-dark" id="stergeMemento{{ $memento->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white" id="exampleModalLabel">Memento: <b>{{ $memento->nume }}</b></h5>
-                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="text-align:left;">
-                    Ești sigur ca vrei să ștergi Mementoul?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
-
-                    <form method="POST" action="{{ $memento->path() }}">
-                        @method('DELETE')
-                        @csrf
-                        <button
-                            type="submit"
-                            class="btn btn-danger text-white"
-                            >
-                            Șterge Mementoul
-                        </button>
-                    </form>
-
-                </div>
-                </div>
-            </div>
-        </div>
-    @endforeach --}}
 
 @endsection
