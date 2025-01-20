@@ -4,15 +4,6 @@
     <div class="col-lg-12 px-4 py-2 mb-0">
         <div class="row mb-0">
             <div class="col-lg-12 mb-4">
-                <label for="plata_client" class="mb-0 ps-3">Plată client</label>
-                <input
-                    type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('plata_client') ? 'is-invalid' : '' }}"
-                    name="plata_client"
-                    value="{{ old('plata_client', $intermediere->plata_client) }}"
-                    required>
-            </div>
-            <div class="col-lg-12 mb-4">
                 <label for="observatii" class="mb-0 ps-3">Observații</label>
                 <input
                     type="text"

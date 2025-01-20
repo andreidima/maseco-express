@@ -867,6 +867,19 @@ if (document.getElementById('disableButton3') != null) {
     disableButton3.mount('#disableButton3');
 }
 
+// Disable button to prevent multiple submissions
+const disableButton4 = createApp({
+    el: '#app1',
+    data() {
+        return {
+            disableButton: false,
+        }
+    },
+});
+if (document.getElementById('disableButton4') != null) {
+    disableButton4.mount('#disableButton4');
+}
+
 // WYSIWYG editors testing and implementation
 const wysiwyg = createApp({
     el: '#app1',

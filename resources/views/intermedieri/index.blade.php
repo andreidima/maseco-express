@@ -260,13 +260,24 @@
                                 <th class="fs-6"></th>
                                 <th class="fs-6"></th>
                                 <th class="fs-6 text-end">
-                                    {{-- {{ $comenzi->sum('client_valoare_contract_initiala') }} {{ $comanda->clientMoneda->nume ?? null }} --}}
+                                    {{-- Flatten all 'clientiComanda' collections from each 'Comanda' into a single collection --}}
+                                    {{-- For each 'Comanda', return its related 'clientiComanda' collection                                     --}}
+                                    {{-- Step 3: Sum the 'valoare_contract_initiala' from each 'clientiComanda' record --}}
+                                    {{-- This ensures we're summing the field from the related table, not from 'Comanda' --}}
+                                    {{
+                                        $total = $comenzi->flatMap(function ($comanda) {
+                                            return $comanda->clientiComanda;
+                                        })->sum(function ($clientComanda) {
+                                            return $clientComanda->valoare_contract_initiala;
+                                        })
+                                    }}
+                                    {{ $comanda->clientMoneda->nume ?? null }}
                                 </th>
                                 <th class="fs-6 text-end">
-                                    {{-- {{ $comenzi->sum('client_valoare_contract') }} {{ $comanda->clientMoneda->nume ?? null }} --}}
+                                    {{ $comenzi->sum('client_valoare_contract') }} {{ $comanda->clientMoneda->nume ?? null }}
                                 </th>
                                 <th class="fs-6 text-end">
-                                    {{-- {{ $comenzi->sum('transportator_valoare_contract') }} {{ $comanda->transportatorMoneda->nume ?? null }} --}}
+                                    {{ $comenzi->sum('transportator_valoare_contract') }} {{ $comanda->transportatorMoneda->nume ?? null }}
                                 </th>
                                 <th class="fs-6 text-end"></th>
                                 {{-- <th class="text-end">Prima încărcare</th> --}}

@@ -27,6 +27,25 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
         }
     }
 
+    public function salvareInformatiiDocumente(Request $request, $cheie_unica)
+    {
+        $comanda = Comanda::where('cheie_unica', $cheie_unica)->with('fisiereIncarcateDeTransportator')->first();
+
+        if (isset($comanda)){
+            $request->validate(
+                [
+                    'documente_transport_incarcate' => '',
+                    'factura_incarcata' => '',
+                ]
+            );
+            $comanda->documente_transport_incarcate = $request->documente_transport_incarcate;
+            $comanda->factura_transportator_incarcata = $request->factura_transportator_incarcata;
+            $comanda->save();
+        }
+
+        return redirect('comanda-documente-transportator/' .$cheie_unica)->with('status', 'Datele au fost salvate cu succes!');
+    }
+
     public function salvareDocumente(Request $request, $cheie_unica)
     {
         $comanda = Comanda::where('cheie_unica', $cheie_unica)->with('fisiereIncarcateDeTransportator')->first();
@@ -52,46 +71,35 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                 ]
             );
 
-            // foreach ($request->file('fisiere') as $fisier) {
-            //     $numeFisier = $fisier->getClientOriginalName();
-            //     if (Storage::disk('filemanager')->exists($request->cale . '/' . $numeFisier)){
-            //         return back()->with('error', 'Există deja un fișier cu numele „' . $numeFisier . '”. Redenumește fișierul și încearcă din nou.');
-            //     }
-            // }
-            // foreach ($request->file('fisiere') as $fisier) {
-            //     $numeFisier = $fisier->getClientOriginalName();
-            //     if (! Storage::disk('filemanager')->putFileAs($request->cale, $fisier, $numeFisier)){
-            //         return back()->with('error', 'Fișierele nu au putut fi încărcate.');
-            //     }
-            // }
+            if ($request->file('fisiere')) {
+                foreach ($request->file('fisiere') as $fisier) {
+                    $numeFisier = $fisier->getClientOriginalName();
+                    $cale = 'comenzi/' . $comanda->id . '/fisiereIncarcateDeTransportator/';
 
-            foreach ($request->file('fisiere') as $fisier) {
-                $numeFisier = $fisier->getClientOriginalName();
-                $cale = 'comenzi/' . $comanda->id . '/fisiereIncarcateDeTransportator/';
+                    // It's not really needed in this case because putting same name files is allready blocked in the validation
+                    if (Storage::exists($cale . '/' . $numeFisier)){
+                        $numeFisier .= uniqid(3);
+                    }
 
-                // It's not really needed in this case because putting same name files is allready blocked in the validation
-                if (Storage::exists($cale . '/' . $numeFisier)){
-                    $numeFisier .= uniqid(3);
-                }
+                    try {
+                        Storage::putFileAs($cale, $fisier, $numeFisier);
+                        $fisier = new ComandaFisier;
+                        $fisier->comanda_id = $comanda->id;
+                        $fisier->categorie = 1; // uploaded by Transporter
+                        $fisier->cale = $cale;
+                        $fisier->nume = $numeFisier;
+                        $fisier->user_id = auth()->user()->id ?? null;
+                        $fisier->save();
 
-                try {
-                    Storage::putFileAs($cale, $fisier, $numeFisier);
-                    $fisier = new ComandaFisier;
-                    $fisier->comanda_id = $comanda->id;
-                    $fisier->categorie = 1; // uploaded by Transporter
-                    $fisier->cale = $cale;
-                    $fisier->nume = $numeFisier;
-                    $fisier->user_id = auth()->user()->id ?? null;
-                    $fisier->save();
-
-                    // Istoric save
-                    $fisier_istoric = new ComandaFisierIstoric;
-                    $fisier_istoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-                    $fisier_istoric->operare_user_id = auth()->user()->id ?? null;
-                    $fisier_istoric->operare_descriere = 'Adaugare';
-                    $fisier_istoric->save();
-                } catch (Exception $e) {
-                    return back()->with('error', 'Fișierul nu a putut fi încărcat.');
+                        // Istoric save
+                        $fisier_istoric = new ComandaFisierIstoric;
+                        $fisier_istoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                        $fisier_istoric->operare_user_id = auth()->user()->id ?? null;
+                        $fisier_istoric->operare_descriere = 'Adaugare';
+                        $fisier_istoric->save();
+                    } catch (Exception $e) {
+                        return back()->with('error', 'Fișierul nu a putut fi încărcat.');
+                    }
                 }
             }
         }
@@ -196,19 +204,22 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
         return back()->with('error', 'Nu puteți accesa această pagină');
     }
 
-    public function trimitereEmailTransportatorCatreMasecoDocumenteIncarcate($cheie_unica)
+    public function trimitereEmailTransportatorCatreMasecoDocumenteIncarcate($cheie_unica, $categorieEmail)
     {
         if ($comanda = Comanda::where('cheie_unica', $cheie_unica)->first()) {
-            // Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
-            Mail::to(['pod@masecoexpres.net', $comanda->transportator->email])->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco'));
+            Mail::to(['pod@masecoexpres.net', $comanda->transportator->email])->send(new \App\Mail\ComandaTransportatorDocumente($comanda, 'transportatorCatreMaseco', $categorieEmail));
 
             $emailTrimis = new ComandaFisierEmail;
             $emailTrimis->comanda_id = $comanda->id;
             $emailTrimis->tip = 1;
+            if ($categorieEmail == 'documenteTransport'){
+                $emailTrimis->tip = 1;
+            } else if ($categorieEmail == 'facturaTransport'){
+                $emailTrimis->tip = 4;
+            }
             $emailTrimis->email = 'pod@masecoexpres.net';
             $emailTrimis->save();
 
-            // return back()->with('status', 'Notificarea către Maseco a fost trimisă cu succes! Mulțumim!');
             return redirect('comanda-incarcare-documente-de-catre-transportator/' . $cheie_unica . '/mesaj-succes-trimitere-notificare')->with('status', 'Mulțumim, notificarea către Maseco a fost transmisă cu success! O copie a notificării a fost trimisă și către adresa ta de email pentru a o avea ca și confirmare.');
         }
         abort(404, 'Page not found');

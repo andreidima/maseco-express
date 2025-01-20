@@ -20,6 +20,7 @@ class ComandaTransportatorDocumente extends Mailable
     public function __construct(
         public Comanda $comanda,
         public $tipEmail,
+        public $categorieEmail,
         public $mesaj = null,
     )
     {
@@ -34,7 +35,17 @@ class ComandaTransportatorDocumente extends Mailable
         return new Envelope(
             subject:
                 ($this->tipEmail == 'transportatorCatreMaseco') ?
-                    ($this->comanda->transportator->nume ?? 'Transportatorul') . ' a încărcat documentele necesare la comanda ' . $this->comanda->transportator_contract
+                    (
+                        $this->categorieEmail == 'documenteTransport' ?
+                            ($this->comanda->transportator->nume ?? 'Transportatorul') . ' a încărcat documentele necesare la comanda ' . $this->comanda->transportator_contract
+                            :
+                            (
+                                $this->categorieEmail == 'facturaTransport' ?
+                                    ($this->comanda->transportator->nume ?? 'Transportatorul') . ' a încărcat factura necesara la comanda ' . $this->comanda->transportator_contract
+                                    :
+                                    ' '
+                            )
+                    )
                     :
                     (
                         ($this->tipEmail == 'MasecoCatreTransportatorGoodDocuments') ?

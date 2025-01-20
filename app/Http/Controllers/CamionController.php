@@ -177,7 +177,32 @@ class CamionController extends Controller
         return $request->validate(
             [
                 'tip_camion' => 'required|max:500',
-                'numar_inmatriculare' => 'nullable|max:500',
+                'numar_inmatriculare' => [
+                    'nullable',
+                    'max:500',
+                    function ($attribute, $value, $fail) use ($request) {
+                        // Sanitize the input value
+                        $sanitizedInput = preg_replace('/[^a-zA-Z0-9]/', '', $value);
+
+                        // Retrieve the current record's ID (passed from route)
+                        $currentId = $request->route('camion')->id ?? null;
+
+                        // Query the database and check for conflicts, excluding the current ID
+                        $existingRecord = Camion::select('numar_inmatriculare')
+                            ->whereRaw("
+                                REGEXP_REPLACE(numar_inmatriculare, '[^a-zA-Z0-9]', '') = ?
+                            ", [$sanitizedInput])
+                            ->when($currentId, function ($query, $currentId) {
+                                $query->where('id', '!=', $currentId);
+                            })
+                            ->first();
+
+                        // If a match is found, return a validation error with the conflicting value
+                        if ($existingRecord) {
+                            $fail('Câmpul ' . $attribute . ' există deja în baza de date sub denumirea: ' . $existingRecord->numar_inmatriculare);
+                        }
+                    }
+                ],
                 'numar_remorca' => 'nullable|max:100',
                 'pret_km_goi' => 'nullable|numeric|min:-9999999|max:9999999',
                 'pret_km_plini' => 'nullable|numeric|min:-9999999|max:9999999',

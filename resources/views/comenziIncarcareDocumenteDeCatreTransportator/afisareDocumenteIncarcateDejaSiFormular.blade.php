@@ -63,8 +63,7 @@
 
                         @auth
                             @if ($comanda->transportator_format_documente != "2")
-                                {{-- <div class="col-lg-12 mb-4 rounded-3" style="background-color:#112233"> --}}
-                                <div class="col-lg-6 mx-auto p-2 my-2 rounded-3 text-white" style="background-color:#7474b6;">
+                                <div class="col-lg-6 p-2 my-2 rounded-3 text-white border border-white" style="background-color:#7474b6;">
                                     <form method="POST" action="/comanda-documente-transportator/{{$comanda->cheie_unica}}" enctype="multipart/form-data">
                                         @csrf
 
@@ -73,7 +72,35 @@
 
                                         <div class="text-center">
                                             <button class="btn btn-success text-white border border-dark rounded-3 shadow block" type="submit">
-                                                Încarcă fișierele
+                                                Salvează fișierele
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="col-lg-6 p-2 my-2 rounded-3 text-white border border-white" style="background-color:#7474b6;">
+                                    <form method="POST" action="/comanda-informatii-documente-transportator/{{$comanda->cheie_unica}}" enctype="multipart/form-data">
+                                        @csrf
+
+                                        <div class="row">
+                                            <div class="col-lg-6 mb-2">
+                                                <label for="documente_transport_incarcate" class="mb-0 ps-0 small">Documente transport încarcate:</label>
+                                                <select name="documente_transport_incarcate" class="form-select bg-white rounded-3 {{ $errors->has('documente_transport_incarcate') ? 'is-invalid' : '' }}">
+                                                    <option value="0" selected>NU</option>
+                                                    <option value="1" {{ intval(old('documente_transport_incarcate', $comanda->documente_transport_incarcate ?? '') === 1) ? 'selected' : null }}>DA</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-lg-6 mb-2">
+                                                <label for="factura_transportator_incarcata" class="mb-0 ps-3 small">Factura încarcată:</label>
+                                                <select name="factura_transportator_incarcata" class="form-select bg-white rounded-3 {{ $errors->has('factura_transportator_incarcata') ? 'is-invalid' : '' }}">
+                                                    <option value="0" selected>NU</option>
+                                                    <option value="1" {{ intval(old('factura_transportator_incarcata', $comanda->factura_transportator_incarcata ?? '') === 1) ? 'selected' : null }}>DA</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <div class="text-center">
+                                            <button class="btn btn-success text-white border border-dark rounded-3 shadow block" type="submit">
+                                                Salvează statusuri
                                             </button>
                                         </div>
                                     </form>
@@ -179,28 +206,37 @@
                         @guest
                             <div class="col-lg-12 mb-4 text-center">
                                 <br>
-                                După ce ai încărcat toate documentele necesare, trimite o notificare către Maseco
+                                De fiecare dată când încarci documentele necesare, te rugăm sa ne trimiți și o notificare către Maseco.
                                 <br>
-                                <div id="disableButton1">
-                                    {{-- <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-transportator-catre-maseco-documente-incarcate" class="btn btn-primary"
-                                        v-on:click="disableButton = true"
-                                        :hidden="disableButton ? true : false"
-                                    >
-                                        Notifică Maseco
-                                    </a>
-                                    <span class="text-center"
-                                        :hidden="disableButton ? false : true"
-                                    >Se trimite notificarea</span> --}}
-                                    <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-transportator-catre-maseco-documente-incarcate">
-                                        @csrf
-                                            <button class="btn btn-lg btn-primary py-0 mx-1 text-white rounded" type="submit" name="action"
-                                                v-on:click="disableButton = true" :hidden="disableButton ? true : false">
-                                                Notifică Maseco
-                                            </button>
-                                            <span class="text-center"
-                                                :hidden="disableButton ? false : true"
-                                            >Se trimite notificarea</span>
-                                    </form>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div id="disableButton1" class="mb-4">
+                                            <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-transportator-catre-maseco-documente-incarcate/documenteTransport">
+                                                @csrf
+                                                    <button class="btn btn-lg btn-primary py-0 mx-1 text-white rounded" type="submit" name="action"
+                                                        v-on:click="disableButton = true" :hidden="disableButton ? true : false">
+                                                        Notifică Maseco - Documentele de transport au fost încărcate
+                                                    </button>
+                                                    <span class="text-center"
+                                                        :hidden="disableButton ? false : true"
+                                                    >Se trimite notificarea</span>
+                                            </form>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div id="disableButton4" class="mb-4">
+                                            <form method="POST" action="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/trimitere-email-transportator-catre-maseco-documente-incarcate/facturaTransport">
+                                                @csrf
+                                                    <button class="btn btn-lg btn-warning text-dark py-0 mx-1 rounded" type="submit" name="action"
+                                                        v-on:click="disableButton = true" :hidden="disableButton ? true : false">
+                                                        Notifică Maseco - Factură a fost încarcată
+                                                    </button>
+                                                    <span class="text-center"
+                                                        :hidden="disableButton ? false : true"
+                                                    >Se trimite notificarea</span>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         @endguest
@@ -294,6 +330,9 @@
                                                                     Maseco a notificat transportatorul că documentele nu sunt corecte. Motiv:
                                                                     <br>
                                                                     {!! nl2br($email->mesaj) !!}
+                                                                    @break
+                                                                @case(4)
+                                                                    Transportatorul a notificat Maseco că a încărcat factura.
                                                                     @break
                                                                 @default
                                                             @endswitch

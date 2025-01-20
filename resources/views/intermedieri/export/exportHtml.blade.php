@@ -118,6 +118,7 @@
                     <th class="">Motis</th>
                     <th class="">DKV</th>
                     <th class="">Astra</th>
+                    <th class="">Plată client</th>
                     <th class="fs-6 text-center">Predat<br> contab.</th>
                 </tr>
             </thead>
@@ -131,7 +132,7 @@
                             (($comanda->transportator_format_documente == "2") && (($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator->tip ?? null) == "2"))
                         )
                         <tr style="background-color: rgb(171, 196, 255)">
-                    @elseif (isset($comanda->factura->data_plata_transportator) && ($comanda->factura->data_plata_transportator <= $azi))
+                    @elseif (isset($comanda->data_plata_transportator) && ($comanda->data_plata_transportator <= $azi))
                         <tr style="background-color: rgb(174, 255, 171)">
                     @else
                         <tr>
@@ -143,13 +144,21 @@
                             {{ $comanda->transportator_contract }}
                         </td>
                         <td class="fs-6">
-                            {{ $comanda->factura->client_nume ?? '' }}
+                            {{-- {{ $comanda->factura->client_nume ?? '' }} --}}
+                            @foreach ($comanda->clientiComanda as $clientComanda)
+                                {{ $clientComanda->factura->client_nume ?? '' }}
+                                <br>
+                            @endforeach
                         </td>
                         <td class="fs-6">
                             {{ $comanda->transportator->nume ?? '' }}
                         </td>
                         <td class="fs-6 text-end">
-                            {{ $comanda->client_valoare_contract_initiala }} {{ $comanda->clientMoneda->nume ?? null }}
+                            {{-- {{ $comanda->client_valoare_contract_initiala }} {{ $comanda->clientMoneda->nume ?? null }} --}}
+                            @foreach ($comanda->clientiComanda as $clientComanda)
+                                {{ $clientComanda->valoare_contract_initiala ?? '' }} {{ $clientComanda->moneda->nume ?? null }}
+                                <br>
+                            @endforeach
                         </td>
                         <td class="fs-6 text-end">
                             {{ $comanda->client_valoare_contract }} {{ $comanda->clientMoneda->nume ?? null }}
@@ -161,12 +170,20 @@
                             {{ $comanda->data_creare ? Carbon::parse($comanda->data_creare)->isoFormat('DD.MM.YYYY') : null }}
                         </td>
                         <td class="fs-6 text-center">
-                            @if ($comanda->factura && $comanda->factura->client_contract)
+                            {{-- @if ($comanda->factura && $comanda->factura->client_contract)
                                 @foreach(explode('+', $comanda->factura->client_contract) as $part)
                                     {{ $part }}
                                     <br>
                                 @endforeach
-                            @endif
+                            @endif --}}
+                            @foreach ($comanda->clientiComanda as $clientComanda)
+                                @if ($clientComanda->factura && $clientComanda->factura->client_contract)
+                                    @foreach(explode('+', $clientComanda->factura->client_contract) as $part)
+                                        {{ $part }}
+                                        <br>
+                                    @endforeach
+                                @endif
+                            @endforeach
                         </td>
                         <td class="fs-6">
                             @if ($comanda->transportator_format_documente == "1")
@@ -176,20 +193,22 @@
                             @endif
                         </td>
                         <td class="fs-6">
-                            {{ $comanda->factura->seria ?? null }} {{ $comanda->factura->numar ?? null }}
+                            @foreach ($comanda->clientiComanda as $clientComanda)
+                                {{ $clientComanda->factura->seria ?? null }} {{ $clientComanda->factura->numar ?? null }}
+                                <br>
+                            @endforeach
                         </td>
                         <td class="fs-6">
                             {{ $comanda->factura->factura_transportator ?? null }}
                         </td>
                         <td class="fs-6">
-                            @if ($comanda->factura)
-                                {{ $comanda->factura->data ? Carbon::parse($comanda->factura->data)->isoFormat('DD.MM.YYYY') : null }}
-                            @endif
+                            @foreach ($comanda->clientiComanda as $clientComanda)
+                                {{ $clientComanda->factura->data ? Carbon::parse($clientComanda->factura->data)->isoFormat('DD.MM.YYYY') : null }}
+                                <br>
+                            @endforeach
                         </td>
                         <td class="fs-6">
-                            @if ($comanda->factura)
-                                {{ $comanda->factura->data_plata_transportator ? Carbon::parse($comanda->factura->data_plata_transportator)->isoFormat('DD.MM.YYYY') : null }}
-                            @endif
+                            {{ $comanda->data_plata_transportator ? Carbon::parse($comanda->data_plata_transportator)->isoFormat('DD.MM.YYYY') : null }}
                         </td>
                         <td class="fs-6">
                             {{ $comanda->intermediere->observatii ?? null }}
@@ -205,6 +224,9 @@
                         </td>
                         <td class="fs-6">
                             {{ $comanda->intermediere->astra ?? null }}
+                        </td>
+                        <td class="fs-6">
+                            {{ $comanda->intermediere->plata_client ?? null }}
                         </td>
                         <td class="fs-6 text-center">
                             @if (($comanda->intermediere->predat_la_contabilitate ?? null) == 1)
@@ -222,9 +244,26 @@
                         <th class="fs-6"></th>
                         <th class="fs-6"></th>
                         <th class="fs-6"></th>
-                        <th class="fs-6 text-end">{{ $comenzi->sum('client_valoare_contract_initiala') }} {{ $comanda->clientMoneda->nume ?? null }}</th>
-                        <th class="fs-6 text-end">{{ $comenzi->sum('client_valoare_contract') }} {{ $comanda->clientMoneda->nume ?? null }}</th>
-                        <th class="fs-6 text-end">{{ $comenzi->sum('transportator_valoare_contract') }} {{ $comanda->transportatorMoneda->nume ?? null }}</th>
+                        <th class="fs-6 text-end">
+                            {{-- Flatten all 'clientiComanda' collections from each 'Comanda' into a single collection --}}
+                            {{-- For each 'Comanda', return its related 'clientiComanda' collection                                     --}}
+                            {{-- Step 3: Sum the 'valoare_contract_initiala' from each 'clientiComanda' record --}}
+                            {{-- This ensures we're summing the field from the related table, not from 'Comanda' --}}
+                            {{
+                                $total = $comenzi->flatMap(function ($comanda) {
+                                    return $comanda->clientiComanda;
+                                })->sum(function ($clientComanda) {
+                                    return $clientComanda->valoare_contract_initiala;
+                                })
+                            }}
+                            {{ $comanda->clientMoneda->nume ?? null }}
+                        </th>
+                        <th class="fs-6 text-end">
+                            {{ $comenzi->sum('client_valoare_contract') }} {{ $comanda->clientMoneda->nume ?? null }}
+                        </th>
+                        <th class="fs-6 text-end">
+                            {{ $comenzi->sum('transportator_valoare_contract') }} {{ $comanda->transportatorMoneda->nume ?? null }}
+                        </th>
                         <th class="fs-6 text-end"></th>
                         <th class="fs-6 text-center"></th>
                         <th class="fs-6 text-center"></th>
