@@ -21,6 +21,7 @@ import { createApp } from 'vue';
 // Import other components
 import VueDatepickerNext from './components/DatePicker.vue';
 import TiptapEditor from './components/TiptapEditor.vue'; // Import your Tiptap component
+import TogglePredat from './components/intermedieri/TogglePredat.vue';
 
 // Create Vue app
 const app = createApp({});
@@ -910,3 +911,7 @@ facturaMemento.component('vue-datepicker-next', VueDatepickerNext);
 if (document.getElementById('facturaMemento') != null) {
     facturaMemento.mount('#facturaMemento');
 }
+
+const tabelIntermedieri = createApp({});
+tabelIntermedieri.component('toggle-predat', TogglePredat);
+tabelIntermedieri.mount('#tabelIntermedieri');

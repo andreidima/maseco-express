@@ -62,48 +62,57 @@ class IntermediereController extends Controller
             })
             ->when($searchCondition, function ($query, $searchCondition) {
                 if ($searchCondition == 'condition1') {
-                    $query->where(function ($query) {
-                        $query->where(function ($query) {
-                                $query->where('transportator_format_documente', '1')
-                                    ->whereHas('fisiereTransportatorIncarcateDeOperator'); // Combine these two with AND
-                            })
-                            ->orWhere(function ($query) {
-                                $query->where('transportator_format_documente', '2')
-                                    ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator', function ($q) {
-                                        $q->whereRaw('id = (
-                                            SELECT id
-                                            FROM comenzi_fisiere_emailuri
-                                            WHERE comanda_id = comenzi.id
-                                            ORDER BY created_at DESC
-                                            LIMIT 1
-                                        )')
-                                        ->whereNotNull('id') // Ensure the email exists (null check)
-                                        ->where('tip', '2'); // Check if the last email has `tip = 2`
-                                    });
-                            });
-                    });
+                    // $query->where(function ($query) {
+                    //     $query->where(function ($query) {
+                    //             $query->where('transportator_format_documente', '1')
+                    //                 ->whereHas('fisiereTransportatorIncarcateDeOperator'); // Combine these two with AND
+                    //         })
+                    //         ->orWhere(function ($query) {
+                    //             $query->where('transportator_format_documente', '2')
+                    //                 ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator', function ($q) {
+                    //                     $q->whereRaw('id = (
+                    //                         SELECT id
+                    //                         FROM comenzi_fisiere_emailuri
+                    //                         WHERE comanda_id = comenzi.id
+                    //                         ORDER BY created_at DESC
+                    //                         LIMIT 1
+                    //                     )')
+                    //                     ->whereNotNull('id') // Ensure the email exists (null check)
+                    //                     ->where('tip', '2'); // Check if the last email has `tip = 2`
+                    //                 });
+                    //         });
+                    // });
+                    $query->whereNotNull('factura_transportator_incarcata', 1)
+                        ->where('factura_transportator_incarcata', 1);
                 } elseif ($searchCondition == 'condition2') {
+                    // $query->where(function ($query) {
+                    //     // Exclude records satisfying condition1
+                    //     $query->whereNot(function ($query) {
+                    //         $query->where(function ($query) {
+                    //                 $query->where('transportator_format_documente', '1')
+                    //                     ->whereHas('fisiereTransportatorIncarcateDeOperator'); // Combine these two with AND
+                    //             })
+                    //             ->orWhere(function ($query) {
+                    //                 $query->where('transportator_format_documente', '2')
+                    //                     ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator', function ($q) {
+                    //                         $q->whereRaw('id = (
+                    //                             SELECT id
+                    //                             FROM comenzi_fisiere_emailuri
+                    //                             WHERE comanda_id = comenzi.id
+                    //                             ORDER BY created_at DESC
+                    //                             LIMIT 1
+                    //                         )')
+                    //                         ->whereNotNull('id') // Null check for email existence
+                    //                         ->where('tip', '2'); // Check if the last email has `tip = 2`
+                    //                     });
+                    //             });
+                    //     });
+                    // })
                     $query->where(function ($query) {
                         // Exclude records satisfying condition1
                         $query->whereNot(function ($query) {
-                            $query->where(function ($query) {
-                                    $query->where('transportator_format_documente', '1')
-                                        ->whereHas('fisiereTransportatorIncarcateDeOperator'); // Combine these two with AND
-                                })
-                                ->orWhere(function ($query) {
-                                    $query->where('transportator_format_documente', '2')
-                                        ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator', function ($q) {
-                                            $q->whereRaw('id = (
-                                                SELECT id
-                                                FROM comenzi_fisiere_emailuri
-                                                WHERE comanda_id = comenzi.id
-                                                ORDER BY created_at DESC
-                                                LIMIT 1
-                                            )')
-                                            ->whereNotNull('id') // Null check for email existence
-                                            ->where('tip', '2'); // Check if the last email has `tip = 2`
-                                        });
-                                });
+                            $query->whereNotNull('factura_transportator_incarcata', 1)
+                                ->where('factura_transportator_incarcata', 1);
                         });
                     })
                     ->whereNotNull('data_plata_transportator') // Ensure `data_plata_transportator` is set
@@ -112,24 +121,26 @@ class IntermediereController extends Controller
                     $query->where(function ($query) {
                         // Exclude records satisfying condition1
                         $query->whereNot(function ($query) {
-                            $query->where(function ($query) {
-                                $query->where('transportator_format_documente', '1')
-                                    ->whereHas('fisiereTransportatorIncarcateDeOperator'); // Combine these two with AND
-                            })
-                            ->orWhere(function ($query) {
-                                $query->where('transportator_format_documente', '2')
-                                    ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator', function ($q) {
-                                        $q->whereRaw('id = (
-                                            SELECT id
-                                            FROM comenzi_fisiere_emailuri
-                                            WHERE comanda_id = comenzi.id
-                                            ORDER BY created_at DESC
-                                            LIMIT 1
-                                        )')
-                                        ->whereNotNull('id') // Ensure the email exists (null check)
-                                        ->where('tip', '2'); // Check if the last email has `tip = 2`
-                                    });
-                            });
+                            // $query->where(function ($query) {
+                            //     $query->where('transportator_format_documente', '1')
+                            //         ->whereHas('fisiereTransportatorIncarcateDeOperator'); // Combine these two with AND
+                            // })
+                            // ->orWhere(function ($query) {
+                            //     $query->where('transportator_format_documente', '2')
+                            //         ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator', function ($q) {
+                            //             $q->whereRaw('id = (
+                            //                 SELECT id
+                            //                 FROM comenzi_fisiere_emailuri
+                            //                 WHERE comanda_id = comenzi.id
+                            //                 ORDER BY created_at DESC
+                            //                 LIMIT 1
+                            //             )')
+                            //             ->whereNotNull('id') // Ensure the email exists (null check)
+                            //             ->where('tip', '2'); // Check if the last email has `tip = 2`
+                            //         });
+                            // });
+                            $query->whereNotNull('factura_transportator_incarcata', 1)
+                                ->where('factura_transportator_incarcata', 1);
                         });
                     })->where(function ($query) {
                         // Exclude records satisfying condition2
@@ -235,23 +246,26 @@ class IntermediereController extends Controller
     }
 
     public function schimbaPredatLaContabilitate(Request $request, Comanda $comanda){
-        $intermediere = $comanda->intermediere ?? Intermediere::make(['comanda_id' => $comanda->id]);
+        // Ensure $intermediere is retrieved or created in the database
+        $intermediere = $comanda->intermediere ?? Intermediere::firstOrCreate(
+            ['comanda_id' => $comanda->id],
+            ['predat_la_contabilitate' => 0] // Default value if created
+        );
 
-        if ($intermediere->predat_la_contabilitate == 1) {
-            $intermediere->predat_la_contabilitate = 0;
-            $intermediere->save();
-            // dd('da');
-        } else {
-            $intermediere->predat_la_contabilitate = 1;
-            $intermediere->save();
-            // dd($intermediere);
-            // dd('nu');
-        };
+        // Toggle the value of predat_la_contabilitate
+        $intermediere->predat_la_contabilitate = !$intermediere->predat_la_contabilitate;
+        $intermediere->save();
 
-        return back()->with('status', 'Predat la contabilitate a fost modificat cu succes!');
+        // return back()->with('status', 'Predat la contabilitate a fost modificat cu succes!');
+        return response()->json([
+            'success' => true,
+            'predat_la_contabilitate' => $intermediere->predat_la_contabilitate,
+            'message' => 'Predat la contabilitate a fost modificat cu succes!',
+        ]);
     }
 
-    public function exportHtml(Request $request){
-        dd($request);
-    }
+    // to delete 01.02.2025
+    // public function exportHtml(Request $request){
+    //     dd($request);
+    // }
 }

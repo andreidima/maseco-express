@@ -19,6 +19,8 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
 {
     public function afisareDocumenteIncarcateDejaSiFormular(Request $request, $cheie_unica)
     {
+        $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
+
         // se verifica pe langa cheia unica
         if($comanda = Comanda::with('transportator:id,nume', 'camion:id,numar_inmatriculare', 'locuriOperareIncarcari', 'locuriOperareDescarcari', 'fisiereIncarcateDeTransportator', 'emailuriPentruFisiereIncarcateDeTransportator')->where('cheie_unica', $cheie_unica)->first()){
             return view('comenziIncarcareDocumenteDeCatreTransportator.afisareDocumenteIncarcateDejaSiFormular', compact('comanda'));

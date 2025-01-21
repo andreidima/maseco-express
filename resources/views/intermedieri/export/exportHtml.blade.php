@@ -125,11 +125,15 @@
             <tbody>
                 @forelse ($comenzi as $comanda)
                     @if (
-                            // Documents are per post and at leat 1 is uploaded by an operator
-                            (($comanda->transportator_format_documente == "1") && ($comanda->fisiereTransportatorIncarcateDeOperator->count() > 0))
-                            ||
-                            // Documents are digital and the operator sent the last email that they are good
-                            (($comanda->transportator_format_documente == "2") && (($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator->tip ?? null) == "2"))
+                            // Commented on 21.01.2025
+                            // // Documents are per post and at leat 1 is uploaded by an operator
+                            // (($comanda->transportator_format_documente == "1") && ($comanda->fisiereTransportatorIncarcateDeOperator->count() > 0))
+                            // ||
+                            // // Documents are digital and the operator sent the last email that they are good
+                            // (($comanda->transportator_format_documente == "2") && (($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator->tip ?? null) == "2"))
+
+                            // A different rule was added on 21.01.2025
+                            $comanda->factura_transportator_incarcata == "1"
                         )
                         <tr style="background-color: rgb(171, 196, 255)">
                     @elseif (isset($comanda->data_plata_transportator) && ($comanda->data_plata_transportator <= $azi))

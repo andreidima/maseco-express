@@ -60,7 +60,9 @@
                         </div>
 
                         @include('errors')
+                    </div>
 
+                    <div class="row">
                         @auth
                             @if ($comanda->transportator_format_documente != "2")
                                 <div class="col-lg-6 p-2 my-2 rounded-3 text-white border border-white" style="background-color:#7474b6;">
@@ -77,20 +79,21 @@
                                         </div>
                                     </form>
                                 </div>
-                                <div class="col-lg-6 p-2 my-2 rounded-3 text-white border border-white" style="background-color:#7474b6;">
+                            @endif
+                                <div class="col-lg-6 mx-auto p-2 my-2 rounded-3 text-white border border-white" style="background-color:#7474b6;">
                                     <form method="POST" action="/comanda-informatii-documente-transportator/{{$comanda->cheie_unica}}" enctype="multipart/form-data">
                                         @csrf
 
                                         <div class="row">
                                             <div class="col-lg-6 mb-2">
-                                                <label for="documente_transport_incarcate" class="mb-0 ps-0 small">Documente transport încarcate:</label>
+                                                <label for="documente_transport_incarcate" class="mb-0 ps-0 small">Documente transport încărcate:</label>
                                                 <select name="documente_transport_incarcate" class="form-select bg-white rounded-3 {{ $errors->has('documente_transport_incarcate') ? 'is-invalid' : '' }}">
                                                     <option value="0" selected>NU</option>
                                                     <option value="1" {{ intval(old('documente_transport_incarcate', $comanda->documente_transport_incarcate ?? '') === 1) ? 'selected' : null }}>DA</option>
                                                 </select>
                                             </div>
                                             <div class="col-lg-6 mb-2">
-                                                <label for="factura_transportator_incarcata" class="mb-0 ps-3 small">Factura încarcată:</label>
+                                                <label for="factura_transportator_incarcata" class="mb-0 ps-3 small">Factura încărcată:</label>
                                                 <select name="factura_transportator_incarcata" class="form-select bg-white rounded-3 {{ $errors->has('factura_transportator_incarcata') ? 'is-invalid' : '' }}">
                                                     <option value="0" selected>NU</option>
                                                     <option value="1" {{ intval(old('factura_transportator_incarcata', $comanda->factura_transportator_incarcata ?? '') === 1) ? 'selected' : null }}>DA</option>
@@ -105,9 +108,10 @@
                                         </div>
                                     </form>
                                 </div>
-                            @endif
                         @endauth
+                    </div>
 
+                    <div class="row">
                         @guest
                             @if ($comanda->transportator_blocare_incarcare_documente != "1")
                                 {{-- <div class="col-lg-12 mb-4 rounded-3" style="background-color:#112233"> --}}
@@ -350,7 +354,7 @@
 
                             <div class="col-lg-12 mb-4">
                                 <div class="text-center">
-                                    <a href="{{ url('/comenzi') }}" class="btn btn-sm btn-secondary border border-dark rounded-3 shadow block" role="button">
+                                    <a href="{{ Session::get('ComandaReturnUrl') ?? url('/comenzi') }}" class="btn btn-sm btn-secondary border border-dark rounded-3 shadow block" role="button">
                                         Revino înapoi la comenzi
                                     </a>
                                 </div>

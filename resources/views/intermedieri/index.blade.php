@@ -86,7 +86,7 @@
 
             @include ('errors')
 
-            <div class="table-responsive rounded">
+            <div class="table-responsive rounded" id="tabelIntermedieri">
                 <table class="table table-sm table-hover rounded" style="font-size: 0.8rem !important;">
                     <thead class="text-white rounded culoare2">
                         <tr class="" style="padding:2rem">
@@ -121,11 +121,15 @@
                             dd($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator);
                         @endphp --}}
                             @if (
-                                    // Documents are per post and at leat 1 is uploaded by an operator
-                                    (($comanda->transportator_format_documente == "1") && ($comanda->fisiereTransportatorIncarcateDeOperator->count() > 0))
-                                    ||
-                                    // Documents are digital and the operator sent the last email that they are good
-                                    (($comanda->transportator_format_documente == "2") && (($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator->tip ?? null) == "2"))
+                                    // Commented on 21.01.2025
+                                    // // Documents are per post and at leat 1 is uploaded by an operator
+                                    // (($comanda->transportator_format_documente == "1") && ($comanda->fisiereTransportatorIncarcateDeOperator->count() > 0))
+                                    // ||
+                                    // // Documents are digital and the operator sent the last email that they are good
+                                    // (($comanda->transportator_format_documente == "2") && (($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator->tip ?? null) == "2"))
+
+                                    // A different rule was added on 21.01.2025
+                                    $comanda->factura_transportator_incarcata == "1"
                                 )
                                 <tr style="background-color: rgb(171, 196, 255)">
                             @elseif (isset($comanda->data_plata_transportator) && ($comanda->data_plata_transportator <= $azi))
@@ -243,13 +247,18 @@
                                     {{ $comanda->intermediere->plata_client ?? null }}
                                 </td>
                                 <td class="fs-6 text-center">
-                                    <a href="/intermedieri/schimbaPredatLaContabilitate/{{ $comanda->id }}" class="flex">
+                                    {{-- <a href="/intermedieri/schimbaPredatLaContabilitate/{{ $comanda->id }}" class="flex">
                                         @if (($comanda->intermediere->predat_la_contabilitate ?? null) == 1)
                                             <span class="badge bg-success">DA</span>
                                         @else
                                             <span class="badge bg-danger">NU</span>
                                         @endif
-                                    </a>
+                                    </a> --}}
+                                    <div>
+                                        <toggle-predat :comanda-id="{{ $comanda->id }}"
+                                                    :initial-status="{{ $comanda->intermediere->predat_la_contabilitate ?? 0 }}">
+                                        </toggle-predat>
+                                    </div>
                                 </td>
                                     <td class="fs-6">
                                     <div class="d-flex justify-content-end">
@@ -326,7 +335,8 @@
             <div class="row">
                 <div class="col-lg-12">
                     <p class="small">
-                        * Culoare albastră: (Documentele sunt pe suport fizic și au fost încărcate de operator) SAU (Documentele sunt în format digital, iar ultimul email din corespondența cu transportatorul este trimis de operator prin care confirmă că documentele sunt corecte).
+                        {{-- * Culoare albastră: (Documentele sunt pe suport fizic și au fost încărcate de operator) SAU (Documentele sunt în format digital, iar ultimul email din corespondența cu transportatorul este trimis de operator prin care confirmă că documentele sunt corecte). --}}
+                        * Culoare albastră: Factura este încărcată.
                         <br>
                         ** Culoare verde: Comenzile pentru care plata transportatorului a fost efectuată.
                         <br>

@@ -142,8 +142,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/statii-peco', [StatiePecoController::class, 'index']);
     Route::post('/statii-peco/excel-import', [StatiePecoController::class, 'excelImport']);
 
-    Route::get('/intermedieri/export-html', [IntermediereController::class, 'exportHtml']);
-    Route::get('/intermedieri/schimbaPredatLaContabilitate/{comanda}', [IntermediereController::class, 'schimbaPredatLaContabilitate']);
+    // Route::get('/intermedieri/export-html', [IntermediereController::class, 'exportHtml']); // to delete 01.02.2025
+    Route::post('/intermedieri/schimbaPredatLaContabilitate/{comanda}', [IntermediereController::class, 'schimbaPredatLaContabilitate']);
     Route::resource('/intermedieri', IntermediereController::class)->parameters(['intermedieri' => 'intermediere']);
 
     Route::resource('/flota-statusuri', FlotaStatusController::class)->parameters(['flota-statusuri' => 'flotaStatus']);

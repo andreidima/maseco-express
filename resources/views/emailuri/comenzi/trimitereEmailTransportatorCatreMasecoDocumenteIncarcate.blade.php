@@ -22,7 +22,8 @@
                 <br><br>
                 Documentele încărcate au fost verificate și validate.
                 <br>
-                Te rugăm sa ne trimiți în cel mai scurt timp factura aferentă acestui transport la adresa de email <a href="mailto:pod@masecoexpres.net">pod@masecoexpres.net</a>
+                În caz că nu ați încărcat și factura aferentă acestui transport, vă rugăm să o încărcați tot în link-ul primit, în cel mai scurt timp!
+                {{-- Te rugăm sa ne trimiți în cel mai scurt timp factura aferentă acestui transport la adresa de email <a href="mailto:pod@masecoexpres.net">pod@masecoexpres.net</a> --}}
             @elseif ($tipEmail == 'MasecoCatreTransportatorBadDocuments')
                 Bună ziua, <b>{{ $comanda->transportator->nume ?? '' }}</b>,
                 <br><br>
