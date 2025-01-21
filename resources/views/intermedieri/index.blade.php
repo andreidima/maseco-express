@@ -141,10 +141,11 @@
                                 </td>
                                 <td class="fs-6">
                                     {{-- {{ $comanda->factura->client_nume ?? '' }} --}}
-                                    @foreach ($comanda->clientiComanda as $clientComanda)
+                                    @forelse ($comanda->clientiComanda as $clientComanda)
                                         {{ $clientComanda->factura->client_nume ?? '' }}
                                         <br>
-                                    @endforeach
+                                    @empty
+                                    @endforelse
                                 </td>
                                 <td class="fs-6">
                                     {{ $comanda->transportator->nume ?? '' }}
@@ -152,10 +153,11 @@
                                 <td class="fs-6 text-end">
                                     {{-- {{ $comanda->client_valoare_contract_initiala }} {{ $comanda->clientMoneda->nume ?? null }}
                                     <br> --}}
-                                    @foreach ($comanda->clientiComanda as $clientComanda)
+                                    @forelse ($comanda->clientiComanda as $clientComanda)
                                         {{ $clientComanda->valoare_contract_initiala ?? '' }} {{ $clientComanda->moneda->nume ?? null }}
                                         <br>
-                                    @endforeach
+                                    @empty
+                                    @endforelse
                                 </td>
                                 <td class="fs-6 text-end">
                                     {{ $comanda->client_valoare_contract }} {{ $comanda->clientMoneda->nume ?? null }}
@@ -173,14 +175,15 @@
                                             <br>
                                         @endforeach
                                     @endif --}}
-                                    @foreach ($comanda->clientiComanda as $clientComanda)
+                                    @forelse ($comanda->clientiComanda as $clientComanda)
                                         @if ($clientComanda->factura && $clientComanda->factura->client_contract)
                                             @foreach(explode('+', $clientComanda->factura->client_contract) as $part)
                                                 {{ $part }}
                                                 <br>
                                             @endforeach
                                         @endif
-                                    @endforeach
+                                    @empty
+                                    @endforelse
                                 </td>
                                 <td class="fs-6">
                                     @if ($comanda->transportator_format_documente == "1")
@@ -190,19 +193,33 @@
                                     @endif
                                 </td>
                                 <td class="fs-6">
-                                    @foreach ($comanda->clientiComanda as $clientComanda)
+                                    @forelse ($comanda->clientiComanda as $clientComanda)
                                         {{ $clientComanda->factura->seria ?? null }} {{ $clientComanda->factura->numar ?? null }}
                                         <br>
-                                    @endforeach
+                                    @empty
+                                    @endforelse
                                 </td>
                                 <td class="fs-6">
                                     {{ $comanda->factura_transportator ?? null }}
                                 </td>
                                 <td class="fs-6">
-                                    @foreach ($comanda->clientiComanda as $clientComanda)
-                                        {{ $clientComanda->factura->data ? Carbon::parse($clientComanda->factura->data)->isoFormat('DD.MM.YYYY') : null }}
-                                        <br>
-                                    @endforeach
+                                    @forelse ($comanda->clientiComanda as $clientComanda)
+                                        @if ($clientComanda->factura)
+                                            {{ $clientComanda->factura->data ? Carbon::parse($clientComanda->factura->data)->isoFormat('DD.MM.YYYY') : null }}
+                                            <br>
+                                        @else
+                                            {{ $comanda->transportator_contract }}
+                                            {{ $comanda->transportator_contract }}
+                                            {{ $comanda->transportator_contract }}
+                                            {{ $comanda->transportator_contract }}
+                                            {{ $comanda->transportator_contract }}
+                                            {{ $comanda->transportator_contract }}
+                                            {{ $comanda->transportator_contract }}
+                                            {{ $comanda->transportator_contract }}
+                                            {{ $comanda->transportator_contract }}
+                                        @endif
+                                    @empty
+                                    @endforelse
                                 </td>
                                 <td class="fs-6">
                                     {{ $comanda->data_plata_transportator ? Carbon::parse($comanda->data_plata_transportator)->isoFormat('DD.MM.YYYY') : null }}
