@@ -87,7 +87,7 @@
     @foreach ($monede as $moneda)
         @php
             $comenziLunaCurentaPentruAceastaMoneda = \App\Models\Comanda::select('id', 'transportator_contract', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id', 'data_creare')
-                ->whereDate('created_at', '>=', \Carbon\Carbon::today()->startOfMonth())
+                ->whereDate('data_creare', '>=', Carbon::today()->startOfMonth())
                 ->where(function($query) use ($moneda) {
                     return $query->where('transportator_moneda_id', $moneda->id)
                                 ->orWhere('client_moneda_id', $moneda->id);

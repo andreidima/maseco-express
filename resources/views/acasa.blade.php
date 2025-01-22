@@ -11,21 +11,21 @@
 
     // Define date ranges
     $startOfThisMonth = Carbon::now()->startOfMonth();
-    $startOfLastMonth = Carbon::now()->subMonth()->startOfMonth();
-    $endOfLastMonth = Carbon::now()->subMonth()->endOfMonth();
+    // $startOfLastMonth = Carbon::now()->subMonth()->startOfMonth();
+    // $endOfLastMonth = Carbon::now()->subMonth()->endOfMonth();
 
     $comenziLunaCurenta = Comanda::select('id', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id')
         ->whereDate('data_creare', '>=', $startOfThisMonth)->get();
 
 
     // KPI report
-    $usersIDsForThisReport = [7, 8, 12, 17, 23];
+    $usersIDsForThisReport = [6, 7, 8, 12, 16, 17, 21, 23];
     $comenziKPI = Comanda::select(
             'user_id',
             'users.name as user_name',
-            DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract > 0 THEN 1 ELSE 0 END) as last_month_greater_than_zero"),
-            DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract < 0 THEN 1 ELSE 0 END) as last_month_less_than_zero"),
-            DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as last_month_equal_to_zero"),
+            // DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract > 0 THEN 1 ELSE 0 END) as last_month_greater_than_zero"),
+            // DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract < 0 THEN 1 ELSE 0 END) as last_month_less_than_zero"),
+            // DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as last_month_equal_to_zero"),
             DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract > 0 THEN 1 ELSE 0 END) as this_month_greater_than_zero"),
             DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract < 0 THEN 1 ELSE 0 END) as this_month_less_than_zero"),
             DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as this_month_equal_to_zero")
@@ -45,7 +45,7 @@
 {{-- <div class="container"> --}}
 <div class="mx-2">
     <div class="row justify-content-center">
-        <div class="col-md-4 mb-5">
+        <div class="col-md-6 mb-5">
             <div class="card culoare2">
                 <div class="card-header">{{ __('Dashboard') }}</div>
 
@@ -58,104 +58,104 @@
                 </div>
             </div>
         </div>
-
-        <div class="col-md-8 mb-5">
-            <div class="table-responsive rounded">
-                <table class="table table-striped table-hover rounded">
-                    <thead class="text-white rounded culoare2">
-                        <tr><th colspan="7" class="text-center">KPI (performanță)</th></tr>
-                        <tr class="" style="padding:2rem">
-                            <th class=""></th>
-                            <th colspan="3" class="text-center" style="border-right: 2px white solid">Comenzi luna trecută</th>
-                            <th colspan="3" class="text-center">Comenzi luna curentă</th>
-                        </tr>
-                        <tr class="" style="padding:2rem">
-                            <th class="">Utilizator</th>
-                            <th class="text-center">Pe plus</th>
-                            <th class="text-center">Pe minus</th>
-                            <th class="text-center" style="border-right: 2px white solid">Pe 0</th>
-                            <th class="text-center">Pe plus</th>
-                            <th class="text-center">Pe minus</th>
-                            <th class="text-center">Pe 0</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    @foreach ($comenziKPI as $comanda)
-                        <tr>
-                            <td>{{ $comanda->user_name }}</td>
-                            <td class="text-center">{{ $comanda->last_month_greater_than_zero }}</td>
-                            <td class="text-center">{{ $comanda->last_month_less_than_zero }}</td>
-                            <td class="text-center" style="border-right: 2px black solid">{{ $comanda->last_month_equal_to_zero }}</td>
-                            {{-- <td class="text-center culoare2">&nbsp</td> --}}
-                            <td class="text-center">{{ $comanda->this_month_greater_than_zero }}</td>
-                            <td class="text-center">{{ $comanda->this_month_less_than_zero }}</td>
-                            <td class="text-center">{{ $comanda->this_month_equal_to_zero }}</td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
     </div>
 
-    <div class="row justify-content-center">
-        <div class="col-md-4 mb-3">
-            <div class="card culoare2">
-                <div class="card-header text-center">Clienți noi luna curentă</div>
-                <div class="card-body text-center">
-                    <b class="fs-2">{{ Firma::where('tip_partener', 1)->whereDate('created_at', '>=', Carbon::today()->startOfMonth())->count() }}</b>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="row justify-content-center">
+                <div class="col-md-4 mb-3">
+                    <div class="card culoare2">
+                        <div class="card-header text-center">Clienți noi luna curentă</div>
+                        <div class="card-body text-center">
+                            <b class="fs-2">{{ Firma::where('tip_partener', 1)->whereDate('created_at', '>=', Carbon::today()->startOfMonth())->count() }}</b>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card culoare2">
+                        <div class="card-header text-center">Transportatori noi luna curentă</div>
+                        <div class="card-body text-center">
+                            <b class="fs-2">{{ Firma::where('tip_partener', 2)->whereDate('created_at', '>=', Carbon::today()->startOfMonth())->count() }}</b>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card culoare2">
+                        <div class="card-header text-center">Total comenzi</div>
+                        <div class="card-body text-center">
+                            <b class="fs-2">{{ Comanda::where('stare', '<>', 3)->count() }}</b>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card culoare2">
+                        <div class="card-header text-center">Comenzi deschise</div>
+                        <div class="card-body text-center">
+                            <b class="fs-2">{{ Comanda::where('stare', 1)->count() }}</b>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="card culoare2">
+                        <div class="card-header text-center">Comenzi luna curentă</div>
+                        <div class="card-body text-center">
+                            <b class="fs-2">{{ $comenziLunaCurenta->count() }}</b>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-5">
+                    <div class="card culoare2">
+                        <div class="card-header text-center">Profit comenzi luna curentă
+                            <a href="comenzi/totaluri-luna-curenta" target="_blank">
+                                <i class="fa-solid fa-circle-info text-white" title="Detaliază"></i>
+                            </a>
+                        </div>
+                        <div class="card-body text-center">
+                            {{-- @foreach ($comenziLunaCurenta as $comanda)
+                                {{ $comanda->transportator_valoare_contract }} -
+                                {{ $comanda->transportator_valoare_contract }} -
+                                {{ $comanda->client_valoare_contract }}
+                                <br>
+                            @endforeach --}}
+                            @foreach ($monede as $moneda)
+                                @if (($suma = $comenziLunaCurenta->where('client_moneda_id', $moneda->id)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', $moneda->id)->sum('transportator_valoare_contract')) !== 0)
+                                    <b class="fs-2">{{ $suma }} {{ $moneda->nume }}</b>
+                                    {{-- (<small><a href="">Detaliază</a></small>) --}}
+                                    &nbsp;&nbsp;
+                                    <br>
+                                @endif
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-4 mb-3">
-            <div class="card culoare2">
-                <div class="card-header text-center">Transportatori noi luna curentă</div>
-                <div class="card-body text-center">
-                    <b class="fs-2">{{ Firma::where('tip_partener', 2)->whereDate('created_at', '>=', Carbon::today()->startOfMonth())->count() }}</b>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card culoare2">
-                <div class="card-header text-center">Total comenzi</div>
-                <div class="card-body text-center">
-                    <b class="fs-2">{{ Comanda::where('stare', '<>', 3)->count() }}</b>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card culoare2">
-                <div class="card-header text-center">Comenzi deschise</div>
-                <div class="card-body text-center">
-                    <b class="fs-2">{{ Comanda::where('stare', 1)->count() }}</b>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-3">
-            <div class="card culoare2">
-                <div class="card-header text-center">Comenzi luna curentă</div>
-                <div class="card-body text-center">
-                    <b class="fs-2">{{ $comenziLunaCurenta->count() }}</b>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4 mb-5">
-            <div class="card culoare2">
-                <div class="card-header text-center">Profit comenzi luna curentă
-                    <a href="comenzi/totaluri-luna-curenta" target="_blank">
-                        <i class="fa-solid fa-circle-info text-white" title="Detaliază"></i>
-                    </a>
-                </div>
-                <div class="card-body text-center">
-                    @foreach ($monede as $moneda)
-                        @if (($suma = $comenziLunaCurenta->where('client_moneda_id', $moneda->id)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', $moneda->id)->sum('transportator_valoare_contract')) !== 0)
-                            <b class="fs-2">{{ $suma }} {{ $moneda->nume }}</b>
-                            {{-- (<small><a href="">Detaliază</a></small>) --}}
-                            &nbsp;&nbsp;
-                            <br>
-                        @endif
-                    @endforeach
+        <div class="col-md-4">
+            <div class="row">
+                <div class="col-md-12 mb-5">
+                    <div class="table-responsive rounded">
+                        <table class="table table-sm table-striped table-hover rounded">
+                            <thead class="text-white rounded culoare2">
+                                <tr><th colspan="4" class="py-0 text-center">KPI (performanță 2025) - Comenzi luna curentă</th></tr>
+                                <tr class="" style="padding:2rem">
+                                    <th class="py-0">Utilizator</th>
+                                    <th class="py-0 text-center">Pe plus</th>
+                                    <th class="py-0 text-center">Pe minus</th>
+                                    <th class="py-0 text-center">Pe 0</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach ($comenziKPI as $comanda)
+                                <tr>
+                                    <td class="py-0">{{ $comanda->user_name }}</td>
+                                    <td class="py-0 text-center">{{ $comanda->this_month_greater_than_zero }}</td>
+                                    <td class="py-0 text-center">{{ $comanda->this_month_less_than_zero }}</td>
+                                    <td class="py-0 text-center">{{ $comanda->this_month_equal_to_zero }}</td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
