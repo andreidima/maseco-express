@@ -22,6 +22,7 @@ import { createApp } from 'vue';
 import VueDatepickerNext from './components/DatePicker.vue';
 import TiptapEditor from './components/TiptapEditor.vue'; // Import your Tiptap component
 import TogglePredat from './components/intermedieri/TogglePredat.vue';
+import InlineObservatiiEditor from './components/keyPerformanceIndicators/InlineObservatiiEditor.vue';
 
 // Create Vue app
 const app = createApp({});
@@ -914,4 +915,26 @@ if (document.getElementById('facturaMemento') != null) {
 
 const tabelIntermedieri = createApp({});
 tabelIntermedieri.component('toggle-predat', TogglePredat);
-tabelIntermedieri.mount('#tabelIntermedieri');
+if (document.getElementById('tabelIntermedieri') != null) {
+    tabelIntermedieri.mount('#tabelIntermedieri');
+}
+
+const keyPerformanceIndicatorsMainPage = createApp({
+    data() {
+        return {
+            lastUpdatedKpi: null, // Track the last updated KPI ID
+        };
+    },
+    methods: {
+        handleUpdateSuccess(kpiId) {
+            this.lastUpdatedKpi = kpiId; // Update the last updated KPI ID
+            setTimeout(() => {
+                this.lastUpdatedKpi = null; // Remove after 5 seconds
+            }, 5000);
+        },
+    },
+});
+keyPerformanceIndicatorsMainPage.component('inline-observatii-editor', InlineObservatiiEditor);
+if (document.getElementById('keyPerformanceIndicatorsMainPage') != null) {
+    keyPerformanceIndicatorsMainPage.mount('#keyPerformanceIndicatorsMainPage');
+}

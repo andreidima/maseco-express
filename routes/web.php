@@ -25,6 +25,8 @@ use App\Http\Controllers\IntermediereController;
 use App\Http\Controllers\FlotaStatusController;
 use App\Http\Controllers\FlotaStatusInformatieController;
 use App\Http\Controllers\DocumentWordController;
+use App\Http\Controllers\KeyPerformanceIndicatorController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -150,6 +152,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/flota-statusuri-informatii', FlotaStatusInformatieController::class)->parameters(['flota-statusuri-informatii' => 'flotaStatusInformatie']);
 
     Route::resource('/documente-word', DocumentWordController::class)->parameters(['documente-word' => 'documentWord']);
+
+    Route::post('/key-performance-indicators/update-observatii', [KeyPerformanceIndicatorController::class, 'updateObservatii'])->name('kpis.updateObservatii');
+    Route::resource('key-performance-indicators', KeyPerformanceIndicatorController::class)->parameters(['key-performance-indicators' => 'keyPerformanceIndicators']);
+
 
     // Clear application cache:
     Route::get('/clear-all', function() {

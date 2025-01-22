@@ -6,6 +6,8 @@ use Illuminate\Support\ServiceProvider;
 
 use Route;
 
+use Carbon\Carbon;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -25,5 +27,8 @@ class AppServiceProvider extends ServiceProvider
             'create' => 'adauga',
             'edit' => 'modifica'
         ]);
+
+        // Set the locale to Romanian globally
+        Carbon::setLocale('ro');
     }
 }

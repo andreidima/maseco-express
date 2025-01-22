@@ -136,7 +136,14 @@
                     <div class="table-responsive rounded">
                         <table class="table table-sm table-striped table-hover rounded">
                             <thead class="text-white rounded culoare2">
-                                <tr><th colspan="4" class="py-0 text-center">KPI (performanță 2025) - Comenzi luna curentă</th></tr>
+                                <tr>
+                                    <th colspan="4" class="py-0 text-center">
+                                        KPI (performanță 2025) - Comenzi luna curentă
+                                        <a href="key-performance-indicators">
+                                            <i class="fa-solid fa-circle-info text-white" title="Detaliază"></i>
+                                        </a>
+                                    </th>
+                                </tr>
                                 <tr class="" style="padding:2rem">
                                     <th class="py-0">Utilizator</th>
                                     <th class="py-0 text-center">Pe plus</th>

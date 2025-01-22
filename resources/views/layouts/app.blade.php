@@ -163,6 +163,12 @@
                                         <i class="fa-solid fa-file me-1"></i>Intermedieri
                                     </a>
                                 </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/key-performance-indicators">
+                                        <i class="fa-solid fa-chart-simple me-1"></i>KPI
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item me-3 dropdown">
