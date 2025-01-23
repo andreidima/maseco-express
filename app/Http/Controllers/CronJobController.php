@@ -164,6 +164,14 @@ class CronJobController extends Controller
             return;
         }
 
+
+        echo '<b>Număr mementouri pentru ziua de azi</b>: ' . $mementouriAlerte->count() . '<br>';
+        foreach ($mementouriAlerte as $index => $mementoAlerta) {
+            echo ($index+1) . '. Memento: ';
+            echo $mementoAlerta->memento->nume ?? '';
+            echo '<br>';
+        }
+
         // Trimitere SMS
         $mementouriAlerteDeTrimisSmsGrupateDupaTelefon = $mementouriAlerte->whereNotNull('memento.telefon')->groupBy('memento.telefon');
         foreach($mementouriAlerteDeTrimisSmsGrupateDupaTelefon as $mementouriAlerteDeTrimisSms){
