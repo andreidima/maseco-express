@@ -159,17 +159,17 @@ class CronJobController extends Controller
 
         $mementouriAlerte = MementoAlerta::with('memento')->whereDate('data', '=', Carbon::today())->get();
 
-        // Daca nu este nici o alerta setata pentru ziua curenta, se termina functia
-        if (count($mementouriAlerte) === 0){
-            return;
-        }
-
-
+        // For personal tests
         echo '<b>Număr mementouri pentru ziua de azi</b>: ' . $mementouriAlerte->count() . '<br>';
         foreach ($mementouriAlerte as $index => $mementoAlerta) {
             echo ($index+1) . '. Memento: ';
             echo $mementoAlerta->memento->nume ?? '';
             echo '<br>';
+        }
+
+        // Daca nu este nici o alerta setata pentru ziua curenta, se termina functia
+        if (count($mementouriAlerte) === 0){
+            return;
         }
 
         // Trimitere SMS
