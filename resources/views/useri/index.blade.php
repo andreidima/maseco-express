@@ -69,7 +69,7 @@
                                             Admin
                                             @break
                                         @case(2)
-                                            Operator
+                                            Dispecer
                                             @break
                                     @endswitch
                                 </td>

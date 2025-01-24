@@ -25,7 +25,7 @@
                 <select class="form-select bg-white rounded-3 {{ $errors->has('role') ? 'is-invalid' : '' }}" name="role">
                     <option selected></option>
                     <option value="1" {{ old('role', $user->role) == "1" ? 'selected' : '' }}>Admin</option>
-                    <option value="2" {{ old('role', $user->role) == "2" ? 'selected' : '' }}>Operator</option>
+                    <option value="2" {{ old('role', $user->role) == "2" ? 'selected' : '' }}>Dispecer</option>
                 </select>
             </div>
             <div class="col-lg-3 mb-4">
