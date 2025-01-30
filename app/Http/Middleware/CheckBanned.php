@@ -18,13 +18,18 @@ class CheckBanned
     public function handle(Request $request, Closure $next): Response
     {
         if(auth()->check() && (auth()->user()->activ == 0)){
-                Auth::logout();
+            Auth::logout();
 
-                $request->session()->invalidate();
+            $request->session()->invalidate();
 
-                $request->session()->regenerateToken();
+            $request->session()->regenerateToken();
 
-                return redirect()->route('login')->with('error', 'Contul tău este suspendat. Contactează administratorul.');
+            // Prevent infinite redirect loop
+            if ($request->routeIs('login')) {
+                return $next($request);
+            }
+
+            return redirect()->route('login')->with('error', 'Contul tău este suspendat. Contactează administratorul.');
 
         }
 
