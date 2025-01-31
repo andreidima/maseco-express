@@ -785,7 +785,7 @@ class ComandaController extends Controller
                 'client_moneda_id' => 'required',
 
                 'descriere_marfa' => 'nullable|max:500',
-                'camion_id' => '',
+                'camion_id' => 'required',
 
                 'incarcari.*.id' => 'required',
                 // 'incarcari.*.nume' => 'required|max:500',
@@ -824,6 +824,8 @@ class ComandaController extends Controller
                 'client_valoare_contract.min' => 'Câmpul Valoare contract finală poate fi minim 9999999',
                 'client_valoare_contract.max' => 'Câmpul Valoare contract finală poate fi maxim 9999999',
                 'client_moneda_id.required' => 'Câmpul Moneda de la Valoare contract finală este obligatoriu',
+
+                'camion_id.required' => 'Câmpul Camion este obligatoriu',
 
                 'incarcari.*.id' => 'Încărcarea #:position este obligatoriu de selectat din baza de date',
                 'incarcari.*.pivot.data_ora' => 'Câmpul Data și ora pentru încărcarea #:position este obligatoriu',

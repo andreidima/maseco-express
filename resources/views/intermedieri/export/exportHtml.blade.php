@@ -261,7 +261,7 @@
                             {{-- Step 3: Sum the 'valoare_contract_initiala' from each 'clientiComanda' record --}}
                             {{-- This ensures we're summing the field from the related table, not from 'Comanda' --}}
                             {{
-                                $total = $comenzi->flatMap(function ($comanda) {
+                                $totalSoldInitial = $comenzi->flatMap(function ($comanda) {
                                     return $comanda->clientiComanda;
                                 })->sum(function ($clientComanda) {
                                     return $clientComanda->valoare_contract_initiala;
@@ -273,7 +273,7 @@
                             {{ $comenzi->sum('client_valoare_contract') }} {{ $comanda->clientMoneda->nume ?? null }}
                         </th>
                         <th class="fs-6 text-end">
-                            {{ $comenzi->sum('transportator_valoare_contract') }} {{ $comanda->transportatorMoneda->nume ?? null }}
+                            {{ $totalJobValue = $comenzi->sum('transportator_valoare_contract') }} {{ $comanda->transportatorMoneda->nume ?? null }}
                         </th>
                         <th class="fs-6 text-end"></th>
                         <th class="fs-6 text-center"></th>
@@ -286,7 +286,8 @@
                         <th class="fs-6"></th>
                         <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->motis ?? 0) }}</th>
                         <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->dkv ?? 0) }}</th>
-                        <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->astra ?? 0) }}</th>
+                        <th class="fs-6">{{ $totalAstra = $comenzi->sum(fn($comanda) => $comanda->intermediere->astra ?? 0) }}</th>
+                        <th class="fs-6">{{ ($totalSoldInitial ?? 0) - ($totalJobValue ?? 0) - ($totalAstra ?? 0) }}</th>
                         <th class="fs-6"></th>
                     </tr>
             </tbody>

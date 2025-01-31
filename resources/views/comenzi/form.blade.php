@@ -799,7 +799,7 @@
                     name="descriere_marfa" rows="3">{{ old('descriere_marfa', $comanda->descriere_marfa) }}</textarea>
             </div>
             <div class="col-lg-3 mb-4" style="position:relative;" v-click-out="() => camioaneListaAutocomplete = ''">
-                <label for="camion_id" class="mb-0 ps-3">Camion</label>
+                <label for="camion_id" class="mb-0 ps-3">Camion<span class="text-danger">*</span></label>
                 <input
                     type="hidden"
                     v-model="camionId"
