@@ -56,151 +56,181 @@
 
             @include ('errors')
 
-            @if ($searchFisier)
-                @if ($fisiereGasite)
-                    <div class="col-lg-6 mx-auto table-responsive rounded-3">
-                        <table class="table table-striped table-hover rounded-3">
-                            <thead class="text-white rounded-3 culoare2">
+            <div class="row">
+                @if ($searchFisier)
+                    @if ($fisiereGasite)
+                        <div class="col-lg-6 mx-auto table-responsive rounded-3">
+                            <table class="table table-striped table-hover rounded-3">
+                                <thead class="text-white rounded-3 culoare2">
+                                    <tr>
+                                        <th class="text-center">Fișiere găsite în urma căutării</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($fisiereGasite as $fisier)
+                                        <tr>
+                                            <td>
+                                                <a href="/file-manager-personalizat-fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
+                                                    {{-- <i class="fa-solid fa-file"></i> --}}
+                                                    {{ $fisier }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @else
+                        <div class="d-flex justify-content-center">
+                            <p class="px-3 bg-warning rounded" style="width:fit-content">Căutarea nu a găsit nici un fișier</p>
+                        </div>
+                    @endif
+                @endif
+            </div>
+
+            <div class="row">
+                <!-- Left column: Directory Tree -->
+                {{-- <div id="directoryTree" class="col-md-3" style="border-right: 1px solid #ddd; padding-right: 15px;">
+                    <div class="table-responsive rounded">
+                        <table class="table rounded">
+                            <thead class="text-white rounded culoare2">
                                 <tr>
-                                    <th class="text-center">Fișiere găsite în urma căutării</th>
+                                    <th class="" style="">
+                                        Directoare
+                                    </th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($fisiereGasite as $fisier)
+                                <tr>
+                                    <td class="px-0">
+                                        <!-- Pass the directoryTree as JSON -->
+                                        <directory-tree :nodes='@json($directoryTree)'></directory-tree>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div> --}}
+
+                <!-- Right column: Main File Manager Content -->
+                <div class="col-md-12">
+                    <div class="table-responsive rounded">
+                        <table class="table table-striped table-hover rounded">
+                            <thead class="text-white rounded culoare2">
+                                <tr>
+                                    <th class="" style="">
+                                        <a href="/file-manager-personalizat/" style="color:white; text-decoration: white;">
+                                            Cale: <i class="fa-solid fa-hard-drive"></i>
+                                        </a>
+                                        @php
+                                            $exploded = explode("/", $cale);
+                                            // dd($exploded, count($exploded));
+                                        @endphp
+                                        {{ $cale ? '/' : '' }}
+                                        @foreach ($exploded as $item)
+                                            @php
+                                                $caleDirectorCurent = '';
+                                            @endphp
+                                            @for ($i = 0; $i < $loop->iteration; $i++)
+                                                @php
+                                                    $caleDirectorCurent .= $exploded[$i] . '\\';
+                                                @endphp
+                                            @endfor
+                                            <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="color:white; text-decoration: underline white;">
+                                                {{ $item }}
+                                            </a>
+                                                {{-- \ --}}
+                                                /
+                                        @endforeach
+                                    </th>
+                                    @if (auth()->user()->role == "1")
+                                        <th class="text-end">Acțiuni</th>
+                                    @endif
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($directoare as $director)
+                                    @php
+                                        $exploded = explode("/", $director);
+                                    @endphp
                                     <tr>
-                                        <td>
-                                            <a href="/file-manager-personalizat-fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
-                                                {{-- <i class="fa-solid fa-file"></i> --}}
-                                                {{ $fisier }}
+                                        <td align="">
+                                            <a href="/file-manager-personalizat/{{ $director }}" style="text-decoration:cornflowerblue">
+                                                <i class="fa-solid fa-folder text-warning"></i>
+                                                {{ end($exploded) }}
                                             </a>
                                         </td>
+                                        @if (auth()->user()->role == "1")
+                                        <td>
+                                            <div class="d-flex justify-content-end">
+                                                <div style="flex" class="me-1">
+                                                    <a
+                                                        href="#"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modificaCaleNumeDirector{{ $loop->iteration }}"
+                                                        title="Modifică cale nume Director"
+                                                        >
+                                                        <span class="badge bg-primary">Modifică</span>
+                                                    </a>
+                                                </div>
+                                                <div style="flex" class="">
+                                                    <a
+                                                        href="#"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#stergeDirector{{ $loop->iteration }}"
+                                                        title="Șterge Director"
+                                                        >
+                                                        <span class="badge bg-danger">Șterge</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        @endif
+                                    </tr>
+                                @endforeach
+                                @foreach ($fisiere as $fisier)
+                                    @php
+                                        $exploded = explode("/", $fisier);
+                                    @endphp
+                                    <tr>
+                                        <td align="">
+                                            <a href="/file-manager-personalizat-fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
+                                                <i class="fa-solid fa-file"></i>
+                                                {{ end($exploded) }}
+                                            </a>
+                                        </td>
+                                        @if (auth()->user()->role == "1")
+                                        <td>
+                                            <div class="d-flex justify-content-end">
+                                                <div style="flex" class="me-1">
+                                                    <a
+                                                        href="#"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#modificaCaleNumeFisier{{ $loop->iteration }}"
+                                                        title="Modifică cale nume Fișier"
+                                                        >
+                                                        <span class="badge bg-primary">Modifică</span>
+                                                    </a>
+                                                </div>
+                                                <div style="flex" class="">
+                                                    <a
+                                                        href="#"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#stergeFisier{{ $loop->iteration }}"
+                                                        title="Șterge Fisier"
+                                                        >
+                                                        <span class="badge bg-danger">Șterge</span>
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        @endif
                                     </tr>
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
-                @else
-                    <div class="d-flex justify-content-center">
-                        <p class="px-3 bg-warning rounded" style="width:fit-content">Căutarea nu a găsit nici un fișier</p>
-                    </div>
-                @endif
-            @endif
-
-            <div class="table-responsive rounded">
-                <table class="table table-striped table-hover rounded">
-                    <thead class="text-white rounded culoare2">
-                        <tr>
-                            <th class="" style="">
-                                <a href="/file-manager-personalizat/" style="color:white; text-decoration: white;">
-                                    Cale: <i class="fa-solid fa-hard-drive"></i>
-                                </a>
-                                @php
-                                    $exploded = explode("/", $cale);
-                                    // dd($exploded, count($exploded));
-                                @endphp
-                                {{ $cale ? '/' : '' }}
-                                @foreach ($exploded as $item)
-                                    @php
-                                        $caleDirectorCurent = '';
-                                    @endphp
-                                    @for ($i = 0; $i < $loop->iteration; $i++)
-                                        @php
-                                            $caleDirectorCurent .= $exploded[$i] . '\\';
-                                        @endphp
-                                    @endfor
-                                    <a href="/file-manager-personalizat/{{ $caleDirectorCurent }}" style="color:white; text-decoration: underline white;">
-                                        {{ $item }}
-                                    </a>
-                                        {{-- \ --}}
-                                        /
-                                @endforeach
-                            </th>
-                            @if (auth()->user()->role == "1")
-                                <th class="text-end">Acțiuni</th>
-                            @endif
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($directoare as $director)
-                            @php
-                                $exploded = explode("/", $director);
-                            @endphp
-                            <tr>
-                                <td align="">
-                                    <a href="/file-manager-personalizat/{{ $director }}" style="text-decoration:cornflowerblue">
-                                        <i class="fa-solid fa-folder text-warning"></i>
-                                        {{ end($exploded) }}
-                                    </a>
-                                </td>
-                                @if (auth()->user()->role == "1")
-                                <td>
-                                    <div class="d-flex justify-content-end">
-                                        <div style="flex" class="me-1">
-                                            <a
-                                                href="#"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#modificaCaleNumeDirector{{ $loop->iteration }}"
-                                                title="Modifică cale nume Director"
-                                                >
-                                                <span class="badge bg-primary">Modifică</span>
-                                            </a>
-                                        </div>
-                                        <div style="flex" class="">
-                                            <a
-                                                href="#"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#stergeDirector{{ $loop->iteration }}"
-                                                title="Șterge Director"
-                                                >
-                                                <span class="badge bg-danger">Șterge</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
-                                @endif
-                            </tr>
-                        @endforeach
-                        @foreach ($fisiere as $fisier)
-                            @php
-                                $exploded = explode("/", $fisier);
-                            @endphp
-                            <tr>
-                                <td align="">
-                                    <a href="/file-manager-personalizat-fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
-                                        <i class="fa-solid fa-file"></i>
-                                        {{ end($exploded) }}
-                                    </a>
-                                </td>
-                                @if (auth()->user()->role == "1")
-                                <td>
-                                    <div class="d-flex justify-content-end">
-                                        <div style="flex" class="me-1">
-                                            <a
-                                                href="#"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#modificaCaleNumeFisier{{ $loop->iteration }}"
-                                                title="Modifică cale nume Fișier"
-                                                >
-                                                <span class="badge bg-primary">Modifică</span>
-                                            </a>
-                                        </div>
-                                        <div style="flex" class="">
-                                            <a
-                                                href="#"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#stergeFisier{{ $loop->iteration }}"
-                                                title="Șterge Fisier"
-                                                >
-                                                <span class="badge bg-danger">Șterge</span>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
-                                @endauth
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                </div>
             </div>
         </div>
     </div>

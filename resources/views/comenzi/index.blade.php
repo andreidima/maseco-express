@@ -33,10 +33,10 @@
                                 data-veche="{{ $searchDataCreare }}"
                                 nume-camp-db="searchDataCreare"
                                 tip="date"
+                                range="range"
                                 value-type="YYYY-MM-DD"
                                 format="DD.MM.YYYY"
-                                :latime="{ width: '125px' }"
-                                style="margin-right: 20px;"
+                                :latime="{ width: '210px' }"
                             ></vue-datepicker-next>
                         </div>
                         <div class="col-lg-4">

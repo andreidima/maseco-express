@@ -23,6 +23,8 @@ import VueDatepickerNext from './components/DatePicker.vue';
 import TiptapEditor from './components/TiptapEditor.vue'; // Import your Tiptap component
 import TogglePredat from './components/intermedieri/TogglePredat.vue';
 import InlineObservatiiEditor from './components/keyPerformanceIndicators/InlineObservatiiEditor.vue';
+import DirectoryTree from './components/fileManager/DirectoryTree.vue';
+
 
 // Create Vue app
 const app = createApp({});
@@ -937,4 +939,10 @@ const keyPerformanceIndicatorsMainPage = createApp({
 keyPerformanceIndicatorsMainPage.component('inline-observatii-editor', InlineObservatiiEditor);
 if (document.getElementById('keyPerformanceIndicatorsMainPage') != null) {
     keyPerformanceIndicatorsMainPage.mount('#keyPerformanceIndicatorsMainPage');
+}
+
+const directoryTree = createApp({});
+directoryTree.component('directory-tree', DirectoryTree);
+if (document.getElementById('directoryTree') != null) {
+    directoryTree.mount('#directoryTree');
 }

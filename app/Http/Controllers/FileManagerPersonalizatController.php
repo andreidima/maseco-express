@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Response;
+use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class FileManagerPersonalizatController extends Controller
 {
@@ -15,20 +16,34 @@ class FileManagerPersonalizatController extends Controller
         if ($searchFisier){
             $toateFisierele = Storage::disk('filemanager')->allFiles();
             foreach ($toateFisierele as $fisier){
-                if (strpos(strtolower($fisier), strtolower($searchFisier))){
-                    array_push($fisiereGasite, $fisier);
+                if (strpos(strtolower($fisier), strtolower($searchFisier)) !== false){
+                    $fisiereGasite[] = $fisier;
                 }
             }
         }
         $directoare = Storage::disk('filemanager')->directories($cale);
 
         $fisiere = Storage::disk('filemanager')->files($cale);
-
         // natcasesort — Sort an array using a case insensitive "natural order" algorithm
         natcasesort($directoare);
         natcasesort($fisiere);
 
-        return view('fileManagerPersonalizat.index', compact('cale', 'directoare', 'fisiere', 'searchFisier', 'fisiereGasite'));
+        // Get all directories for tree explorer
+        $directories = Storage::disk('filemanager')->directories(null);
+        $tree = [];
+        foreach ($directories as $directory) {
+            $tree[] = [
+                'name'     => basename($directory),
+                'path'     => $directory,
+                // Recursively get the subdirectories of this directory.
+                'children' => $this->getDirectoryTree($directory),
+            ];
+        }
+
+        // Build the full directory tree starting from $path (or root if empty)
+        $directoryTree = $this->getDirectoryTree(null);
+
+        return view('fileManagerPersonalizat.index', compact('cale', 'directoare', 'fisiere', 'searchFisier', 'fisiereGasite', 'directoryTree'));
     }
 
     public function directorCreaza(Request $request)
@@ -40,7 +55,7 @@ class FileManagerPersonalizatController extends Controller
             ],
         );
 
-        Storage::disk('filemanager')->makeDirectory($request->cale . '\\' . $request->numeDirector);
+        Storage::disk('filemanager')->makeDirectory($request->cale . '/' . $request->numeDirector);
 
         return back()->with('status', 'Directorul „' . $request->numeDirector . '" a fost creat cu succes!');
     }
@@ -137,5 +152,30 @@ class FileManagerPersonalizatController extends Controller
         Storage::disk('filemanager')->move($caleNumeVechi, $caleNumeNou);
 
         return back()->with('status', '„' . $request->numeNou . '" a fost modificat cu succes!');
+    }
+
+    /**
+     * Recursively builds an array representing the directory tree.
+     *
+     * @param string $path
+     * @return array
+     */
+    private function getDirectoryTree($path)
+    {
+        // Get immediate subdirectories
+        $directories = Storage::disk('filemanager')->directories($path);
+        $tree = [];
+
+        foreach ($directories as $directory) {
+            $tree[] = [
+                'name'     => basename($directory),
+                'path'     => $directory,
+                'isOpen'   => false,
+                // Recursively get the subdirectories of this directory.
+                'children' => $this->getDirectoryTree($directory),
+            ];
+        }
+
+        return $tree;
     }
 }

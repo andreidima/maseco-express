@@ -49,20 +49,11 @@ class ComandaController extends Controller
         $searchClientId = $request->searchClientId;
         $searchNrAuto = $request->searchNrAuto;
 
-        // $query = Comanda::query();
-
-        // // If filtering by client, join the pivot table and related table:
-        // if ($searchClientId) {
-        //     $query->join('comenzi_clienti', 'comenzi.id', '=', 'comenzi_clienti.comanda_id')
-        //         ->join('firme', 'comenzi_clienti.client_id', '=', 'firme.id')
-        //         ->where('firme.id', $searchClientId)
-        //         // If you join tables, you might want to select distinct main table columns:
-        //         ->select('comenzi.*');
-        // }
-
         $query = Comanda::with([
                 'clienti:id,nume',
                 'transportator:id,nume',
+                'locuriOperareIncarcari',
+                'locuriOperareDescarcari',
                 'camion:id,numar_inmatriculare',
                 'mesajeTrimiseEmail:id,comanda_id,categorie,email,created_at',
                 'mesajeTrimiseSms:id,categorie,subcategorie,referinta_id,telefon,mesaj,content,trimis,raspuns,created_at',
@@ -71,7 +62,8 @@ class ComandaController extends Controller
             ])
             ->withCount('contracteTrimisePeEmailCatreTransportator')
             ->when($searchDataCreare, function ($query, $searchDataCreare) {
-                return $query->whereDate('data_creare', $searchDataCreare);
+                $dates = explode(',', $searchDataCreare);
+                return $query->whereBetween('data_creare', [$dates[0], $dates[1] ?? $dates[0]]);
             })
             ->when($searchTransportatorContract, function ($query, $searchTransportatorContract) {
                 return $query->where('transportator_contract', 'like', '%' . $searchTransportatorContract . '%');
