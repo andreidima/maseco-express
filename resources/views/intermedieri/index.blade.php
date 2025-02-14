@@ -315,10 +315,10 @@
                                 <th class="fs-6"></th>
                                 <th class="fs-6"></th>
                                 <th class="fs-6"></th>
-                                <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->motis ?? 0) }}</th>
-                                <th class="fs-6">{{ $comenzi->sum(fn($comanda) => $comanda->intermediere->dkv ?? 0) }}</th>
+                                <th class="fs-6">{{ $totalMotis = $comenzi->sum(fn($comanda) => $comanda->intermediere->motis ?? 0) }}</th>
+                                <th class="fs-6">{{ $totalDkv = $comenzi->sum(fn($comanda) => $comanda->intermediere->dkv ?? 0) }}</th>
                                 <th class="fs-6">{{ $totalAstra = $comenzi->sum(fn($comanda) => $comanda->intermediere->astra ?? 0) }}</th>
-                                <th class="fs-6">{{ ($totalSoldInitial ?? 0) - ($totalJobValue ?? 0) - ($totalAstra ?? 0) }}</th>
+                                <th class="fs-6">{{ ($totalSoldInitial ?? 0) - ($totalJobValue ?? 0) - ($totalMotis ?? 0) - ($totalDkv ?? 0) - ($totalAstra ?? 0) }}</th>
                                 <th class="fs-6"></th>
                                 <th class="fs-6"></th>
                             </tr>
