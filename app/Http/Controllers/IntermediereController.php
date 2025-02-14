@@ -152,7 +152,6 @@ class IntermediereController extends Controller
                 }
             })
             ->orderBy('data_creare');
-// dd($query->toSql(), $query->getBindings()); // Debug the generated SQL and parameters
 
         if ($request->action == "export"){
             if (!$searchInterval) {
@@ -164,7 +163,7 @@ class IntermediereController extends Controller
             $comenzi = $query->get();
             return view('intermedieri.export.exportHtml', compact('comenzi', 'searchUser', 'searchInterval', 'searchPredat'));
         } else {
-            $comenzi = $query->simplePaginate(50);
+            $comenzi = $query->simplePaginate(100);
             $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
             return view('intermedieri.index', compact('comenzi', 'useri', 'searchUser', 'searchInterval', 'searchPredat', 'searchFacturaMasecoNumar', 'searchCondition'));
         }

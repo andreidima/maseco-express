@@ -755,7 +755,8 @@
                                                     alertaCampuriNecompletate = '';
 
                                                     // Calculate the general clientValoareContract
-                                                    clientValoareContract = (totalValoareContractInitiala - transportatorPretFerry).toFixed(2);
+                                                    // clientValoareContract = (totalValoareContractInitiala - transportatorPretFerry).toFixed(2); - commented 14.02.2025
+                                                    clientValoareContract = totalValoareContractInitiala.toFixed(2);
                                                 }
                                             ">Calculează</button>
                                     </div>
