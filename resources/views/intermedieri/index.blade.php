@@ -336,11 +336,13 @@
                 <div class="col-lg-12">
                     <p class="small">
                         {{-- * Culoare albastră: (Documentele sunt pe suport fizic și au fost încărcate de operator) SAU (Documentele sunt în format digital, iar ultimul email din corespondența cu transportatorul este trimis de operator prin care confirmă că documentele sunt corecte). --}}
-                        * Culoare albastră: Factura este încărcată.
+                        * Plată client = Sold inițial - Job value - Motis - DKV - Astra
                         <br>
-                        ** Culoare verde: Comenzile pentru care plata transportatorului a fost efectuată.
+                        ** Culoare albastră: Factura este încărcată.
                         <br>
-                        *** Culoare albă: Toate celelalte comenzi care nu se încadrează în condițiile de mai sus.
+                        *** Culoare verde: Comenzile pentru care plata transportatorului a fost efectuată.
+                        <br>
+                        **** Culoare albă: Toate celelalte comenzi care nu se încadrează în condițiile de mai sus.
                     </p>
                 </div>
 
