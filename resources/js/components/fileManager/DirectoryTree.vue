@@ -3,7 +3,7 @@
   <ul
     class="directory-tree"
     :style="{
-      paddingLeft: level === 0 ? '0px' : 20 + 'px',
+      paddingLeft: level === 0 ? '0px' : '20px',
       margin: level === 0 ? '0px' : 'initial'
     }"
   >
@@ -74,18 +74,31 @@ export default {
     toggle(node) {
       if (node.children && node.children.length) {
         node.isOpen = !node.isOpen;
+        // Save this node’s state in localStorage using its unique path as key
+        localStorage.setItem(`directoryTree_${node.path}`, node.isOpen);
       }
 
-        // Log just the toggled node
-        console.log("Toggled node:", node);
-
-        // Or log *all* localNodes (the entire tree state)
-        // so you can see the new state of all nodes
-        console.log("All node states:", JSON.stringify(this.localNodes, null, 2));
+      // Log for debugging
+    //   console.log("Toggled node:", node);
+    //   console.log("All node states:", JSON.stringify(this.localNodes, null, 2));
+    },
+    // Recursively restore each node's state from localStorage
+    restoreStates(nodes) {
+      nodes.forEach((node) => {
+        const storedState = localStorage.getItem(`directoryTree_${node.path}`);
+        if (storedState !== null) {
+          node.isOpen = storedState === "true";
+        }
+        if (node.children && node.children.length) {
+          this.restoreStates(node.children);
+        }
+      });
     },
   },
   mounted() {
-    console.log("DirectoryTree mounted with localNodes:", this.localNodes);
+    // Restore open/closed states for all nodes on mount
+    this.restoreStates(this.localNodes);
+    // console.log("DirectoryTree mounted with localNodes:", this.localNodes);
   },
 };
 </script>

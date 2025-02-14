@@ -75,6 +75,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/file-manager-personalizat-fisier/deschide/{cale?}', [FileManagerPersonalizatController::class, 'fisierDeschide'])->where('cale', '.*');
     Route::delete('/file-manager-personalizat-fisier/sterge/{cale?}', [FileManagerPersonalizatController::class, 'fisierSterge'])->where('cale', '.*');
     Route::post('/file-manager-personalizat-resursa/modifica-cale-nume', [FileManagerPersonalizatController::class, 'ModificaCaleNume']);
+    Route::post('/file-manager-personalizat-fisier/copy', [FileManagerPersonalizatController::class, 'copyFile']);
+    Route::post('/file-manager-personalizat-fisier/move', [FileManagerPersonalizatController::class, 'moveFile']);
+    Route::post('/file-manager-personalizat-director/copy', [FileManagerPersonalizatController::class, 'copyDirectory']);
+    Route::post('/file-manager-personalizat-director/move', [FileManagerPersonalizatController::class, 'moveDirectory']);
 
 
     Route::resource('/firme/{tipPartener}', FirmaController::class)->parameters(['{tipPartener}' => 'firma']);

@@ -10,87 +10,117 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class FileManagerPersonalizatController extends Controller
 {
-    public function afisareDirectoareSiFisiere(Request $request, $cale = null){
+    public function afisareDirectoareSiFisiere(Request $request, $cale = null)
+    {
         $searchFisier = $request->searchFisier;
         $fisiereGasite = [];
-        if ($searchFisier){
+        if ($searchFisier) {
             $toateFisierele = Storage::disk('filemanager')->allFiles();
-            foreach ($toateFisierele as $fisier){
-                if (strpos(strtolower($fisier), strtolower($searchFisier)) !== false){
+            foreach ($toateFisierele as $fisier) {
+                if (strpos(strtolower($fisier), strtolower($searchFisier)) !== false) {
                     $fisiereGasite[] = $fisier;
                 }
             }
         }
         $directoare = Storage::disk('filemanager')->directories($cale);
-
         $fisiere = Storage::disk('filemanager')->files($cale);
-        // natcasesort — Sort an array using a case insensitive "natural order" algorithm
+
+        // Sort directories and files using a case insensitive "natural order" algorithm
         natcasesort($directoare);
         natcasesort($fisiere);
 
-        // Get all directories for tree explorer
-        $directories = Storage::disk('filemanager')->directories(null);
-        $tree = [];
-        foreach ($directories as $directory) {
-            $tree[] = [
-                'name'     => basename($directory),
-                'path'     => $directory,
-                // Recursively get the subdirectories of this directory.
-                'children' => $this->getDirectoryTree($directory),
-            ];
-        }
-
-        // Build the full directory tree starting from $path (or root if empty)
+        // Build the full directory tree starting from the root
         $directoryTree = $this->getDirectoryTree(null);
 
         return view('fileManagerPersonalizat.index', compact('cale', 'directoare', 'fisiere', 'searchFisier', 'fisiereGasite', 'directoryTree'));
     }
 
+    /**
+     * Recursively builds an array representing the directory tree.
+     *
+     * @param string $path
+     * @return array
+     */
+    private function getDirectoryTree($path)
+    {
+        $directories = Storage::disk('filemanager')->directories($path);
+        $tree = [];
+
+        foreach ($directories as $directory) {
+            $tree[] = [
+                'name'     => basename($directory),
+                'path'     => $directory,
+                'isOpen'   => false,
+                'children' => $this->getDirectoryTree($directory),
+            ];
+        }
+
+        return $tree;
+    }
+
     public function directorCreaza(Request $request)
     {
-        $request->validate(
-            [
-                'cale' => '',
-                'numeDirector' => 'required',
-            ],
-        );
+        $request->validate([
+            'cale'         => '',
+            'numeDirector' => 'required',
+        ]);
 
-        Storage::disk('filemanager')->makeDirectory($request->cale . '/' . $request->numeDirector);
+        // Build the directory path using forward slashes
+        $directoryPath = $this->joinPath($request->cale, $request->numeDirector);
+
+        try {
+            if (! Storage::disk('filemanager')->makeDirectory($directoryPath)) {
+                return back()->with('error', 'Nu s-a putut crea directorul.');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'A apărut o eroare: ' . $e->getMessage());
+        }
 
         return back()->with('status', 'Directorul „' . $request->numeDirector . '" a fost creat cu succes!');
     }
 
     public function directorSterge($cale = null)
     {
-        if (auth()->user()->role != "1"){
+        if (auth()->user()->role != "1") {
             return back()->with('error', 'Nu aveți dreptul să ștergeti directoare! Contactați administratorul aplicației.');
         }
 
-        Storage::disk('filemanager')->deleteDirectory($cale);
+        try {
+            Storage::disk('filemanager')->deleteDirectory($cale);
+        } catch (\Exception $e) {
+            return back()->with('error', 'A apărut o eroare la ștergerea directorului: ' . $e->getMessage());
+        }
 
         $exploded = explode("/", $cale);
-
         return back()->with('status', '„' . end($exploded) . '" a fost șters cu succes!');
     }
 
     public function fisiereAdauga(Request $request)
     {
-        $request->validate(
-            [
-                'fisiere.*' => 'required|max:300000'
-            ],
-        );
+        $request->validate([
+            'fisiere.*' => 'required|max:300000'
+        ]);
 
+        $directoryPath = $request->cale ? $this->joinPath($request->cale) : '';
+
+        // Check for duplicate file names
         foreach ($request->file('fisiere') as $fisier) {
             $numeFisier = $fisier->getClientOriginalName();
-            if (Storage::disk('filemanager')->exists($request->cale . '/' . $numeFisier)){
+            $filePath = $this->joinPath($directoryPath, $numeFisier);
+            if (Storage::disk('filemanager')->exists($filePath)) {
                 return back()->with('error', 'Există deja un fișier cu numele „' . $numeFisier . '”. Redenumește fișierul și încearcă din nou.');
             }
         }
+
+        // Upload files and catch potential errors
         foreach ($request->file('fisiere') as $fisier) {
             $numeFisier = $fisier->getClientOriginalName();
-            if (! Storage::disk('filemanager')->putFileAs($request->cale, $fisier, $numeFisier)){
-                return back()->with('error', 'Fișierele nu au putut fi încărcate.');
+            try {
+                if (! Storage::disk('filemanager')->putFileAs($directoryPath, $fisier, $numeFisier)) {
+                    return back()->with('error', 'Fișierele nu au putut fi încărcate.');
+                }
+            } catch (\Exception $e) {
+                return back()->with('error', 'A apărut o eroare la încărcarea fișierelor: ' . $e->getMessage());
             }
         }
 
@@ -99,8 +129,6 @@ class FileManagerPersonalizatController extends Controller
 
     public function fisierDeschide($cale = null)
     {
-        // dd('here');
-        //This method will look for the file and get it from drive
         try {
             $file = Storage::disk('filemanager')->get($cale);
             $type = Storage::disk('filemanager')->mimeType($cale);
@@ -114,68 +142,215 @@ class FileManagerPersonalizatController extends Controller
 
     public function fisierSterge($cale = null)
     {
-        if (auth()->user()->role != "1"){
+        if (auth()->user()->role != "1") {
             return back()->with('error', 'Nu aveți dreptul să ștergeti fișiere! Contactați administratorul aplicației.');
         }
 
-        Storage::disk('filemanager')->delete($cale);
+        try {
+            Storage::disk('filemanager')->delete($cale);
+        } catch (\Exception $e) {
+            return back()->with('error', 'A apărut o eroare la ștergerea fișierului: ' . $e->getMessage());
+        }
 
         $exploded = explode("/", $cale);
-
         return back()->with('status', '„' . end($exploded) . '" a fost șters cu succes!');
     }
 
     public function modificaCaleNume(Request $request)
     {
-        if (auth()->user()->role != "1"){
+        if (auth()->user()->role != "1") {
             return back()->with('error', 'Nu aveți dreptul de modificare! Contactați administratorul aplicației.');
         }
 
-        $request->validate(
-            [
-                'cale' => '',
-                'extensieFisier' => '', // necesar atunci cand este vorba de fisiere
-                'numeVechi' => 'required',
-                'numeNou' => 'required',
-            ],
-        );
+        $request->validate([
+            'cale'           => '',
+            'extensieFisier' => '',
+            'numeVechi'      => 'required',
+            'numeNou'       => 'required',
+        ]);
 
-        $caleNumeVechi = $request->cale . '\\' . $request->numeVechi;
-        $caleNumeNou = $request->cale . '\\' . $request->numeNou;
+        // Build full paths using forward slashes
+        $caleNumeVechi = $this->joinPath($request->cale, $request->numeVechi);
+        $caleNumeNou  = $this->joinPath($request->cale, $request->numeNou);
 
-        // Daca este fisier, se adauga si extensia
-        if ($request->extensieFisier) {
+        // Append extension if provided (useful for files)
+        if ($request->filled('extensieFisier')) {
             $caleNumeVechi .= '.' . $request->extensieFisier;
-            $caleNumeNou .= '.' . $request->extensieFisier;
+            $caleNumeNou  .= '.' . $request->extensieFisier;
         }
 
-        Storage::disk('filemanager')->move($caleNumeVechi, $caleNumeNou);
+        try {
+            if (! Storage::disk('filemanager')->move($caleNumeVechi, $caleNumeNou)) {
+                return back()->with('error', 'Eroare la modificarea numelui resursei.');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'A apărut o eroare: ' . $e->getMessage());
+        }
 
         return back()->with('status', '„' . $request->numeNou . '" a fost modificat cu succes!');
     }
 
     /**
-     * Recursively builds an array representing the directory tree.
-     *
-     * @param string $path
-     * @return array
+     * Copy a file.
      */
-    private function getDirectoryTree($path)
+    public function copyFile(Request $request)
     {
-        // Get immediate subdirectories
-        $directories = Storage::disk('filemanager')->directories($path);
-        $tree = [];
+        $request->validate([
+            'source'      => 'required',
+            'destination' => 'nullable',
+        ]);
 
-        foreach ($directories as $directory) {
-            $tree[] = [
-                'name'     => basename($directory),
-                'path'     => $directory,
-                'isOpen'   => false,
-                // Recursively get the subdirectories of this directory.
-                'children' => $this->getDirectoryTree($directory),
-            ];
+        $source      = $request->source;
+        $destination = $this->joinPath($request->destination ?? '', basename($source));
+
+        // Check if destination file already exists
+        if (Storage::disk('filemanager')->exists($destination)) {
+            return back()->with('error', 'Fișierul există deja la destinație.');
         }
 
-        return $tree;
+        try {
+            if (! Storage::disk('filemanager')->copy($source, $destination)) {
+                return back()->with('error', 'Nu s-a putut copia fișierul.');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'A apărut o eroare la copierea fișierului: ' . $e->getMessage());
+        }
+
+        return back()->with('status', 'Fișierul a fost copiat cu succes!');
+    }
+
+    /**
+     * Move a file.
+     */
+    public function moveFile(Request $request)
+    {
+        $request->validate([
+            'source'      => 'required',
+            'destination' => 'nullable',
+        ]);
+
+        $source      = $request->source;
+        $destination = $this->joinPath($request->destination ?? '', basename($source));
+
+        // Check if destination file already exists
+        if (Storage::disk('filemanager')->exists($destination)) {
+            return back()->with('error', 'Fișierul există deja la destinație.');
+        }
+
+        try {
+            if (! Storage::disk('filemanager')->move($source, $destination)) {
+                return back()->with('error', 'Nu s-a putut muta fișierul.');
+            }
+        } catch (\Exception $e) {
+            return back()->with('error', 'A apărut o eroare la mutarea fișierului: ' . $e->getMessage());
+        }
+
+        return back()->with('status', 'Fișierul a fost mutat cu succes!');
+    }
+
+    /**
+     * Copy a directory.
+     */
+    public function copyDirectory(Request $request)
+    {
+        $request->validate([
+            'source'      => 'required',
+            'destination' => 'nullable',
+        ]);
+
+        // For directories, destination should be the target parent folder plus a new folder name.
+        $source      = $request->source;
+        $folderName  = basename($source);
+        $destination = $this->joinPath($request->destination ?? '', $folderName);
+
+        // Check if destination directory already exists
+        if (Storage::disk('filemanager')->exists($destination)) {
+            return back()->with('error', 'Directorul există deja la destinație.');
+        }
+
+        try {
+            // Use the custom recursive copy function.
+            $this->recursiveCopy($source, $destination);
+        } catch (\Exception $e) {
+            return back()->with('error', 'A apărut o eroare la copierea directorului: ' . $e->getMessage());
+        }
+
+        return back()->with('status', 'Directorul a fost copiat cu succes!');
+    }
+
+    /**
+     * Move a directory.
+     */
+    public function moveDirectory(Request $request)
+    {
+        $request->validate([
+            'source'      => 'required',
+            'destination' => 'nullable',
+        ]);
+
+        $source      = $request->source;
+        $folderName  = basename($source);
+        $destination = $this->joinPath($request->destination ?? '', $folderName);
+
+        // Check if destination directory already exists
+        if (Storage::disk('filemanager')->exists($destination)) {
+            return back()->with('error', 'Directorul există deja la destinație.');
+        }
+
+        try {
+            // Use the custom recursive copy function.
+            $this->recursiveCopy($source, $destination);
+            // After copying, delete the original directory.
+            Storage::disk('filemanager')->deleteDirectory($source);
+        } catch (\Exception $e) {
+            return back()->with('error', 'A apărut o eroare la mutarea directorului: ' . $e->getMessage());
+        }
+
+        return back()->with('status', 'Directorul a fost mutat cu succes!');
+    }
+
+    /**
+    * Recursively copies a directory from source to destination.
+    *
+    * @param string $source
+    * @param string $destination
+    * @return void
+    */
+    private function recursiveCopy($source, $destination)
+    {
+        // Create the destination directory if it doesn't exist.
+        if (! Storage::disk('filemanager')->exists($destination)) {
+            Storage::disk('filemanager')->makeDirectory($destination);
+        }
+
+        // Copy all files from the source directory.
+        foreach (Storage::disk('filemanager')->files($source) as $file) {
+            $fileName = basename($file);
+            Storage::disk('filemanager')->copy($file, $destination . '/' . $fileName);
+        }
+
+        // Recursively copy all subdirectories.
+        foreach (Storage::disk('filemanager')->directories($source) as $dir) {
+            $dirName = basename($dir);
+            $newDestination = $destination . '/' . $dirName;
+            $this->recursiveCopy($dir, $newDestination);
+        }
+    }
+
+    /**
+     * Joins given path parts using a forward slash and trims any extra slashes.
+     *
+     * @param mixed ...$parts
+     * @return string
+     */
+    private function joinPath(...$parts)
+    {
+        $filtered = array_filter($parts, function ($p) {
+            return $p !== null && $p !== '';
+        });
+        $trimmed = array_map(function ($p) {
+            return trim($p, '/');
+        }, $filtered);
+        return implode('/', $trimmed);
     }
 }
