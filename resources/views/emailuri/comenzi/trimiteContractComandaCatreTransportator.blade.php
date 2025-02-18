@@ -23,8 +23,10 @@
                 <h3 style="margin: 0px;">Documentele aferente acestui transport trebuie trimise în original prin curier, în maxim 15 zile de la finalizarea descărcării, la adresa menționată în comanda de transport!</h3>
             @endif
 
-            <br><br>
-            Observații: <span style="white-space: pre-wrap;">{{ $comanda->observatii_externe }}</span>
+            @if ($comanda->observatii_externe)
+                <br><br>
+                Observații: <span style="white-space: pre-wrap;">{{ $comanda->observatii_externe }}</span>
+            @endif
 
             {{-- <br><br>
             Acesta este un mesaj automat. Vă rugăm să nu răspundeți la acest e-mail. --}}
