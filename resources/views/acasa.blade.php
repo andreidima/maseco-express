@@ -19,7 +19,7 @@
 
 
     // KPI report
-    $usersIDsForThisReport = [6, 7, 8, 12, 16, 17, 21, 23];
+    $usersIDsForThisReport = [6, 7, 8, 12, 16, 17, 21];
     $comenziKPI = Comanda::select(
             'user_id',
             'users.name as user_name',
@@ -28,14 +28,26 @@
             // DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as last_month_equal_to_zero"),
             DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract > 0 THEN 1 ELSE 0 END) as this_month_greater_than_zero"),
             DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract < 0 THEN 1 ELSE 0 END) as this_month_less_than_zero"),
-            DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as this_month_equal_to_zero")
+            DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as this_month_equal_to_zero"),
+            DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND (client_valoare_contract - transportator_valoare_contract) IS NULL THEN 1 ELSE 0 END) as this_month_diff_null"),
+            DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' THEN 1 ELSE 0 END) as this_month_all")
         )
         ->join('users', 'comenzi.user_id', '=', 'users.id')
         ->whereIn('user_id', $usersIDsForThisReport)
-        ->groupBy('user_id', 'users.name')
+        // ->groupBy('user_id', 'users.name')
         ->orderBy('users.name')
         ->get();
 
+
+        $nullOrders = Comanda::select('id', 'user_id', 'data_creare', 'client_valoare_contract', 'transportator_valoare_contract')
+    ->where('data_creare', '>=', $startOfThisMonth)
+    ->where(function ($query) {
+        $query->whereNull('client_valoare_contract')
+              ->orWhereNull('transportator_valoare_contract');
+    })
+    ->get();
+
+dd($comenziLunaCurenta->count(), $comenziKPI->count(), $comenziKPI, $nullOrders);
 
     $monede = Moneda::select('id', 'nume')->get();
     $leiLunaCurenta = $comenziLunaCurenta->where('client_moneda_id', 1)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', 1)->sum('transportator_valoare_contract');
