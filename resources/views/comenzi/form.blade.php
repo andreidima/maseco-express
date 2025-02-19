@@ -174,14 +174,21 @@
                     v-model="transportatorValoareContract">
                 <small for="transportator_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
             </div>
-            <div class="col-lg-2 mb-4">
-                <label for="transportator_moneda_id" class="mb-0 ps-3">Monedă<span class="text-danger">*</span></label>
+            <div class="col-lg-2 mb-4 d-flex align-items-center">
+                {{-- <label for="transportator_moneda_id" class="mb-0 ps-3">Monedă<span class="text-danger">*</span></label>
                 <select name="transportator_moneda_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_moneda_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($monede as $moneda)
                         <option value="{{ $moneda->id }}" {{ ($moneda->id === intval(old('transportator_moneda_id', $comanda->transportator_moneda_id ?? ''))) ? 'selected' : '' }}>{{ $moneda->nume }}</option>
                     @endforeach
-                </select>
+                </select> --}}
+
+                <input
+                    type="hidden"
+                    name="transportator_moneda_id"
+                    value="{{ old('transportator_moneda_id', $comanda->transportator_moneda_id ?? '') }}"
+                >
+                <span class="text-danger">* ATENȚIE EURO!</span>
             </div>
             <div class="col-lg-1 mb-4">
                 <label for="transportator_procent_tva_id" class="mb-0 ps-3 small">% TVA</label>
@@ -195,7 +202,6 @@
             <div class="col-lg-2 mb-4">
                 <label for="transportator_metoda_de_plata_id" class="mb-0 ps-3">Metodă de plată</label>
                 <select name="transportator_metoda_de_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_metoda_de_plata_id') ? 'is-invalid' : '' }}">
-                    <option selected></option>
                     @foreach ($metodeDePlata as $metodaDePlata)
                         <option value="{{ $metodaDePlata->id }}" {{ ($metodaDePlata->id === intval(old('transportator_metoda_de_plata_id', $comanda->transportator_metoda_de_plata_id ?? ''))) ? 'selected' : '' }}>{{ $metodaDePlata->nume }}</option>
                     @endforeach
@@ -632,8 +638,8 @@
                             v-model="clientiAtasatiLaComanda[index].pivot.valoare_contract_initiala">
                         <small for="valoare_contract_initiala" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
                     </div>
-                    <div class="col-lg-2 mb-2">
-                        <label for="moneda_id" class="mb-0 ps-3">Moneda<span class="text-danger">*</span></label>
+                    <div class="col-lg-2 mb-2 d-flex align-items-center">
+                        {{-- <label for="moneda_id" class="mb-0 ps-3">Moneda<span class="text-danger">*</span></label>
                         <select
                             :name="'clienti[' + index + '][pivot][moneda_id]'"
                             v-model="clientiAtasatiLaComanda[index].pivot.moneda_id"
@@ -643,7 +649,13 @@
                             @foreach ($monede as $moneda)
                                 <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
                             @endforeach
-                        </select>
+                        </select> --}}
+                        <input
+                            type="hidden"
+                            :name="'clienti[' + index + '][pivot][moneda_id]'"
+                            v-model="clientiAtasatiLaComanda[index].pivot.moneda_id"
+                        >
+                        <span class="text-danger">* ATENȚIE EURO!</span>
                     </div>
                     <div class="col-lg-1 mb-2">
                         <label for="procent_tva_id" class="mb-0 ps-3">% TVA</label>
@@ -768,18 +780,24 @@
                                             v-model="clientValoareContract">
                                         <small for="client_valoare_contract" class="mb-0 ps-3">*Punct(.) pentru zecimale</small>
                                     </div>
-                                    <div class="text-start">
-                                        <label for="client_moneda_id" class="mb-0 ps-0">Moneda<span class="text-danger">*</span></label>
+                                    <div class="text-start d-flex align-items-center">
+                                        {{-- <label for="client_moneda_id" class="mb-0 ps-0">Moneda<span class="text-danger">*</span></label>
                                         <select
+                                            type="hidden"
                                             name="client_moneda_id"
-                                            class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}"
-                                            readonly
+                                            class="form-select bg-white rounded-3 {{ $errors->has('client_moneda_id') ? 'is-invalid' : '' }}"
                                         >
                                             <option value="" selected disabled></option>
                                             @foreach ($monede as $moneda)
                                                 <option value="{{ $moneda->id }}" {{ $moneda->id === intval(old('client_moneda_id', $comanda->client_moneda_id ?? '')) ? 'selected' : null }}>{{ $moneda->nume }}</option>
                                             @endforeach
-                                        </select>
+                                        </select> --}}
+                                        <input
+                                            type="hidden"
+                                            name="client_moneda_id"
+                                            value="{{ old('client_moneda_id', $comanda->client_moneda_id ?? '') }}"
+                                        >
+                                        <span class="text-danger">* ATENȚIE EURO!</span>
                                     </div>
                                 </div>
                             </div>

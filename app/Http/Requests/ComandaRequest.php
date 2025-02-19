@@ -27,7 +27,7 @@ class ComandaRequest extends FormRequest
             // 'transportator_contract' => 'required|max:20',
             'transportator_limba_id' => '',
             'transportator_valoare_contract' => 'required|numeric|min:-9999999|max:9999999',
-            'transportator_moneda_id' => 'required',
+            'transportator_moneda_id' => 'required|in:2',
             'transportator_zile_scadente' => 'nullable|numeric|min:-100|max:300',
             'transportator_termen_plata_id' => '',
             'transportator_transportator_id' => 'required',
@@ -82,7 +82,7 @@ class ComandaRequest extends FormRequest
             'clienti.*.id' => 'required',
             'clienti.*.pivot.contract' => 'required|max:255',
             'clienti.*.pivot.valoare_contract_initiala' => 'required|numeric|between:-9999999,9999999',
-            'clienti.*.pivot.moneda_id' => 'required',
+            'clienti.*.pivot.moneda_id' => 'required|in:2',
             'clienti.*.pivot.client_procent_tva_id' => '',
             'clienti.*.pivot.client_metoda_de_plata_id' => '',
             'clienti.*.pivot.client_termen_plata_id' => '',
@@ -91,7 +91,7 @@ class ComandaRequest extends FormRequest
 
             // those 2 fields are used for all raports: is the summ value for all clients
             'client_valoare_contract' => 'required|numeric|min:-9999999|max:9999999',
-            'client_moneda_id' => 'required',
+            'client_moneda_id' => 'required|in:2',
 
             'descriere_marfa' => 'nullable|max:500',
             'camion_id' => 'required',
@@ -120,6 +120,7 @@ class ComandaRequest extends FormRequest
     {
         return [
             'transportator_transportator_id.required' => 'Câmpul Transportator este obligatoriu',
+            'transportator_moneda_id.in' => 'Câmpul Transportator Moneda trebuie să fie EUR',
 
             // Comented on 14.01.2025 - after that we went to more that one client to a command
             'client_client_id.required' => 'Câmpul Client este obligatoriu',
@@ -127,7 +128,8 @@ class ComandaRequest extends FormRequest
             'clienti.*.id' => 'Clientul #:position este obligatoriu de selectat din baza de date',
             'clienti.*.pivot.contract.required' => 'Câmpul Contract pentru clientul #:position este obligatoriu',
             'clienti.*.pivot.contract.max' => 'Câmpul Contract pentru clientul #:position nu poate avea mai mult de 255 de caractere',
-            'clienti.*.pivot.moneda_id' => 'Câmpul Moneda pentru clientul #:position este obligatoriu',
+            'clienti.*.pivot.moneda_id.required' => 'Câmpul Moneda pentru clientul #:position este obligatoriu',
+            'clienti.*.pivot.moneda_id.in' => 'Câmpul Moneda pentru clientul #:position trebuie să fie EUR',
             'clienti.*.pivot.valoare_contract_initiala.required' => 'Câmpul Valoare Contract Inițială pentru clientul #:position este obligatoriu',
             'clienti.*.pivot.valoare_contract_initiala.numeric' => 'Câmpul Valoare Contract Inițială pentru clientul #:position trebuie să fie un număr',
             'clienti.*.pivot.valoare_contract_initiala.between' => 'Câmpul Valoare Contract Inițială pentru clientul #:position trebuie să fie între -9999999 și 9999999',
@@ -137,6 +139,7 @@ class ComandaRequest extends FormRequest
             'client_valoare_contract.min' => 'Câmpul Valoare contract finală poate fi minim 9999999',
             'client_valoare_contract.max' => 'Câmpul Valoare contract finală poate fi maxim 9999999',
             'client_moneda_id.required' => 'Câmpul Moneda de la Valoare contract finală este obligatoriu',
+            'client_moneda_id.in' => 'Câmpul Moneda de la Valoare contract finală este obligatoriu să fie EUR',
 
             'camion_id.required' => 'Câmpul Camion este obligatoriu',
 
