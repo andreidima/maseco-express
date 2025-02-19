@@ -14,28 +14,80 @@
     // $startOfLastMonth = Carbon::now()->subMonth()->startOfMonth();
     // $endOfLastMonth = Carbon::now()->subMonth()->endOfMonth();
 
-    $comenziLunaCurenta = Comanda::select('id', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id')
+    $comenziLunaCurenta = Comanda::with('intermediere:id,comanda_id,motis,dkv,astra')
+        ->select('id', 'transportator_valoare_contract', 'transportator_moneda_id', 'client_valoare_contract', 'client_moneda_id')
         ->whereDate('data_creare', '>=', $startOfThisMonth)->get();
-
 
     // KPI report
     $usersIDsForThisReport = [6, 7, 8, 12, 16, 17, 21];
-    $comenziKPI = Comanda::select(
-            'user_id',
-            'users.name as user_name',
-            // DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract > 0 THEN 1 ELSE 0 END) as last_month_greater_than_zero"),
-            // DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract < 0 THEN 1 ELSE 0 END) as last_month_less_than_zero"),
-            // DB::raw("SUM(CASE WHEN data_creare BETWEEN '$startOfLastMonth' AND '$endOfLastMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as last_month_equal_to_zero"),
-            DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract > 0 THEN 1 ELSE 0 END) as this_month_greater_than_zero"),
-            DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract < 0 THEN 1 ELSE 0 END) as this_month_less_than_zero"),
-            DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as this_month_equal_to_zero")
-        )
-        ->join('users', 'comenzi.user_id', '=', 'users.id')
-        ->whereIn('user_id', $usersIDsForThisReport)
-        ->groupBy('user_id', 'users.name')
-        ->orderBy('users.name')
-        ->get();
+    // $comenziKPI = Comanda::select(
+    //         'user_id',
+    //         'users.name as user_name',
+    //         DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract > 0 THEN 1 ELSE 0 END) as this_month_greater_than_zero"),
+    //         DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract < 0 THEN 1 ELSE 0 END) as this_month_less_than_zero"),
+    //         DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as this_month_equal_to_zero")
+    //     )
+    //     ->join('users', 'comenzi.user_id', '=', 'users.id')
+    //     ->whereIn('user_id', $usersIDsForThisReport)
+    //     ->groupBy('user_id', 'users.name')
+    //     ->orderBy('users.name')
+    //     ->get();
 
+    $comenziKPI = Comanda::select(
+        'user_id',
+        'users.name as user_name',
+        DB::raw("
+            SUM(
+                CASE
+                    WHEN data_creare >= '$startOfThisMonth'
+                        AND (
+                            client_valoare_contract - transportator_valoare_contract
+                            - COALESCE(intermedieri.motis, 0)
+                            - COALESCE(intermedieri.dkv, 0)
+                            - COALESCE(intermedieri.astra, 0)
+                        ) > 0
+                    THEN 1
+                    ELSE 0
+                END
+            ) as this_month_greater_than_zero
+        "),
+        DB::raw("
+            SUM(
+                CASE
+                    WHEN data_creare >= '$startOfThisMonth'
+                        AND (
+                            client_valoare_contract - transportator_valoare_contract
+                            - COALESCE(intermedieri.motis, 0)
+                            - COALESCE(intermedieri.dkv, 0)
+                            - COALESCE(intermedieri.astra, 0)
+                        ) < 0
+                    THEN 1
+                    ELSE 0
+                END
+            ) as this_month_less_than_zero
+        "),
+        DB::raw("
+            SUM(
+                CASE
+                    WHEN data_creare >= '$startOfThisMonth'
+                        AND (
+                            client_valoare_contract - transportator_valoare_contract
+                            - COALESCE(intermedieri.motis, 0)
+                            - COALESCE(intermedieri.dkv, 0)
+                            - COALESCE(intermedieri.astra, 0)
+                        ) = 0
+                    THEN 1
+                    ELSE 0
+                END
+            ) as this_month_equal_to_zero
+        ")
+    )
+    ->join('users', 'comenzi.user_id', '=', 'users.id')
+    ->leftJoin('intermedieri', 'comenzi.id', '=', 'intermedieri.comanda_id')
+    ->whereIn('user_id', $usersIDsForThisReport)
+    ->groupBy('user_id', 'users.name')
+    ->orderBy('users.name')
+    ->get();
 
     $monede = Moneda::select('id', 'nume')->get();
     $leiLunaCurenta = $comenziLunaCurenta->where('client_moneda_id', 1)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', 1)->sum('transportator_valoare_contract');
@@ -111,20 +163,16 @@
                             </a>
                         </div>
                         <div class="card-body text-center">
-                            {{-- @foreach ($comenziLunaCurenta as $comanda)
-                                {{ $comanda->transportator_valoare_contract }} -
-                                {{ $comanda->transportator_valoare_contract }} -
-                                {{ $comanda->client_valoare_contract }}
-                                <br>
-                            @endforeach --}}
-                            @foreach ($monede as $moneda)
-                                @if (($suma = $comenziLunaCurenta->where('client_moneda_id', $moneda->id)->sum('client_valoare_contract') - $comenziLunaCurenta->where('transportator_moneda_id', $moneda->id)->sum('transportator_valoare_contract')) !== 0)
-                                    <b class="fs-2">{{ $suma }} {{ $moneda->nume }}</b>
-                                    {{-- (<small><a href="">Detaliază</a></small>) --}}
-                                    &nbsp;&nbsp;
-                                    <br>
-                                @endif
-                            @endforeach
+                            @php
+                                $suma = $comenziLunaCurenta->sum('client_valoare_contract') -
+                                    $comenziLunaCurenta->sum('transportator_valoare_contract') -
+                                    $comenziLunaCurenta->sum('intermediere.motis') -
+                                    $comenziLunaCurenta->sum('intermediere.dkv') -
+                                    $comenziLunaCurenta->sum('intermediere.astra');
+                            @endphp
+                            <b class="fs-2">{{ $suma }} EUR</b>
+                            &nbsp;&nbsp;
+                            <br>
                         </div>
                     </div>
                 </div>

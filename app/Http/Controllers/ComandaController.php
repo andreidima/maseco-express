@@ -125,8 +125,11 @@ class ComandaController extends Controller
         $comanda->interval_notificari = '03:00:00';
         $comanda->transportator_limba_id = 1; // Romana
         $comanda->transportator_tarif_pe_km = 0;
-        // $comanda->client_limba_id = 1; // Romana
-        // $comanda->client_tarif_pe_km = 0;
+
+        // Change on 18.02.2025 - set just EUR as default currency - the user can't change it anymore
+        $comanda->transportator_moneda_id = 2; // EUR
+        $comanda->client_moneda_id = 2; // EUR
+
         $comanda->user_id = $request->user()->id;
         $comanda->operator_user_id = $request->user()->id;
         $comanda->cheie_unica = uniqid();
@@ -211,11 +214,9 @@ class ComandaController extends Controller
                 session()->put('_old_input.' . $locOperareTip . '.' . $locOperareOrdine . '.tara.nume', $locOperare->tara->nume);
             }
         }
-        // dd($comanda, session()->getOldInput());
 
         $useri = User::select('id', 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
         $firmeClienti = Firma::select('id', 'nume')->where('tip_partener', 1)->orderBy('nume')->get();
-        // $firmeTransportatori = Firma::select('id', 'nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $firmeTransportatori = Firma::select('id', 'tara_id', 'nume', 'cui', 'oras', 'judet', 'adresa', 'cod_postal')->with('tara:id,nume')->where('tip_partener', 2)->orderBy('nume')->get();
         $limbi = Limba::select('id', 'nume')->get();
         $monede = Moneda::select('id', 'nume')->get();
@@ -223,13 +224,9 @@ class ComandaController extends Controller
         $metodeDePlata = MetodaDePlata::select('id', 'nume')->get();
         $termeneDePlata = TermenDePlata::select('id', 'nume')->get();
         $camioane = Camion::select('id', 'numar_inmatriculare', 'tip_camion', 'pret_km_goi', 'pret_km_plini')->orderBy('numar_inmatriculare')->get();
-        // $locuriOperare = LocOperare::select('id', 'nume')->orderBy('nume')->get();
-        // $locuriOperare = LocOperare::select('*')->orderBy('nume')->get();
-        // $incarcari = $comanda->locuriOperareIncarcari()->get();
-        // $descarcari = $comanda->locuriOperareDescarcari()->get();
 
         $request->session()->get('ComandaReturnUrl') ?? $request->session()->put('ComandaReturnUrl', url()->previous());
-// dd($comanda);
+
         return view('comenzi.edit', compact('comanda', 'useri', 'firmeClienti', 'firmeTransportatori', 'limbi', 'monede', 'procenteTVA', 'metodeDePlata', 'termeneDePlata', 'camioane'));
     }
 

@@ -146,12 +146,13 @@
                                 Rapoarte
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li>
+                                {{-- Removed on 18.02.2025 - A more complet raport can be found on intermedieri --}}
+                                {{-- <li>
                                     <a class="dropdown-item" href="/rapoarte/incasari-utilizatori">
                                         <i class="fa-solid fa-chart-pie me-1"></i>Încasări utilizatori
                                     </a>
                                 </li>
-                                <li><hr class="dropdown-divider"></li>
+                                <li><hr class="dropdown-divider"></li> --}}
                                 <li>
                                     <a class="dropdown-item" href="/rapoarte/documente-transportatori">
                                         <i class="fa-solid fa-file me-1"></i>Documente transportatori

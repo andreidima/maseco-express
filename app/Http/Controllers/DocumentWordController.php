@@ -182,7 +182,7 @@ class DocumentWordController extends Controller
         return $request->validate(
             [
                 'nume' => 'required|max:255',
-                'nivel_acces' => 'required|integer|between:1,2',
+                'nivel_acces' => 'nullable|integer|between:1,2',
                 'continut' => 'json',
             ],
             [

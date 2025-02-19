@@ -42,7 +42,9 @@ class ComandaRequest extends FormRequest
             'transportator_valoare_km_goi' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
             'transportator_valoare_km_plini' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
             'transportator_pret_autostrada' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
-            'transportator_pret_ferry' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
+
+            // Removed on 18.02.2025 - ferry price is not used anymore, because is not exactly known when the command is registered, so it's added later in 'intermedieri'.
+            // 'transportator_pret_ferry' => 'required_if:transportator_tarif_pe_km,1|numeric|min:0|max:99999',
 
 
             // Comented on 14.01.2025 - after that we went to more that one client to a command

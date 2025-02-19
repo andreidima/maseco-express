@@ -322,7 +322,8 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-lg-4 mb-2">
+                            {{-- Removed on 18.02.2025 - ferry price is not used anymore, because is not exactly known when the command is registered, so it's added later in 'intermedieri'. --}}
+                            {{-- <div class="col-lg-4 mb-2">
                                 <label for="transportator_pret_ferry" class="mb-0 ps-3">Preț ferry</label>
                                 <input
                                     type="text"
@@ -330,7 +331,7 @@
                                     name="transportator_pret_ferry"
                                     placeholder=""
                                     v-model="transportatorPretFerry">
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="row">
                             <div class="col-lg-4 mb-2">
@@ -718,9 +719,6 @@
                             <span class="px-1 bg-danger text-white rounded" v-html="alertaCampuriNecompletate"></span>
                             <br>
                         </div>
-                        {{-- <small>
-                            * Completează inclusiv „Clienți - Valoare contract inițială” înainte de a „Calcula valorile”
-                        </small> --}}
                     </div>
                     <div class="col-lg-12 mb-0">
                         <div class="row d-flex justify-content-between">
@@ -772,19 +770,16 @@
                                     </div>
                                     <div class="text-start">
                                         <label for="client_moneda_id" class="mb-0 ps-0">Moneda<span class="text-danger">*</span></label>
-                                        <div v-if="clientiAtasatiLaComanda?.[0]?.pivot">
-                                            <select
-                                                name="client_moneda_id"
-                                                v-model="clientiAtasatiLaComanda[0].pivot.moneda_id"
-                                                class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}"
-                                                readonly
-                                            >
-                                                <option value="" selected disabled></option>
-                                                @foreach ($monede as $moneda)
-                                                    <option value="{{ $moneda->id }}">{{ $moneda->nume }}</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
+                                        <select
+                                            name="client_moneda_id"
+                                            class="form-select bg-white rounded-3 {{ $errors->has('moneda_id') ? 'is-invalid' : '' }}"
+                                            readonly
+                                        >
+                                            <option value="" selected disabled></option>
+                                            @foreach ($monede as $moneda)
+                                                <option value="{{ $moneda->id }}" {{ $moneda->id === intval(old('client_moneda_id', $comanda->client_moneda_id ?? '')) ? 'selected' : null }}>{{ $moneda->nume }}</option>
+                                            @endforeach
+                                        </select>
                                     </div>
                                 </div>
                             </div>

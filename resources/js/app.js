@@ -298,7 +298,7 @@ const formularComanda = createApp({
                 // oras: '',
                 // tara: { id: '', nume: '' },
                 tara: {},
-                pivot: {},
+                pivot: { moneda_id: 2 }
             };
             this.clientiAtasatiLaComanda.push(client);
         },
