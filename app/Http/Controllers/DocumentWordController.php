@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use App\Http\Requests\DocumentWordRequest;
+
 use App\Models\DocumentWord;
 use App\Models\DocumentWordIstoric;
 
@@ -57,9 +59,9 @@ class DocumentWordController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(DocumentWordRequest $request)
     {
-        $documentWord = DocumentWord::create($this->validateRequest($request));
+        $documentWord = DocumentWord::create($request->validated());
 
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost adăugat cu succes!');
     }
@@ -108,12 +110,12 @@ class DocumentWordController extends Controller
      * @param  \App\DocumentWord  $documentWord
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, DocumentWord $documentWord)
+    public function update(DocumentWordRequest $request, DocumentWord $documentWord)
     {
         // This will throw an authorization exception if the user is not allowed
         $this->authorize('update', $documentWord);
 
-        $data = $this->validateRequest($request);
+        $data = $request->validated();
 
         // Add the lock release fields to the update data
         $data['locked_by'] = null;
@@ -138,24 +140,6 @@ class DocumentWordController extends Controller
         $documentWord->delete();
 
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost șters cu succes!');
-    }
-
-    /**
-     * Validate the request attributes.
-     *
-     * @return array
-     */
-    protected function validateRequest(Request $request)
-    {
-        return $request->validate(
-            [
-                'nume' => 'required|max:255',
-                'nivel_acces' => 'nullable|integer|between:1,2',
-                'continut' => 'json',
-            ],
-            [
-            ]
-        );
     }
 
     public function unlock(Request $request, DocumentWord $documentWord)
