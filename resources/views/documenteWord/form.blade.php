@@ -36,7 +36,11 @@
             </div>
             <div class="col-lg-4 mb-2 d-flex justify-content-center">
                 <button type="submit" ref="submit" class="btn btn-primary text-white me-3 rounded-3">{{ $buttonText }}</button>
-                <a class="btn btn-secondary rounded-3" href="{{ Session::get('documentWordReturnUrl') }}">Renunță</a>
+                @if ($documentWord->exists)
+                    <a class="btn btn-secondary rounded-3" href="{{ route('documentWord.unlock', $documentWord->id) }}">Renunță</a>
+                @else
+                    <a class="btn btn-secondary rounded-3" href="{{ Session::get('documentWordReturnUrl') }}">Renunță</a>
+                @endif
             </div>
             <div class="col-lg-4 text-end">
                 @if(Route::is('documente-word.create'))

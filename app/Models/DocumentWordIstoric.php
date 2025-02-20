@@ -9,7 +9,9 @@ class DocumentWordIstoric extends Model
 {
     use HasFactory;
 
-    public $timestamps = false;
+    // Use the same column for both creation and update timestamps.
+    const CREATED_AT = 'operare_data';
+    const UPDATED_AT = 'operare_data';
 
     protected $table = 'documente_word_istoric';
     protected $primaryKey = 'id_pk';

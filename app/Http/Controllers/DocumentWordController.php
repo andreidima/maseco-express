@@ -59,19 +59,7 @@ class DocumentWordController extends Controller
      */
     public function store(Request $request)
     {
-        // Check if 'nivel_acces' exists, and set a default if missing
-        if (!$request->has('nivel_acces')) {
-            $request->merge(['nivel_acces' => 2]);
-        }
-
         $documentWord = DocumentWord::create($this->validateRequest($request));
-
-        // History save
-        $documentWordIstoric = new DocumentWordIstoric;
-        $documentWordIstoric->fill($documentWord->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $documentWordIstoric->operare_user_id = auth()->user()->id ?? null;
-        $documentWordIstoric->operare_descriere = 'Adaugare';
-        $documentWordIstoric->save();
 
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost adăugat cu succes!');
     }
@@ -99,10 +87,14 @@ class DocumentWordController extends Controller
      */
     public function edit(Request $request, DocumentWord $documentWord)
     {
-        // Check if the user is not admin and the document has just 'admin' rights
-        if (auth()->user()->role !== 1 && $documentWord->nivel_acces === 1) {
-            abort(403, 'Unauthorized action.');
-        }
+        // This will throw an authorization exception if the user is not allowed
+        $this->authorize('update', $documentWord);
+
+        // Lock the record
+        $documentWord->update([
+            'locked_by' => auth()->id(),
+            'locked_at' => now(),
+        ]);
 
         $request->session()->get('documentWordReturnUrl') ?? $request->session()->put('documentWordReturnUrl', url()->previous());
 
@@ -118,21 +110,16 @@ class DocumentWordController extends Controller
      */
     public function update(Request $request, DocumentWord $documentWord)
     {
-        // Check if the user is not admin and the document has just 'admin' rights
-        if (auth()->user()->role !== 1 && $documentWord->nivel_acces === 1) {
-            abort(403, 'Unauthorized action.');
-        }
+        // This will throw an authorization exception if the user is not allowed
+        $this->authorize('update', $documentWord);
 
-        $documentWord->update($this->validateRequest($request));
+        $data = $this->validateRequest($request);
 
-        // Salvare in istoric
-        if ($documentWord->wasChanged()){
-            $documentWordIstoric = new DocumentWordIstoric;
-            $documentWordIstoric->fill($documentWord->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-            $documentWordIstoric->operare_user_id = auth()->user()->id ?? null;
-            $documentWordIstoric->operare_descriere = 'Modificare';
-            $documentWordIstoric->save();
-        }
+        // Add the lock release fields to the update data
+        $data['locked_by'] = null;
+        $data['locked_at'] = null;
+
+        $documentWord->update($data);
 
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost modificat cu succes!');
     }
@@ -145,21 +132,11 @@ class DocumentWordController extends Controller
      */
     public function destroy(Request $request, DocumentWord $documentWord)
     {
-        // Check if the user is not admin and the document has just 'admin' rights
-        if (auth()->user()->role !== 1 && $documentWord->nivel_acces === 1) {
-            abort(403, 'Unauthorized action.');
-        }
+        // This will throw an authorization exception if the user is not allowed
+        $this->authorize('update', $documentWord);
 
         $documentWord->delete();
 
-        // Salvare in istoric
-        $documentWordIstoric = new DocumentWordIstoric;
-        $documentWordIstoric->fill($documentWord->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-        $documentWordIstoric->operare_user_id = auth()->user()->id ?? null;
-        $documentWordIstoric->operare_descriere = 'Stergere';
-        $documentWordIstoric->save();
-
-        // return back()->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost șters cu succes!');
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost șters cu succes!');
     }
 
@@ -170,15 +147,6 @@ class DocumentWordController extends Controller
      */
     protected function validateRequest(Request $request)
     {
-        // Se adauga userul doar la adaugare, iar la modificare nu se schimba
-        // if ($request->isMethod('post')) {
-        //     $request->request->add(['user_id' => $request->user()->id]);
-        // }
-
-        // if ($request->isMethod('post')) {
-        //     $request->request->add(['cheie_unica' => uniqid()]);
-        // }
-
         return $request->validate(
             [
                 'nume' => 'required|max:255',
@@ -188,5 +156,16 @@ class DocumentWordController extends Controller
             [
             ]
         );
+    }
+
+    public function unlock(Request $request, DocumentWord $documentWord)
+    {
+        // Unlock the record
+        $documentWord->update([
+            'locked_by' => null,
+            'locked_at' => null,
+        ]);
+
+        return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost deblocat cu succes!');
     }
 }
