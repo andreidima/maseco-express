@@ -187,9 +187,9 @@
                                 <tr>
                                     <th colspan="4" class="py-0 text-center">
                                         KPI (performanță 2025) - Comenzi luna curentă
-                                        <a href="key-performance-indicators">
+                                        {{-- <a href="key-performance-indicators">
                                             <i class="fa-solid fa-circle-info text-white" title="Detaliază"></i>
-                                        </a>
+                                        </a> --}}
                                     </th>
                                 </tr>
                                 <tr class="" style="padding:2rem">
