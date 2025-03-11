@@ -161,6 +161,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('key-performance-indicators', KeyPerformanceIndicatorController::class)->parameters(['key-performance-indicators' => 'keyPerformanceIndicators']);
 
 
+
     // Clear application cache:
     Route::get('/clear-all', function() {
         Artisan::call('cache:clear');
@@ -169,5 +170,34 @@ Route::group(['middleware' => 'auth'], function () {
         Artisan::call('view:clear');
         return 'All caches cleared';
     });
+
+
+
+    // 2 routes to easily impersonate other users
+    // Route::get('/impersonate/{id}', function ($id) {
+    //     // Only allow admins or authorized users to impersonate others.
+    //     // if (!auth()->user()->isAdmin()) {
+    //     //     abort(403, 'Unauthorized');
+    //     // }
+
+    //     $user = App\Models\User::findOrFail($id);
+    //     // Optionally, save the admin's ID in the session to allow reverting back
+    //     session()->put('impersonated_by', auth()->id());
+
+    //     Auth::login($user);
+
+    //     return redirect('/'); // Redirect to a safe route.
+    // });
+
+    // Route::get('/stop-impersonation', function () {
+    //     $adminId = session()->pull('impersonated_by');
+
+    //     if ($adminId) {
+    //         $admin = App\Models\User::findOrFail($adminId);
+    //         Auth::login($admin);
+    //     }
+
+    //     return redirect('/');
+    // });
 
 });

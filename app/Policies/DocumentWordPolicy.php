@@ -74,4 +74,21 @@ class DocumentWordPolicy
     {
         //
     }
+
+    /**
+     * User who can unlock the recods
+     */
+    public function unlock(User $user, DocumentWord $documentWord): Response
+    {
+        // List of user IDs allowed to unlock the record
+        // 1 - Andrei Dima
+        // 4 - Ciobanu Ionut
+        $allowedUserIds = [1,4];
+
+        if (! in_array($user->id, $allowedUserIds)) {
+            return Response::deny('Nu ai dreptul de a debloca acest document');
+        }
+
+        return Response::allow();
+    }
 }

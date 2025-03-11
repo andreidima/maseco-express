@@ -185,7 +185,7 @@
                                 </li>
                                 <li>
                                     <a class="dropdown-item" href="/mementouri/2/mementouri">
-                                        <i class="fa-solid fa-bell me-1"></i>Mementouri rca + copii conforme
+                                        <i class="fa-solid fa-bell me-1"></i>Mementouri rca + copii conforme
                                     </a>
                                 </li>
                                 <li>
@@ -240,9 +240,9 @@
                             @endif
 
                             @if (Route::has('register'))
-                                <li class="nav-item">
+                                {{-- <li class="nav-item">
                                     <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
+                                </li> --}}
                             @endif
                         @else
                             <li class="nav-item dropdown">
