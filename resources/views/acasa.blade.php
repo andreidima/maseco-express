@@ -20,18 +20,6 @@
 
     // KPI report
     $usersIDsForThisReport = [6, 7, 8, 12, 16, 17, 21];
-    // $comenziKPI = Comanda::select(
-    //         'user_id',
-    //         'users.name as user_name',
-    //         DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract > 0 THEN 1 ELSE 0 END) as this_month_greater_than_zero"),
-    //         DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract < 0 THEN 1 ELSE 0 END) as this_month_less_than_zero"),
-    //         DB::raw("SUM(CASE WHEN data_creare >= '$startOfThisMonth' AND client_valoare_contract - transportator_valoare_contract = 0 THEN 1 ELSE 0 END) as this_month_equal_to_zero")
-    //     )
-    //     ->join('users', 'comenzi.user_id', '=', 'users.id')
-    //     ->whereIn('user_id', $usersIDsForThisReport)
-    //     ->groupBy('user_id', 'users.name')
-    //     ->orderBy('users.name')
-    //     ->get();
 
     $comenziKPI = Comanda::select(
         'user_id',
@@ -81,12 +69,27 @@
                 END
             ) as this_month_equal_to_zero
         ")
+        // Calculate total profit for orders of the current month:
+        DB::raw("
+            SUM(
+                CASE
+                    WHEN data_creare >= '$startOfThisMonth'
+                    THEN client_valoare_contract - transportator_valoare_contract
+                        - COALESCE(intermedieri.motis, 0)
+                        - COALESCE(intermedieri.dkv, 0)
+                        - COALESCE(intermedieri.astra, 0)
+                    ELSE 0
+                END
+            ) as total_profit
+        ")
     )
     ->join('users', 'comenzi.user_id', '=', 'users.id')
     ->leftJoin('intermedieri', 'comenzi.id', '=', 'intermedieri.comanda_id')
     ->whereIn('user_id', $usersIDsForThisReport)
     ->groupBy('user_id', 'users.name')
-    ->orderBy('users.name')
+    // ->orderBy('users.name')
+    // Order by the total_profit descending (highest profit first)
+    ->orderBy('total_profit', 'desc')
     ->get();
 
     $monede = Moneda::select('id', 'nume')->get();
