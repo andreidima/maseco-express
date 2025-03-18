@@ -70,18 +70,18 @@
             ) as this_month_equal_to_zero
         ")
         // Calculate total profit for orders of the current month:
-        DB::raw("
-            SUM(
-                CASE
-                    WHEN data_creare >= '$startOfThisMonth'
-                    THEN client_valoare_contract - transportator_valoare_contract
-                        - COALESCE(intermedieri.motis, 0)
-                        - COALESCE(intermedieri.dkv, 0)
-                        - COALESCE(intermedieri.astra, 0)
-                    ELSE 0
-                END
-            ) as total_profit
-        ")
+        // DB::raw("
+        //     SUM(
+        //         CASE
+        //             WHEN data_creare >= '$startOfThisMonth'
+        //             THEN client_valoare_contract - transportator_valoare_contract
+        //                 - COALESCE(intermedieri.motis, 0)
+        //                 - COALESCE(intermedieri.dkv, 0)
+        //                 - COALESCE(intermedieri.astra, 0)
+        //             ELSE 0
+        //         END
+        //     ) as total_profit
+        // ")
     )
     ->join('users', 'comenzi.user_id', '=', 'users.id')
     ->leftJoin('intermedieri', 'comenzi.id', '=', 'intermedieri.comanda_id')
@@ -89,7 +89,7 @@
     ->groupBy('user_id', 'users.name')
     // ->orderBy('users.name')
     // Order by the total_profit descending (highest profit first)
-    ->orderBy('total_profit', 'desc')
+    // ->orderBy('total_profit', 'desc')
     ->get();
 
     $monede = Moneda::select('id', 'nume')->get();
