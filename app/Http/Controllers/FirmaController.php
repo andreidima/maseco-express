@@ -197,6 +197,7 @@ class FirmaController extends Controller
                 'tara_id' => 'nullable|numeric',
                 'cui' => 'required|max:500',
                 'reg_com' => 'nullable|max:500',
+                'format_documente' => '',
                 'oras' => 'nullable|max:500',
                 'judet' => 'nullable|max:500',
                 'adresa' => 'nullable|max:500',

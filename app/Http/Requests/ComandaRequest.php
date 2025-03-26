@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Models\Firma;
 
 class ComandaRequest extends FormRequest
 {
@@ -156,13 +157,18 @@ class ComandaRequest extends FormRequest
     {
         $validator->after(function ($validator) {
             $data = $this->all();
-            $finalValue = isset($data['client_valoare_contract']) ? (float) $data['client_valoare_contract'] : 0;
+
+
+            /**
+             * Check if client final value equals the sum of all clients' initial values.
+             */
+            $finalValue = isset($data['client_valoare_contract']) ? (float)$data['client_valoare_contract'] : 0;
             $sum = 0;
 
             if (isset($data['clienti']) && is_array($data['clienti'])) {
                 foreach ($data['clienti'] as $client) {
                     $initial = isset($client['pivot']['valoare_contract_initiala'])
-                        ? (float) $client['pivot']['valoare_contract_initiala']
+                        ? (float)$client['pivot']['valoare_contract_initiala']
                         : 0;
                     $sum += $initial;
                 }
@@ -173,6 +179,51 @@ class ComandaRequest extends FormRequest
                     'client_valoare_contract',
                     'Valoarea finală a contractului trebuie să fie egală cu suma valorilor inițiale ale contractelor tuturor clienților.'
                 );
+            }
+
+
+
+            // Validation: Check if any Firma (transportator or clienti) has format_documente set to 1.
+            $requiresFormatDocumente = false;
+            $firmeCuFormat = [];
+
+            // Check the transportator Firma record.
+            $transportatorId = $this->input('transportator_transportator_id');
+            if ($transportatorId) {
+                $transportatorFirma = Firma::find($transportatorId);
+                if ($transportatorFirma && (int)$transportatorFirma->format_documente === 1) {
+                    $requiresFormatDocumente = true;
+                    $firmeCuFormat[] = $transportatorFirma->nume; // adjust property if needed
+                }
+            }
+
+            // Check each client Firma record.
+            if (isset($data['clienti']) && is_array($data['clienti'])) {
+                foreach ($data['clienti'] as $client) {
+                    $clientId = $client['id'] ?? null;
+                    if ($clientId) {
+                        $clientFirma = \App\Models\Firma::find($clientId);
+                        if ($clientFirma && (int)$clientFirma->format_documente === 1) {
+                            $requiresFormatDocumente = true;
+                            $firmeCuFormat[] = $clientFirma->nume; // adjust property if needed
+                        }
+                    }
+                }
+            }
+
+            // Remove duplicate firm names.
+            $firmeCuFormat = array_unique($firmeCuFormat);
+
+            // If any Firma requires format_documente to be 1, validate the incoming value.
+            if ($requiresFormatDocumente) {
+                $providedFormatDocumente = $this->input('transportator_format_documente');
+                if ((int)$providedFormatDocumente !== 1) {
+                    $firmeList = implode(', ', $firmeCuFormat);
+                    $validator->errors()->add(
+                        'transportator_format_documente',
+                        'Câmpul Format documente trebuie să fie Per post, deoarece următoarele firme (' . $firmeList . ') au format documente setat Per post.'
+                    );
+                }
             }
         });
     }

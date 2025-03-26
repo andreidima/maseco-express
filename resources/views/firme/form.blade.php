@@ -9,7 +9,7 @@
 <div class="row mb-0 px-3 d-flex border-radius: 0px 0px 40px 40px" id="client">
     <div class="col-lg-12 px-4 py-2 mb-0">
         <div class="row px-2 py-2 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
-            <div class="col-lg-3 mb-2">
+            <div class="col-lg-4 mb-2">
                 <label for="nume" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
                 <input
                     type="text"
@@ -65,6 +65,14 @@
                     name="reg_com"
                     placeholder=""
                     value="{{ old('reg_com', $firma->reg_com) }}">
+            </div>
+            <div class="col-lg-2 mb-2">
+                <label for="format_documente" class="mb-0 ps-3">Format documente</label>
+                <select name="format_documente" class="form-select bg-white rounded-3 {{ $errors->has('format_documente') ? 'is-invalid' : '' }}">
+                    <option selected></option>
+                    <option value="1" {{ intval(old('format_documente', $firma->format_documente === 1 )) ? 'selected' : '' }}>Per post</option>
+                    <option value="2" {{ intval(old('format_documente', $firma->format_documente === 2 )) ? 'selected' : '' }}>Digital</option>
+                </select>
             </div>
         </div>
         <div class="row px-2 py-2 pb-4 mb-0" style="background-color:lightyellow; border-left:6px solid; border-color:goldenrod">
