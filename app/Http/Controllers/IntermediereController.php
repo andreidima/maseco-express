@@ -62,91 +62,29 @@ class IntermediereController extends Controller
             })
             ->when($searchCondition, function ($query, $searchCondition) {
                 if ($searchCondition == 'condition1') {
-                    // $query->where(function ($query) {
-                    //     $query->where(function ($query) {
-                    //             $query->where('transportator_format_documente', '1')
-                    //                 ->whereHas('fisiereTransportatorIncarcateDeOperator'); // Combine these two with AND
-                    //         })
-                    //         ->orWhere(function ($query) {
-                    //             $query->where('transportator_format_documente', '2')
-                    //                 ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator', function ($q) {
-                    //                     $q->whereRaw('id = (
-                    //                         SELECT id
-                    //                         FROM comenzi_fisiere_emailuri
-                    //                         WHERE comanda_id = comenzi.id
-                    //                         ORDER BY created_at DESC
-                    //                         LIMIT 1
-                    //                     )')
-                    //                     ->whereNotNull('id') // Ensure the email exists (null check)
-                    //                     ->where('tip', '2'); // Check if the last email has `tip = 2`
-                    //                 });
-                    //         });
-                    // });
-                    $query->whereNotNull('factura_transportator_incarcata', 1)
-                        ->where('factura_transportator_incarcata', 1);
-                } elseif ($searchCondition == 'condition2') {
-                    // $query->where(function ($query) {
-                    //     // Exclude records satisfying condition1
-                    //     $query->whereNot(function ($query) {
-                    //         $query->where(function ($query) {
-                    //                 $query->where('transportator_format_documente', '1')
-                    //                     ->whereHas('fisiereTransportatorIncarcateDeOperator'); // Combine these two with AND
-                    //             })
-                    //             ->orWhere(function ($query) {
-                    //                 $query->where('transportator_format_documente', '2')
-                    //                     ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator', function ($q) {
-                    //                         $q->whereRaw('id = (
-                    //                             SELECT id
-                    //                             FROM comenzi_fisiere_emailuri
-                    //                             WHERE comanda_id = comenzi.id
-                    //                             ORDER BY created_at DESC
-                    //                             LIMIT 1
-                    //                         )')
-                    //                         ->whereNotNull('id') // Null check for email existence
-                    //                         ->where('tip', '2'); // Check if the last email has `tip = 2`
-                    //                     });
-                    //             });
-                    //     });
-                    // })
-                    $query->where(function ($query) {
-                        // Exclude records satisfying condition1
-                        $query->whereNot(function ($query) {
-                            $query->whereNotNull('factura_transportator_incarcata', 1)
-                                ->where('factura_transportator_incarcata', 1);
-                        });
-                    })
-                    ->whereNotNull('data_plata_transportator') // Ensure `data_plata_transportator` is set
+                    $query->whereNotNull('data_plata_transportator') // Ensure `data_plata_transportator` is set
                     ->where('data_plata_transportator', '<=', Carbon::today()); // Compare with today's date
+                } elseif ($searchCondition == 'condition2') {
+                    $query->whereNotNull('factura_transportator_incarcata')
+                        ->where('factura_transportator_incarcata', 1)
+
+                        // Exclude records satisfying condition1
+                        ->whereNot(function ($query) {
+                            $query->whereNotNull('data_plata_transportator') // Ensure `data_plata_transportator` is set
+                            ->where('data_plata_transportator', '<=', Carbon::today()); // Compare with today's date
+                        });
                 } elseif ($searchCondition == 'condition3') {
                     $query->where(function ($query) {
                         // Exclude records satisfying condition1
                         $query->whereNot(function ($query) {
-                            // $query->where(function ($query) {
-                            //     $query->where('transportator_format_documente', '1')
-                            //         ->whereHas('fisiereTransportatorIncarcateDeOperator'); // Combine these two with AND
-                            // })
-                            // ->orWhere(function ($query) {
-                            //     $query->where('transportator_format_documente', '2')
-                            //         ->whereHas('ultimulEmailPentruFisiereIncarcateDeTransportator', function ($q) {
-                            //             $q->whereRaw('id = (
-                            //                 SELECT id
-                            //                 FROM comenzi_fisiere_emailuri
-                            //                 WHERE comanda_id = comenzi.id
-                            //                 ORDER BY created_at DESC
-                            //                 LIMIT 1
-                            //             )')
-                            //             ->whereNotNull('id') // Ensure the email exists (null check)
-                            //             ->where('tip', '2'); // Check if the last email has `tip = 2`
-                            //         });
-                            // });
-                            $query->whereNotNull('factura_transportator_incarcata', 1)
-                                ->where('factura_transportator_incarcata', 1);
+                            $query->whereNotNull('data_plata_transportator')
+                                ->where('data_plata_transportator', '<=', Carbon::today());
                         });
                     })->where(function ($query) {
                         // Exclude records satisfying condition2
                         $query->whereNot(function ($query) {
-                            $query->whereNotNull('data_plata_transportator')
-                                ->where('data_plata_transportator', '<=', Carbon::today());
+                            $query->whereNotNull('factura_transportator_incarcata')
+                                ->where('factura_transportator_incarcata', 1);
                         });
                     });
                 }

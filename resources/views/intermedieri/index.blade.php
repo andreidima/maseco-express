@@ -50,8 +50,8 @@
                         <div class="col-lg-2">
                             <select name="searchCondition" id="searchCondition" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
                                 <option value="" selected>Toate</option>
-                                <option value="condition1" {{ $searchCondition == "condition1" ? 'selected' : '' }}>Culoare albastră</option>
-                                <option value="condition2" {{ $searchCondition == "condition2" ? 'selected' : '' }}>Culoare verde</option>
+                                <option value="condition1" {{ $searchCondition == "condition1" ? 'selected' : '' }}>Culoare verde</option>
+                                <option value="condition2" {{ $searchCondition == "condition2" ? 'selected' : '' }}>Culoare albastră</option>
                                 <option value="condition3" {{ $searchCondition == "condition3" ? 'selected' : '' }}>Culoare albă</option>
                             </select>
                         </div>
@@ -117,10 +117,7 @@
                     </thead>
                     <tbody>
                         @forelse ($comenzi as $comanda)
-                        {{-- @php
-                            dd($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator);
-                        @endphp --}}
-                            @if (
+                            {{-- @if (
                                     // Commented on 21.01.2025
                                     // // Documents are per post and at leat 1 is uploaded by an operator
                                     // (($comanda->transportator_format_documente == "1") && ($comanda->fisiereTransportatorIncarcateDeOperator->count() > 0))
@@ -129,14 +126,24 @@
                                     // (($comanda->transportator_format_documente == "2") && (($comanda->ultimulEmailPentruFisiereIncarcateDeTransportator->tip ?? null) == "2"))
 
                                     // A different rule was added on 21.01.2025
-                                    $comanda->factura_transportator_incarcata == "1"
-                                )
-                                <tr style="background-color: rgb(171, 196, 255)">
-                            @elseif (isset($comanda->data_plata_transportator) && ($comanda->data_plata_transportator <= $azi))
+                            //         $comanda->factura_transportator_incarcata == "1"
+                            //     )
+                            //     <tr style="background-color: rgb(171, 196, 255)">
+                            // @elseif (isset($comanda->data_plata_transportator) && ($comanda->data_plata_transportator <= $azi))
+                            //     <tr style="background-color: rgb(174, 255, 171)">
+                            // @else
+                            //     <tr>
+                            // @endif
+
+                            {{-- Changed again 28.03.2025 --}}
+                            @if (isset($comanda->data_plata_transportator) && ($comanda->data_plata_transportator <= $azi))
                                 <tr style="background-color: rgb(174, 255, 171)">
+                            @elseif ($comanda->factura_transportator_incarcata == "1")
+                                <tr style="background-color: rgb(171, 196, 255)">
                             @else
                                 <tr>
                             @endif
+
                                 <td class="fs-6" align="">
                                     {{ ($comenzi ->currentpage()-1) * $comenzi ->perpage() + $loop->index + 1 }}
                                 </td>
@@ -335,12 +342,11 @@
             <div class="row">
                 <div class="col-lg-12">
                     <p class="small">
-                        {{-- * Culoare albastră: (Documentele sunt pe suport fizic și au fost încărcate de operator) SAU (Documentele sunt în format digital, iar ultimul email din corespondența cu transportatorul este trimis de operator prin care confirmă că documentele sunt corecte). --}}
                         * Plată client = Sold inițial - Job value - Motis - DKV - Astra
                         <br>
-                        ** Culoare albastră: Factura este încărcată.
+                        ** Culoare verde: Comenzile pentru care plata transportatorului a fost efectuată.
                         <br>
-                        *** Culoare verde: Comenzile pentru care plata transportatorului a fost efectuată.
+                        *** Culoare albastră: Factura este încărcată.
                         <br>
                         **** Culoare albă: Toate celelalte comenzi care nu se încadrează în condițiile de mai sus.
                     </p>
