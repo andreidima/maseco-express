@@ -97,7 +97,18 @@
                 </tr>
             </table>
 
-            <br>
+
+            <h4 style="padding:0rem 1rem; text-align:center">
+                Conform punctului 12 din comanda de transport, regăsiți costurile aferente întârzierii efectuării transportului concordat cu comanda de transport {{ $comanda->transportator_contract }}
+            </h4>
+            <h4 style="padding:0rem 1rem; color:red; text-align:center">
+                {!! nl2br(e($comanda->debit_note)) !!}
+            </h4>
+
+            <h4 style="margin:0rem; padding:0rem 1rem; text-align:center">
+                Acest debit note este generat pentru comanda de transport:
+            </h4>
+
 
             <table style="font-size: 10px;">
                 <tr valign="top" style="">
@@ -145,12 +156,6 @@
                     </td>
                 </tr>
             </table>
-
-            <h4 style="padding:0rem 1rem; color:red; text-align:center">
-                Conform punctului 12 din comanda de transport, regăsiți costurile aferente întârzierii efectuării transportului concordat cu comanda de transport {{ $comanda->transportator_contract }}
-                <br>
-                {!! nl2br(e($comanda->debit_note)) !!}
-            <h4>
 
             @php
                 $nr_incarcari = $comanda->locuriOperareIncarcari ? count($comanda->locuriOperareIncarcari) : 0;
