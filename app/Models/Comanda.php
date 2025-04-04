@@ -142,6 +142,11 @@ class Comanda extends Model
         return $this->hasMany(MesajTrimisEmail::class, 'comanda_id')->where('categorie', 3);
     }
 
+    public function debitNoteTrimisePeEmailCatreTransportator()
+    {
+        return $this->hasMany(MesajTrimisEmail::class, 'comanda_id')->where('categorie', 8);
+    }
+
     public function emailInformareIncepereComanda()
     {
         return $this->hasOne(MesajTrimisEmail::class, 'comanda_id')->where('categorie', 1);

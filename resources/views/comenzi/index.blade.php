@@ -187,7 +187,7 @@
                             <th class="">Descărcări</th>
                             <th class="">Nr. auto</th>
                             <th class="text-center small">Status<br>FrmDoc</th>
-                            <th class="text-center small">Contract</th>
+                            <th class="text-center small">Contract<br>Debit note</th>
                             {{-- <th class="text-center small">Trimite Ctr.<br>pe email</th> --}}
                             <th class="text-center">Mesaje<br>trimise</th>
                             <th class="text-center">Stare</th>
@@ -271,10 +271,14 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="text-center">
-                                        <div class="mb-1">
+                                    <div class="d-flex justify-content-center mb-1">
+                                        <!-- First row: Contract-related buttons in blue -->
+                                        <div class="me-1">
                                             <a href="{{ $comanda->path() }}/export-pdf" target="_blank" class="flex">
-                                                <span class="badge bg-success">Contract</span>
+                                                <span class="badge bg-primary px-1" title="Contract">
+                                                    {{-- <i class="fas fa-file-contract fa-1x" title="Contract"></i> --}}
+                                                    Ctr.
+                                                </span>
                                             </a>
                                         </div>
                                         <div class="">
@@ -284,14 +288,41 @@
                                                 data-bs-target="#trimiteCatreTransportator{{ $comanda->id }}"
                                                 title="Trimite Comanda"
                                             >
-                                                <span class="badge bg-primary">
-                                                    Trimite
-                                                    <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                                                <span class="badge bg-primary px-1">
+                                                    {{-- Trimite --}}
+                                                    <i class="fa-solid fa-envelope fa-1x"></i>
+                                                    <span class="badge bg-dark py-0 px-1" style="font-size:100%" title="Numărul de emailuri trimise până acum">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                                                </span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-center">
+                                        <!-- Second row: Debit note-related buttons in red -->
+                                        <div class="me-1">
+                                            <a href="{{ $comanda->path() }}/export-debit-note-pdf" target="_blank" class="flex">
+                                                <span class="badge bg-danger px-1" title="Debit note">
+                                                    {{-- <i class="fas fa-file-invoice-dollar fa-1x"></i> --}}
+                                                    Dbn
+                                                </span>
+                                            </a>
+                                        </div>
+                                        <div class="">
+                                            <a
+                                                href="#"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#trimiteDebitNoteCatreTransportator{{ $comanda->id }}"
+                                                title="Trimite Debit note"
+                                            >
+                                                <span class="badge bg-danger px-1">
+                                                    {{-- Trimite --}}
+                                                    <i class="fa-solid fa-envelope fa-1x"></i>
+                                                    <span class="badge bg-dark py-0 px-1" style="font-size:100%" title="Numărul de emailuri trimise până acum">{{ $comanda->debit_note_trimise_pe_email_catre_transportator_count }}</span>
                                                 </span>
                                             </a>
                                         </div>
                                     </div>
                                 </td>
+
                                 {{-- <td>
                                     <div class="d-flex justify-content-center">
                                         <a
@@ -579,7 +610,7 @@
             <div class="modal fade text-dark" id="trimiteCatreTransportator{{ $comanda->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
-                    <div class="modal-header bg-danger">
+                    <div class="modal-header bg-primary">
                         <h5 class="modal-title text-white" id="exampleModalLabel">Comanda: <b>{{ $comanda->transportator_contract }}</b></h5>
                         <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
@@ -593,6 +624,38 @@
                             v-on:click="disableButton = true" :hidden="disableButton ? true : false">
                                 Trimite
                                 <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $comanda->contracte_trimise_pe_email_catre_transportator_count }}</span>
+                        </a>
+                        <span class="text-center"
+                            :hidden="disableButton ? false : true"
+                        >Se trimite emailul</span>
+
+                    </div>
+                    </div>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    {{-- Modalele pentru trimitere debit note catre transportator --}}
+    <div id="disableButton2">
+        @foreach ($comenzi as $comanda)
+            <div class="modal fade text-dark" id="trimiteDebitNoteCatreTransportator{{ $comanda->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header bg-danger">
+                        <h5 class="modal-title text-white" id="exampleModalLabel">Debit note comanda: <b>{{ $comanda->transportator_contract }}</b></h5>
+                        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" style="text-align:left;">
+                        Ești sigur ca vrei să trimiți DEBIT NOTE către transportator?
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+
+                        <a href="{{ $comanda->path() }}/trimite-debit-note-catre-transportator" class="btn btn-danger flex"
+                            v-on:click="disableButton = true" :hidden="disableButton ? true : false">
+                                Trimite
+                                <span class="badge bg-dark" title="Numărul de emailuri trimise până acum">{{ $comanda->debit_note_trimise_pe_email_catre_transportator_count }}</span>
                         </a>
                         <span class="text-center"
                             :hidden="disableButton ? false : true"

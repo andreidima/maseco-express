@@ -1206,24 +1206,13 @@
                     name="observatii_externe" rows="3">{{ old('observatii_externe', $comanda->observatii_externe) }}</textarea>
             </div>
         </div>
-        {{-- <div class="row px-2 pt-4 pb-2 mb-0" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
-            <div class="col-lg-2 mb-4">
-                <label for="persoana_contact" class="mb-0 ps-3">Transportator</label>
-                <input
-                    type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('persoana_contact') ? 'is-invalid' : '' }}"
-                    name="persoana_contact"
-                    placeholder=""
-                    value="{{ old('persoana_contact', $comanda->persoana_contact) }}">
+        <div class="row px-2 py-2 mb-4" style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
+            <div class="col-lg-6 mb-4">
+                <label for="debit_note" class="form-label mb-0 ps-3">Debit note</label>
+                <textarea class="form-control bg-white {{ $errors->has('debit_note') ? 'is-invalid' : '' }}"
+                    name="debit_note" rows="3">{{ old('debit_note', $comanda->debit_note) }}</textarea>
             </div>
         </div>
-        <div class="row px-2 py-2 mb-4" style="background-color:#B8FFB8; border-left:6px solid; border-color:mediumseagreen; border-radius: 0px 0px 0px 0px">
-            <div class="col-lg-6 mb-4">
-                <label for="observatii" class="form-label mb-0 ps-3">Observații</label>
-                <textarea class="form-control bg-white {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
-                    name="observatii" rows="3">{{ old('observatii', $comanda->observatii) }}</textarea>
-            </div>
-        </div> --}}
         <div class="row py-4">
             <div class="col-lg-12 mb-0 d-flex justify-content-center">
                 <button type="submit" ref="submit" class="btn btn-lg btn-primary text-white me-3 rounded-3">{{ $buttonText }}</button>
@@ -1231,35 +1220,6 @@
             </div>
         </div>
     </div>
-
-
-    {{-- Modala transportator --}}
-    {{-- <div class="modal fade text-dark" id="adaugaTransportator" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl" role="document">
-            <div class="modal-content">
-            <div class="modal-header bg-danger">
-                <h5 class="modal-title text-white" id="exampleModalLabel">Firma</h5>
-                <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" style="text-align:left;">
-                <form class="needs-validation" novalidate method="POST" action="/firme/transportatori">
-                    @include ('firme.form', [
-                        'firma' => new App\Models\Firma,
-                        'tipPartener' => 'transportatori',
-                        'tari' => App\Models\Tara::select('id', 'nume')->orderBy('nume')->get(),
-                        'buttonText' => 'Adaugă Firma'
-                    ])
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
-                    Salvează
-                </button>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
-            </div>
-            </div>
-        </div>
-    </div> --}}
 
 
 </div>

@@ -110,6 +110,8 @@ class ComandaRequest extends FormRequest
             'observatii_interne' => 'nullable|max:2000',
             'observatii_externe' => 'nullable|max:2000',
 
+            'debit_note' => 'nullable|max:2000',
+
             'user_id' => 'required',
             'operator_user_id' => 'nullable',
 

@@ -63,6 +63,7 @@ class ComandaController extends Controller
                 'operator:id,name'
             ])
             ->withCount('contracteTrimisePeEmailCatreTransportator')
+            ->withCount('debitNoteTrimisePeEmailCatreTransportator')
             ->when($searchDataCreare, function ($query, $searchDataCreare) {
                 $dates = explode(',', $searchDataCreare);
                 return $query->whereBetween('data_creare', [$dates[0], $dates[1] ?? $dates[0]]);
@@ -712,6 +713,15 @@ class ComandaController extends Controller
             $pdf->getDomPDF()->set_option("enable_php", true);
             // return $pdf->download('Contract ' . $comanda->transportator_contract . '.pdf');
             return $pdf->stream();
+
+        } elseif ($request->view_type === 'export-debit-note-html') {
+            return view('comenzi.export.comandaDebitNotePdf', compact('comanda'));
+        } elseif ($request->view_type === 'export-debit-note-pdf') {
+            $pdf = \PDF::loadView('comenzi.export.comandaDebitNotePdf', compact('comanda'))
+                ->setPaper('a4', 'portrait');
+            $pdf->getDomPDF()->set_option("enable_php", true);
+            // return $pdf->download('Contract ' . $comanda->transportator_contract . '.pdf');
+            return $pdf->stream();
         }
     }
 
@@ -820,6 +830,24 @@ class ComandaController extends Controller
             $comanda->cronjob()->updateOrCreate(['comanda_id' => $comanda->id],['contract_trimis_pe_email_catre_transportator' => 1]);
 
             return back()->with('status', 'Emailul către „' . $comanda->transportator->nume . '” a fost trimis cu succes!');
+        } else {
+            return back()->with('error', 'Nu există un email valid!');
+        }
+    }
+
+    public function DebitNoteComandaTrimiteCatreTransportator(Request $request, Comanda $comanda)
+    {
+        if (isset($comanda->transportator->email)){
+            Mail::to($comanda->transportator->email)->send(new \App\Mail\TrimiteDebitNoteComandaCatreTransportator($comanda));
+
+            $emailTrimis = new \App\Models\MesajTrimisEmail;
+            $emailTrimis->comanda_id = $comanda->id;
+            $emailTrimis->firma_id = $comanda->transportator->id ?? '';
+            $emailTrimis->categorie = 8;
+            $emailTrimis->email = $comanda->transportator->email;
+            $emailTrimis->save();
+
+            return back()->with('status', 'Emailul de DEBIT NOTE către „' . $comanda->transportator->nume . '” a fost trimis cu succes!');
         } else {
             return back()->with('error', 'Nu există un email valid!');
         }

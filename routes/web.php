@@ -97,6 +97,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('/comenzi', ComandaController::class)->parameters(['comenzi' => 'comanda']);
     Route::get('/comenzi/{comanda}/trimite-catre-transportator', [ComandaController::class, 'comandaTrimiteCatreTransportator']);
+    Route::get('/comenzi/{comanda}/trimite-debit-note-catre-transportator', [ComandaController::class, 'DebitNoteComandaTrimiteCatreTransportator']);
     Route::any('/comenzi/{comanda}/adauga-resursa/{resursa}/{tip?}/{ordine?}', [ComandaController::class, 'comandaAdaugaResursa']);
     Route::get('/comenzi/{comanda}/export-excel', [ComandaController::class, 'comandaExportExcel']);
     Route::get('/comenzi/{comanda}/{view_type}', [ComandaController::class, 'comandaExportPDF']);
