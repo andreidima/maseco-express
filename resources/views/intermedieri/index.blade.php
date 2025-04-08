@@ -218,6 +218,7 @@
                                         @if ($clientComanda->factura)
                                             {{ $clientComanda->factura->data ? Carbon::parse($clientComanda->factura->data)->isoFormat('DD.MM.YYYY') : null }}
                                             <br>
+                                        {{--
                                         @else
                                             {{ $comanda->transportator_contract }}
                                             {{ $comanda->transportator_contract }}
@@ -228,6 +229,7 @@
                                             {{ $comanda->transportator_contract }}
                                             {{ $comanda->transportator_contract }}
                                             {{ $comanda->transportator_contract }}
+                                        --}}
                                         @endif
                                     @empty
                                     @endforelse

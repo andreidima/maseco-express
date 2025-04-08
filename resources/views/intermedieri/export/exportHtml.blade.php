@@ -207,7 +207,7 @@
                             @endforelse
                         </td>
                         <td class="fs-6">
-                            {{ $comanda->factura->factura_transportator ?? null }}
+                            {{ $comanda->factura_transportator ?? null }}
                         </td>
                         <td class="fs-6">
                             @forelse ($comanda->clientiComanda as $clientComanda)
