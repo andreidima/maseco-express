@@ -205,7 +205,12 @@
                             <tbody>
                             @foreach ($comenziKPI as $comanda)
                                 <tr>
-                                    <td class="py-0">{{ $comanda->user_name }}</td>
+                                    <td class="py-0">
+                                        @if ($comanda->user_name === 'Tcaciuc Alexandru')
+                                            <span class="badge bg-warning text-dark">000000 Poziție Gold</span>
+                                        @endif
+                                        {{ $comanda->user_name }}
+                                    </td>
                                     <td class="py-0 text-center">{{ $comanda->this_month_greater_than_zero }}</td>
                                     <td class="py-0 text-center">{{ $comanda->this_month_less_than_zero }}</td>
                                     <td class="py-0 text-center">{{ $comanda->this_month_equal_to_zero }}</td>
