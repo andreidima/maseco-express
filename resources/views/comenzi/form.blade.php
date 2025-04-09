@@ -1207,10 +1207,35 @@
             </div>
         </div>
         <div class="row px-2 py-2 mb-4" style="background-color:#ddffff; border-left:6px solid; border-color:#2196F3; border-radius: 0px 0px 0px 0px">
-            <div class="col-lg-6 mb-4">
-                <label for="debit_note" class="form-label mb-0 ps-3">Debit note</label>
-                <textarea class="form-control bg-white {{ $errors->has('debit_note') ? 'is-invalid' : '' }}"
-                    name="debit_note" rows="3">{{ old('debit_note', $comanda->debit_note) }}</textarea>
+            <div class="col-lg-12 mb-0">
+                <span class="fs-5 badge text-white" style="background-color:#2196F3;">Debit note</span>
+            </div>
+            <div class="col-lg-3 mb-0">
+                <label for="transportator_zile_scadente" class="mb-0 ps-3">Suma</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('debit_note_suma') ? 'is-invalid' : '' }}"
+                    name="debit_note_suma"
+                    placeholder=""
+                    value="{{ old('debit_note_suma', $comanda->debit_note_suma) }}">
+            </div>
+            <div class="col-lg-3 mb-0">
+                <label for="transportator_zile_scadente" class="mb-0 ps-3">Nr. ore</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('debit_note_ore') ? 'is-invalid' : '' }}"
+                    name="debit_note_ore"
+                    placeholder=""
+                    value="{{ old('debit_note_ore', $comanda->debit_note_ore) }}">
+            </div>
+            <div class="col-lg-6 mb-0">
+                <label for="transportator_zile_scadente" class="mb-0 ps-3">Adresa</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('debit_note_adresa') ? 'is-invalid' : '' }}"
+                    name="debit_note_adresa"
+                    placeholder=""
+                    value="{{ old('debit_note_adresa', $comanda->debit_note_adresa) }}">
             </div>
         </div>
         <div class="row py-4">

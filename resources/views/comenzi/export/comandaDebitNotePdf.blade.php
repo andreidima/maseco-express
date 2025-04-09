@@ -102,7 +102,7 @@
                 Conform punctului 12 din comanda de transport, regăsiți costurile aferente întârzierii efectuării transportului concordat cu comanda de transport {{ $comanda->transportator_contract }}
             </h4>
             <h4 style="padding:0rem 1rem; color:red; text-align:center">
-                {!! nl2br(e($comanda->debit_note)) !!}
+                Contravaloarea penalității este de {!! nl2br(e($comanda->debit_note_suma)) !!} {!! nl2br(e($comanda?->transportatorMoneda?->nume)) !!} pentru o întârziere de {!! nl2br(e($comanda->debit_note_ore)) !!} ore la adresa {!! nl2br(e($comanda->debit_note_adresa)) !!}
             </h4>
 
             <h4 style="margin:0rem; padding:0rem 1rem; text-align:center">

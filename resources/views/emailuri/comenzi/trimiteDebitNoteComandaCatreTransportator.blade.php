@@ -8,9 +8,9 @@
             <br><br>
 
             <p><strong>Vă trimitem atașat <span style="color: red"> DEBIT NOTE </span> pentru comanda {{ $comanda->transportator_contract }}</strong></p>
-            <blockquote style="border-left: 4px solid #ccc; padding-left: 10px;">
+            {{-- <blockquote style="border-left: 4px solid #ccc; padding-left: 10px;">
                 {!! nl2br(e($comanda->debit_note)) !!}
-            </blockquote>
+            </blockquote> --}}
 
             {{-- <br><br>
             Acesta este un mesaj automat. Vă rugăm să nu răspundeți la acest e-mail. --}}
