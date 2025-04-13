@@ -230,7 +230,9 @@
             <div class="table-responsive rounded">
                 <table class="table table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
-                        <tr><th colspan="3" class="text-center">Observații interne</th></tr>
+                        <tr><th colspan="3" class="text-center">Observații interne
+                            <a href="/comenzi/observatii-interne"><span class="badge bg-primary">Vezi toate</span></a>
+                        </th></tr>
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
                             <th class="">Comanda</th>

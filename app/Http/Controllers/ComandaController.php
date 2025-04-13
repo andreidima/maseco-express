@@ -909,4 +909,31 @@ class ComandaController extends Controller
         }
 
     }
+
+    public function indexObservatiiInterne (Request $request)
+    {
+        $request->session()->forget('ComandaReturnUrl');
+
+        $searchDataCreare = $request->searchDataCreare;
+        $searchTransportatorContract = $request->searchTransportatorContract;
+        $searchObservatiiInterne = $request->searchObservatiiInterne;
+
+        $comenzi = Comanda::select('id', 'data_creare', 'transportator_contract', 'observatii_interne')
+            ->when($searchDataCreare, function ($query, $searchDataCreare) {
+                $dates = explode(',', $searchDataCreare);
+                return $query->whereBetween('data_creare', [$dates[0], $dates[1] ?? $dates[0]]);
+            })
+            ->when($searchTransportatorContract, function ($query, $searchTransportatorContract) {
+                return $query->where('transportator_contract', 'like', '%' . $searchTransportatorContract . '%');
+            })
+            ->whereNotNull('observatii_interne')
+            ->when($searchObservatiiInterne, function ($query, $searchObservatiiInterne) {
+                return $query->where('observatii_interne', 'like', '%' . $searchObservatiiInterne . '%');
+            })
+            ->latest()
+            ->simplePaginate(25);
+
+        return view('comenzi.indexObservatiiInterne', compact('comenzi', 'searchDataCreare', 'searchTransportatorContract', 'searchObservatiiInterne'));
+
+    }
 }

@@ -88,6 +88,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::view('comenzi/totaluri-luna-curenta', 'comenzi.export.totaluriLunaCurenta'); // Route to show detailed info about how is calculated the total sum, from the first page, containing the comands from this month
+    Route::get('/comenzi/observatii-interne', [ComandaController::class, 'indexObservatiiInterne']); // Page where the user has access to all intern observations, not just to the last 20 that are displayed on the home page
 
     // Maseco intern documents
     Route::get('/comenzi/{comanda}/fisiere-interne', [ComandaFisierInternController::class, 'afisareFisiereIncarcateDejaSiFormular']);
