@@ -930,7 +930,7 @@ class ComandaController extends Controller
             ->when($searchObservatiiInterne, function ($query, $searchObservatiiInterne) {
                 return $query->where('observatii_interne', 'like', '%' . $searchObservatiiInterne . '%');
             })
-            ->latest()
+            ->orderBy('data_creare', 'desc')
             ->simplePaginate(25);
 
         return view('comenzi.indexObservatiiInterne', compact('comenzi', 'searchDataCreare', 'searchTransportatorContract', 'searchObservatiiInterne'));
