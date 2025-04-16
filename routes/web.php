@@ -64,6 +64,7 @@ Route::redirect('/', '/acasa');
 
 Route::group(['middleware' => 'auth'], function () {
     Route::view('acasa', 'acasa');
+    Route::view('various-tests', 'variousTests');
 
     Route::get('/file-manager-personalizat/{cale?}', [FileManagerPersonalizatController::class, 'afisareDirectoareSiFisiere'])->where('cale', '.*');
     Route::post('/file-manager-personalizat-director/creaza', [FileManagerPersonalizatController::class, 'directorCreaza']);

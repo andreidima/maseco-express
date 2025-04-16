@@ -24,7 +24,7 @@ import TiptapEditor from './components/TiptapEditor.vue'; // Import your Tiptap 
 import TogglePredat from './components/intermedieri/TogglePredat.vue';
 import InlineObservatiiEditor from './components/keyPerformanceIndicators/InlineObservatiiEditor.vue';
 import DirectoryTree from './components/fileManager/DirectoryTree.vue';
-
+import JspreadsheetComponent from './components/JspreadsheetComponent.vue';
 
 // Create Vue app
 const app = createApp({});
@@ -945,4 +945,10 @@ const directoryTree = createApp({});
 directoryTree.component('directory-tree', DirectoryTree);
 if (document.getElementById('directoryTree') != null) {
     directoryTree.mount('#directoryTree');
+}
+
+const excel = createApp({});
+excel.component('jspreadsheet-component', JspreadsheetComponent);
+if (document.getElementById('excel') != null) {
+    excel.mount('#excel');
 }

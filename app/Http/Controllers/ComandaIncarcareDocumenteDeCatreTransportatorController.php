@@ -251,7 +251,9 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                 $mesaj = $request->mesaj;
             }
 
-            Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaTransportatorDocumente($comanda, $tipEmail, $mesaj));
+            $categorieEmail = 'documenteTransport';
+
+            Mail::to($comanda->transportator->email)->send(new \App\Mail\ComandaTransportatorDocumente($comanda, $tipEmail, $categorieEmail, $mesaj));
 
             $emailTrimis = new ComandaFisierEmail;
             $emailTrimis->comanda_id = $comanda->id;

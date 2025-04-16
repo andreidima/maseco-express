@@ -25,6 +25,7 @@ class ComandaTransportatorDocumente extends Mailable
     )
     {
         //
+        // dd($tipEmail, $categorieEmail, $mesaj);
     }
 
     /**
