@@ -936,4 +936,56 @@ class ComandaController extends Controller
         return view('comenzi.indexObservatiiInterne', compact('comenzi', 'searchDataCreare', 'searchTransportatorContract', 'searchObservatiiInterne'));
 
     }
+
+    public function indexActivitateRecenta (Request $request)
+    {
+        $request->session()->forget('ComandaReturnUrl');
+
+        $searchDataCreare = $request->searchDataCreare;
+        $searchTransportatorContract = $request->searchTransportatorContract;
+        $searchOperareData = $request->searchOperareData;
+        $searchOperareDescriere = $request->searchOperareDescriere;
+        $searchUser = $request->searchUser;
+        $searchOperator = $request->searchOperator;
+        $searchUserOperare = $request->searchUserOperare;
+
+        $comenziIstoric = ComandaIstoric::select('id', 'data_creare', 'transportator_contract', 'user_id', 'operator_user_id', 'operare_user_id', 'operare_descriere', 'operare_data')
+            ->with('user:id,name', 'operator:id,name', 'userOperare:id,name')
+            ->when($searchDataCreare, function ($query, $searchDataCreare) {
+                $dates = explode(',', $searchDataCreare);
+                return $query->whereBetween('data_creare', [$dates[0], $dates[1] ?? $dates[0]]);
+            })
+            ->when($searchTransportatorContract, function ($query, $searchTransportatorContract) {
+                return $query->where('transportator_contract', 'like', '%' . $searchTransportatorContract . '%');
+            })
+            ->when($searchOperareData, function ($query, $searchOperareData) {
+                $dates = explode(',', $searchOperareData);
+                return $query->whereBetween('operare_data', [$dates[0], $dates[1] ?? $dates[0]]);
+            })
+            ->when($searchOperareDescriere, function ($query, $searchOperareDescriere) {
+                return $query->where('operare_descriere', 'like', '%' . $searchOperareDescriere . '%');
+            })
+            ->when($searchUser, function ($query, $searchUser) {
+                return $query->whereHas('user', function ($query) use ($searchUser) {
+                    $query->where('id', $searchUser);
+                });
+            })
+            ->when($searchOperator, function ($query, $searchOperator) {
+                return $query->whereHas('operator', function ($query) use ($searchOperator) {
+                    $query->where('operator_user_id', $searchOperator);
+                });
+            })
+            ->when($searchUserOperare, function ($query, $searchUserOperare) {
+                return $query->whereHas('operator', function ($query) use ($searchUserOperare) {
+                    $query->where('operare_user_id', $searchUserOperare);
+                });
+            })
+            ->orderBy('id_pk', 'desc')
+            ->simplePaginate(25);
+
+        $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->orderBy('name')->get();
+
+        return view('comenzi.indexActivitateRecenta', compact('comenziIstoric', 'useri', 'searchDataCreare', 'searchTransportatorContract', 'searchOperareData', 'searchOperareDescriere', 'searchUser', 'searchOperator', 'searchUserOperare'));
+
+    }
 }

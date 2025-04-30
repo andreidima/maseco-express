@@ -23,6 +23,16 @@ class ComandaIstoric extends Model
 
     public function user()
     {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function operator()
+    {
+        return $this->belongsTo(User::class, 'operator_user_id');
+    }
+
+    public function userOperare()
+    {
         return $this->belongsTo(User::class, 'operare_user_id');
     }
 }

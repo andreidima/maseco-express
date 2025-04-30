@@ -280,7 +280,9 @@
             <div class="table-responsive rounded">
                 <table class="table table-striped table-hover rounded">
                     <thead class="text-white rounded culoare2">
-                        <tr><th colspan="5" class="text-center">Activitate recentă</th></tr>
+                        <tr><th colspan="5" class="text-center">Activitate recentă
+                            <a href="/comenzi/activitate-recenta"><span class="badge bg-primary">Vezi toate</span></a>
+                        </th></tr>
                         <tr class="" style="padding:2rem">
                             <th class="">#</th>
                             <th class="">Contract</th>
@@ -290,12 +292,12 @@
                         </tr>
                     </thead>
                     <tbody>
-                    @foreach (ComandaIstoric::with('user')->orderBy('id_pk', 'desc')->take(20)->get() as $comandaIstoric)
+                    @foreach (ComandaIstoric::with('userOperare')->orderBy('id_pk', 'desc')->take(20)->get() as $comandaIstoric)
                         <tr>
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $comandaIstoric->transportator_contract }}</td>
                             <td>{{ $comandaIstoric->operare_descriere }}</td>
-                            <td>{{ $comandaIstoric->user->name ?? '' }}</td>
+                            <td>{{ $comandaIstoric->userOperare->name ?? '' }}</td>
                             <td>{{ $comandaIstoric->operare_data ? Carbon::parse($comandaIstoric->operare_data)->isoFormat('DD.MM.YYYY HH:mm') : '' }}</td>
                         </tr>
                     @endforeach
