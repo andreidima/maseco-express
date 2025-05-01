@@ -20,6 +20,7 @@ class IntermediereController extends Controller
     {
         $request->session()->forget('intermediereReturnUrl');
 
+        $searchComandaTransportatorContract = $request->searchComandaTransportatorContract;
         $searchUser = $request->searchUser;
         $searchInterval = $request->searchInterval;
         $searchPredat = $request->searchPredat;
@@ -31,6 +32,9 @@ class IntermediereController extends Controller
                                     'ultimulEmailPentruFisiereIncarcateDeTransportator:id,comanda_id,tip', 'fisiereTransportatorIncarcateDeOperator',
                                     'clientiComanda.factura', 'clientiComanda.moneda'
                                 )
+            ->when($searchComandaTransportatorContract, function ($query, $searchComandaTransportatorContract) {
+                return $query->where('transportator_contract', 'like', '%' . $searchComandaTransportatorContract . '%');
+            })
             ->when($searchUser, function ($query, $searchUser) {
                 return $query->whereHas('user', function ($query) use ($searchUser) {
                     $query->where('id', $searchUser);
@@ -103,7 +107,7 @@ class IntermediereController extends Controller
         } else {
             $comenzi = $query->simplePaginate(100);
             $useri = User::select('id' , 'name')->where('name', '<>', 'Andrei Dima')->where('activ', 1)->orderBy('name')->get();
-            return view('intermedieri.index', compact('comenzi', 'useri', 'searchUser', 'searchInterval', 'searchPredat', 'searchFacturaMasecoNumar', 'searchCondition'));
+            return view('intermedieri.index', compact('comenzi', 'useri', 'searchComandaTransportatorContract', 'searchUser', 'searchInterval', 'searchPredat', 'searchFacturaMasecoNumar', 'searchCondition'));
         }
     }
 

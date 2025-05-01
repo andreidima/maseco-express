@@ -8,15 +8,18 @@
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-            <div class="col-lg-3">
+            <div class="col-lg-2">
                 <span class="badge culoare1 fs-5">
                     <i class="fa-solid fa-file me-1"></i>Intermedieri
                 </span>
             </div>
-            <div class="col-lg-9">
+            <div class="col-lg-10">
                 <form class="needs-validation" novalidate method="GET" action="{{ url()->current()  }}">
                     @csrf
                     <div class="row mb-1 custom-search-form justify-content-center">
+                        <div class="col-lg-2">
+                            <input type="text" class="form-control rounded-3" id="searchComandaTransportatorContract" name="searchComandaTransportatorContract" placeholder="Comandă nr." value="{{ $searchComandaTransportatorContract }}">
+                        </div>
                         <div class="col-lg-3 d-flex align-items-center justify-content-center" id="datePicker">
                             <label for="searchInterval" class="pe-1">Interval:</label>
                             <vue-datepicker-next
@@ -37,7 +40,7 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-1">
                             <select name="searchPredat" id="searchPredat" class="form-select bg-white rounded-3 {{ $errors->has('stare') ? 'is-invalid' : '' }}">
                                 <option value="" selected>Predat</option>
                                 <option value="NU" {{ $searchPredat == "NU" ? 'selected' : '' }}>NU</option>
