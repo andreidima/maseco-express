@@ -90,11 +90,11 @@ class FirmaController extends Controller
 
         // Whenever a new client is created into the database, Maseco is alerted by email
         if ($firma->tip_partener === 1) {
-            Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\InformareAdaugareClientNouInDB($firma));
+            Mail::to('info@masecoexpres.net')->send(new \App\Mail\InformareAdaugareClientNouInDB($firma));
             $emailTrimis = new \App\Models\MesajTrimisEmail;
             $emailTrimis->firma_id = $firma->id;
             $emailTrimis->categorie = 9;
-            $emailTrimis->email = 'andrei.dima@usm.ro';
+            $emailTrimis->email = 'info@masecoexpres.net';
             $emailTrimis->save();
         }
 
