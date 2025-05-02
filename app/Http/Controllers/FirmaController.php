@@ -92,6 +92,7 @@ class FirmaController extends Controller
         if ($firma->tip_partener === 1) {
             Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\InformareAdaugareClientNouInDB($firma));
             $emailTrimis = new \App\Models\MesajTrimisEmail;
+            $emailTrimis->firma_id = $firma->id;
             $emailTrimis->categorie = 9;
             $emailTrimis->email = 'andrei.dima@usm.ro';
             $emailTrimis->save();
