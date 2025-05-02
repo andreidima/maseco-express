@@ -38,10 +38,10 @@ class Firma extends Model
         return $this->hasMany(Camion::class);
     }
 
-    // public function comenziCaSiClient()
-    // {
-    //     return $this->hasMany(Comanda::class, 'client_client_id');
-    // }
+    public function comenziCaSiClient()
+    {
+        return $this->hasMany(Comanda::class, 'client_client_id');
+    }
     /**
      * Get the comandaPivotInfo associated with the Firma
      *
