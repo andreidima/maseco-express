@@ -88,6 +88,15 @@ class FirmaController extends Controller
             $request->session()->put('comandaFirmaTip', $tipPartener);
         }
 
+        // Whenever a new client is created into the database, Maseco is alerted by email
+        if ($firma->tip_partener === 1) {
+            Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\InformareAdaugareClientNouInDB($firma));
+            $emailTrimis = new \App\Models\MesajTrimisEmail;
+            $emailTrimis->categorie = 9;
+            $emailTrimis->email = 'andrei.dima@usm.ro';
+            $emailTrimis->save();
+        }
+
         return redirect($request->session()->get('firma_return_url') ?? ('/firme/clienti'))->with('status', 'Firma „' . ($firma->nume ?? '') . '” a fost adăugată cu succes!');
     }
 

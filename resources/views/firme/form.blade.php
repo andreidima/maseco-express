@@ -233,8 +233,15 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-lg-12 mb-2 d-flex justify-content-center">
-                <button type="submit" ref="submit" class="btn btn-lg btn-primary text-white me-3 rounded-3">{{ $buttonText }}</button>
+            <div class="col-lg-12 mb-2 d-flex justify-content-center align-items-center" id="disableButton1">
+                <button type="submit" ref="submit" class="btn btn-lg btn-primary text-white me-3 rounded-3"
+                    v-on:click="disableButton = true" :hidden="disableButton ? true : false"
+                    >{{ $buttonText }}</button>
+                <button type="button" class="btn btn-lg btn-primary text-white me-3 rounded-3"
+                    :hidden="disableButton ? false : true"
+                    disabled
+                >Se salvează firma</button>
+
                 <a class="btn btn-lg btn-secondary rounded-3" href="{{ Session::get('firma_return_url') }}">Renunță</a>
             </div>
         </div>

@@ -14,6 +14,10 @@ class Firma extends Model
     protected $table = 'firme';
     protected $guarded = [];
 
+    protected $casts = [
+        'tip_partener' => 'integer',
+    ];
+
     public function path($tipPartener = null)
     {
         return "/firme/$tipPartener/{$this->id}";
