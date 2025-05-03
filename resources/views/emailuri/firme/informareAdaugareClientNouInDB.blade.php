@@ -7,7 +7,7 @@
             Bună Maseco Expres,
             <br><br>
 
-            Asigură-te că noul client introdus este corect:
+            Asigură-te că ai verificat noul client și că are Bonitate.
             <ul>
                 <li>
                     Nume: {{ $firma->nume }}

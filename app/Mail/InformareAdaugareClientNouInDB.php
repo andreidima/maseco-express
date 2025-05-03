@@ -48,7 +48,7 @@ class InformareAdaugareClientNouInDB extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'A fost adăugat un nou client în aplicația Maseco Express. Asigură-te că a fost introdus corect. ',
+            subject: 'A fost adăugat un nou client în aplicația Maseco Express. Asigură-te că ai verificat noul client și că are Bonitate.',
         );
     }
 
