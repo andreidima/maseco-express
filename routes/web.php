@@ -24,6 +24,7 @@ use App\Http\Controllers\StatiePecoController;
 use App\Http\Controllers\IntermediereController;
 use App\Http\Controllers\FlotaStatusController;
 use App\Http\Controllers\FlotaStatusInformatieController;
+use App\Http\Controllers\FlotaStatusCController;
 use App\Http\Controllers\DocumentWordController;
 use App\Http\Controllers\KeyPerformanceIndicatorController;
 
@@ -156,6 +157,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('/flota-statusuri', FlotaStatusController::class)->parameters(['flota-statusuri' => 'flotaStatus']);
     Route::resource('/flota-statusuri-informatii', FlotaStatusInformatieController::class)->parameters(['flota-statusuri-informatii' => 'flotaStatusInformatie']);
+
+    Route::resource('flota-statusuri-c', FlotaStatusCController::class)->parameters(['flota-statusuri-c' => 'flotaStatusC']);
 
     Route::get('/documente-word/{documentWord}/unlock', [DocumentWordController::class, 'unlock'])->name('documentWord.unlock');
     Route::resource('/documente-word', DocumentWordController::class)->parameters(['documente-word' => 'documentWord']);

@@ -39,7 +39,7 @@
                     value="{{ old('astra', $intermediere->astra) }}"
                     required>
             </div>
-            <div class="col-lg-12 mb-4">
+            {{-- <div class="col-lg-12 mb-4">
                 <label for="plata_client" class="mb-0 ps-3">Plată client</label>
                 <input
                     type="text"
@@ -47,7 +47,7 @@
                     name="plata_client"
                     value="{{ old('plata_client', $intermediere->plata_client) }}"
                     required>
-            </div>
+            </div> --}}
         </div>
     </div>
 

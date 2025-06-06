@@ -67,9 +67,9 @@ class FlotaStatusController extends Controller
      */
     public function show(Request $request, FlotaStatus $flotaStatus)
     {
-        $request->session()->get('flotaStatusReturnUrl') ?? $request->session()->put('flotaStatusReturnUrl', url()->previous());
+        // $request->session()->get('flotaStatusReturnUrl') ?? $request->session()->put('flotaStatusReturnUrl', url()->previous());
 
-        return view('flotaStatusuri.show', compact('flotaStatus'));
+        // return view('flotaStatusuri.show', compact('flotaStatus'));
     }
 
     /**

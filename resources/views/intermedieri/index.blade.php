@@ -255,9 +255,9 @@
                                 <td class="fs-6">
                                     {{ $comanda->intermediere->astra ?? null }}
                                 </td>
-                                <td class="fs-6">
+                                {{-- <td class="fs-6">
                                     {{ $comanda->intermediere->plata_client ?? null }}
-                                </td>
+                                </td> --}}
                                 <td class="fs-6 text-center">
                                     {{-- <a href="/intermedieri/schimbaPredatLaContabilitate/{{ $comanda->id }}" class="flex">
                                         @if (($comanda->intermediere->predat_la_contabilitate ?? null) == 1)

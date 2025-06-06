@@ -178,7 +178,7 @@ class IntermediereController extends Controller
                 'motis' => 'nullable|numeric|min:-9999999|max:9999999',
                 'dkv' => 'nullable|numeric|min:-9999999|max:9999999',
                 'astra' => 'nullable|numeric|min:-9999999|max:9999999',
-                'plata_client' => 'nullable|max:255',
+                // 'plata_client' => 'nullable|max:255',
             ],
             [
                 // 'tara_id.required' => 'Câmpul țara este obligatoriu'
