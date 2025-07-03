@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\DocumentWordRequest;
+use PDF; // Barryvdh\DomPDF\Facade
 
 use App\Models\DocumentWord;
 use App\Models\DocumentWordIstoric;

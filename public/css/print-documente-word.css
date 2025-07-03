@@ -1,0 +1,81 @@
+/* ===========================================================
+   0.  A4 LANDSCAPE, 0 MARGINS
+=========================================================== */
+@page {
+    size: A4 landscape;
+    margin: 0;
+}
+
+/* ===========================================================
+   1.  PRINT RULES
+=========================================================== */
+@media print {
+
+    /* Hide everything except our wrapper -------------------- */
+    body * {
+        visibility: hidden !important;
+    }
+
+    #print-area,
+    #print-area * {
+        visibility: visible !important;
+    }
+
+    /* Flatten the wrapper ----------------------------------- */
+    #print-area {
+        position: absolute;
+        inset: 0;
+        box-sizing: border-box;
+        padding: 6mm;
+        /* visible margin around page   */
+        overflow: hidden !important;
+        /* no scrollbars                */
+    }
+
+    /* Remove TipTap UI bits --------------------------------- */
+    .editor-toolbar,
+    .floating-menu {
+        display: none !important;
+    }
+
+    .tiptap-container,
+    .editor-container {
+        padding: 0 !important;
+        border: none !important;
+    }
+
+    /* --------------------------------------------------------
+     TABLE: shrink fonts & paddings before anything else
+  -------------------------------------------------------- */
+    .ProseMirror table {
+        width: 100% !important;
+        table-layout: fixed !important;
+        border-collapse: collapse !important;
+    }
+
+    .ProseMirror th,
+    .ProseMirror td {
+        padding: 1.5mm !important;
+        font-size: 8pt !important;
+        /* SMALLER text              */
+        word-break: break-word;
+        hyphens: auto;
+    }
+
+    /* Remove height limits that create vertical scroll ------ */
+    .ProseMirror,
+    .editor-container {
+        height: auto !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    /* --------------------------------------------------------
+     FIT-TO-WIDTH in Chrome/Edge:
+     “zoom: page” scales the entire page down until it
+     fits the printable area (Chromium feature).
+  -------------------------------------------------------- */
+    html {
+        zoom: page;
+    }
+}

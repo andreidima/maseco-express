@@ -33,6 +33,7 @@
                             <th class="text-center">Info</th>
                             <th class="text-center">Abilities</th>
                             <th class="text-center">Status of the shipment</th>
+                            <th class="text-center">Comanda</th>
                             <th class="text-center">Info II</th>
                             <th class="text-center">Info III</th>
                             <th class="text-center">Special info</th>
@@ -66,6 +67,9 @@
                                 </td>
                                 <td class="text-center">
                                     {{ $status->status_of_the_shipment }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $status->comanda }}
                                 </td>
                                 <td class="text-center">
                                     {{ $status->info_ii }}

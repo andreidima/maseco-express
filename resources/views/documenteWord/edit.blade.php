@@ -1,5 +1,12 @@
 @extends ('layouts.app')
 
+{{-- print-only stylesheet, pushed into the “page-styles” stack --}}
+@push('page-styles')
+    <link rel="stylesheet"
+          href="{{ asset('css/print-documente-word.css') }}"
+          media="print">
+@endpush
+
 @section('content')
 {{-- <div class="container"> --}}
     <div class="row mx-3 justify-content-center">
@@ -25,6 +32,7 @@
 
                     </form>
                 </div>
+
             </div>
         </div>
     </div>

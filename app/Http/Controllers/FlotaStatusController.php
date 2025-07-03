@@ -141,6 +141,7 @@ class FlotaStatusController extends Controller
                 'info' => 'nullable',
                 'abilities' => 'nullable|max:255',
                 'status_of_the_shipment' => 'nullable|max:255',
+                'comanda' => 'nullable|max:255',
                 'info_ii' => 'nullable|max:255',
                 'info_iii' => 'nullable|max:255',
                 'special_info' => 'nullable|max:255',

@@ -29,6 +29,9 @@
     {{-- <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/andrei.css') }}" rel="stylesheet"> --}}
 
+    {{-- Added to add print style JUST to Word documets  --}}
+    @stack('page-styles')
+
     <!-- Font Awesome links -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 </head>
@@ -241,7 +244,7 @@
                         @guest
                             @if (Route::has('login'))
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
+                                    <a class="nav-link" href="{{ route('login') }}">Login</a>
                                 </li>
                             @endif
 
@@ -261,7 +264,7 @@
                                         <a class="dropdown-item" href="{{ route('logout') }}"
                                         onclick="event.preventDefault();
                                                         document.getElementById('logout-form').submit();">
-                                            {{ __('Logout') }}
+                                            Logout
                                         </a>
 
                                         <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

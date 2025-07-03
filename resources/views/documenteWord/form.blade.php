@@ -24,11 +24,17 @@
             @endcan
             <div class="col-lg-12 mb-2" id="wysiwyg">
                 <label for="continut" class="form-label mb-0 ps-3">Conținut</label>
-                <tiptap-editor
-                    :inputvalue='@json(old('continut', $documentWord->continut ?? ''))'
-                    inputname="continut"
-                    height="600px"
-                ></tiptap-editor>
+
+                <!-- PRINT-AREA start -->
+                <div id="print-area">
+                    <tiptap-editor
+                        :inputvalue='@json(old('continut', $documentWord->continut ?? ''))'
+                        inputname="continut"
+                        height="600px"
+                    ></tiptap-editor>
+                </div>
+                <!-- PRINT-AREA end -->
+
             </div>
         </div>
         <div class="row">
@@ -43,6 +49,9 @@
                 @endif
             </div>
             <div class="col-lg-4 text-end">
+
+                <button type="button" onclick="window.print()">Print</button>
+
                 @if(Route::is('documente-word.create'))
                     <!-- Create Mode -->
                     <button type="text" class="btn btn-danger text-white rounded-3" disabled>Șterge Document Word</button>
@@ -59,3 +68,49 @@
 </div>
 
 
+<style>
+    /* === print.css or inside a <style> === */
+    @page {
+    size: A4 landscape;
+    margin: 0;
+    }
+
+    @media print {
+        /* hide everything… */
+        body * {
+            visibility: hidden !important;
+        }
+        /* …except the editor container */
+        #editor-content,
+        #editor-content * {
+            visibility: visible !important;
+        }
+        /* position it full-width at top left */
+        #editor-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            overflow: visible !important;
+        }
+
+        /* hide tiptap toolbars/menus inside the editor */
+        .editor-toolbar,
+        .floating-menu {
+            display: none !important;
+        }
+
+        /* make your ProseMirror tables scale to page width */
+        .ProseMirror table {
+            width: 100% !important;
+            table-layout: fixed !important;
+            border-collapse: collapse !important;
+        }
+        .ProseMirror table th,
+        .ProseMirror table td {
+            word-wrap: break-word;
+            /* optional: shrink padding */
+            padding: 0.2em !important;
+        }
+    }
+</style>

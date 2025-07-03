@@ -75,6 +75,15 @@
                     required>
             </div>
             <div class="col-lg-4 mb-4">
+                <label for="comanda" class="mb-0 ps-3">Comanda</label>
+                <input
+                    type="text"
+                    class="form-control bg-white rounded-3 {{ $errors->has('comanda') ? 'is-invalid' : '' }}"
+                    name="comanda"
+                    value="{{ old('comanda', $flotaStatus->comanda) }}"
+                    required>
+            </div>
+            <div class="col-lg-4 mb-4">
                 <label for="info_ii" class="mb-0 ps-3">Info II</label>
                 <input
                     type="text"
