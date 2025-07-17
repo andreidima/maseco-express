@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\MasinaValabilitati;
-use App\Http\Requests\masinaValabilitatiRequest;
+use App\Http\Requests\MasinaValabilitatiRequest;
 use Illuminate\Http\Request;
 
 class MasinaValabilitatiController extends Controller
