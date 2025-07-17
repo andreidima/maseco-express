@@ -110,6 +110,12 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
+                                    <a class="dropdown-item" href="/masini-valabilitati" target="_blank">
+                                        <i class="fa-solid fa-truck me-1"></i>Mașini valabilități
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
                                     <a class="dropdown-item" href="/firme/clienti">
                                         <i class="fa-solid fa-users me-1"></i>Firme Clienți
                                     </a>
@@ -187,6 +193,12 @@
                                 Utile
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                <li>
+                                    <a class="dropdown-item" href="/mementouri/1/mementouri">
+                                        <i class="fa-solid fa-bell me-1"></i>Mementouri generale
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="/mementouri/1/mementouri">
                                         <i class="fa-solid fa-bell me-1"></i>Mementouri generale

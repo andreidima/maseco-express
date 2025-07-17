@@ -25,8 +25,11 @@ use App\Http\Controllers\IntermediereController;
 use App\Http\Controllers\FlotaStatusController;
 use App\Http\Controllers\FlotaStatusInformatieController;
 use App\Http\Controllers\FlotaStatusCController;
+use App\Http\Controllers\MasinaValabilitatiController;
 use App\Http\Controllers\DocumentWordController;
 use App\Http\Controllers\KeyPerformanceIndicatorController;
+use App\Http\Controllers\ScrapedEmailController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -160,6 +163,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::resource('flota-statusuri-c', FlotaStatusCController::class)->parameters(['flota-statusuri-c' => 'flotaStatusC']);
 
+    Route::resource('masini-valabilitati', MasinaValabilitatiController::class)->parameters(['masini-valabilitati' => 'masinaValabilitati']);
+
     Route::get('/documente-word/{documentWord}/unlock', [DocumentWordController::class, 'unlock'])->name('documentWord.unlock');
     Route::resource('/documente-word', DocumentWordController::class)->parameters(['documente-word' => 'documentWord']);
 
@@ -167,6 +172,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/key-performance-indicators/update-observatii', [KeyPerformanceIndicatorController::class, 'updateObservatii'])->name('kpis.updateObservatii');
     Route::resource('key-performance-indicators', KeyPerformanceIndicatorController::class)->parameters(['key-performance-indicators' => 'keyPerformanceIndicators']);
 
+
+    Route::resource('scraped-emails', ScrapedEmailController::class);
 
 
     // Clear application cache:

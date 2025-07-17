@@ -50,7 +50,7 @@
             </div>
             <div class="col-lg-4 text-end">
 
-                <button type="button" onclick="window.print()">Print</button>
+                {{-- <button type="button" onclick="window.print()">Print</button> --}}
 
                 @if(Route::is('documente-word.create'))
                     <!-- Create Mode -->

@@ -9,9 +9,9 @@
                 <div class="border border-secondary p-2 culoare2" style="border-radius: 40px 40px 0 0;">
                     <span class="badge text-light fs-5">
                         {{-- Use a truck icon, changing between “plus” and “edit” depending on context --}}
-                        <i class="fa-solid fa-truck-{{ isset($flotaStatusC->id) ? 'edit' : 'plus' }} me-1"></i>
+                        <i class="fa-solid fa-truck-{{ isset($masinaValabilitati->id) ? 'edit' : 'plus' }} me-1"></i>
                         {{-- Toggle heading text between “Edit” and “Add” --}}
-                        {{ isset($flotaStatusC->id) ? 'Modificare Status C' : 'Adăugare Status C' }}
+                        {{ isset($masinaValabilitati->id) ? 'Modificare Mașină' : 'Adăugare Mașină' }}
                     </span>
                 </div>
 
@@ -21,19 +21,19 @@
                 <div class="card-body py-3 px-4 border border-secondary" style="border-radius: 0 0 40px 40px;">
                     <form class="needs-validation" novalidate
                           method="POST"
-                          action="{{ isset($flotaStatusC->id)
-                                      ? route('flota-statusuri-c.update', $flotaStatusC->id)
-                                      : route('flota-statusuri-c.store') }}">
+                          action="{{ isset($masinaValabilitati->id)
+                                      ? route('masini-valabilitati.update', $masinaValabilitati->id)
+                                      : route('masini-valabilitati.store') }}">
                         @csrf
                         {{-- When editing, spoof the PUT method --}}
-                        @if(isset($flotaStatusC->id))
+                        @if(isset($masinaValabilitati->id))
                             @method('PUT')
                         @endif
 
                         {{-- Include the shared form partial and pass the existing model if available --}}
-                        @include ('flotaStatusuri_c.form', [
-                            'flotaStatusC' => $flotaStatusC ?? null,
-                            'buttonText'   => isset($flotaStatusC->id) ? 'Salvează modificările' : 'Adaugă Status C'
+                        @include ('masiniValabilitati.form', [
+                            'masinaValabilitati' => $masinaValabilitati ?? null,
+                            'buttonText'   => isset($masinaValabilitati->id) ? 'Salvează modificările' : 'Adaugă Mașină'
                         ])
                     </form>
                 </div>
