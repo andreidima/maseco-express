@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\masinaValabilitati;
+use App\Models\MasinaValabilitati;
 use App\Http\Requests\masinaValabilitatiRequest;
 use Illuminate\Http\Request;
 
-class masinaValabilitatiController extends Controller
+class MasinaValabilitatiController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,7 +20,7 @@ class masinaValabilitatiController extends Controller
         $request->session()->forget('masinaValabilitatiReturnUrl');
 
         // Fetch all records, sorted by the 'nr_auto' column ascending
-        $masiniValabilitati = masinaValabilitati::orderBy('nr_auto', 'asc')
+        $masiniValabilitati = MasinaValabilitati::orderBy('nr_auto', 'asc')
                                     ->latest()
                                     ->simplePaginate(100);
 
@@ -40,7 +40,7 @@ class masinaValabilitatiController extends Controller
             ?? $request->session()->put('masinaValabilitatiReturnUrl', url()->previous());
 
         // Create an empty model instance to pass to the view
-        $masinaValabilitati = new masinaValabilitati();
+        $masinaValabilitati = new MasinaValabilitati();
 
         return view('masiniValabilitati.save', compact('masinaValabilitati'));
     }
@@ -54,7 +54,7 @@ class masinaValabilitatiController extends Controller
     public function store(masinaValabilitatiRequest $request)
     {
         // Mass‐create using validated data
-        $masinaValabilitati = masinaValabilitati::create($request->validated());
+        $masinaValabilitati = MasinaValabilitati::create($request->validated());
 
         // Redirect back to whatever page originally led here (or fallback to index)
         return redirect(
@@ -71,7 +71,7 @@ class masinaValabilitatiController extends Controller
      * @param  \App\Models\masinaValabilitati       $masinaValabilitati
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request, masinaValabilitati $masinaValabilitati)
+    public function edit(Request $request, MasinaValabilitati $masinaValabilitati)
     {
         // Store the “return to” URL if not already set
         $request->session()->get('masinaValabilitatiReturnUrl')
@@ -87,7 +87,7 @@ class masinaValabilitatiController extends Controller
      * @param  \App\Models\masinaValabilitati                $masinaValabilitati
      * @return \Illuminate\Http\Response
      */
-    public function update(masinaValabilitatiRequest $request, masinaValabilitati $masinaValabilitati)
+    public function update(MasinaValabilitatiRequest $request, MasinaValabilitati $masinaValabilitati)
     {
         // Apply validated changes
         $masinaValabilitati->update($request->validated());
@@ -103,10 +103,10 @@ class masinaValabilitatiController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  \Illuminate\Http\Request       $request
-     * @param  \App\Models\masinaValabilitati       $masinaValabilitati
+     * @param  \App\Models\MasinaValabilitati       $masinaValabilitati
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request, masinaValabilitati $masinaValabilitati)
+    public function destroy(Request $request, MasinaValabilitati $masinaValabilitati)
     {
         $masinaValabilitati->delete();
 

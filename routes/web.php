@@ -173,7 +173,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('key-performance-indicators', KeyPerformanceIndicatorController::class)->parameters(['key-performance-indicators' => 'keyPerformanceIndicators']);
 
 
-    // Route::resource('scraped-emails', ScrapedEmailController::class);
+    Route::resource('scraped-emails', ScrapedEmailController::class);
 
 
     // Clear application cache:
