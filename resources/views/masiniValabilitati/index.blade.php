@@ -91,7 +91,7 @@
                         @endforelse
                             <tr>
                                 <td colspan="9" class="culoare2">
-
+                                    &nbsp;
                                 </td>
                             </tr>
                     @empty
