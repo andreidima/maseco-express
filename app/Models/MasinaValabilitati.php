@@ -13,6 +13,13 @@ class MasinaValabilitati extends Model
     protected $table = 'masini_valabilitati';
     protected $guarded = [];
 
+    protected $casts = [
+        'valabilitate_1_inceput' => 'date',
+        'valabilitate_1_sfarsit'  => 'date',
+        'valabilitate_2_inceput' => 'date',
+        'valabilitate_2_sfarsit'  => 'date',
+    ];
+
     public function path()
     {
         return "/masini-valabilitati/{$this->id}";

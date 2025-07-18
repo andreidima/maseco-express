@@ -72,22 +72,36 @@
         @endif
     </div>
 
-    {{-- Field: Valabilitate 1 --}}
-    <div class="col-lg-4 mb-4">
-        <label for="valabilitate_1" class="mb-0 ps-3">Valabilitate 1</label>
-        <input
-            type="text"
-            name="valabilitate_1"
-            id="valabilitate_1"
-            class="form-control bg-white rounded-3 {{ $errors->has('valabilitate_1') ? 'is-invalid' : '' }}"
-            value="{{ old('valabilitate_1', $masinaValabilitati->valabilitate_1 ?? '') }}"
-        >
-        @if($errors->has('valabilitate_1'))
-            <div class="invalid-feedback">
-                {{ $errors->first('valabilitate_1') }}
-            </div>
-        @endif
-    </div>
+    {{-- Valabilitate 1 --}}
+        {{-- Data Început --}}
+        <div class="col-lg-2">
+            <label for="valabilitate_1_inceput" class="form-label ps-3">Valabilitate 1 început</label>
+            <input
+                type="date"
+                name="valabilitate_1_inceput"
+                id="valabilitate_1_inceput"
+                class="form-control {{ $errors->has('valabilitate_1_inceput') ? 'is-invalid' : '' }}"
+                value="{{ old('valabilitate_1_inceput', optional($masinaValabilitati->valabilitate_1_inceput)->format('Y-m-d')) }}"
+            >
+            @error('valabilitate_1_inceput')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        {{-- Data Sfârșit --}}
+        <div class="col-lg-2">
+            <label for="valabilitate_1_sfarsit" class="form-label ps-3">Valabilitate 1 sfârșit</label>
+            <input
+                type="date"
+                name="valabilitate_1_sfarsit"
+                id="valabilitate_1_sfarsit"
+                class="form-control {{ $errors->has('valabilitate_1_sfarsit') ? 'is-invalid' : '' }}"
+                value="{{ old('valabilitate_1_sfarsit', optional($masinaValabilitati->valabilitate_1_sfarsit)->format('Y-m-d')) }}"
+            >
+            @error('valabilitate_1_sfarsit')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
 
     {{-- Field: Observații 1 --}}
     <div class="col-lg-8 mb-4">
@@ -106,22 +120,36 @@
         @endif
     </div>
 
-    {{-- Field: Valabilitate 2 --}}
-    <div class="col-lg-4 mb-4">
-        <label for="valabilitate_2" class="mb-0 ps-3">Valabilitate 2</label>
-        <input
-            type="text"
-            name="valabilitate_2"
-            id="valabilitate_2"
-            class="form-control bg-white rounded-3 {{ $errors->has('valabilitate_2') ? 'is-invalid' : '' }}"
-            value="{{ old('valabilitate_2', $masinaValabilitati->valabilitate_2 ?? '') }}"
-        >
-        @if($errors->has('valabilitate_2'))
-            <div class="invalid-feedback">
-                {{ $errors->first('valabilitate_2') }}
-            </div>
-        @endif
-    </div>
+    {{-- Valabilitate 2 --}}
+        {{-- Data Început --}}
+        <div class="col-lg-2">
+            <label for="valabilitate_2_inceput" class="form-label ps-3">Valabilitate 2 început</label>
+            <input
+                type="date"
+                name="valabilitate_2_inceput"
+                id="valabilitate_2_inceput"
+                class="form-control {{ $errors->has('valabilitate_2_inceput') ? 'is-invalid' : '' }}"
+                value="{{ old('valabilitate_2_inceput', optional($masinaValabilitati->valabilitate_2_inceput)->format('Y-m-d')) }}"
+            >
+            @error('valabilitate_2_inceput')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+
+        {{-- Data Sfârșit --}}
+        <div class="col-lg-2">
+            <label for="valabilitate_2_sfarsit" class="form-label ps-3">Valabilitate 2 sfârșit</label>
+            <input
+                type="date"
+                name="valabilitate_2_sfarsit"
+                id="valabilitate_2_sfarsit"
+                class="form-control {{ $errors->has('valabilitate_2_sfarsit') ? 'is-invalid' : '' }}"
+                value="{{ old('valabilitate_2_sfarsit', optional($masinaValabilitati->valabilitate_2_sfarsit)->format('Y-m-d')) }}"
+            >
+            @error('valabilitate_2_sfarsit')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
 
     {{-- Field: Observații 2 --}}
     <div class="col-lg-8 mb-4">

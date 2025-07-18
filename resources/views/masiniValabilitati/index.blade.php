@@ -44,7 +44,7 @@
                             <tr>
                                 <td>
                                     {{-- {{ ($masiniValabilitati->currentPage() - 1) * $masiniValabilitati->perPage() + $loop->index + 1 }} --}}
-                                    {{ $loop->index }}
+                                    {{ $loop->iteration }}
                                 </td>
                                 <td class="text-center">
                                     {{ $masinaValabilitati->nr_auto }}
@@ -56,13 +56,17 @@
                                     {{ $masinaValabilitati->divizie }}
                                 </td>
                                 <td class="text-center">
-                                    {{ $masinaValabilitati->valabilitate_1 }}
+                                    {{ $masinaValabilitati->valabilitate_1_inceput?->format('d.m') }}
+                                    –
+                                    {{ $masinaValabilitati->valabilitate_1_sfarsit?->format('d.m') }}
                                 </td>
                                 <td class="text-center">
                                     {{ $masinaValabilitati->observatii_1 }}
                                 </td>
                                 <td class="text-center">
-                                    {{ $masinaValabilitati->valabilitate_2 }}
+                                    {{ $masinaValabilitati->valabilitate_2_inceput?->format('d.m') }}
+                                    –
+                                    {{ $masinaValabilitati->valabilitate_2_sfarsit?->format('d.m') }}
                                 </td>
                                 <td class="text-center">
                                     {{ $masinaValabilitati->observatii_2 }}

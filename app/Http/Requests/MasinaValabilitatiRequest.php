@@ -30,9 +30,11 @@ class MasinaValabilitatiRequest extends FormRequest
             'nr_auto'      => 'nullable|string|max:255',
             'nume_sofer'  => 'nullable|string|max:255',
             'divizie'         => 'nullable|string|max:255',
-            'valabilitate_1'    => 'nullable|string|max:255',
+            'valabilitate_1_inceput' => 'nullable|date',
+            'valabilitate_1_sfarsit'  => 'nullable|date|after_or_equal:valabilitate_1_inceput',
             'observatii_1'       => 'nullable|string|max:255',
-            'valabilitate_2'      => 'nullable|string|max:255',
+            'valabilitate_2_inceput' => 'nullable|date',
+            'valabilitate_2_sfarsit'  => 'nullable|date|after_or_equal:valabilitate_2_inceput',
             'observatii_2'       => 'nullable|string|max:255',
         ];
     }

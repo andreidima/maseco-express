@@ -21,6 +21,7 @@ class MasinaValabilitatiController extends Controller
 
         $masiniValabilitatiGroupedByDivizie = MasinaValabilitati::
             orderBy('divizie', 'asc')
+            ->orderBy('valabilitate_1_sfarsit')
             ->orderBy('nr_auto', 'asc')
             ->latest()
             ->get()
