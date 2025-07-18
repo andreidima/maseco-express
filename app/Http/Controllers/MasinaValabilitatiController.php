@@ -20,11 +20,13 @@ class MasinaValabilitatiController extends Controller
         $request->session()->forget('masinaValabilitatiReturnUrl');
 
         // Fetch all records, sorted by the 'nr_auto' column ascending
-        $masiniValabilitati = MasinaValabilitati::orderBy('nr_auto', 'asc')
-                                    ->latest()
-                                    ->simplePaginate(100);
-
-        return view('masiniValabilitati.index', compact('masiniValabilitati'));
+        $masiniValabilitatiGroupedByDivizie = MasinaValabilitati::
+            orderBy('nr_auto', 'asc')
+            ->latest()
+            ->get()
+            ->groupBy('divizie');
+// dd($masiniValabilitati);
+        return view('masiniValabilitati.index', compact('masiniValabilitatiGroupedByDivizie'));
     }
 
     /**

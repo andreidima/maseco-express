@@ -39,53 +39,61 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @forelse ($masiniValabilitati as $masinaValabilitati)
-                        <tr>
-                            <td>
-                                {{ ($masiniValabilitati->currentPage() - 1) * $masiniValabilitati->perPage() + $loop->index + 1 }}
-                            </td>
-                            <td class="text-center"
-                                style="background-color: {{ $masinaValabilitati->color ?? '' }};">
-                                {{ $masinaValabilitati->nr_auto }}
-                            </td>
-                            <td class="text-center">
-                                {{ $masinaValabilitati->nume_sofer }}
-                            </td>
-                            <td class="text-center">
-                                {{ $masinaValabilitati->divizie }}
-                            </td>
-                            <td class="text-center">
-                                {{ $masinaValabilitati->valabilitate_1 }}
-                            </td>
-                            <td class="text-center">
-                                {{ $masinaValabilitati->observatii_1 }}
-                            </td>
-                            <td class="text-center">
-                                {{ $masinaValabilitati->valabilitate_2 }}
-                            </td>
-                            <td class="text-center">
-                                {{ $masinaValabilitati->observatii_2 }}
-                            </td>
-                            <td>
-                                <div class="d-flex justify-content-end">
-                                    {{-- Edit button --}}
-                                    <a href="{{ route('masini-valabilitati.edit', $masinaValabilitati) }}"
-                                       class="flex me-1">
-                                        <span class="badge bg-primary">Modifică</span>
-                                    </a>
-
-                                    {{-- Delete button triggers a modal --}}
-                                    <div>
-                                        <a href="#"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#stergeMasinaValabilitati{{ $masinaValabilitati->id }}"
-                                           title="Șterge Mașină">
-                                            <span class="badge bg-danger">Șterge</span>
+                    @forelse ($masiniValabilitatiGroupedByDivizie as $masiniValabilitati)
+                        @forelse ($masiniValabilitati as $masinaValabilitati)
+                            <tr>
+                                <td>
+                                    {{-- {{ ($masiniValabilitati->currentPage() - 1) * $masiniValabilitati->perPage() + $loop->index + 1 }} --}}
+                                    {{ $loop->index }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $masinaValabilitati->nr_auto }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $masinaValabilitati->nume_sofer }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $masinaValabilitati->divizie }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $masinaValabilitati->valabilitate_1 }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $masinaValabilitati->observatii_1 }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $masinaValabilitati->valabilitate_2 }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $masinaValabilitati->observatii_2 }}
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-end">
+                                        {{-- Edit button --}}
+                                        <a href="{{ route('masini-valabilitati.edit', $masinaValabilitati) }}"
+                                        class="flex me-1">
+                                            <span class="badge bg-primary">Modifică</span>
                                         </a>
+
+                                        {{-- Delete button triggers a modal --}}
+                                        <div>
+                                            <a href="#"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#stergeMasinaValabilitati{{ $masinaValabilitati->id }}"
+                                            title="Șterge Mașină">
+                                                <span class="badge bg-danger">Șterge</span>
+                                            </a>
+                                        </div>
                                     </div>
-                                </div>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        @empty
+                        @endforelse
+                            <tr>
+                                <td colspan="9">
+                                    &nbsp;
+                                </td>
+                            </tr>
                     @empty
                         <tr>
                             <td colspan="8" class="text-center text-muted">
@@ -98,11 +106,11 @@
         </div>
 
         {{-- Pagination --}}
-        <nav>
+        {{-- <nav>
             <ul class="pagination justify-content-center">
                 {{ $masiniValabilitati->appends(request()->except('page'))->links() }}
             </ul>
-        </nav>
+        </nav> --}}
     </div>
 </div>
 
