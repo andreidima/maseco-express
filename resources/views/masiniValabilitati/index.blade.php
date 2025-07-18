@@ -90,8 +90,8 @@
                         @empty
                         @endforelse
                             <tr>
-                                <td colspan="9">
-                                    &nbsp;
+                                <td colspan="9" class="culoare2">
+
                                 </td>
                             </tr>
                     @empty
