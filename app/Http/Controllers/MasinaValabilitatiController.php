@@ -19,9 +19,9 @@ class MasinaValabilitatiController extends Controller
         // Clear any previous “return to” URL
         $request->session()->forget('masinaValabilitatiReturnUrl');
 
-        // Fetch all records, sorted by the 'nr_auto' column ascending
         $masiniValabilitatiGroupedByDivizie = MasinaValabilitati::
             orderBy('nr_auto', 'asc')
+            ->orderBy('divizie', 'asc')
             ->latest()
             ->get()
             ->groupBy('divizie');
