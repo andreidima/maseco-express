@@ -20,8 +20,8 @@ class MasinaValabilitatiController extends Controller
         $request->session()->forget('masinaValabilitatiReturnUrl');
 
         $masiniValabilitatiGroupedByDivizie = MasinaValabilitati::
-            orderBy('nr_auto', 'asc')
-            ->orderBy('divizie', 'asc')
+            orderBy('divizie', 'asc')
+            ->orderBy('nr_auto', 'asc')
             ->latest()
             ->get()
             ->groupBy('divizie');
