@@ -119,6 +119,7 @@
 </div>
 
 {{-- Modal pentru ștergerea fiecărei mașini --}}
+@foreach ($masiniValabilitatiGroupedByDivizie as $masiniValabilitati)
 @foreach ($masiniValabilitati as $masinaValabilitati)
     <div class="modal fade text-dark"
          id="stergeMasinaValabilitati{{ $masinaValabilitati->id }}"
@@ -159,4 +160,6 @@
         </div>
     </div>
 @endforeach
+@endforeach
+
 @endsection
