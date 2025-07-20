@@ -139,9 +139,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);
     Route::get('/rapoarte/documente-transportatori', [RaportController::class, 'documenteTransportatori']);
 
-    Route::group(['middleware' => 'role:1'], function () {
+    // Route::group(['middleware' => 'role:1'], function () {
         Route::resource('/utilizatori', UserController::class)->parameters(['utilizatori' => 'user']);
-    });
+    // });
 
     // For transporters to upload their documents
     Route::get('/comanda-documente-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'afisareDocumenteIncarcateDejaSiFormular']);
