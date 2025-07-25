@@ -5,19 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class ScrapedEmail extends Model
+class OfertaCursa extends Model
 {
     use HasFactory;
 
-    protected $table = 'scraped_emails';
+    protected $table = 'oferte_curse';
     protected $guarded = [];
 
     public function path($action = 'show')
     {
         return match ($action) {
-            'edit' => route('scraped_emails.edit', $this->id),
-            'destroy' => route('scraped_emails.destroy', $this->id),
-            default => route('scraped_emails.show', $this->id),
+            'edit' => route('oferte-curse.edit', $this->id),
+            'destroy' => route('oferte-curse.destroy', $this->id),
+            default => route('oferte-curse.show', $this->id),
         };
     }
 }

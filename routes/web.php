@@ -28,7 +28,7 @@ use App\Http\Controllers\FlotaStatusCController;
 use App\Http\Controllers\MasinaValabilitatiController;
 use App\Http\Controllers\DocumentWordController;
 use App\Http\Controllers\KeyPerformanceIndicatorController;
-use App\Http\Controllers\ScrapedEmailController;
+use App\Http\Controllers\OfertaCursaController;
 
 
 /*
@@ -63,6 +63,9 @@ Route::delete('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}
 Route::post('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/trimitere-email-transportator-catre-maseco-documente-incarcate/{categorieEmail}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailTransportatorCatreMasecoDocumenteIncarcate']);
 Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/mesaj-succes-trimitere-notificare', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailTransportatorCatreMasecoDocumenteIncarcateMesajSucces']);
 
+// Those routes are unprotected for Ionut to be able to check on them when he loads the courses through AI
+Route::get('oferte-curse', [OfertaCursaController::class, 'index'])->name('oferte-curse.index');
+Route::get('oferte-curse/{oferta}', [OfertaCursaController::class, 'show'])->name('oferte-curse.show');
 
 Route::redirect('/', '/acasa');
 
@@ -173,7 +176,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('key-performance-indicators', KeyPerformanceIndicatorController::class)->parameters(['key-performance-indicators' => 'keyPerformanceIndicators']);
 
 
-    Route::resource('scraped-emails', ScrapedEmailController::class);
+    Route::get('oferte-curse/citire-automata-emailuri', [OfertaCursaController::class, 'citireAutomataEmailuri']);
+    Route::resource('oferte-curse', OfertaCursaController::class)
+         ->parameters(['oferte-curse' => 'oferta'])
+         ->except(['index', 'show']); // Those routes are unprotected for Ionut to be able to check on them when he loads the courses through AI
 
 
     // Clear application cache:
