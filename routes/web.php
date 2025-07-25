@@ -64,8 +64,9 @@ Route::post('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/t
 Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/mesaj-succes-trimitere-notificare', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailTransportatorCatreMasecoDocumenteIncarcateMesajSucces']);
 
 // Those routes are unprotected for Ionut to be able to check on them when he loads the courses through AI
+Route::get('oferte-curse/{oferta}', [OfertaCursaController::class, 'show'])->name('oferte-curse.show')
+     ->whereNumber('oferta'); // Restrict the {oferta} route parameter to numeric IDs, preventing wildcard clashes with other routes, like 'create'
 Route::get('oferte-curse', [OfertaCursaController::class, 'index'])->name('oferte-curse.index');
-Route::get('oferte-curse/{oferta}', [OfertaCursaController::class, 'show'])->name('oferte-curse.show');
 
 Route::redirect('/', '/acasa');
 
