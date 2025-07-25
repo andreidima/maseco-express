@@ -101,7 +101,7 @@
                                 @endif
                             </td>
                             <td>
-                                <div class="d-flex align-items-end">
+                                <div class="d-flex align-items-end justify-content-end">
                                     <a href="{{ $oferta->path() }}" title="Vizualizează">
                                         <span class="badge px-1 bg-success me-1"><i class="fa-solid fa-eye text-white"></i></span>
                                     </a>
