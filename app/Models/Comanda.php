@@ -19,6 +19,7 @@ class Comanda extends Model
         'transportator_format_documente'    => 'integer',
         'stare'    => 'integer',
         'documente_transport_incarcate'    => 'integer',
+        'factura_transportator_incarcata'    => 'integer',
     ];
 
     public function path()

@@ -37,11 +37,25 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
             $request->validate(
                 [
                     'documente_transport_incarcate' => '',
-                    'factura_incarcata' => '',
+                    'factura_transportator_incarcata' => '',
                 ]
             );
+
+            // grab original value straight from the model
+            $previous = intval($comanda->getOriginal('factura_transportator_incarcata'));
+            $incoming = intval($request->input('factura_transportator_incarcata'));
+
+            // mass-assign the new fields
             $comanda->documente_transport_incarcate = $request->documente_transport_incarcate;
-            $comanda->factura_transportator_incarcata = $request->factura_transportator_incarcata;
+            $comanda->factura_transportator_incarcata = $incoming;
+
+            // only when "factura_transportator_incarcata" flips from 0 → 1
+            if ($previous === 0 && $incoming === 1 && ! is_null($comanda->transportator_zile_scadente)) {
+                $comanda->data_scadenta_plata_transportator = Carbon::today()
+                    ->addDays($comanda->transportator_zile_scadente)
+                    ->toDateString();
+            }
+
             $comanda->save();
         }
 

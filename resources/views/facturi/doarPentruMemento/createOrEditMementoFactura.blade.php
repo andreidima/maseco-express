@@ -193,7 +193,7 @@
                                     </div>
                                 </div>
                                 <div class="row">
-                                    <div class="col-lg-2 mb-4">
+                                    {{-- <div class="col-lg-2 mb-4">
                                         <label for="client_limba_id" class="mb-0 ps-3">Limba<span class="text-danger">*</span></label>
                                         <select class="form-select bg-white rounded-3 {{ $errors->has('client_limba_id') ? 'is-invalid' : '' }}"
                                             :name="'facturi[' + index + '][client_limba_id]'"
@@ -204,7 +204,7 @@
                                                 <option value="{{ $limba->id }}">{{ $limba->nume }}</option>
                                             @endforeach
                                         </select>
-                                    </div>
+                                    </div> --}}
                                     <div class="col-lg-2 mb-4">
                                         <label for="seria" class="mb-0 ps-3">Seria facturii</label>
                                         <select class="form-select bg-white rounded-3 {{ $errors->has('seria') ? 'is-invalid' : '' }}"
@@ -237,13 +237,21 @@
                                             :latime="{ width: '125px' }"
                                         ></vue-datepicker-next>
                                     </div>
-                                    <div class="col-lg-2 mb-4">
+                                    {{-- <div class="col-lg-2 mb-4">
                                         <label for="zile_scadente" class="mb-0 ps-3">Zile scadente</label>
                                         <input
                                             type="text"
-                                            class="form-control bg-white rounded-3 {{ $errors->has('client_contract') ? 'is-invalid' : '' }}"
+                                            class="form-control bg-white rounded-3 {{ $errors->has('zile_scadente') ? 'is-invalid' : '' }}"
                                             :name="'facturi[' + index + '][zile_scadente]'"
                                             v-model="facturi[index].zile_scadente">
+                                    </div> --}}
+                                    <div class="col-lg-6 mb-4">
+                                        <label for="observatii" class="mb-0 ps-3">Observații</label>
+                                        <input
+                                            type="text"
+                                            class="form-control bg-white rounded-3 {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
+                                            :name="'facturi[' + index + '][observatii]'"
+                                            v-model="facturi[index].observatii">
                                     </div>
                                 </div>
                                 <div class="row">
@@ -251,7 +259,7 @@
                                         <label for="client_email" class="mb-0 ps-3">Email facturare</label>
                                         <input
                                             type="text"
-                                            class="form-control bg-white rounded-3 {{ $errors->has('client_contract') ? 'is-invalid' : '' }}"
+                                            class="form-control bg-white rounded-3 {{ $errors->has('client_email') ? 'is-invalid' : '' }}"
                                             :name="'facturi[' + index + '][client_email]'"
                                             v-model="facturi[index].client_email">
                                     </div>
@@ -261,7 +269,7 @@
                                         </label>
                                         <input
                                             type="text"
-                                            class="form-control bg-white rounded-3 {{ $errors->has('client_contract') ? 'is-invalid' : '' }}"
+                                            class="form-control bg-white rounded-3 {{ $errors->has('alerte_scadenta') ? 'is-invalid' : '' }}"
                                             :name="'facturi[' + index + '][alerte_scadenta]'"
                                             v-model="facturi[index].alerte_scadenta">
                                         <small class="ps-3">*Se setează cu câte zile înainte de scadență să se trimită mementouri.</small>
@@ -303,6 +311,17 @@
                                             name="factura_transportator"
                                             placeholder=""
                                             value="{{ old('factura_transportator', $comanda->factura_transportator) }}">
+                                    </div>
+                                    <div class="col-lg-2 mb-4 align-items-center text-center">
+                                        <label for="data_scadenta_plata_transportator" class="mb-0 me-1">Dată scadență</label>
+                                        <vue-datepicker-next
+                                            data-veche="{{ old('data_scadenta_plata_transportator', $comanda->data_scadenta_plata_transportator) }}"
+                                            nume-camp-db="data_scadenta_plata_transportator"
+                                            tip="date"
+                                            value-type="YYYY-MM-DD"
+                                            format="DD.MM.YYYY"
+                                            :latime="{ width: '125px' }"
+                                        ></vue-datepicker-next>
                                     </div>
                                     <div class="col-lg-3 mb-4 align-items-center">
                                         <label for="data_plata_transportator" class="mb-0 me-1">Dată plată transportator</label>

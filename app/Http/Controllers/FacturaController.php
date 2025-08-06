@@ -551,11 +551,12 @@ class FacturaController extends Controller
                 'facturi.*.client_nume' => 'required|max:255',
                 'facturi.*.client_email' => 'nullable|email:rfc,dns',
                 'facturi.*.client_contract' => 'required|max:255',
-                'facturi.*.client_limba_id' => 'required',
+                // 'facturi.*.client_limba_id' => 'required',
                 'facturi.*.seria' => 'nullable|max:5',
                 'facturi.*.numar' => 'required|max:255',
                 'facturi.*.data' => 'required',
-                'facturi.*.zile_scadente' => 'nullable|numeric|between:1,100',
+                // 'facturi.*.zile_scadente' => 'nullable|numeric|between:1,100',
+                'facturi.*.observatii' => 'nullable',
                 'facturi.*.alerte_scadenta' => ['nullable',
                     function ($attribute, $value, $fail) use ($request) {
                         if ($value){
@@ -572,6 +573,7 @@ class FacturaController extends Controller
                         }
                     }],
                 'factura_transportator' => 'nullable|max:255',
+                'data_scadenta_plata_transportator' => 'nullable',
                 'data_plata_transportator' => 'nullable',
             ],
             [],
@@ -581,11 +583,12 @@ class FacturaController extends Controller
                     "facturi.$index.client_nume" => "Factura " . ($index + 1) . " - Nume Client",
                     "facturi.$index.client_email" => "Factura " . ($index + 1) . " - Email Client",
                     "facturi.$index.client_contract" => "Factura " . ($index + 1) . " - Contract Client",
-                    "facturi.$index.client_limba_id" => "Factura " . ($index + 1) . " - Limba ID Client",
+                    // "facturi.$index.client_limba_id" => "Factura " . ($index + 1) . " - Limba ID Client",
                     "facturi.$index.seria" => "Factura " . ($index + 1) . " - Seria",
                     "facturi.$index.numar" => "Factura " . ($index + 1) . " - Număr",
                     "facturi.$index.data" => "Factura " . ($index + 1) . " - Dată",
-                    "facturi.$index.zile_scadente" => "Factura " . ($index + 1) . " - Zile Scadente",
+                    // "facturi.$index.zile_scadente" => "Factura " . ($index + 1) . " - Zile Scadente",
+                    "facturi.$index.observatii" => "Factura " . ($index + 1) . " - Observații",
                     "facturi.$index.alerte_scadenta" => "Factura " . ($index + 1) . " - Alerte Scadență",
                 ])
                 ->all()
@@ -639,6 +642,7 @@ class FacturaController extends Controller
         // Update the $comanda model with validated data
         $comanda->update([
             'factura_transportator' => $validatedRequest['factura_transportator'] ?? null,
+            'data_scadenta_plata_transportator' => $validatedRequest['data_scadenta_plata_transportator'] ?? null,
             'data_plata_transportator' => $validatedRequest['data_plata_transportator'] ?? null,
         ]);
 
