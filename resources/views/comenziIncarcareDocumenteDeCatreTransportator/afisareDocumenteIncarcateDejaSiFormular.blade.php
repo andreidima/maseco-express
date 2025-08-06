@@ -89,14 +89,14 @@
                                                 <label for="documente_transport_incarcate" class="mb-0 ps-0 small">Documente transport încărcate:</label>
                                                 <select name="documente_transport_incarcate" class="form-select bg-white rounded-3 {{ $errors->has('documente_transport_incarcate') ? 'is-invalid' : '' }}">
                                                     <option value="0" selected>NU</option>
-                                                    <option value="1" {{ intval(old('documente_transport_incarcate', $comanda->documente_transport_incarcate ?? '') === 1) ? 'selected' : null }}>DA</option>
+                                                    <option value="1" {{ (intval(old('documente_transport_incarcate', $comanda->documente_transport_incarcate ?? '')) === 1) ? 'selected' : null }}>DA</option>
                                                 </select>
                                             </div>
                                             <div class="col-lg-6 mb-2">
                                                 <label for="factura_transportator_incarcata" class="mb-0 ps-3 small">Factura încărcată:</label>
                                                 <select name="factura_transportator_incarcata" class="form-select bg-white rounded-3 {{ $errors->has('factura_transportator_incarcata') ? 'is-invalid' : '' }}">
                                                     <option value="0" selected>NU</option>
-                                                    <option value="1" {{ intval(old('factura_transportator_incarcata', $comanda->factura_transportator_incarcata ?? '') === 1) ? 'selected' : null }}>DA</option>
+                                                    <option value="1" {{ (intval(old('factura_transportator_incarcata', $comanda->factura_transportator_incarcata ?? '')) === 1) ? 'selected' : null }}>DA</option>
                                                 </select>
                                             </div>
                                         </div>
