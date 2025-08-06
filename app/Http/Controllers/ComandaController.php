@@ -321,7 +321,7 @@ class ComandaController extends Controller
                 // Create a factura for it aswell
                 $factura = new Factura();
                 $factura->comanda_client_id = $comandaClient->id;
-                $factura->data = Carbon::now();
+                // $factura->data = Carbon::now(); // removed 06.08.2025
                 $factura->client_nume = $client['nume'] ?? '';
                 $factura->client_email = $client['email_factura'] ?? '';
                 $factura->client_contract = $comandaClient['contract'] ?? '';

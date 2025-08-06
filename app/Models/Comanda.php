@@ -15,6 +15,10 @@ class Comanda extends Model
     protected $table = 'comenzi';
     protected $guarded = [];
 
+    protected $casts = [
+        'transportator_format_documente'    => 'integer',
+    ];
+
     public function path()
     {
         return "/comenzi/{$this->id}";
