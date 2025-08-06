@@ -12,6 +12,10 @@ class MesajTrimisSms extends Model
     protected $table = 'mesaje_trimise_sms';
     protected $guarded = [];
 
+    protected $casts = [
+        'trimis' => 'integer',
+    ];
+
     public function path()
     {
         return "/mesaje-trimise-sms/{$this->id}";

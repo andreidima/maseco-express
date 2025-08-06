@@ -12,6 +12,10 @@ class ComandaFisier extends Model
     protected $table = 'comenzi_fisiere';
     protected $guarded = [];
 
+    protected $casts = [
+        'validat'    => 'integer',
+    ];
+
     public function path()
     {
         return "/comenzi-fisiere/{$this->id}";

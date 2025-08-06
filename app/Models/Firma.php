@@ -16,6 +16,7 @@ class Firma extends Model
 
     protected $casts = [
         'tip_partener' => 'integer',
+        'format_documente' => 'integer',
     ];
 
     public function path($tipPartener = null)

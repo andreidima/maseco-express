@@ -15,6 +15,7 @@ class DocumentWord extends Model
 
     protected $casts = [
         'locked_at' => 'datetime',
+        'nicel_acces' => 'integer',
     ];
 
     public function path()

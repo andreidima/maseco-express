@@ -17,6 +17,8 @@ class Comanda extends Model
 
     protected $casts = [
         'transportator_format_documente'    => 'integer',
+        'stare'    => 'integer',
+        'documente_transport_incarcate'    => 'integer',
     ];
 
     public function path()
