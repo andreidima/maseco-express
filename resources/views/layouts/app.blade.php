@@ -191,6 +191,12 @@
                                         <i class="fa-solid fa-chart-simple me-1"></i>KPI
                                     </a>
                                 </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="/facturi-scadente">
+                                        <i class="fa-solid fa-file-invoice"></i> Facturi scadente
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item me-3 dropdown">

@@ -313,6 +313,17 @@
                                             value="{{ old('factura_transportator', $comanda->factura_transportator) }}">
                                     </div>
                                     <div class="col-lg-2 mb-4 align-items-center text-center">
+                                        <label for="data_factura_transportator" class="mb-0 me-1">Dată factură</label>
+                                        <vue-datepicker-next
+                                            data-veche="{{ old('data_factura_transportator', $comanda->data_factura_transportator) }}"
+                                            nume-camp-db="data_factura_transportator"
+                                            tip="date"
+                                            value-type="YYYY-MM-DD"
+                                            format="DD.MM.YYYY"
+                                            :latime="{ width: '125px' }"
+                                        ></vue-datepicker-next>
+                                    </div>
+                                    <div class="col-lg-2 mb-4 align-items-center text-center">
                                         <label for="data_scadenta_plata_transportator" class="mb-0 me-1">Dată scadență</label>
                                         <vue-datepicker-next
                                             data-veche="{{ old('data_scadenta_plata_transportator', $comanda->data_scadenta_plata_transportator) }}"

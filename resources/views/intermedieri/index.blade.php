@@ -274,7 +274,7 @@
                                 </td>
                                     <td class="fs-6">
                                     <div class="d-flex justify-content-end">
-                                        <div class="mb-1">
+                                        <div class="mb-1 text-end">
                                             <a href="/facturi-memento/deschide/comanda/{{ $comanda->id }}" class="flex me-1">
                                                 <span class="badge bg-warning text-dark">Fact.</span></a>
                                             @if (!$comanda->intermediere)

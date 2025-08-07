@@ -15,6 +15,7 @@ use App\Http\Controllers\FisierController;
 use App\Http\Controllers\MementoController;
 use App\Http\Controllers\FileManagerPersonalizatController;
 use App\Http\Controllers\FacturaController;
+use App\Http\Controllers\FacturaScadentaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RaportController;
 use App\Http\Controllers\DiverseTesteController;
@@ -126,6 +127,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('/fisiere/{categorieFisier}', FisierController::class)->parameters(['{categorieFisier}' => 'fisier']);
     Route::get('/fisiere/{categorieFisier}/{fisier}/descarca', [FisierController::class, 'descarca']);
 
+
     Route::get('/facturi/axios/cauta-client', [FacturaController::class, 'axiosCautaClient']);
     Route::post('/facturi/axios/cauta-comanda', [FacturaController::class, 'axiosCautaComanda']);
     Route::resource('/facturi', FacturaController::class)->parameters(['facturi' => 'factura']);
@@ -139,6 +141,9 @@ Route::group(['middleware' => 'auth'], function () {
     // Added on 14.01.2025 - to set more clients to a command, so more invoices, not just one
     Route::get('/facturi-memento/deschide/comanda/{comanda}', [FacturaController::class, 'createOrUpdateMementoFactura']);
     Route::post('/facturi-memento/salveaza/comanda/{comanda}', [FacturaController::class, 'storeOrUpdateMementoFactura']);
+
+    Route::get('/facturi-scadente', [FacturaScadentaController::class, 'index']);
+
 
     Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);
     Route::get('/rapoarte/documente-transportatori', [RaportController::class, 'documenteTransportatori']);
