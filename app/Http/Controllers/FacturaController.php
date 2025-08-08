@@ -643,6 +643,7 @@ class FacturaController extends Controller
         // Update the $comanda model with validated data
         $comanda->update([
             'factura_transportator' => $validatedRequest['factura_transportator'] ?? null,
+            'data_factura_transportator' => $validatedRequest['data_factura_transportator'] ?? null,
             'data_scadenta_plata_transportator' => $validatedRequest['data_scadenta_plata_transportator'] ?? null,
             'data_plata_transportator' => $validatedRequest['data_plata_transportator'] ?? null,
         ]);
