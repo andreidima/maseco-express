@@ -573,6 +573,7 @@ class FacturaController extends Controller
                         }
                     }],
                 'factura_transportator' => 'nullable|max:255',
+                'data_factura_transportator' => 'nullable',
                 'data_scadenta_plata_transportator' => 'nullable',
                 'data_plata_transportator' => 'nullable',
             ],
