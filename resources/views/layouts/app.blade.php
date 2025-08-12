@@ -114,12 +114,12 @@
                                         <i class="fa-solid fa-truck me-1"></i>Mașini valabilități
                                     </a>
                                 </li>
-                                {{-- <li><hr class="dropdown-divider"></li>
+                                <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="/oferte-curse">
                                         <i class="fa-solid fa-truck me-1"></i>Oferte curse
                                     </a>
-                                </li> --}}
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="/firme/clienti">
