@@ -66,6 +66,7 @@
                         <th rowspan="2" class="">Data<br>ofertă</th>
                         <th colspan="3" class="text-center">Încărcare</th>
                         <th colspan="3" class="text-center">Descărcare</th>
+                        <th rowspan="2">Greutate</th>
                         <th rowspan="2">Detaliile cursei</th>
                         <th rowspan="2" class="text-center">Gmail</th>
                         <th rowspan="2" class="text-end">Acțiuni</th>
@@ -90,6 +91,7 @@
                             <td class="text-nowrap">{{ $oferta->descarcare_cod_postal }}</td>
                             <td>{{ $oferta->descarcare_localitate }}</td>
                             <td>{{ $oferta->descarcare_data_ora }}</td>
+                            <td>{{ $oferta->greutate }}</td>
                             <td>{{ Str::limit($oferta->detalii_cursa, 150) }}</td>
                             <td class="text-center">
                                 @if($oferta->gmail_link)

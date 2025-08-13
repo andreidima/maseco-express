@@ -31,13 +31,20 @@
                class="form-control bg-white rounded-3"
                value="{{ old('descarcare_localitate', $oferta->descarcare_localitate ?? '') }}">
     </div>
-
     <div class="col-lg-6 mb-4">
         <label for="descarcare_data_ora" class="mb-0 ps-3">Data & ora descărcare</label>
         <input type="text" name="descarcare_data_ora" id="descarcare_data_ora"
                class="form-control bg-white rounded-3"
                value="{{ old('descarcare_data_ora', $oferta->descarcare_data_ora ?? '') }}">
     </div>
+
+    <div class="col-lg-3 mb-4">
+        <label for="greutate" class="mb-0 ps-3">Greutate</label>
+        <input type="text" name="greutate" id="greutate"
+               class="form-control bg-white rounded-3"
+               value="{{ old('greutate', $oferta->greutate ?? '') }}">
+    </div>
+
     <div class="col-lg-12 mb-4">
         <label for="detalii_cursa" class="mb-0 ps-3">Detalii cursă</label>
         <textarea name="detalii_cursa" id="detalii_cursa" rows="7" class="form-control bg-white rounded-3">{{ old('detalii_cursa', $oferta->detalii_cursa ?? '') }}</textarea>

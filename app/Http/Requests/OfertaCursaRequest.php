@@ -38,6 +38,7 @@ class OfertaCursaRequest extends FormRequest
             'descarcare_localitate'   => 'nullable|string|max:255',
             'descarcare_data_ora'     => 'nullable|string|max:255',
 
+            'greutate'           => 'nullable|numeric|between:0,999999.99',
             'detalii_cursa'           => 'nullable|string',
         ];
     }

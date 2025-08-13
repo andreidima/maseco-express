@@ -40,6 +40,10 @@
               <strong>Data & ora descărcare:</strong>
               {{ $oferta->descarcare_data_ora ?? '-' }}
             </div>
+            <div class="col-md-4 mb-3">
+              <strong>Greutate:</strong>
+              {{ $oferta->greutate ?? '-' }}
+            </div>
 
             <div class="col-12 mb-4">
               <strong>Detalii cursă:</strong><br>
