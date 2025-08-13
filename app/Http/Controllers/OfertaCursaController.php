@@ -25,20 +25,37 @@ class OfertaCursaController extends Controller
         $searchDescarcareLocalitate  = trim($request->searchDescarcareLocalitate);
         $searchDescarcareDataOra     = trim($request->searchDescarcareDataOra);
 
+        // Helper: if input is digits only, compare against the FIRST run of digits using REGEXP_SUBSTR
+        $applyPostalFilter = function ($q, $column, $value) {
+            if ($value === '') return;
+            if (preg_match('/^\d+$/', $value)) {
+                // First run of digits starts with $value
+                $q->whereRaw("REGEXP_SUBSTR($column, '[0-9]+') LIKE ?", [$value.'%']);
+            } else {
+                // Fallback: regular contains search
+                $q->where($column, 'LIKE', "%{$value}%");
+            }
+        };
+
         // Build query with conditional clauses
         $oferte = OfertaCursa::query()
-            ->when($searchIncarcareCodPostal, fn($q, $v) =>
-                $q->where('incarcare_cod_postal', 'LIKE', "%{$v}%")
-            )
+
+            // Postal-code logic (first-number prefix if digits-only)
+            ->when($searchIncarcareCodPostal, fn($q, $v) => $applyPostalFilter($q, 'incarcare_cod_postal', $v))
+            ->when($searchDescarcareCodPostal, fn($q, $v) => $applyPostalFilter($q, 'descarcare_cod_postal', $v))
+
+            // ->when($searchIncarcareCodPostal, fn($q, $v) =>
+            //     $q->where('incarcare_cod_postal', 'LIKE', "%{$v}%")
+            // )
             ->when($searchIncarcareLocalitate, fn($q, $v) =>
                 $q->where('incarcare_localitate', 'LIKE', "%{$v}%")
             )
             ->when($searchIncarcareDataOra, fn($q, $v) =>
                 $q->where('incarcare_data_ora', 'LIKE', "%{$v}%")
             )
-            ->when($searchDescarcareCodPostal, fn($q, $v) =>
-                $q->where('descarcare_cod_postal', 'LIKE', "%{$v}%")
-            )
+            // ->when($searchDescarcareCodPostal, fn($q, $v) =>
+            //     $q->where('descarcare_cod_postal', 'LIKE', "%{$v}%")
+            // )
             ->when($searchDescarcareLocalitate, fn($q, $v) =>
                 $q->where('descarcare_localitate', 'LIKE', "%{$v}%")
             )
