@@ -44,6 +44,7 @@ class DocumentWordPolicy
 
         // Check if the record is locked by someone else
         if ($documentWord->locked_by !== null && $documentWord->locked_by !== $user->id) {
+            dd($documentWord->locked_by, $user->id);
             return Response::deny('Acest document este în lucru în acest moment de către alt operator.');
         }
 
