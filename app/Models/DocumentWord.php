@@ -15,6 +15,7 @@ class DocumentWord extends Model
 
     protected $casts = [
         'locked_at' => 'datetime',
+        'locked_by' => 'integer',
         'nicel_acces' => 'integer',
     ];
 
