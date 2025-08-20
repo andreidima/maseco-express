@@ -63,7 +63,40 @@ Route::get('/debug-login', function () {
 
     return response()->json($result, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
+Route::get('/debug-login-sql', function () {
+    $email = 'andrei.dima@usm.ro';
 
+    // 1) What SQL is Eloquent actually running (WITH global scopes)?
+    $q = User::where('email', $email);
+    $sql1 = $q->toSql();
+    $bindings1 = $q->getBindings();
+    $user1 = $q->first();
+    $user1HasPassword = $user1 && array_key_exists('password', $user1->getAttributes());
+
+    // 2) Bypass ALL global scopes and force-select everything
+    $q2 = User::withoutGlobalScopes()->select('users.*')->where('email', $email);
+    $sql2 = $q2->toSql();
+    $bindings2 = $q2->getBindings();
+    $user2 = $q2->first();
+    $pass2 = $user2 ? $user2->password : null;
+
+    // 3) Raw DB read (baseline)
+    $raw = DB::table('users')->where('email', $email)->first();
+    $rawPass = $raw ? $raw->password : null;
+
+    return response()->json([
+        'eloquent_sql'        => $sql1,
+        'eloquent_bindings'   => $bindings1,
+        'eloquent_password_attr_present' => $user1HasPassword,
+        'eloquent_password_value'        => $user1 ? (string)($user1->password ?? '') : null,
+
+        'without_scopes_sql'  => $sql2,
+        'without_scopes_bindings' => $bindings2,
+        'without_scopes_password'   => $pass2 ? substr($pass2, 0, 10) : null,
+
+        'raw_password'        => $rawPass ? substr($rawPass, 0, 10) : null,
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+});
 
 
 
