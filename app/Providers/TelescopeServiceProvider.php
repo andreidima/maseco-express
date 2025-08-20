@@ -61,6 +61,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
         //         //
         //     ]);
         // });
+//
         Gate::define('viewTelescope', function ($user = null) {
             return true; // allow everyone temporarily
         });
