@@ -90,31 +90,4 @@ class LoginController extends Controller
         $user->cod_email = null;
         $user->save();
     }
-
-    // Just for debug
-    protected function attemptLogin(Request $request)
-    {
-        $credentials = $this->credentials($request);
-
-        // dump what’s going into Auth::attempt()
-        \Log::info('Login attempt', $credentials);
-
-        // Try to fetch the user manually
-        $user = \App\Models\User::where('email', $request->email)->first();
-        \Log::info('User exists?', [ 'found' => (bool) $user ]);
-        if ($user) {
-            \Log::info('Hash check', [
-                'ok' => \Illuminate\Support\Facades\Hash::check($request->password, $user->password),
-                'hash' => substr($user->password, 0, 10),
-            ]);
-        }
-
-        // Optionally dd() to stop execution:
-        // dd($credentials, $user, $user ? Hash::check($request->password, $user->password) : null);
-
-        return $this->guard()->attempt(
-            $credentials,
-            $request->filled('remember')
-        );
-    }
 }
