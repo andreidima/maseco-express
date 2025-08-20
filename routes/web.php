@@ -32,6 +32,42 @@ use App\Http\Controllers\KeyPerformanceIndicatorController;
 use App\Http\Controllers\OfertaCursaController;
 
 
+
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+Route::get('/debug-login', function () {
+    $email = 'andrei.dima@usm.ro';
+
+    // Check which DB and user is active
+    $dbName = DB::select('select database() as db')[0]->db;
+
+    // Raw query
+    $rawPassword = DB::table('users')->where('email',$email)->value('password');
+    $rawLen      = DB::table('users')->where('email',$email)->selectRaw('length(password) as len')->value('len');
+
+    // Eloquent model
+    $user = User::where('email',$email)->first();
+    $eloquentPassword = $user ? $user->password : null;
+
+    // Hash check (only if user found)
+    $hashCheck = $user ? Hash::check('500ddduuu777', $user->password) : null;
+
+    return response()->json([
+        'db'              => $dbName,
+        'raw_password'    => $rawPassword,
+        'raw_length'      => $rawLen,
+        'eloquent_pass'   => $eloquentPassword,
+        'eloquent_length' => $eloquentPassword ? strlen($eloquentPassword) : null,
+        'hash_check'      => $hashCheck,
+    ]);
+});
+
+
+
+
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
