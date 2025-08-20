@@ -63,7 +63,7 @@ return [
 
                 // Andrei - added 20.08.2025 - server database was 'latin1' instead of 'utf8mb4_unicode_ci'
                 // This line forces proper negotiation on some hosts
-                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'",
+                PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci",
             ]) : [],
         ],
 
