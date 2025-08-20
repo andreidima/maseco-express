@@ -37,31 +37,31 @@ use App\Http\Controllers\OfertaCursaController;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+
 Route::get('/debug-login', function () {
     $email = 'andrei.dima@usm.ro';
 
-    // Check which DB and user is active
-    $dbName = DB::select('select database() as db')[0]->db;
+    $dbName = DB::select('select database() as db')[0]->db ?? null;
 
-    // Raw query
     $rawPassword = DB::table('users')->where('email',$email)->value('password');
     $rawLen      = DB::table('users')->where('email',$email)->selectRaw('length(password) as len')->value('len');
 
-    // Eloquent model
     $user = User::where('email',$email)->first();
-    $eloquentPassword = $user ? $user->password : null;
+    $eloquentPassword = $user ? (string) $user->password : null;
 
-    // Hash check (only if user found)
     $hashCheck = $user ? Hash::check('500ddduuu777', $user->password) : null;
 
-    return response()->json([
-        'db'              => $dbName,
-        'raw_password'    => $rawPassword,
-        'raw_length'      => $rawLen,
+    // Encode everything as plain strings/numbers to avoid UTF-8 issues
+    $result = [
+        'db'              => (string) $dbName,
+        'raw_password'    => $rawPassword ? (string) $rawPassword : null,
+        'raw_length'      => (int) $rawLen,
         'eloquent_pass'   => $eloquentPassword,
         'eloquent_length' => $eloquentPassword ? strlen($eloquentPassword) : null,
-        'hash_check'      => $hashCheck,
-    ]);
+        'hash_check'      => $hashCheck ? 'true' : 'false',
+    ];
+
+    return response()->json($result, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
 
 
