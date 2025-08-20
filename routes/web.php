@@ -122,6 +122,15 @@ Route::get('/debug-charset', function () {
         ],
     ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
+Route::get('/debug-charset-fix', function () {
+    DB::statement("SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_ci'");
+    $user = DB::table('users')->where('id',1)->first();
+    return response()->json([
+        'name' => $user ? (string)$user->name : null,
+        'email' => $user->email ?? null,
+        'password_prefix' => $user ? substr((string)$user->password, 0, 10) : null,
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+});
 
 
 
