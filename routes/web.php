@@ -64,6 +64,7 @@ Route::get('/debug-login', function () {
     return response()->json($result, 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
 Route::get('/debug-login-sql', function () {
+    dd(User::all());
     $email = 'andrei.dima@usm.ro';
 
     // 1) What SQL is Eloquent actually running (WITH global scopes)?
