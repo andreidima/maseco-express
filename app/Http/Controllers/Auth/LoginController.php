@@ -59,7 +59,7 @@ class LoginController extends Controller
         $request->validate([
             $this->username() => 'required|string',
             'password' => 'required|string',
-            'cod_email' => (($request->email == 'andrei.dima@usm.ro') || ($request->email == 'alextca54@gmail.com') || ($request->email == 'ionutsv_2003@yahoo.com') || ($request->email == 'razvanslusariuc0@gmail.com')) ? 'nullable|string' : 'required|string', // Andrei - adaugat sa fie obligatoriu - but not for the Andrei user
+            // 'cod_email' => (($request->email == 'andrei.dima@usm.ro') || ($request->email == 'alextca54@gmail.com') || ($request->email == 'ionutsv_2003@yahoo.com') || ($request->email == 'razvanslusariuc0@gmail.com')) ? 'nullable|string' : 'required|string', // Andrei - adaugat sa fie obligatoriu - but not for the Andrei user
         ]);
     }
 
@@ -71,9 +71,9 @@ class LoginController extends Controller
      */
     protected function credentials(Request $request)
     {
-        if (($request->email !== 'andrei.dima@usm.ro') && ($request->email !== 'alextca54@gmail.com') && ($request->email !== 'ionutsv_2003@yahoo.com') && ($request->email !== 'razvanslusariuc0@gmail.com')) { // pentru ceilalti useri, este necesar si cod_email de verificat
-            return $request->only($this->username(), 'password', 'cod_email'); // Andrei - adaugat si cod_email
-        }
+        // if (($request->email !== 'andrei.dima@usm.ro') && ($request->email !== 'alextca54@gmail.com') && ($request->email !== 'ionutsv_2003@yahoo.com') && ($request->email !== 'razvanslusariuc0@gmail.com')) { // pentru ceilalti useri, este necesar si cod_email de verificat
+        //     return $request->only($this->username(), 'password', 'cod_email'); // Andrei - adaugat si cod_email
+        // }
         return $request->only($this->username(), 'password'); // Andrei - adaugat si cod_email
     }
 
