@@ -24,6 +24,8 @@ class OfertaCursaController extends Controller
         $searchDescarcareCodPostal   = trim($request->searchDescarcareCodPostal);
         $searchDescarcareLocalitate  = trim($request->searchDescarcareLocalitate);
         $searchDescarcareDataOra     = trim($request->searchDescarcareDataOra);
+        $searchGreutateMin           = trim($request->searchGreutateMin);
+        $searchGreutateMax           = trim($request->searchGreutateMax);
 
         // Helper: if input is digits only, compare against the FIRST run of digits using REGEXP_SUBSTR
         $applyPostalFilter = function ($q, $column, $value) {
@@ -39,7 +41,6 @@ class OfertaCursaController extends Controller
 
         // Build query with conditional clauses
         $oferte = OfertaCursa::query()
-
             // Postal-code logic (first-number prefix if digits-only)
             ->when($searchIncarcareCodPostal, fn($q, $v) => $applyPostalFilter($q, 'incarcare_cod_postal', $v))
             ->when($searchDescarcareCodPostal, fn($q, $v) => $applyPostalFilter($q, 'descarcare_cod_postal', $v))
@@ -62,7 +63,13 @@ class OfertaCursaController extends Controller
             ->when($searchDescarcareDataOra, fn($q, $v) =>
                 $q->where('descarcare_data_ora', 'LIKE', "%{$v}%")
             )
-            ->latest('data_primirii')
+
+            // Weight range
+            ->when($searchGreutateMin, fn($q) => $q->where('greutate', '>=', $searchGreutateMin))
+            ->when($searchGreutateMax, fn($q) => $q->where('greutate', '<=', $searchGreutateMax))
+
+            // ->latest('data_primirii')
+            ->latest()
             ->simplePaginate(25);
 
         // Pass all search terms back to the view
@@ -74,6 +81,8 @@ class OfertaCursaController extends Controller
             'searchDescarcareCodPostal'   => $searchDescarcareCodPostal,
             'searchDescarcareLocalitate'  => $searchDescarcareLocalitate,
             'searchDescarcareDataOra'     => $searchDescarcareDataOra,
+            'searchGreutateMin'     => $searchGreutateMin,
+            'searchGreutateMax'     => $searchGreutateMax,
         ]);
     }
 

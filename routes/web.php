@@ -183,6 +183,7 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('oferte-curse/citire-automata-emailuri', [OfertaCursaController::class, 'citireAutomataEmailuri']);
+    Route::get('/oferte-curse/index-axios', [\App\Http\Controllers\OfertaCursaController::class, 'indexAxios'])->name('oferte-curse.index.axios');
     Route::resource('oferte-curse', OfertaCursaController::class)
          ->parameters(['oferte-curse' => 'oferta'])
          ->except(['index', 'show']); // Those routes are unprotected for Ionut to be able to check on them when he loads the courses through AI

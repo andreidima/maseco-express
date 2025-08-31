@@ -3,34 +3,40 @@
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0 0;">
-        <div class="col-lg-3">
+        <div class="col-lg-2">
             <span class="badge culoare1 fs-5">
                 <i class="fa-solid fa-truck me-1"></i> Oferte Curse
             </span>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-8">
             <form class="needs-validation" novalidate method="GET" action="{{ url()->current() }}">
                 @csrf
                 <div class="row mb-1 custom-search-form justify-content-center">
-                    <div class="col-lg-3">
+                    <div class="col-lg-2">
                         <input type="text" name="searchIncarcareCodPostal"    class="form-control rounded-3 text-nowrap" placeholder="Cod postal încărcare"      value="{{ $searchIncarcareCodPostal }}">
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-2">
                         <input type="text" name="searchIncarcareLocalitate"   class="form-control rounded-3" placeholder="Localitate încărcare"   value="{{ $searchIncarcareLocalitate }}">
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-2">
                         <input type="text" name="searchIncarcareDataOra"      class="form-control rounded-3" placeholder="Data & ora încărcare"   value="{{ $searchIncarcareDataOra }}">
+                    </div>
+                    <div class="col-lg-2">
+                        <input type="text" name="searchDescarcareCodPostal"   class="form-control rounded-3 text-nowrap" placeholder="Cod postal descărcare"    value="{{ $searchDescarcareCodPostal }}">
+                    </div>
+                    <div class="col-lg-2">
+                        <input type="text" name="searchDescarcareLocalitate"  class="form-control rounded-3" placeholder="Localitate descărcare" value="{{ $searchDescarcareLocalitate }}">
+                    </div>
+                    <div class="col-lg-2">
+                        <input type="text" name="searchDescarcareDataOra"     class="form-control rounded-3" placeholder="Data & ora descărcare"  value="{{ $searchDescarcareDataOra }}">
                     </div>
                 </div>
                 <div class="row mb-1 custom-search-form justify-content-center">
-                    <div class="col-lg-3">
-                        <input type="text" name="searchDescarcareCodPostal"   class="form-control rounded-3 text-nowrap" placeholder="Cod postal descărcare"    value="{{ $searchDescarcareCodPostal }}">
+                    <div class="col-lg-2">
+                        <input type="text" name="searchGreutateMin" class="form-control rounded-3 text-nowrap" placeholder="Greutate. min." value="{{ $searchGreutateMin }}">
                     </div>
-                    <div class="col-lg-3">
-                        <input type="text" name="searchDescarcareLocalitate"  class="form-control rounded-3" placeholder="Localitate descărcare" value="{{ $searchDescarcareLocalitate }}">
-                    </div>
-                    <div class="col-lg-3">
-                        <input type="text" name="searchDescarcareDataOra"     class="form-control rounded-3" placeholder="Data & ora descărcare"  value="{{ $searchDescarcareDataOra }}">
+                    <div class="col-lg-2">
+                        <input type="text" name="searchGreutateMax" class="form-control rounded-3 text-nowrap" placeholder="Greutate. max." value="{{ $searchGreutateMax }}">
                     </div>
                 </div>
                 <div class="row custom-search-form justify-content-center">
@@ -47,7 +53,7 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-3 text-end">
+        <div class="col-lg-2 text-end">
             <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ route('oferte-curse.create') }}">
                 <i class="fas fa-plus-square me-1"></i> Adaugă Ofertă
             </a>

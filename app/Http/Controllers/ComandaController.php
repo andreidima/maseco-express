@@ -71,8 +71,13 @@ class ComandaController extends Controller
             ->when($searchTransportatorContract, function ($query, $searchTransportatorContract) {
                 return $query->where('transportator_contract', 'like', '%' . $searchTransportatorContract . '%');
             })
+            // ->when($searchClientContract, function ($query, $searchClientContract) {
+            //     return $query->where('client_contract', $searchClientContract);
+            // })
             ->when($searchClientContract, function ($query, $searchClientContract) {
-                return $query->where('client_contract', $searchClientContract);
+                return $query->whereHas('clientiComanda', function ($query) use ($searchClientContract) {
+                    $query->where('contract', $searchClientContract);
+                });
             })
             ->when($searchStare, function ($query, $searchStare) {
                 return $query->where('stare', $searchStare);
