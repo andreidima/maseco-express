@@ -79,7 +79,6 @@ class Kernel extends HttpKernel
             '--model' => Reading::class,
         ])
         ->dailyAt('02:30')         // pick a low-traffic time
-        ->withoutOverlapping()
-        ->timezone('Europe/Bucharest'); // to match your local expectations
+        ->withoutOverlapping();
     }
 }
