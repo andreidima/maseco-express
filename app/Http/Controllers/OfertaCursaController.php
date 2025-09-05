@@ -9,82 +9,215 @@ use App\Http\Requests\OfertaCursaRequest;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 use Webklex\IMAP\Facades\Client;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class OfertaCursaController extends Controller
 {
+    /**
+     * Renders the index page with initial data.
+     * - Reads filters once (extractFilters)
+     * - Applies them to the query (applyFilters)
+     * - Paginates (25/pg)
+     * - Passes filters back to Blade under the same keys your view already expects
+     */
     public function index(Request $request)
     {
-        // Reset any stored return URL:
+        // Reset any stored return URL (your existing behavior)
         $request->session()->forget('returnUrl');
 
-        // Pull in all filter values (trimmed)
-        $searchIncarcareCodPostal    = trim($request->searchIncarcareCodPostal);
-        $searchIncarcareLocalitate   = trim($request->searchIncarcareLocalitate);
-        $searchIncarcareDataOra      = trim($request->searchIncarcareDataOra);
-        $searchDescarcareCodPostal   = trim($request->searchDescarcareCodPostal);
-        $searchDescarcareLocalitate  = trim($request->searchDescarcareLocalitate);
-        $searchDescarcareDataOra     = trim($request->searchDescarcareDataOra);
-        $searchGreutateMin           = trim($request->searchGreutateMin);
-        $searchGreutateMax           = trim($request->searchGreutateMax);
+        // 1) Read all filters (centralized)
+        $filters = $this->extractFilters($request);
 
-        // Helper: if input is digits only, compare against the FIRST run of digits using REGEXP_SUBSTR
-        $applyPostalFilter = function ($q, $column, $value) {
-            if ($value === '') return;
-            if (preg_match('/^\d+$/', $value)) {
-                // First run of digits starts with $value
-                $q->whereRaw("REGEXP_SUBSTR($column, '[0-9]+') LIKE ?", [$value.'%']);
+        // 2) Build the base query and apply filters
+        $query = OfertaCursa::query();
+        $query = $this->applyFilters($query, $filters);
+
+        // 3) Sort + paginate (server-rendered first page)
+        $oferte = $query->latest('data_primirii')->simplePaginate(25);
+
+        // 4) Return the view, mapping the internal $filters back to the names your Blade expects
+        return view('oferte_curse.index', [
+            'oferte'                     => $oferte,
+            'searchIncarcareCodPostal'   => $filters['incarcare_cp'],
+            'searchIncarcareLocalitate'  => $filters['incarcare_loc'],
+            'searchIncarcareDataOra'     => $filters['incarcare_data'],
+            'searchDescarcareCodPostal'  => $filters['descarcare_cp'],
+            'searchDescarcareLocalitate' => $filters['descarcare_loc'],
+            'searchDescarcareDataOra'    => $filters['descarcare_data'],
+            'searchGreutateMin'          => $filters['greutate_min'],
+            'searchGreutateMax'          => $filters['greutate_max'],
+        ]);
+    }
+
+    /**
+     * Lightweight endpoint polled every 10s by the client.
+     * Returns ONLY:
+     *   - rows changed since ?since=… (as <tr> HTML snippets),
+     *   - IDs soft-deleted since ?since=…,
+     *   - 'now' (server clock) so the client can advance the window.
+     *
+     * Also:
+     *   - Supports a one-time ?bootstrap=1 call (returns just 'now')
+     *   - Uses ETag so when nothing changed, server can reply 304 (no body)
+     */
+    public function changes(Request $request)
+    {
+        // --- 0) Bootstrap fast path: on first call, client asks only for server time.
+        if ($request->boolean('bootstrap')) {
+            $serverNow = now()->toIso8601String();
+
+            return response()
+                ->json([
+                    'now'          => $serverNow,
+                    'rows'         => [],
+                    'deleted_ids'  => [],
+                ])
+                ->header('X-Server-Now', $serverNow);
+        }
+
+        // --- 1) Inputs: "since" window + filters
+        $sinceIso  = $request->query('since', '1970-01-01T00:00:00Z');
+        $since     = Carbon::parse($sinceIso);
+        $serverNow = now()->toIso8601String();
+
+        $filters = $this->extractFilters($request);
+
+        // --- 2) Query UPDATED/NEW rows since $since (select only needed cols)
+        $changedQuery = OfertaCursa::query()->select([
+            'id',
+            'data_primirii',
+            'incarcare_cod_postal','incarcare_localitate','incarcare_data_ora',
+            'descarcare_cod_postal','descarcare_localitate','descarcare_data_ora',
+            'greutate','detalii_cursa','gmail_link',
+            'updated_at',
+        ]);
+
+        $changedQuery = $this->applyFilters($changedQuery, $filters)
+            ->where('updated_at', '>', $since)
+            ->orderBy('updated_at', 'asc') // stable order
+            ->limit(200);
+
+        $changed = $changedQuery->get();
+
+        // Render ONE <tr> per Oferta using your existing partial (keeps markup identical)
+        $rowsPayload = $changed->map(function ($oferta) {
+            $html = view('oferte_curse._rows', ['oferte' => collect([$oferta])])->render();
+            return ['id' => $oferta->id, 'html' => trim($html)];
+        });
+
+        // --- 3) Query SOFT-DELETES since $since (requires SoftDeletes on model)
+        $deletedQuery = OfertaCursa::onlyTrashed()->select(['id','deleted_at']);
+        $deletedQuery = $this->applyFilters($deletedQuery, $filters)
+            ->where('deleted_at', '>', $since)
+            ->orderBy('deleted_at', 'asc')
+            ->limit(500);
+
+        $deleted     = $deletedQuery->get();
+        $deletedIds  = $deleted->pluck('id')->values(); // array-like for JSON
+
+        // --- 4) Build the payload BEFORE computing ETag
+        $payload = [
+            'now'          => $serverNow,   // client will use this as next ?since
+            'rows'         => $rowsPayload, // changed/inserted rows as HTML <tr>
+            'deleted_ids'  => $deletedIds,  // IDs to remove client-side
+        ];
+
+        // --- 5) ETag: must be stable when nothing changed.
+        // Use the set of updated IDs + their max(updated_at) AND deleted IDs + their max(deleted_at).
+        $maxUpdatedAt = $changed->max('updated_at');
+        $maxDeletedAt = $deleted->max('deleted_at');
+
+        $maxUpdatedStr = $maxUpdatedAt
+            ? (is_string($maxUpdatedAt) ? $maxUpdatedAt : $maxUpdatedAt->toDateTimeString())
+            : 'none';
+
+        $maxDeletedStr = $maxDeletedAt
+            ? (is_string($maxDeletedAt) ? $maxDeletedAt : $maxDeletedAt->toDateTimeString())
+            : 'none';
+
+        $idsUpdated = $changed->pluck('id')->all();
+        $idsDeleted = $deletedIds->all();
+
+        $etag = md5(json_encode([$idsUpdated, $maxUpdatedStr, $idsDeleted, $maxDeletedStr]));
+
+        // --- 6) Build the response with ETag and an explicit clock header.
+        $response = response()
+            ->json($payload)
+            ->setEtag($etag)
+            ->header('X-Server-Now', $serverNow);
+
+        // If client sent the same ETag in If-None-Match -> 304 Not Modified (no body)
+        if ($response->isNotModified($request)) {
+            return $response;
+        }
+
+        return $response; // 200 OK with JSON body
+    }
+
+    /**
+     * Reads ALL filter values from the request in one place.
+     * This keeps index() and changes() in sync and avoids duplicated code.
+     */
+    private function extractFilters(Request $r): array
+    {
+        return [
+            // Loading (pickup) filters
+            'incarcare_cp'    => trim($r->searchIncarcareCodPostal    ?? ''),
+            'incarcare_loc'   => trim($r->searchIncarcareLocalitate   ?? ''),
+            'incarcare_data'  => trim($r->searchIncarcareDataOra      ?? ''),
+
+            // Unloading (drop-off) filters
+            'descarcare_cp'   => trim($r->searchDescarcareCodPostal   ?? ''),
+            'descarcare_loc'  => trim($r->searchDescarcareLocalitate  ?? ''),
+            'descarcare_data' => trim($r->searchDescarcareDataOra     ?? ''),
+
+            // Weight range
+            'greutate_min'    => trim($r->searchGreutateMin           ?? ''),
+            'greutate_max'    => trim($r->searchGreutateMax           ?? ''),
+        ];
+    }
+
+    /**
+     * Applies the filters to ANY Eloquent Builder and returns the same Builder.
+     * – “Digits-only postal code” uses REGEXP_SUBSTR to match the first run of digits (prefix).
+     * – All other filters use LIKE contains.
+     * – Weight is applied as numeric range when provided.
+     */
+    private function applyFilters(Builder $q, array $f): Builder
+    {
+        // Helper for the “digits-only postal code” behavior you had
+        $postal = function (Builder $q, string $column, string $v) {
+            if ($v === '') return;
+            if (preg_match('/^\d+$/', $v)) {
+                // Compare against the FIRST run of digits and treat input as prefix
+                $q->whereRaw("REGEXP_SUBSTR($column, '[0-9]+') LIKE ?", [$v.'%']);
             } else {
-                // Fallback: regular contains search
-                $q->where($column, 'LIKE', "%{$value}%");
+                // Fallback to a regular contains match
+                $q->where($column, 'LIKE', "%{$v}%");
             }
         };
 
-        // Build query with conditional clauses
-        $oferte = OfertaCursa::query()
-            // Postal-code logic (first-number prefix if digits-only)
-            ->when($searchIncarcareCodPostal, fn($q, $v) => $applyPostalFilter($q, 'incarcare_cod_postal', $v))
-            ->when($searchDescarcareCodPostal, fn($q, $v) => $applyPostalFilter($q, 'descarcare_cod_postal', $v))
+        // Apply each filter only when a value is present
+        $q->when($f['incarcare_cp'],   fn ($qb, $v) => $postal($qb, 'incarcare_cod_postal',   $v));
+        $q->when($f['descarcare_cp'],  fn ($qb, $v) => $postal($qb, 'descarcare_cod_postal',  $v));
 
-            // ->when($searchIncarcareCodPostal, fn($q, $v) =>
-            //     $q->where('incarcare_cod_postal', 'LIKE', "%{$v}%")
-            // )
-            ->when($searchIncarcareLocalitate, fn($q, $v) =>
-                $q->where('incarcare_localitate', 'LIKE', "%{$v}%")
-            )
-            ->when($searchIncarcareDataOra, fn($q, $v) =>
-                $q->where('incarcare_data_ora', 'LIKE', "%{$v}%")
-            )
-            // ->when($searchDescarcareCodPostal, fn($q, $v) =>
-            //     $q->where('descarcare_cod_postal', 'LIKE', "%{$v}%")
-            // )
-            ->when($searchDescarcareLocalitate, fn($q, $v) =>
-                $q->where('descarcare_localitate', 'LIKE', "%{$v}%")
-            )
-            ->when($searchDescarcareDataOra, fn($q, $v) =>
-                $q->where('descarcare_data_ora', 'LIKE', "%{$v}%")
-            )
+        $q->when($f['incarcare_loc'],  fn ($qb, $v) => $qb->where('incarcare_localitate',   'LIKE', "%{$v}%"));
+        $q->when($f['incarcare_data'], fn ($qb, $v) => $qb->where('incarcare_data_ora',     'LIKE', "%{$v}%"));
 
-            // Weight range
-            ->when($searchGreutateMin, fn($q) => $q->where('greutate', '>=', $searchGreutateMin))
-            ->when($searchGreutateMax, fn($q) => $q->where('greutate', '<=', $searchGreutateMax))
+        $q->when($f['descarcare_loc'], fn ($qb, $v) => $qb->where('descarcare_localitate',  'LIKE', "%{$v}%"));
+        $q->when($f['descarcare_data'],fn ($qb, $v) => $qb->where('descarcare_data_ora',    'LIKE', "%{$v}%"));
 
-            // ->latest('data_primirii')
-            ->latest()
-            ->simplePaginate(25);
+        $q->when($f['greutate_min'],   fn ($qb)     => $qb->where('greutate', '>=', $f['greutate_min']));
+        $q->when($f['greutate_max'],   fn ($qb)     => $qb->where('greutate', '<=', $f['greutate_max']));
 
-        // Pass all search terms back to the view
-        return view('oferte_curse.index', [
-            'oferte'                      => $oferte,
-            'searchIncarcareCodPostal'    => $searchIncarcareCodPostal,
-            'searchIncarcareLocalitate'   => $searchIncarcareLocalitate,
-            'searchIncarcareDataOra'      => $searchIncarcareDataOra,
-            'searchDescarcareCodPostal'   => $searchDescarcareCodPostal,
-            'searchDescarcareLocalitate'  => $searchDescarcareLocalitate,
-            'searchDescarcareDataOra'     => $searchDescarcareDataOra,
-            'searchGreutateMin'     => $searchGreutateMin,
-            'searchGreutateMax'     => $searchGreutateMax,
-        ]);
+        return $q;
     }
+
+
+
+
+
 
     public function create(Request $request)
     {

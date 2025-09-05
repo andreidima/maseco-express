@@ -952,3 +952,116 @@ excel.component('jspreadsheet-component', JspreadsheetComponent);
 if (document.getElementById('excel') != null) {
     excel.mount('#excel');
 }
+
+
+
+// Oferte curse: Auto-refresh, at every 10s, only the <tbody> (plain JS, not Vue) ---
+document.addEventListener('DOMContentLoaded', () => {
+    const tbody = document.getElementById('oferteBody');
+    if (!tbody) return;
+
+    const ax = window.axios;
+    if (!ax) {
+        console.warn('[oferte changes] window.axios not found');
+        return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const page = Number(params.get('page') || '1');
+    const isPageOne = page === 1;
+
+    const baseUrl = '/axios/oferte-changes?' + params.toString();
+    const INTERVAL_MS = 10000;
+    let timerId = null;
+
+    // Will be set by bootstrap call
+    let lastSeen = null;
+
+    // Store the most recent ETag the server gave us
+    let etag = null;
+
+    function scheduleNext() {
+        timerId = setTimeout(pollDiffs, INTERVAL_MS);
+    }
+
+    function applyRowHtml(id, html) {
+        const existing = tbody.querySelector(`tr[data-id="${id}"]`);
+        if (existing) {
+            existing.outerHTML = html; // update
+        } else if (isPageOne) {
+            tbody.insertAdjacentHTML('afterbegin', html); // insert at top
+            while (tbody.children.length > 25) {
+                tbody.removeChild(tbody.lastElementChild);
+            }
+        }
+    }
+
+    async function pollDiffs() {
+        try {
+            const url = `${baseUrl}${params.toString() ? '&' : ''}since=${encodeURIComponent(lastSeen)}`;
+
+            const headers = { 'X-Requested-With': 'XMLHttpRequest' };
+            if (etag) headers['If-None-Match'] = etag;
+
+            const res = await ax.get(url, {
+                headers,
+                validateStatus: s => s === 200 || s === 304,
+            });
+
+            const serverNowHeader = res.headers['x-server-now'] || res.headers['X-Server-Now'];
+
+            if (res.status === 304) {
+                if (serverNowHeader) lastSeen = serverNowHeader;
+            } else {
+                const { rows = [], deleted_ids = [], now } = res.data || {};
+
+                // helper: remove one row by id if it exists in DOM
+                const removeRow = (id) => {
+                    const tr = tbody.querySelector(`tr[data-id="${id}"]`);
+                    if (tr) tr.remove();
+                };
+
+                // Apply changed/inserted rows first
+                rows.forEach(r => applyRowHtml(r.id, r.html));
+
+                // Then remove deletions
+                if (Array.isArray(deleted_ids) && deleted_ids.length) {
+                    deleted_ids.forEach(removeRow);
+                }
+
+                // Keep page-1 length roughly equal to 25 (not strictly required here)
+                if (isPageOne) {
+                    while (tbody.children.length > 25) {
+                        tbody.removeChild(tbody.lastElementChild);
+                    }
+                }
+
+                if (now) lastSeen = now;
+                etag = res.headers.etag || res.headers['ETag'] || etag;
+            }
+        } catch (err) {
+            // Silent error; keep cadence
+            // console.warn('[oferte changes] poll failed:', err);
+        } finally {
+            scheduleNext();
+        }
+    }
+
+    // Bootstrap once to get server time (no rows)
+    async function bootstrapThenStart() {
+        try {
+            const url = `${baseUrl}${params.toString() ? '&' : ''}bootstrap=1`;
+            const res = await ax.get(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+            lastSeen = (res.data && res.data.now) ? res.data.now : (res.headers['x-server-now'] || new Date().toISOString());
+        } catch (_) {
+            lastSeen = new Date().toISOString();
+        } finally {
+            scheduleNext();
+        }
+    }
+
+    bootstrapThenStart();
+
+    // Optional: stop timer when navigating away
+    window.addEventListener('beforeunload', () => { if (timerId) clearTimeout(timerId); });
+});
