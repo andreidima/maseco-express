@@ -3,6 +3,8 @@
 namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
+use Illuminate\Console\Scheduling\Schedule;
+use App\Models\OfertaCursa;
 
 class Kernel extends HttpKernel
 {
@@ -69,4 +71,15 @@ class Kernel extends HttpKernel
         // Andrei
         'role' => \App\Http\Middleware\Role::class,
     ];
+
+    // Andrei
+    protected function schedule(Schedule $schedule): void
+    {
+        $schedule->command('model:prune', [
+            '--model' => Reading::class,
+        ])
+        ->dailyAt('02:30')         // pick a low-traffic time
+        ->withoutOverlapping()
+        ->timezone('Europe/Bucharest'); // to match your local expectations
+    }
 }
