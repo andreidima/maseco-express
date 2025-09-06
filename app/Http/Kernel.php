@@ -76,13 +76,13 @@ class Kernel extends HttpKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('model:prune', [
-        //     '--model' => Reading::class,
+        //     '--model' => OfertaCursa::class,
         // ])
         // ->dailyAt('22:23')         // pick a low-traffic time
         // ->withoutOverlapping();
 
         $schedule->command('model:prune', [
-            '--model' => \App\Models\Reading::class,
+            '--model' => \App\Models\OfertaCursa::class,
             '--pretend' => true, // just log what it WOULD delete
         ])
         ->everyMinute()
