@@ -14,21 +14,22 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // $schedule->command('inspire')->hourly();
-        // $schedule->command('model:prune', [
-        //     '--model' => OfertaCursa::class,
-        // ])
-        // ->dailyAt('22:23')         // pick a low-traffic time
-        // ->withoutOverlapping();
 
         // Andrei
         $schedule->command('model:prune', [
-            '--model' => \App\Models\OfertaCursa::class,
-            '--pretend' => true, // just log what it WOULD delete
+            '--model' => OfertaCursa::class,
         ])
-        ->everyMinute()
-        ->evenInMaintenanceMode()
-        ->timezone('Europe/Bucharest')
-        ->appendOutputTo(storage_path('logs/prune.log'));
+        ->dailyAt('22:23')         // pick a low-traffic time
+        ->withoutOverlapping();
+
+        // $schedule->command('model:prune', [
+        //     '--model' => \App\Models\OfertaCursa::class,
+        //     '--pretend' => true, // just log what it WOULD delete
+        // ])
+        // ->everyMinute()
+        // ->evenInMaintenanceMode()
+        // ->timezone('Europe/Bucharest')
+        // ->appendOutputTo(storage_path('logs/prune.log'));
     }
 
     /**
