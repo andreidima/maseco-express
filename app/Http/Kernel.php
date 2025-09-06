@@ -78,7 +78,7 @@ class Kernel extends HttpKernel
         $schedule->command('model:prune', [
             '--model' => Reading::class,
         ])
-        ->dailyAt('02:30')         // pick a low-traffic time
+        ->dailyAt('22:23')         // pick a low-traffic time
         ->withoutOverlapping();
     }
 }
