@@ -4,7 +4,6 @@ namespace App\Http;
 
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Illuminate\Console\Scheduling\Schedule;
-use App\Models\OfertaCursa;
 
 class Kernel extends HttpKernel
 {
