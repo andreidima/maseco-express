@@ -20,7 +20,7 @@ class Kernel extends ConsoleKernel
             '--model' => OfertaCursa::class,
         ])
         // ->everyMinute()
-        ->dailyAt('23:35')         // pick a low-traffic time
+        ->dailyAt('23:36')         // pick a low-traffic time
         ->withoutOverlapping();
 
         // $schedule->command('model:prune', [
