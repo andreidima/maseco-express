@@ -75,10 +75,18 @@ class Kernel extends HttpKernel
     // Andrei
     protected function schedule(Schedule $schedule): void
     {
+        // $schedule->command('model:prune', [
+        //     '--model' => Reading::class,
+        // ])
+        // ->dailyAt('22:23')         // pick a low-traffic time
+        // ->withoutOverlapping();
+
         $schedule->command('model:prune', [
-            '--model' => Reading::class,
+            '--model' => \App\Models\Reading::class,
+            '--pretend' => true, // just log what it WOULD delete
         ])
-        ->dailyAt('22:23')         // pick a low-traffic time
-        ->withoutOverlapping();
+        ->everyMinute()
+        ->timezone('Europe/Bucharest')
+        ->appendOutputTo(storage_path('logs/prune.log'));
     }
 }
