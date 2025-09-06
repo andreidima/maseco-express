@@ -71,6 +71,10 @@ Route::get('oferte-curse', [OfertaCursaController::class, 'index'])->name('ofert
 
 Route::redirect('/', '/acasa');
 
+
+Route::get('/debug/storage-path', fn () => storage_path('logs'));
+
+
 Route::group(['middleware' => 'auth'], function () {
     Route::view('acasa', 'acasa');
     Route::view('various-tests', 'variousTests');
