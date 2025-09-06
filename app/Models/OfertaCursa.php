@@ -26,6 +26,6 @@ class OfertaCursa extends Model
     public function prunable()
     {
         // delete rows older than 3 days
-        return static::where('created_at', '<', now()->subDays(3));
+        return static::where('created_at', '<', now()->subDays(7));
     }
 }
