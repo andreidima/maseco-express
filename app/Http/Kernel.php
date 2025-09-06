@@ -86,6 +86,7 @@ class Kernel extends HttpKernel
             '--pretend' => true, // just log what it WOULD delete
         ])
         ->everyMinute()
+        ->evenInMaintenanceMode()
         ->timezone('Europe/Bucharest')
         ->appendOutputTo(storage_path('logs/prune.log'));
     }
