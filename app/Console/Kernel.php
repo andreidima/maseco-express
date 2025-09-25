@@ -19,18 +19,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('model:prune', [
             '--model' => OfertaCursa::class,
         ])
-        // ->everyMinute()
-        ->dailyAt('23:36')         // pick a low-traffic time
+        ->dailyAt('02:02')         // pick a low-traffic time
         ->withoutOverlapping();
-
-        // $schedule->command('model:prune', [
-        //     '--model' => \App\Models\OfertaCursa::class,
-        //     '--pretend' => true, // just log what it WOULD delete
-        // ])
-        // ->everyMinute()
-        // ->evenInMaintenanceMode()
-        // ->timezone('Europe/Bucharest')
-        // ->appendOutputTo(storage_path('logs/prune.log'));
     }
 
     /**

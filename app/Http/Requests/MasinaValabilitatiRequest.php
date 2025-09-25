@@ -29,6 +29,7 @@ class MasinaValabilitatiRequest extends FormRequest
         return [
             'nr_auto'      => 'nullable|string|max:255',
             'nume_sofer'  => 'nullable|string|max:255',
+            'detalii_sofer'  => 'nullable|string|max:255',
             'divizie'         => 'nullable|string|max:255',
             'valabilitate_1_inceput' => 'nullable|date',
             'valabilitate_1_sfarsit'  => 'nullable|date|after_or_equal:valabilitate_1_inceput',

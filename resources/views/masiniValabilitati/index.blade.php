@@ -30,6 +30,7 @@
                         <th>#</th>
                         <th class="text-center">Nr auto</th>
                         <th class="text-center">Nume șofer</th>
+                        <th class="text-center">Detalii șofer</th>
                         <th class="text-center">Divizie</th>
                         <th class="text-center">Valabilitate 1</th>
                         <th class="text-center">Observații 1</th>
@@ -51,6 +52,9 @@
                                 </td>
                                 <td class="text-center">
                                     {{ $masinaValabilitati->nume_sofer }}
+                                </td>
+                                <td class="text-center">
+                                    {{ $masinaValabilitati->detalii_sofer }}
                                 </td>
                                 <td class="text-center">
                                     {{ $masinaValabilitati->divizie }}
