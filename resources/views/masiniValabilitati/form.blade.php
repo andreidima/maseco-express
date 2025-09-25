@@ -1,6 +1,6 @@
 <div class="row mb-0 px-3">
     {{-- Field: Nr auto --}}
-    <div class="col-lg-3 mb-4">
+    <div class="col-lg-4 mb-4">
         <label for="nr_auto" class="mb-0 ps-3">Nr auto</label>
         <input
             type="text"
@@ -17,7 +17,7 @@
     </div>
 
     {{-- Field: Nume șofer --}}
-    <div class="col-lg-3 mb-4">
+    <div class="col-lg-4 mb-4">
         <label for="nume_sofer" class="mb-0 ps-3">Nume șofer</label>
         <input
             type="text"
@@ -33,25 +33,8 @@
         @endif
     </div>
 
-    {{-- Field: Detalii șofer --}}
-    <div class="col-lg-3 mb-4">
-        <label for="detalii_sofer" class="mb-0 ps-3">Detalii șofer</label>
-        <input
-            type="text"
-            name="detalii_sofer"
-            id="detalii_sofer"
-            class="form-control bg-white rounded-3 {{ $errors->has('detalii_sofer') ? 'is-invalid' : '' }}"
-            value="{{ old('detalii_sofer', $masinaValabilitati->detalii_sofer ?? '') }}"
-        >
-        @if($errors->has('detalii_sofer'))
-            <div class="invalid-feedback">
-                {{ $errors->first('detalii_sofer') }}
-            </div>
-        @endif
-    </div>
-
     {{-- Field: Divizie selection as a dropdown (4 predefined choices) --}}
-    <div class="col-lg-3 mb-4">
+    <div class="col-lg-4 mb-4">
         <label for="divizie" class="mb-0 ps-3">Divizie</label>
         <select
             name="divizie"
@@ -85,6 +68,23 @@
         @if($errors->has('divizie'))
             <div class="invalid-feedback">
                 {{ $errors->first('divizie') }}
+            </div>
+        @endif
+    </div>
+
+    {{-- Field: Detalii șofer --}}
+    <div class="col-lg-12 mb-4">
+        <label for="detalii_sofer" class="mb-0 ps-3">Detalii șofer</label>
+        <input
+            type="text"
+            name="detalii_sofer"
+            id="detalii_sofer"
+            class="form-control bg-white rounded-3 {{ $errors->has('detalii_sofer') ? 'is-invalid' : '' }}"
+            value="{{ old('detalii_sofer', $masinaValabilitati->detalii_sofer ?? '') }}"
+        >
+        @if($errors->has('detalii_sofer'))
+            <div class="invalid-feedback">
+                {{ $errors->first('detalii_sofer') }}
             </div>
         @endif
     </div>
