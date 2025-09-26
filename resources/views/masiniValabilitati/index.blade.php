@@ -43,7 +43,7 @@
                     @forelse ($masiniValabilitatiGroupedByDivizie as $masiniValabilitati)
                         @forelse ($masiniValabilitati as $masinaValabilitati)
                             <tr>
-                                <td>
+                                <td class="text-center align-middle">
                                     {{-- {{ ($masiniValabilitati->currentPage() - 1) * $masiniValabilitati->perPage() + $loop->index + 1 }} --}}
                                     {{ $loop->iteration }}
                                 </td>
@@ -75,7 +75,7 @@
                                 <td class="text-center align-middle">
                                     {{ $masinaValabilitati->observatii_2 }}
                                 </td>
-                                <td>
+                                <td class="text-center align-middle">
                                     <div class="d-flex justify-content-end">
                                         {{-- Edit button --}}
                                         <a href="{{ route('masini-valabilitati.edit', $masinaValabilitati) }}"
