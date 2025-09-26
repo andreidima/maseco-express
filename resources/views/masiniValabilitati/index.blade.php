@@ -47,32 +47,32 @@
                                     {{-- {{ ($masiniValabilitati->currentPage() - 1) * $masiniValabilitati->perPage() + $loop->index + 1 }} --}}
                                     {{ $loop->iteration }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     {{ $masinaValabilitati->nr_auto }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     {{ $masinaValabilitati->nume_sofer }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     {{ $masinaValabilitati->detalii_sofer }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     {{ $masinaValabilitati->divizie }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     {{ $masinaValabilitati->valabilitate_1_inceput?->format('d.m') }}
                                     –
                                     {{ $masinaValabilitati->valabilitate_1_sfarsit?->format('d.m') }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     {{ $masinaValabilitati->observatii_1 }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     {{ $masinaValabilitati->valabilitate_2_inceput?->format('d.m') }}
                                     –
                                     {{ $masinaValabilitati->valabilitate_2_sfarsit?->format('d.m') }}
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center align-middle">
                                     {{ $masinaValabilitati->observatii_2 }}
                                 </td>
                                 <td>
