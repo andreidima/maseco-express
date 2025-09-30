@@ -28,14 +28,14 @@
                 <thead class="text-white rounded culoare2">
                     <tr style="padding: 2rem">
                         <th>#</th>
-                        <th class="text-center">Nr auto</th>
-                        <th class="text-center">Nume șofer</th>
-                        <th class="text-center">Detalii șofer</th>
-                        <th class="text-center">Divizie</th>
-                        <th class="text-center">Valabilitate 1</th>
-                        <th class="text-center">Observații 1</th>
-                        <th class="text-center">Valabilitate 2</th>
-                        <th class="text-center">Observații 2</th>
+                        <th class="text-center align-middle">Nr auto</th>
+                        <th class="text-center align-middle">Nume șofer</th>
+                        <th class="text-center align-middle">Detalii</th>
+                        <th class="text-center align-middle">Divizie</th>
+                        <th class="text-center align-middle">Valabilitate 1</th>
+                        <th class="text-center align-middle">Observații 1</th>
+                        <th class="text-center align-middle">Valabilitate 2</th>
+                        <th class="text-center align-middle">Observații 2</th>
                         <th class="text-end">Acțiuni</th>
                     </tr>
                 </thead>

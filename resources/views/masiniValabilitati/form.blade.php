@@ -74,7 +74,7 @@
 
     {{-- Field: Detalii șofer --}}
     <div class="col-lg-12 mb-4">
-        <label for="detalii_sofer" class="mb-0 ps-3">Detalii șofer</label>
+        <label for="detalii_sofer" class="mb-0 ps-3">Detalii</label>
         <input
             type="text"
             name="detalii_sofer"
