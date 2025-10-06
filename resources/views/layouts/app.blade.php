@@ -63,6 +63,16 @@
                                         File Manager
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('facturi-furnizori.facturi.index') }}">
+                                        <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('facturi-furnizori.plati-calupuri.index') }}">
+                                        <i class="fa-solid fa-layer-group me-1"></i>Calupuri plati furnizori
+                                    </a>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="/file-manager-personalizat" title="File Explorer">
@@ -236,6 +246,17 @@
                                 <li>
                                     <a class="dropdown-item" href="/facturi">
                                         <i class="fa-solid fa-file-invoice me-1"></i>Facturi
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('facturi-furnizori.facturi.index') }}">
+                                        <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('facturi-furnizori.plati-calupuri.index') }}">
+                                        <i class="fa-solid fa-layer-group me-1"></i>Calupuri plati furnizori
                                     </a>
                                 </li>
                                 <li><hr class="dropdown-divider"></li>

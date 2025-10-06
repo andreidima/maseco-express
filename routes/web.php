@@ -30,6 +30,8 @@ use App\Http\Controllers\MasinaValabilitatiController;
 use App\Http\Controllers\DocumentWordController;
 use App\Http\Controllers\KeyPerformanceIndicatorController;
 use App\Http\Controllers\OfertaCursaController;
+use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorController;
+use App\Http\Controllers\FacturiFurnizori\PlataCalupController;
 
 
 /*
@@ -180,6 +182,32 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('/key-performance-indicators/update-observatii', [KeyPerformanceIndicatorController::class, 'updateObservatii'])->name('kpis.updateObservatii');
     Route::resource('key-performance-indicators', KeyPerformanceIndicatorController::class)->parameters(['key-performance-indicators' => 'keyPerformanceIndicators']);
+    Route::prefix('facturi-furnizori')
+        ->name('facturi-furnizori.')
+        ->group(function () {
+            Route::get('facturi/sugestii', [FacturaFurnizorController::class, 'sugestii'])->name('facturi.sugestii');
+
+            Route::resource('facturi', FacturaFurnizorController::class)
+                ->parameters(['facturi' => 'factura']);
+
+            Route::resource('plati-calupuri', PlataCalupController::class)
+                ->parameters(['plati-calupuri' => 'plataCalup']);
+
+            Route::post('plati-calupuri/{plataCalup}/atasare-facturi', [PlataCalupController::class, 'ataseazaFacturi'])
+                ->name('plati-calupuri.atasare-facturi');
+
+            Route::delete('plati-calupuri/{plataCalup}/facturi/{factura}', [PlataCalupController::class, 'detaseazaFactura'])
+                ->name('plati-calupuri.detaseaza-factura');
+
+            Route::post('plati-calupuri/{plataCalup}/marcheaza-platit', [PlataCalupController::class, 'marcheazaPlatit'])
+                ->name('plati-calupuri.marcheaza-platit');
+
+            Route::post('plati-calupuri/{plataCalup}/redeschide', [PlataCalupController::class, 'redeschide'])
+                ->name('plati-calupuri.redeschide');
+
+            Route::get('plati-calupuri/{plataCalup}/descarca-fisier', [PlataCalupController::class, 'descarcaFisier'])
+                ->name('plati-calupuri.descarca-fisier');
+        });
 
 
     /**
@@ -236,3 +264,5 @@ Route::group(['middleware' => 'auth'], function () {
     // });
 
 });
+
+
