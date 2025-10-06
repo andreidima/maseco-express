@@ -101,7 +101,8 @@ class FacturaFurnizorController extends Controller
      */
     public function create()
     {
-        return view('facturiFurnizori.facturi.create', [
+        return view('facturiFurnizori.facturi.save', [
+            'factura' => new FacturaFurnizor(),
             'statusOptions' => $this->statusOptions(),
         ]);
     }
@@ -139,7 +140,9 @@ class FacturaFurnizorController extends Controller
      */
     public function edit(FacturaFurnizor $factura)
     {
-        return view('facturiFurnizori.facturi.edit', [
+        $factura->loadMissing('calupuri:id,denumire_calup');
+
+        return view('facturiFurnizori.facturi.save', [
             'factura' => $factura,
             'statusOptions' => $this->statusOptions(),
         ]);

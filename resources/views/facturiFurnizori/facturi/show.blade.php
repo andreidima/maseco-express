@@ -1,52 +1,61 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="card mx-2" style="border-radius: 30px;">
-        <div class="card-header d-flex justify-content-between align-items-center" style="border-radius: 30px 30px 0 0;">
-            <span class="badge bg-secondary fs-5">Detalii factura</span>
-            <div class="d-flex gap-2">
-                <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="btn btn-outline-primary btn-sm">Editeaza</a>
-                <a href="{{ route('facturi-furnizori.facturi.index') }}" class="btn btn-outline-secondary btn-sm">Inapoi</a>
-            </div>
+<div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
+    <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
+        <div class="col-lg-6">
+            <span class="badge culoare1 fs-5">
+                <i class="fa-solid fa-circle-info me-1"></i>Detalii factură furnizor
+            </span>
         </div>
-        <div class="card-body">
-            @include('errors')
+        <div class="col-lg-6 text-end">
+            <a class="btn btn-sm btn-primary text-white border border-dark rounded-3 me-2" href="{{ route('facturi-furnizori.facturi.edit', $factura) }}">
+                <i class="fa-solid fa-pen-to-square me-1"></i>Modifică
+            </a>
+            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.index') }}">
+                <i class="fa-solid fa-rotate-left me-1"></i>Înapoi
+            </a>
+        </div>
+    </div>
 
-            <div class="row mb-4">
-                <div class="col-md-6">
-                    <div class="border rounded p-3 h-100">
-                        <h5 class="mb-3">Informatii principale</h5>
+    <div class="card-body px-0 py-3">
+        @include('errors')
+
+        <div class="px-3">
+            <div class="row g-3 mb-3">
+                <div class="col-lg-6">
+                    <div class="border border-dark rounded-3 p-3 h-100 bg-white">
+                        <h6 class="text-uppercase text-muted">Informații principale</h6>
                         <p class="mb-1"><strong>Furnizor:</strong> {{ $factura->denumire_furnizor }}</p>
-                        <p class="mb-1"><strong>Numar factura:</strong> {{ $factura->numar_factura }}</p>
-                        <p class="mb-1"><strong>Data factura:</strong> {{ $factura->data_factura?->format('d.m.Y') }}</p>
-                        <p class="mb-1"><strong>Data scadenta:</strong> {{ $factura->data_scadenta?->format('d.m.Y') }}</p>
-                        <p class="mb-1"><strong>Suma:</strong> {{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</p>
-                        <p class="mb-1"><strong>Departament / nr auto:</strong> {{ $factura->departament_vehicul ?: '-' }}</p>
-                        <p class="mb-1"><strong>Status:</strong> <span class="badge bg-secondary text-uppercase">{{ $factura->status }}</span></p>
+                        <p class="mb-1"><strong>Număr factură:</strong> {{ $factura->numar_factura }}</p>
+                        <p class="mb-1"><strong>Data factură:</strong> {{ $factura->data_factura?->format('d.m.Y') }}</p>
+                        <p class="mb-1"><strong>Data scadență:</strong> {{ $factura->data_scadenta?->format('d.m.Y') }}</p>
+                        <p class="mb-1"><strong>Sumă:</strong> {{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</p>
+                        <p class="mb-1"><strong>Nr auto / departament:</strong> {{ $factura->departament_vehicul ?: '-' }}</p>
+                        <p class="mb-0"><strong>Status:</strong> <span class="badge bg-secondary text-uppercase">{{ $factura->status }}</span></p>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="border rounded p-3 h-100">
-                        <h5 class="mb-3">Observatii</h5>
-                        <p class="mb-0">{{ $factura->observatii ?: 'Nu exista observatii.' }}</p>
+                <div class="col-lg-6">
+                    <div class="border border-dark rounded-3 p-3 h-100 bg-white">
+                        <h6 class="text-uppercase text-muted">Observații</h6>
+                        <p class="mb-0">{{ $factura->observatii ?: 'Nu există observații.' }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="border rounded p-3">
-                <h5 class="mb-3">Calupuri asociate</h5>
+            <div class="border border-dark rounded-3 p-3 bg-white">
+                <h6 class="text-uppercase text-muted mb-3">Calupuri asociate</h6>
                 @if ($factura->calupuri->isEmpty())
-                    <p class="text-muted mb-0">Factura nu este atasata niciunui calup.</p>
+                    <p class="text-muted mb-0">Factura nu este atașată niciunui calup.</p>
                 @else
                     <div class="table-responsive">
-                        <table class="table table-sm table-bordered">
-                            <thead class="table-light">
+                        <table class="table table-sm table-hover table-bordered border-dark align-middle mb-0">
+                            <thead class="text-white rounded culoare2">
                                 <tr>
                                     <th>Denumire</th>
                                     <th>Status</th>
-                                    <th>Data plata</th>
-                                    <th>Actiuni</th>
+                                    <th>Data plată</th>
+                                    <th class="text-end">Acțiuni</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -55,8 +64,8 @@
                                         <td>{{ $calup->denumire_calup }}</td>
                                         <td><span class="badge bg-secondary text-uppercase">{{ $calup->status }}</span></td>
                                         <td>{{ $calup->data_plata?->format('d.m.Y') ?: '-' }}</td>
-                                        <td>
-                                            <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="btn btn-outline-secondary btn-sm">Vezi calup</a>
+                                        <td class="text-end">
+                                            <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="btn btn-sm btn-outline-secondary border border-dark rounded-3">Vezi calup</a>
                                         </td>
                                     </tr>
                                 @endforeach
