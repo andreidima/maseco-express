@@ -1,13 +1,23 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $calupStatusLabels = $statusOptions;
+    $facturaStatusLabels = [
+        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA => 'Neplătită',
+        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_IN_CALUP => 'Programată la plată',
+        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_PLATITA => 'Plătită',
+    ];
+@endphp
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
         <div class="col-lg-6">
             <span class="badge culoare1 fs-5">
                 <i class="fa-solid fa-layer-group me-1"></i>Calup: {{ $calup->denumire_calup }}
             </span>
-            <span class="badge bg-info text-dark ms-2">Status: {{ $calup->status }}</span>
+            <span class="badge bg-white border border-dark rounded-pill text-dark ms-2">
+                <small>Status: {{ $calupStatusLabels[$calup->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $calup->status)) }}</small>
+            </span>
         </div>
         <div class="col-lg-6 text-end">
             <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.index') }}">
@@ -89,13 +99,17 @@
                                         <td>{{ $factura->numar_factura }}</td>
                                         <td>{{ $factura->data_scadenta?->format('d.m.Y') }}</td>
                                         <td class="text-end">{{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</td>
-                                        <td><span class="badge bg-secondary text-uppercase">{{ $factura->status }}</span></td>
+                                        <td>
+                                            <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
+                                                <small>{{ $facturaStatusLabels[$factura->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $factura->status)) }}</small>
+                                            </span>
+                                        </td>
                                         <td class="text-end">
                                             @if ($calup->status !== \App\Models\FacturiFurnizori\PlataCalup::STATUS_PLATIT)
                                                 <form action="{{ route('facturi-furnizori.plati-calupuri.detaseaza-factura', [$calup, $factura]) }}" method="POST" onsubmit="return confirm('Elimini factura din calup?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger border border-dark rounded-3">Elimină</button>
+                                                    <button type="submit" class="badge bg-danger text-white border-0 rounded-3 px-3 py-2">Elimină</button>
                                                 </form>
                                             @else
                                                 <span class="text-muted">-</span>

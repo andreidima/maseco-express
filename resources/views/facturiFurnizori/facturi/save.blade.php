@@ -31,7 +31,9 @@
                     <div class="col-lg-6">
                         <div class="border border-dark rounded-3 p-3 h-100 bg-white">
                             <span class="text-uppercase text-muted small d-block">Status curent</span>
-                            <span class="badge bg-secondary text-uppercase fs-6">{{ $factura->status }}</span>
+                            <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
+                                <small>{{ $statusOptions[$factura->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $factura->status)) }}</small>
+                            </span>
                         </div>
                     </div>
                     <div class="col-lg-6">

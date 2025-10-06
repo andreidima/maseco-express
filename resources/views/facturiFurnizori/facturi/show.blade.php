@@ -1,6 +1,14 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $facturaStatusLabels = $statusOptions;
+    $calupStatusLabels = [
+        \App\Models\FacturiFurnizori\PlataCalup::STATUS_DESCHIS => 'Deschis',
+        \App\Models\FacturiFurnizori\PlataCalup::STATUS_PLATIT => 'Plătit',
+        \App\Models\FacturiFurnizori\PlataCalup::STATUS_ANULAT => 'Anulat',
+    ];
+@endphp
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
         <div class="col-lg-6">
@@ -32,7 +40,12 @@
                         <p class="mb-1"><strong>Data scadență:</strong> {{ $factura->data_scadenta?->format('d.m.Y') }}</p>
                         <p class="mb-1"><strong>Sumă:</strong> {{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</p>
                         <p class="mb-1"><strong>Nr auto / departament:</strong> {{ $factura->departament_vehicul ?: '-' }}</p>
-                        <p class="mb-0"><strong>Status:</strong> <span class="badge bg-secondary text-uppercase">{{ $factura->status }}</span></p>
+                        <p class="mb-0">
+                            <strong>Status:</strong>
+                            <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
+                                <small>{{ $facturaStatusLabels[$factura->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $factura->status)) }}</small>
+                            </span>
+                        </p>
                     </div>
                 </div>
                 <div class="col-lg-6">
@@ -62,10 +75,14 @@
                                 @foreach ($factura->calupuri as $calup)
                                     <tr>
                                         <td>{{ $calup->denumire_calup }}</td>
-                                        <td><span class="badge bg-secondary text-uppercase">{{ $calup->status }}</span></td>
+                                        <td>
+                                            <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
+                                                <small>{{ $calupStatusLabels[$calup->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $calup->status)) }}</small>
+                                            </span>
+                                        </td>
                                         <td>{{ $calup->data_plata?->format('d.m.Y') ?: '-' }}</td>
                                         <td class="text-end">
-                                            <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="btn btn-sm btn-outline-secondary border border-dark rounded-3">Vezi calup</a>
+                                            <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="badge bg-secondary text-dark text-decoration-none rounded-3 px-3 py-2">Vezi calup</a>
                                         </td>
                                     </tr>
                                 @endforeach

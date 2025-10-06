@@ -132,6 +132,7 @@ class FacturaFurnizorController extends Controller
 
         return view('facturiFurnizori.facturi.show', [
             'factura' => $factura,
+            'statusOptions' => $this->statusOptions(),
         ]);
     }
 
@@ -218,9 +219,9 @@ class FacturaFurnizorController extends Controller
     private function statusOptions(): array
     {
         return [
-            FacturaFurnizor::STATUS_NEPLATITA => 'Neplatita',
-            FacturaFurnizor::STATUS_IN_CALUP => 'In calup',
-            FacturaFurnizor::STATUS_PLATITA => 'Platita',
+            FacturaFurnizor::STATUS_NEPLATITA => 'Neplătită',
+            FacturaFurnizor::STATUS_IN_CALUP => 'Programată la plată',
+            FacturaFurnizor::STATUS_PLATITA => 'Plătită',
         ];
     }
 }
