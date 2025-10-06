@@ -277,7 +277,7 @@ class PlataCalupController extends Controller
     {
         return [
             PlataCalup::STATUS_DESCHIS => 'Deschis',
-            PlataCalup::STATUS_PLATIT => 'Platit',
+            PlataCalup::STATUS_PLATIT => 'Plătit',
             PlataCalup::STATUS_ANULAT => 'Anulat',
         ];
     }
