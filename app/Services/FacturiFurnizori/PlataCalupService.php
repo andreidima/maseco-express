@@ -4,9 +4,7 @@ namespace App\Services\FacturiFurnizori;
 
 use App\Models\FacturiFurnizori\FacturaFurnizor;
 use App\Models\FacturiFurnizori\PlataCalup;
-use Carbon\CarbonInterface;
 use Illuminate\Database\DatabaseManager;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class PlataCalupService
@@ -48,48 +46,12 @@ class PlataCalupService
     }
 
     /**
-     * Detach an invoice from the batch and revert its status.
+     * Detach an invoice from the batch.
      */
     public function detachFactura(PlataCalup $calup, FacturaFurnizor $factura): void
     {
         $this->db->transaction(function () use ($calup, $factura) {
-            $calup->facturi()->where('ff_facturi.id', $factura->id)->detach();
-        });
-    }
-
-    /**
-     * Mark the batch as paid, update payment date and invoice statuses.
-     */
-    public function markAsPaid(PlataCalup $calup, ?CarbonInterface $dataPlata = null): void
-    {
-        $dataPlata = $dataPlata ?? now();
-
-        $this->db->transaction(function () use ($calup, $dataPlata) {
-            $calup->update([
-                'status' => PlataCalup::STATUS_PLATIT,
-                'data_plata' => $dataPlata,
-            ]);
-
-            $facturiIds = $calup->facturi()->pluck('ff_facturi.id');
-
-            if ($facturiIds->isEmpty()) {
-                Log::warning('Calup marcat ca platit fara facturi atasate', ['calup_id' => $calup->id]);
-                return;
-            }
-        });
-    }
-
-    /**
-     * Reopen a paid batch turning invoices back to unpaid.
-     */
-    public function reopen(PlataCalup $calup): void
-    {
-        $this->db->transaction(function () use ($calup) {
-            $calup->update([
-                'status' => PlataCalup::STATUS_DESCHIS,
-                'data_plata' => null,
-            ]);
-
+            $calup->facturi()->detach($factura->id);
         });
     }
 }
