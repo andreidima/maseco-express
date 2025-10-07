@@ -3,68 +3,67 @@
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-        <div class="col-lg-3">
+        <div class="col-lg-2 mb-2">
             <span class="badge culoare1 fs-5">
                 <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
             </span>
         </div>
-        <div class="col-lg-9 text-lg-end mt-3 mt-lg-0">
-            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3 me-2" href="{{ route('facturi-furnizori.plati-calupuri.index') }}">
-                <i class="fa-solid fa-layer-group me-1"></i>Calupuri plăți
-            </a>
-            <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.create') }}">
-                <i class="fa-solid fa-plus me-1"></i>Adaugă factură
-            </a>
-        </div>
-        <div class="col-12 mt-3">
-            <form method="GET" action="{{ url()->current() }}" class="row g-2 g-md-3 align-items-end">
-                <div class="col-12 col-md-6 col-xl-3">
-                    <label for="filter-status" class="mb-0 ps-2">Status</label>
-                    <select name="status" id="filter-status" class="form-select bg-white rounded-3">
-                        <option value="">Toate</option>
-                        @foreach ($statusOptions as $key => $label)
-                            <option value="{{ $key }}" @selected($filters['status'] === $key)>{{ $label }}</option>
-                        @endforeach
-                    </select>
+        <div class="col-lg-8 mb-0" id="formularFacturi">
+            <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
+                @csrf
+                <div class="row mb-1 custom-search-form d-flex justify-content-center">
+                    <div class="col-lg-3">
+                        <select name="status" id="filter-status" class="form-select bg-white rounded-3">
+                            <option value="">Status</option>
+                            @foreach ($statusOptions as $key => $label)
+                                <option value="{{ $key }}" @selected($filters['status'] === $key)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
+                        <input type="text" class="form-control rounded-3" id="filter-furnizor" name="furnizor" placeholder="Furnizor" value="{{ $filters['furnizor'] }}">
+                    </div>
+                    <div class="col-lg-3">
+                        <input type="text" class="form-control rounded-3" id="filter-departament" name="departament" placeholder="Departament" value="{{ $filters['departament'] }}">
+                    </div>
+                    <div class="col-lg-3">
+                        <select name="moneda" id="filter-moneda" class="form-select bg-white rounded-3">
+                            <option value="">Monedă</option>
+                            @foreach ($monede as $moneda)
+                                <option value="{{ $moneda }}" @selected($filters['moneda'] === $moneda)>{{ $moneda }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-                <div class="col-12 col-md-6 col-xl-3">
-                    <label for="filter-furnizor" class="mb-0 ps-2">Furnizor</label>
-                    <input type="text" name="furnizor" id="filter-furnizor" class="form-control bg-white rounded-3" value="{{ $filters['furnizor'] }}">
+                <div class="row mb-1 custom-search-form d-flex justify-content-center">
+                    <div class="col-lg-3">
+                        <input type="date" class="form-control rounded-3" id="filter-scadenta-de-la" name="scadenta_de_la" placeholder="Scadență de la" value="{{ $filters['scadenta_de_la'] }}">
+                    </div>
+                    <div class="col-lg-3">
+                        <input type="date" class="form-control rounded-3" id="filter-scadenta-pana" name="scadenta_pana" placeholder="Scadență până la" value="{{ $filters['scadenta_pana'] }}">
+                    </div>
+                    <div class="col-lg-3">
+                        <input type="number" min="0" class="form-control rounded-3" id="filter-scadente-in-zile" name="scadente_in_zile" placeholder="Scadente în (zile)" value="{{ $filters['scadente_in_zile'] }}">
+                    </div>
+                    <div class="col-lg-3"></div>
                 </div>
-                <div class="col-12 col-md-6 col-xl-3">
-                    <label for="filter-departament" class="mb-0 ps-2">Departament</label>
-                    <input type="text" name="departament" id="filter-departament" class="form-control bg-white rounded-3" value="{{ $filters['departament'] }}">
-                </div>
-                <div class="col-12 col-md-6 col-xl-3">
-                    <label for="filter-moneda" class="mb-0 ps-2">Monedă</label>
-                    <select name="moneda" id="filter-moneda" class="form-select bg-white rounded-3">
-                        <option value="">Toate</option>
-                        @foreach ($monede as $moneda)
-                            <option value="{{ $moneda }}" @selected($filters['moneda'] === $moneda)>{{ $moneda }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-12 col-md-6 col-xl-3">
-                    <label for="filter-scadenta-de-la" class="mb-0 ps-2">Scadență de la</label>
-                    <input type="date" name="scadenta_de_la" id="filter-scadenta-de-la" class="form-control bg-white rounded-3" value="{{ $filters['scadenta_de_la'] }}">
-                </div>
-                <div class="col-12 col-md-6 col-xl-3">
-                    <label for="filter-scadenta-pana" class="mb-0 ps-2">Scadență până la</label>
-                    <input type="date" name="scadenta_pana" id="filter-scadenta-pana" class="form-control bg-white rounded-3" value="{{ $filters['scadenta_pana'] }}">
-                </div>
-                <div class="col-12 col-md-6 col-xl-3">
-                    <label for="filter-scadente-in-zile" class="mb-0 ps-2">Scadente în (zile)</label>
-                    <input type="number" name="scadente_in_zile" id="filter-scadente-in-zile" min="0" class="form-control bg-white rounded-3" value="{{ $filters['scadente_in_zile'] }}">
-                </div>
-                <div class="col-12 col-md-6 col-xl-3 d-flex gap-2">
-                    <button type="submit" class="btn btn-sm btn-primary text-white border border-dark rounded-3 flex-fill">
-                        <i class="fa-solid fa-filter me-1"></i>Filtrează
+                <div class="row custom-search-form justify-content-center">
+                    <button class="btn btn-sm btn-primary text-white col-md-4 me-3 border border-dark rounded-3" type="submit">
+                        <i class="fas fa-search text-white me-1"></i>Caută
                     </button>
-                    <a href="{{ route('facturi-furnizori.facturi.index') }}" class="btn btn-sm btn-secondary text-white border border-dark rounded-3 flex-fill">
-                        <i class="fa-solid fa-rotate-left me-1"></i>Resetează
+                    <a class="btn btn-sm btn-secondary text-white col-md-4 border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.index') }}" role="button">
+                        <i class="far fa-trash-alt text-white me-1"></i>Resetează
                     </a>
                 </div>
             </form>
+        </div>
+        <div class="col-lg-2 text-lg-end">
+            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3 me-2" href="{{ route('facturi-furnizori.plati-calupuri.index') }}" role="button">
+                <i class="fa-solid fa-layer-group me-1"></i>Calupuri plăți
+            </a>
+            <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.create') }}" role="button">
+                <i class="fas fa-plus-square text-white me-1"></i>Adaugă factură
+            </a>
         </div>
     </div>
 
@@ -75,15 +74,15 @@
             <div class="d-flex flex-wrap gap-2 mb-3">
                 @foreach ($statusOptions as $statusKey => $statusLabel)
                     <span class="badge bg-white border border-dark rounded-pill text-dark d-flex align-items-center gap-2 py-2 px-3">
-                        <span class="text-uppercase text-muted small">{{ $statusLabel }}</span>
-                        <span class="fw-bold">{{ $statusCounts[$statusKey] ?? 0 }}</span>
+                        <span class="text-uppercase small">{{ $statusLabel }}</span>
+                        <span class="badge bg-dark text-white">{{ $statusCounts[$statusKey] ?? 0 }}</span>
                     </span>
                 @endforeach
             </div>
         </div>
 
-        <div class="table-responsive rounded mb-3 px-3">
-            <table class="table table-sm table-striped table-hover table-bordered border-dark align-middle">
+        <div class="table-responsive rounded">
+            <table class="table table-sm table-striped table-hover rounded align-middle">
                 <thead class="text-white rounded culoare2">
                     <tr>
                         <th class="text-center"><input type="checkbox" id="select-all" title="Selectează toate"></th>
@@ -114,7 +113,7 @@
                             <td>{{ $factura->moneda }}</td>
                             <td>{{ $factura->departament_vehicul }}</td>
                             <td>
-                                <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
+                                <span class="badge bg-white border border-dark text-dark rounded-pill px-3 py-2">
                                     <small>{{ $statusOptions[$factura->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $factura->status)) }}</small>
                                 </span>
                             </td>
@@ -130,13 +129,15 @@
                             <td class="text-muted">{{ \Illuminate\Support\Str::limit($factura->observatii, 60) }}</td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap">
-                                    <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="badge bg-secondary text-dark text-decoration-none rounded-3 px-3 py-2">Vezi</a>
-                                    <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="badge bg-primary text-white text-decoration-none rounded-3 px-3 py-2">Editează</a>
-                                    <form action="{{ route('facturi-furnizori.facturi.destroy', $factura) }}" method="POST" class="m-0" onsubmit="return confirm('Ștergi această factură?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="badge bg-danger text-white border-0 rounded-3 px-3 py-2">Șterge</button>
-                                    </form>
+                                    <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="btn btn-sm btn-secondary text-white border border-dark rounded-3">
+                                        <i class="fa-solid fa-eye me-1"></i>Vezi
+                                    </a>
+                                    <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="btn btn-sm btn-primary text-white border border-dark rounded-3">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i>Editează
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger text-white border border-dark rounded-3" data-bs-toggle="modal" data-bs-target="#stergeFactura{{ $factura->id }}">
+                                        <i class="fa-solid fa-trash-can me-1"></i>Șterge
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -154,7 +155,7 @@
                 {{ $facturi->appends(request()->except('page'))->links() }}
             </div>
             <div>
-                <button type="button" class="btn btn-sm btn-primary text-white border border-dark rounded-3" id="prepare-calup">
+                <button type="button" class="btn btn-sm btn-success text-white border border-dark rounded-3" id="prepare-calup">
                     <i class="fa-solid fa-file-circle-plus me-1"></i>Pregătește calup
                 </button>
             </div>
@@ -163,6 +164,30 @@
 </div>
 
 <form method="GET" action="{{ route('facturi-furnizori.plati-calupuri.create') }}" id="create-calup-form" class="d-none"></form>
+
+@foreach ($facturi as $factura)
+    <div class="modal fade text-dark" id="stergeFactura{{ $factura->id }}" tabindex="-1" role="dialog" aria-labelledby="stergeFacturaLabel{{ $factura->id }}" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title text-white" id="stergeFacturaLabel{{ $factura->id }}">Factura {{ $factura->numar_factura }}</h5>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="text-align:left;">
+                    Sigur ștergi factura <strong>{{ $factura->numar_factura }}</strong> de la <strong>{{ $factura->denumire_furnizor }}</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                    <form action="{{ route('facturi-furnizori.facturi.destroy', $factura) }}" method="POST" class="m-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger">Șterge factura</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+@endforeach
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
