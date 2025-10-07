@@ -30,12 +30,6 @@ class PlataCalupService
             }
 
             $facturi->each(function (FacturaFurnizor $factura) {
-                if ($factura->status === FacturaFurnizor::STATUS_PLATITA) {
-                    throw ValidationException::withMessages([
-                        'facturi' => "Factura {$factura->numar_factura} este deja atasata unui calup.",
-                    ]);
-                }
-
                 if ($factura->calupuri()->exists()) {
                     throw ValidationException::withMessages([
                         'facturi' => "Factura {$factura->numar_factura} este deja atasata unui calup.",
@@ -50,10 +44,6 @@ class PlataCalupService
             }
 
             $calup->facturi()->attach($syncPayload);
-
-            FacturaFurnizor::query()
-                ->whereIn('id', $facturaIds)
-                ->update(['status' => FacturaFurnizor::STATUS_PLATITA]);
         });
     }
 
@@ -64,8 +54,6 @@ class PlataCalupService
     {
         $this->db->transaction(function () use ($calup, $factura) {
             $calup->facturi()->where('ff_facturi.id', $factura->id)->detach();
-
-            $factura->update(['status' => FacturaFurnizor::STATUS_NEPLATITA]);
         });
     }
 
@@ -88,10 +76,6 @@ class PlataCalupService
                 Log::warning('Calup marcat ca platit fara facturi atasate', ['calup_id' => $calup->id]);
                 return;
             }
-
-            FacturaFurnizor::query()
-                ->whereIn('id', $facturiIds)
-                ->update(['status' => FacturaFurnizor::STATUS_PLATITA]);
         });
     }
 
@@ -106,13 +90,6 @@ class PlataCalupService
                 'data_plata' => null,
             ]);
 
-            $facturiIds = $calup->facturi()->pluck('ff_facturi.id');
-
-            if ($facturiIds->isNotEmpty()) {
-                FacturaFurnizor::query()
-                    ->whereIn('id', $facturiIds)
-                    ->update(['status' => FacturaFurnizor::STATUS_PLATITA]);
-            }
         });
     }
 }

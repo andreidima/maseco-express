@@ -21,10 +21,8 @@ return new class extends Migration
             $table->string('moneda', 3);
             $table->string('departament_vehicul', 150)->nullable();
             $table->text('observatii')->nullable();
-            $table->string('status', 20)->default('neplatita');
             $table->timestamps();
 
-            $table->index(['status', 'data_scadenta']);
             $table->index('denumire_furnizor');
             $table->index('departament_vehicul');
         });

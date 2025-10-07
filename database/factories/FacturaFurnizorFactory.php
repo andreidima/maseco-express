@@ -27,17 +27,16 @@ class FacturaFurnizorFactory extends Factory
             'moneda' => $this->faker->randomElement(['RON', 'EUR', 'USD']),
             'departament_vehicul' => $this->faker->optional()->word(),
             'observatii' => $this->faker->optional()->sentence(),
-            'status' => FacturaFurnizor::STATUS_NEPLATITA,
         ];
     }
 
     public function platita(): self
     {
-        return $this->state(fn () => ['status' => FacturaFurnizor::STATUS_PLATITA]);
+        return $this;
     }
 
     public function inCalup(): self
     {
-        return $this->state(fn () => ['status' => FacturaFurnizor::STATUS_PLATITA]);
+        return $this;
     }
 }

@@ -2,7 +2,6 @@
 
 @section('content')
 @php
-    $facturaStatusLabels = $statusOptions;
     $calupStatusLabels = [
         \App\Models\FacturiFurnizori\PlataCalup::STATUS_DESCHIS => 'Deschis',
         \App\Models\FacturiFurnizori\PlataCalup::STATUS_PLATIT => 'Plătit',
@@ -40,12 +39,7 @@
                         <p class="mb-1"><strong>Data scadență:</strong> {{ $factura->data_scadenta?->format('d.m.Y') }}</p>
                         <p class="mb-1"><strong>Sumă:</strong> {{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</p>
                         <p class="mb-1"><strong>Nr auto / departament:</strong> {{ $factura->departament_vehicul ?: '-' }}</p>
-                        <p class="mb-0">
-                            <strong>Status:</strong>
-                            <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
-                                <small>{{ $facturaStatusLabels[$factura->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $factura->status)) }}</small>
-                            </span>
-                        </p>
+                        <p class="mb-0"><strong>Creată la:</strong> {{ $factura->created_at?->format('d.m.Y H:i') ?: '-' }}</p>
                     </div>
                 </div>
                 <div class="col-lg-6">

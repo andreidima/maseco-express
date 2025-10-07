@@ -7,7 +7,6 @@ use App\Http\Requests\FacturiFurnizori\FacturaFurnizorRequest;
 use App\Models\FacturiFurnizori\FacturaFurnizor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\DB;
 
 class FacturaFurnizorController extends Controller
 {
@@ -19,7 +18,6 @@ class FacturaFurnizorController extends Controller
         $scadenteInZileInput = $request->input('scadente_in_zile');
 
         $filters = [
-            'status' => null,
             'furnizor' => $request->string('furnizor')->toString() ?: null,
             'departament' => $request->string('departament')->toString() ?: null,
             'moneda' => $request->string('moneda')->toString() ?: null,
@@ -33,24 +31,6 @@ class FacturaFurnizorController extends Controller
         ];
 
         $query = FacturaFurnizor::query();
-
-        $requestedStatus = $request->string('status')->toString();
-        $validStatuses = [
-            FacturaFurnizor::STATUS_NEPLATITA,
-            FacturaFurnizor::STATUS_PLATITA,
-        ];
-
-        if ($requestedStatus === 'all') {
-            $filters['status'] = 'all';
-        } elseif (in_array($requestedStatus, $validStatuses, true)) {
-            $filters['status'] = $requestedStatus;
-        } else {
-            $filters['status'] = FacturaFurnizor::STATUS_NEPLATITA;
-        }
-
-        if ($filters['status'] !== 'all') {
-            $query->where('status', $filters['status']);
-        }
 
         if ($filters['furnizor']) {
             $query->where('denumire_furnizor', 'like', '%' . $filters['furnizor'] . '%');
@@ -101,14 +81,6 @@ class FacturaFurnizorController extends Controller
             ->paginate(25)
             ->withQueryString();
 
-        $statusCounts = FacturaFurnizor::query()
-            ->select('status', DB::raw('count(*) as total'))
-            ->whereIn('status', $validStatuses)
-            ->groupBy('status')
-            ->pluck('total', 'status');
-
-        $totalFacturi = FacturaFurnizor::query()->count();
-
         $monede = FacturaFurnizor::query()
             ->select('moneda')
             ->distinct()
@@ -118,14 +90,6 @@ class FacturaFurnizorController extends Controller
         return view('facturiFurnizori.facturi.index', [
             'facturi' => $facturi,
             'filters' => $filters,
-            'statusCounts' => $statusCounts,
-            'statusOptions' => $this->statusOptions(),
-            'statusTabs' => [
-                FacturaFurnizor::STATUS_NEPLATITA => 'Neplătite',
-                FacturaFurnizor::STATUS_PLATITA => 'Plătite',
-                'all' => 'Toate',
-            ],
-            'totalFacturi' => $totalFacturi,
             'monede' => $monede,
         ]);
     }
@@ -137,7 +101,6 @@ class FacturaFurnizorController extends Controller
     {
         return view('facturiFurnizori.facturi.save', [
             'factura' => new FacturaFurnizor(),
-            'statusOptions' => $this->statusOptions(),
         ]);
     }
 
@@ -147,7 +110,6 @@ class FacturaFurnizorController extends Controller
     public function store(FacturaFurnizorRequest $request)
     {
         $payload = $request->validated();
-        $payload['status'] = FacturaFurnizor::STATUS_NEPLATITA;
         $payload['moneda'] = strtoupper($payload['moneda']);
 
         $factura = FacturaFurnizor::create($payload);
@@ -166,7 +128,6 @@ class FacturaFurnizorController extends Controller
 
         return view('facturiFurnizori.facturi.show', [
             'factura' => $factura,
-            'statusOptions' => $this->statusOptions(),
         ]);
     }
 
@@ -179,7 +140,6 @@ class FacturaFurnizorController extends Controller
 
         return view('facturiFurnizori.facturi.save', [
             'factura' => $factura,
-            'statusOptions' => $this->statusOptions(),
         ]);
     }
 
@@ -190,9 +150,6 @@ class FacturaFurnizorController extends Controller
     {
         $payload = $request->validated();
         $payload['moneda'] = strtoupper($payload['moneda']);
-
-        // Status is controlled by workflows, so keep the existing value.
-        unset($payload['status']);
 
         $factura->update($payload);
 
@@ -206,11 +163,10 @@ class FacturaFurnizorController extends Controller
      */
     public function destroy(FacturaFurnizor $factura)
     {
-        if ($factura->status === FacturaFurnizor::STATUS_PLATITA) {
-            return back()->with('error', 'Factura platita nu poate fi stearsa.');
+        if ($factura->calupuri()->exists()) {
+            return back()->with('error', 'Factura atasata unui calup nu poate fi stearsa.');
         }
 
-        $factura->calupuri()->detach();
         $factura->delete();
 
         return redirect()
@@ -250,11 +206,4 @@ class FacturaFurnizorController extends Controller
         return response()->json($valori);
     }
 
-    private function statusOptions(): array
-    {
-        return [
-            FacturaFurnizor::STATUS_NEPLATITA => 'Neplătită',
-            FacturaFurnizor::STATUS_PLATITA => 'Plătită',
-        ];
-    }
 }

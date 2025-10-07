@@ -13,11 +13,6 @@
         }
     }
 
-    $tabCounts = [
-        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA => $statusCounts[\App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA] ?? 0,
-        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_PLATITA => $statusCounts[\App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_PLATITA] ?? 0,
-        'all' => $totalFacturi,
-    ];
 @endphp
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
@@ -29,25 +24,13 @@
         <div class="col-lg-8 mb-0" id="formularFacturi">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
                 <div class="row mb-1 custom-search-form d-flex justify-content-center">
-                    <div class="col-lg-3">
-                        <select name="status" id="filter-status" class="form-select bg-white rounded-3">
-                            @foreach ($statusTabs as $statusKey => $statusLabel)
-                                @php
-                                    $statusCount = $tabCounts[$statusKey] ?? null;
-                                @endphp
-                                <option value="{{ $statusKey }}" @selected($filters['status'] === $statusKey)>
-                                    {{ $statusLabel }}@if (!is_null($statusCount)) ({{ $statusCount }}) @endif
-                                </option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <input type="text" class="form-control rounded-3" id="filter-furnizor" name="furnizor" placeholder="Furnizor" value="{{ $filters['furnizor'] }}">
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <input type="text" class="form-control rounded-3" id="filter-departament" name="departament" placeholder="Departament" value="{{ $filters['departament'] }}">
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <select name="moneda" id="filter-moneda" class="form-select bg-white rounded-3">
                             <option value="">Monedă</option>
                             @foreach ($monede as $moneda)
@@ -112,7 +95,6 @@
                         <th class="text-end">Sumă</th>
                         <th>Monedă</th>
                         <th>Departament</th>
-                        <th>Status</th>
                         <th>Calup</th>
                         <th>Observații</th>
                         <th class="text-end">Acțiuni</th>
@@ -122,7 +104,7 @@
                     @forelse ($facturi as $factura)
                         <tr>
                             @php
-                                $checkboxDisabled = $factura->status !== \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA;
+                                $checkboxDisabled = $factura->calupuri->isNotEmpty();
                                 $shouldCheck = in_array($factura->id, $selectedFacturiOld, true);
                             @endphp
                             <td class="text-center">
@@ -141,11 +123,6 @@
                             <td class="text-end">{{ number_format($factura->suma, 2) }}</td>
                             <td>{{ $factura->moneda }}</td>
                             <td>{{ $factura->departament_vehicul }}</td>
-                            <td>
-                                <span class="badge bg-white border border-dark text-dark rounded-pill px-3 py-2">
-                                    <small>{{ $statusOptions[$factura->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $factura->status)) }}</small>
-                                </span>
-                            </td>
                             <td>
                                 @if ($factura->calupuri->isNotEmpty())
                                     @foreach ($factura->calupuri as $calup)
@@ -174,7 +151,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="12" class="text-center text-muted py-4">Nu există facturi înregistrate.</td>
+                            <td colspan="11" class="text-center text-muted py-4">Nu există facturi înregistrate.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -196,7 +173,6 @@
             </div>
             <form action="{{ route('facturi-furnizori.plati-calupuri.store') }}" method="POST" id="calup-form" enctype="multipart/form-data">
                 @csrf
-                <input type="hidden" name="status" value="{{ $filters['status'] }}">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-6 mb-3">
@@ -240,7 +216,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="mb-0">Selectați cel puțin o factură neplătită.</p>
+                <p class="mb-0">Selectați cel puțin o factură.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Închide</button>
@@ -389,7 +365,7 @@
 
                     if (!selected.length) {
                         event.preventDefault();
-                        showModal(selectionWarningModalElement, 'Selectați cel puțin o factură neplătită.');
+                        showModal(selectionWarningModalElement, 'Selectați cel puțin o factură.');
                         return;
                     }
 
