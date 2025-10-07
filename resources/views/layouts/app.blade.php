@@ -336,5 +336,7 @@
             </span>
         </div>
     </footer>
+
+    @stack('page-scripts')
 </body>
 </html>

@@ -106,8 +106,6 @@ class PlataCalupController extends Controller
         return redirect()
             ->route('facturi-furnizori.facturi.index', array_filter([
                 'status' => $request->input('status', FacturaFurnizor::STATUS_NEPLATITA),
-                'calup' => $calup->denumire_calup,
-                'calup_data_plata' => optional($calup->data_plata)?->format('Y-m-d'),
             ], fn ($value) => !is_null($value) && $value !== ''))
             ->with('status', 'Calupul a fost creat cu succes.');
     }
