@@ -26,6 +26,8 @@ class FacturaFurnizorController extends Controller
             'scadente_in_zile' => $request->has('scadente_in_zile')
                 ? (int) $request->input('scadente_in_zile')
                 : null,
+            'calup' => $request->string('calup')->toString() ?: null,
+            'calup_data_plata' => $request->string('calup_data_plata')->toString() ?: null,
         ];
 
         $query = FacturaFurnizor::query();
@@ -78,8 +80,20 @@ class FacturaFurnizorController extends Controller
             $query->whereBetween('data_scadenta', [$start, $end]);
         }
 
+        if ($filters['calup'] || $filters['calup_data_plata']) {
+            $query->whereHas('calupuri', function ($subQuery) use ($filters) {
+                if ($filters['calup']) {
+                    $subQuery->where('denumire_calup', 'like', '%' . $filters['calup'] . '%');
+                }
+
+                if ($filters['calup_data_plata']) {
+                    $subQuery->whereDate('data_plata', Carbon::parse($filters['calup_data_plata']));
+                }
+            });
+        }
+
         $facturi = $query
-            ->with('calupuri:id,denumire_calup,status')
+            ->with('calupuri:id,denumire_calup,status,data_plata')
             ->orderBy('data_scadenta')
             ->orderBy('denumire_furnizor')
             ->paginate(25)
