@@ -1,5 +1,8 @@
 @php
     $factura ??= null;
+    $buttonText ??= __('Salvează factura');
+    $buttonClass ??= 'btn-primary';
+    $cancelUrl ??= route('facturi-furnizori.facturi.index');
 @endphp
 
 <div class="row">
@@ -16,6 +19,9 @@
             required
         >
         <datalist id="furnizor-suggestions"></datalist>
+        @error('denumire_furnizor')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
     <div class="col-lg-6 mb-3">
         <label for="numar_factura" class="mb-0 ps-2">Număr factură<span class="text-danger">*</span></label>
@@ -27,6 +33,9 @@
             value="{{ old('numar_factura', $factura->numar_factura ?? '') }}"
             required
         >
+        @error('numar_factura')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
 </div>
 
@@ -41,6 +50,9 @@
             value="{{ old('data_factura', optional($factura?->data_factura)->format('Y-m-d')) }}"
             required
         >
+        @error('data_factura')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
     <div class="col-lg-3 mb-3">
         <label for="data_scadenta" class="mb-0 ps-2">Data scadență<span class="text-danger">*</span></label>
@@ -52,6 +64,9 @@
             value="{{ old('data_scadenta', optional($factura?->data_scadenta)->format('Y-m-d')) }}"
             required
         >
+        @error('data_scadenta')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
     <div class="col-lg-3 mb-3">
         <label for="suma" class="mb-0 ps-2">Sumă<span class="text-danger">*</span></label>
@@ -65,6 +80,9 @@
             value="{{ old('suma', $factura->suma ?? '') }}"
             required
         >
+        @error('suma')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
     <div class="col-lg-3 mb-3">
         <label for="moneda" class="mb-0 ps-2">Monedă<span class="text-danger">*</span></label>
@@ -77,12 +95,15 @@
             value="{{ old('moneda', $factura->moneda ?? 'RON') }}"
             required
         >
+        @error('moneda')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
 </div>
 
-<div class="row">
-    <div class="col-lg-6 mb-3">
-        <label for="departament_vehicul" class="mb-0 ps-2">Nr auto / departament</label>
+<div class="row mb-0 px-3">
+    <div class="col-lg-6 mb-4">
+        <label for="departament_vehicul" class="mb-0 ps-3">Nr auto / departament</label>
         <input
             type="text"
             name="departament_vehicul"
@@ -93,14 +114,31 @@
             autocomplete="off"
         >
         <datalist id="departament-suggestions"></datalist>
+        @error('departament_vehicul')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
     </div>
-    <div class="col-lg-6 mb-3">
-        <label for="observatii" class="mb-0 ps-2">Observații</label>
+    <div class="col-lg-6 mb-4">
+        <label for="observatii" class="mb-0 ps-3">Observații</label>
         <textarea
             name="observatii"
             id="observatii"
             rows="2"
             class="form-control bg-white rounded-3 {{ $errors->has('observatii') ? 'is-invalid' : '' }}"
         >{{ old('observatii', $factura->observatii ?? '') }}</textarea>
+        @error('observatii')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+
+<div class="row mb-0 px-3">
+    <div class="col-lg-12 mb-2 d-flex justify-content-center">
+        <button type="submit" class="btn btn-lg {{ $buttonClass }} text-white me-3 rounded-3">
+            {{ $buttonText }}
+        </button>
+        <a class="btn btn-lg btn-secondary rounded-3" href="{{ $cancelUrl }}">
+            Renunță
+        </a>
     </div>
 </div>
