@@ -271,113 +271,142 @@
     </div>
 @endforeach
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const selectAll = document.getElementById('select-all');
-        const checkboxItems = Array.from(document.querySelectorAll('.select-factura'));
-        const prepareButton = document.getElementById('prepare-calup');
-        const selectedContainer = document.getElementById('calup-form-selected');
-        const selectedCount = document.getElementById('calup-selected-count');
-        const showModal = (element, fallbackMessage = null) => {
-            if (!element) {
-                return;
-            }
-
+@push('page-scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const selectAll = document.getElementById('select-all');
+            const checkboxItems = Array.from(document.querySelectorAll('.select-factura'));
+            const prepareButton = document.getElementById('prepare-calup');
+            const selectedContainer = document.getElementById('calup-form-selected');
+            const selectedCount = document.getElementById('calup-selected-count');
+            const calupModalElement = document.getElementById('calupModal');
+            const selectionWarningModalElement = document.getElementById('calupSelectionWarningModal');
             const bootstrap = window.bootstrap;
+            const bootstrapModal = bootstrap && bootstrap.Modal ? bootstrap.Modal : null;
 
-            if (bootstrap && bootstrap.Modal) {
-                const modalInstance =
-                    typeof bootstrap.Modal.getOrCreateInstance === 'function'
-                        ? bootstrap.Modal.getOrCreateInstance(element)
-                        : new bootstrap.Modal(element);
-                modalInstance.show();
-                return;
-            }
-
-            const $ = window.jQuery || window.$;
-
-            if (typeof $ === 'function' && typeof $(element).modal === 'function') {
-                $(element).modal('show');
-                return;
-            }
-
-            if (fallbackMessage) {
-                alert(fallbackMessage);
-            }
-        };
-
-        const calupModalElement = document.getElementById('calupModal');
-        const selectionWarningModalElement = document.getElementById('calupSelectionWarningModal');
-
-        const collectSelectedValues = () => checkboxItems
-            .filter(checkbox => checkbox.checked && !checkbox.disabled)
-            .map(item => item.value);
-
-        const syncSelectedInputs = (selected) => {
-            if (!selectedContainer) {
-                return;
-            }
-
-            selectedContainer.innerHTML = '';
-            selected.forEach(value => {
-                const input = document.createElement('input');
-                input.type = 'hidden';
-                input.name = 'facturi[]';
-                input.value = value;
-                selectedContainer.appendChild(input);
-            });
-        };
-
-        const updateSelectedCounter = (selected) => {
-            if (selectedCount) {
-                selectedCount.textContent = selected.length.toString();
-            }
-        };
-
-        if (selectAll) {
-            selectAll.addEventListener('change', () => {
-                checkboxItems.forEach(checkbox => {
-                    if (!checkbox.disabled) {
-                        checkbox.checked = selectAll.checked;
+            const showModal = (element, fallbackMessage = null) => {
+                if (!element) {
+                    if (fallbackMessage && typeof window !== 'undefined' && typeof window.alert === 'function') {
+                        window.alert(fallbackMessage);
                     }
-                });
-                updateSelectedCounter(collectSelectedValues());
-            });
-        }
-
-        checkboxItems.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                updateSelectedCounter(collectSelectedValues());
-            });
-        });
-
-        if (prepareButton) {
-            prepareButton.addEventListener('click', (event) => {
-                const selected = collectSelectedValues();
-
-                if (!selected.length) {
-                    event.preventDefault();
-
-                    showModal(selectionWarningModalElement, 'Selectați cel puțin o factură neplătită.');
-
                     return;
                 }
 
+                if (bootstrapModal) {
+                    const modalInstance =
+                        typeof bootstrapModal.getOrCreateInstance === 'function'
+                            ? bootstrapModal.getOrCreateInstance(element)
+                            : new bootstrapModal(element);
+                    modalInstance.show();
+                    return;
+                }
+
+                const $ = window.jQuery || window.$;
+
+                if (typeof $ === 'function' && typeof $(element).modal === 'function') {
+                    $(element).modal('show');
+                    return;
+                }
+
+                if (fallbackMessage && typeof window !== 'undefined' && typeof window.alert === 'function') {
+                    window.alert(fallbackMessage);
+                }
+            };
+
+            const selectableCheckboxes = () => checkboxItems.filter(checkbox => !checkbox.disabled);
+
+            const collectSelectedValues = () => selectableCheckboxes()
+                .filter(checkbox => checkbox.checked)
+                .map(item => item.value);
+
+            const syncSelectedInputs = (selected) => {
+                if (!selectedContainer) {
+                    return;
+                }
+
+                selectedContainer.innerHTML = '';
+
+                selected.forEach(value => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'facturi[]';
+                    input.value = value;
+                    selectedContainer.appendChild(input);
+                });
+            };
+
+            const updateSelectAllState = (selectedCountValue) => {
+                if (!selectAll) {
+                    return;
+                }
+
+                const eligibleCheckboxes = selectableCheckboxes();
+                const totalEligible = eligibleCheckboxes.length;
+                const allSelected = totalEligible > 0 && selectedCountValue === totalEligible;
+
+                selectAll.checked = allSelected;
+                selectAll.indeterminate = selectedCountValue > 0 && selectedCountValue < totalEligible;
+            };
+
+            const updateSelectedCounter = (selected) => {
+                const count = selected.length;
+
+                if (selectedCount) {
+                    selectedCount.textContent = count.toString();
+                }
+
+                updateSelectAllState(count);
+            };
+
+            const refreshSelectionState = () => {
+                const selected = collectSelectedValues();
                 syncSelectedInputs(selected);
                 updateSelectedCounter(selected);
+                return selected;
+            };
 
-                showModal(calupModalElement);
+            if (selectAll) {
+                selectAll.addEventListener('change', () => {
+                    selectableCheckboxes().forEach(checkbox => {
+                        checkbox.checked = selectAll.checked;
+                    });
+
+                    refreshSelectionState();
+                });
+            }
+
+            checkboxItems.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    refreshSelectionState();
+                });
             });
-        }
 
-        if (calupModalElement && calupModalElement.dataset.showOnLoad === 'true') {
-            const selected = collectSelectedValues();
-            syncSelectedInputs(selected);
-            updateSelectedCounter(selected);
-            showModal(calupModalElement);
-        }
+            if (prepareButton) {
+                prepareButton.addEventListener('click', (event) => {
+                    const selected = refreshSelectionState();
 
-        updateSelectedCounter(collectSelectedValues());
-    });
-</script>
+                    if (!selected.length) {
+                        event.preventDefault();
+                        showModal(selectionWarningModalElement, 'Selectați cel puțin o factură neplătită.');
+                        return;
+                    }
+
+                    showModal(calupModalElement);
+                });
+            }
+
+            const initializeModalIfNeeded = () => {
+                if (calupModalElement && calupModalElement.dataset.showOnLoad === 'true') {
+                    refreshSelectionState();
+                    showModal(calupModalElement);
+                    return;
+                }
+
+                refreshSelectionState();
+            };
+
+            initializeModalIfNeeded();
+        });
+    </script>
+@endpush
 @endsection
