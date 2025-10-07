@@ -4,7 +4,7 @@
 
 <div class="row">
     <div class="col-lg-6 mb-3">
-        <label for="denumire_furnizor" class="mb-0 ps-2">Denumire furnizor</label>
+        <label for="denumire_furnizor" class="mb-0 ps-2">Denumire furnizor<span class="text-danger">*</span></label>
         <input
             type="text"
             name="denumire_furnizor"
@@ -18,7 +18,7 @@
         <datalist id="furnizor-suggestions"></datalist>
     </div>
     <div class="col-lg-6 mb-3">
-        <label for="numar_factura" class="mb-0 ps-2">Număr factură</label>
+        <label for="numar_factura" class="mb-0 ps-2">Număr factură<span class="text-danger">*</span></label>
         <input
             type="text"
             name="numar_factura"
@@ -32,7 +32,7 @@
 
 <div class="row">
     <div class="col-lg-3 mb-3">
-        <label for="data_factura" class="mb-0 ps-2">Data factură</label>
+        <label for="data_factura" class="mb-0 ps-2">Data factură<span class="text-danger">*</span></label>
         <input
             type="date"
             name="data_factura"
@@ -43,7 +43,7 @@
         >
     </div>
     <div class="col-lg-3 mb-3">
-        <label for="data_scadenta" class="mb-0 ps-2">Data scadență</label>
+        <label for="data_scadenta" class="mb-0 ps-2">Data scadență<span class="text-danger">*</span></label>
         <input
             type="date"
             name="data_scadenta"
@@ -54,7 +54,7 @@
         >
     </div>
     <div class="col-lg-3 mb-3">
-        <label for="suma" class="mb-0 ps-2">Sumă</label>
+        <label for="suma" class="mb-0 ps-2">Sumă<span class="text-danger">*</span></label>
         <input
             type="number"
             name="suma"
@@ -67,7 +67,7 @@
         >
     </div>
     <div class="col-lg-3 mb-3">
-        <label for="moneda" class="mb-0 ps-2">Monedă</label>
+        <label for="moneda" class="mb-0 ps-2">Monedă<span class="text-danger">*</span></label>
         <input
             type="text"
             name="moneda"
