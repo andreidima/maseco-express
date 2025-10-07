@@ -88,9 +88,7 @@ class PlataCalupController extends Controller
         $facturi = $payload['facturi'] ?? [];
         unset($payload['facturi']);
 
-        if (isset($payload['status']) && $payload['status'] !== PlataCalup::STATUS_DESCHIS) {
-            $payload['status'] = PlataCalup::STATUS_DESCHIS;
-        }
+        $payload['status'] = PlataCalup::STATUS_DESCHIS;
 
         if ($request->hasFile('fisier_pdf')) {
             $payload['fisier_pdf'] = $this->uploadFisierPdf($request->file('fisier_pdf'));
@@ -106,7 +104,11 @@ class PlataCalupController extends Controller
         }
 
         return redirect()
-            ->route('facturi-furnizori.plati-calupuri.show', $calup)
+            ->route('facturi-furnizori.facturi.index', array_filter([
+                'status' => $request->input('status', FacturaFurnizor::STATUS_NEPLATITA),
+                'calup' => $calup->denumire_calup,
+                'calup_data_plata' => optional($calup->data_plata)?->format('Y-m-d'),
+            ], fn ($value) => !is_null($value) && $value !== ''))
             ->with('status', 'Calupul a fost creat cu succes.');
     }
 
