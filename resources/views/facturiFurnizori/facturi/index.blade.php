@@ -3,7 +3,7 @@
 @section('content')
 @php
     $selectedFacturiOld = collect(old('facturi', []))->map(fn ($id) => (int) $id)->all();
-    $calupErrorFields = ['denumire_calup', 'data_plata', 'observatii', 'status', 'fisier_pdf', 'facturi', 'facturi.*'];
+    $calupErrorFields = ['denumire_calup', 'data_plata', 'observatii', 'fisier_pdf', 'facturi', 'facturi.*'];
     $shouldShowCalupModal = !empty($selectedFacturiOld);
 
     foreach ($calupErrorFields as $field) {
@@ -28,7 +28,6 @@
         </div>
         <div class="col-lg-8 mb-0" id="formularFacturi">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
-                @csrf
                 <div class="row mb-1 custom-search-form d-flex justify-content-center">
                     <div class="col-lg-3">
                         <select name="status" id="filter-status" class="form-select bg-white rounded-3">
@@ -66,6 +65,14 @@
                     </div>
                     <div class="col-lg-3">
                         <input type="number" min="0" class="form-control rounded-3" id="filter-scadente-in-zile" name="scadente_in_zile" placeholder="Scadente în (zile)" value="{{ $filters['scadente_in_zile'] }}">
+                    </div>
+                </div>
+                <div class="row mb-1 custom-search-form d-flex justify-content-center">
+                    <div class="col-lg-3">
+                        <input type="text" class="form-control rounded-3" id="filter-calup" name="calup" placeholder="Calup" value="{{ $filters['calup'] }}">
+                    </div>
+                    <div class="col-lg-3">
+                        <input type="date" class="form-control rounded-3" id="filter-calup-data" name="calup_data_plata" value="{{ $filters['calup_data_plata'] }}">
                     </div>
                 </div>
                 <div class="row custom-search-form justify-content-center">
@@ -172,7 +179,7 @@
                 {{ $facturi->appends(request()->except('page'))->links() }}
             </div>
             <div>
-                <button type="button" class="btn btn-sm btn-success text-white border border-dark rounded-3" id="prepare-calup" data-bs-toggle="modal" data-bs-target="#calupModal">
+                <button type="button" class="btn btn-sm btn-success text-white border border-dark rounded-3" id="prepare-calup">
                     <i class="fa-solid fa-file-circle-plus me-1"></i>Pregătește calup
                 </button>
             </div>
@@ -183,9 +190,9 @@
 <div class="modal fade" id="calupModal" tabindex="-1" aria-labelledby="calupModalLabel" aria-hidden="true" @if ($shouldShowCalupModal) data-show-on-load="true" @endif>
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="calupModalLabel">Pregătește calup pentru <span id="calup-selected-count" class="text-primary fw-bold">0</span> facturi</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="calupModalLabel">Pregătește calup pentru <span id="calup-selected-count" class="text-white fw-bold">0</span> facturi</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form action="{{ route('facturi-furnizori.plati-calupuri.store') }}" method="POST" id="calup-form" enctype="multipart/form-data">
                 @csrf
@@ -198,11 +205,6 @@
                         <div class="col-lg-3 mb-3">
                             <label for="data_plata" class="mb-0 ps-2">Data plată</label>
                             <input type="date" name="data_plata" id="data_plata" class="form-control bg-white rounded-3 {{ $errors->has('data_plata') ? 'is-invalid' : '' }}" value="{{ old('data_plata') }}">
-                        </div>
-                        <div class="col-lg-3 mb-3">
-                            <label class="mb-0 ps-2">Status</label>
-                            <input type="text" class="form-control bg-light rounded-3" value="Deschis" disabled>
-                            <input type="hidden" name="status" value="{{ \App\Models\FacturiFurnizori\PlataCalup::STATUS_DESCHIS }}">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -225,6 +227,23 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="calupSelectionWarningModal" tabindex="-1" aria-labelledby="calupSelectionWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark" id="calupSelectionWarningModalLabel">Selectați facturi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Selectați cel puțin o factură neplătită pentru a pregăti un calup.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Închide</button>
+            </div>
         </div>
     </div>
 </div>
@@ -264,6 +283,35 @@
         const bootstrapModal = calupModalElement && typeof bootstrap !== 'undefined'
             ? new bootstrap.Modal(calupModalElement)
             : null;
+        const selectionWarningModalElement = document.getElementById('calupSelectionWarningModal');
+        const selectionWarningModal = selectionWarningModalElement && typeof bootstrap !== 'undefined'
+            ? new bootstrap.Modal(selectionWarningModalElement)
+            : null;
+
+        const collectSelectedValues = () => checkboxItems
+            .filter(checkbox => checkbox.checked && !checkbox.disabled)
+            .map(item => item.value);
+
+        const syncSelectedInputs = (selected) => {
+            if (!selectedContainer) {
+                return;
+            }
+
+            selectedContainer.innerHTML = '';
+            selected.forEach(value => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'facturi[]';
+                input.value = value;
+                selectedContainer.appendChild(input);
+            });
+        };
+
+        const updateSelectedCounter = (selected) => {
+            if (selectedCount) {
+                selectedCount.textContent = selected.length.toString();
+            }
+        };
 
         if (selectAll) {
             selectAll.addEventListener('change', () => {
@@ -272,36 +320,28 @@
                         checkbox.checked = selectAll.checked;
                     }
                 });
+                updateSelectedCounter(collectSelectedValues());
             });
         }
 
         if (prepareButton) {
             prepareButton.addEventListener('click', (event) => {
-                const selected = checkboxItems
-                    .filter(checkbox => checkbox.checked && !checkbox.disabled)
-                    .map(item => item.value);
+                const selected = collectSelectedValues();
 
                 if (!selected.length) {
-                    alert('Selectați cel puțin o factură neplătită.');
-                    event.stopPropagation();
                     event.preventDefault();
-                    return false;
+
+                    if (selectionWarningModal) {
+                        selectionWarningModal.show();
+                    } else {
+                        alert('Selectați cel puțin o factură neplătită.');
+                    }
+
+                    return;
                 }
 
-                if (selectedContainer) {
-                    selectedContainer.innerHTML = '';
-                    selected.forEach(value => {
-                        const input = document.createElement('input');
-                        input.type = 'hidden';
-                        input.name = 'facturi[]';
-                        input.value = value;
-                        selectedContainer.appendChild(input);
-                    });
-                }
-
-                if (selectedCount) {
-                    selectedCount.textContent = selected.length.toString();
-                }
+                syncSelectedInputs(selected);
+                updateSelectedCounter(selected);
 
                 if (bootstrapModal) {
                     bootstrapModal.show();
@@ -310,25 +350,9 @@
         }
 
         if (calupModalElement && calupModalElement.dataset.showOnLoad === 'true' && bootstrapModal) {
-            const selected = checkboxItems
-                .filter(checkbox => checkbox.checked && !checkbox.disabled)
-                .map(item => item.value);
-
-            if (selectedContainer) {
-                selectedContainer.innerHTML = '';
-                selected.forEach(value => {
-                    const input = document.createElement('input');
-                    input.type = 'hidden';
-                    input.name = 'facturi[]';
-                    input.value = value;
-                    selectedContainer.appendChild(input);
-                });
-            }
-
-            if (selectedCount) {
-                selectedCount.textContent = selected.length.toString();
-            }
-
+            const selected = collectSelectedValues();
+            syncSelectedInputs(selected);
+            updateSelectedCounter(selected);
             bootstrapModal.show();
         }
     });
