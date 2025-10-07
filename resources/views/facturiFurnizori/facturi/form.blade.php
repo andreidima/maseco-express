@@ -5,9 +5,9 @@
     $cancelUrl ??= route('facturi-furnizori.facturi.index');
 @endphp
 
-<div class="row mb-0 px-3">
-    <div class="col-lg-6 mb-4">
-        <label for="denumire_furnizor" class="mb-0 ps-3">Denumire furnizor</label>
+<div class="row">
+    <div class="col-lg-6 mb-3">
+        <label for="denumire_furnizor" class="mb-0 ps-2">Denumire furnizor<span class="text-danger">*</span></label>
         <input
             type="text"
             name="denumire_furnizor"
@@ -23,8 +23,8 @@
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
-    <div class="col-lg-6 mb-4">
-        <label for="numar_factura" class="mb-0 ps-3">Număr factură</label>
+    <div class="col-lg-6 mb-3">
+        <label for="numar_factura" class="mb-0 ps-2">Număr factură<span class="text-danger">*</span></label>
         <input
             type="text"
             name="numar_factura"
@@ -39,9 +39,9 @@
     </div>
 </div>
 
-<div class="row mb-0 px-3">
-    <div class="col-lg-3 mb-4">
-        <label for="data_factura" class="mb-0 ps-3">Data factură</label>
+<div class="row">
+    <div class="col-lg-3 mb-3">
+        <label for="data_factura" class="mb-0 ps-2">Data factură<span class="text-danger">*</span></label>
         <input
             type="date"
             name="data_factura"
@@ -54,8 +54,8 @@
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
-    <div class="col-lg-3 mb-4">
-        <label for="data_scadenta" class="mb-0 ps-3">Data scadență</label>
+    <div class="col-lg-3 mb-3">
+        <label for="data_scadenta" class="mb-0 ps-2">Data scadență<span class="text-danger">*</span></label>
         <input
             type="date"
             name="data_scadenta"
@@ -68,8 +68,8 @@
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
-    <div class="col-lg-3 mb-4">
-        <label for="suma" class="mb-0 ps-3">Sumă</label>
+    <div class="col-lg-3 mb-3">
+        <label for="suma" class="mb-0 ps-2">Sumă<span class="text-danger">*</span></label>
         <input
             type="number"
             name="suma"
@@ -84,8 +84,8 @@
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
-    <div class="col-lg-3 mb-4">
-        <label for="moneda" class="mb-0 ps-3">Monedă</label>
+    <div class="col-lg-3 mb-3">
+        <label for="moneda" class="mb-0 ps-2">Monedă<span class="text-danger">*</span></label>
         <input
             type="text"
             name="moneda"

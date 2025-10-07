@@ -16,6 +16,8 @@ class FacturaFurnizorController extends Controller
      */
     public function index(Request $request)
     {
+        $scadenteInZileInput = $request->input('scadente_in_zile');
+
         $filters = [
             'status' => null,
             'furnizor' => $request->string('furnizor')->toString() ?: null,
@@ -23,9 +25,9 @@ class FacturaFurnizorController extends Controller
             'moneda' => $request->string('moneda')->toString() ?: null,
             'scadenta_de_la' => $request->string('scadenta_de_la')->toString() ?: null,
             'scadenta_pana' => $request->string('scadenta_pana')->toString() ?: null,
-            'scadente_in_zile' => $request->has('scadente_in_zile')
-                ? (int) $request->input('scadente_in_zile')
-                : null,
+            'scadente_in_zile' => ($scadenteInZileInput === null || $scadenteInZileInput === '')
+                ? null
+                : (int) $scadenteInZileInput,
             'calup' => $request->string('calup')->toString() ?: null,
             'calup_data_plata' => $request->string('calup_data_plata')->toString() ?: null,
         ];

@@ -85,10 +85,15 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-2 text-lg-end">
-            <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.create') }}" role="button">
-                <i class="fas fa-plus-square text-white me-1"></i>Adaugă factură
-            </a>
+        <div class="col-lg-2 text-lg-end mt-3 mt-lg-0">
+            <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
+                <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.create') }}" role="button">
+                    <i class="fas fa-plus-square text-white me-1"></i>Adaugă factură
+                </a>
+                <button type="button" class="btn btn-sm btn-warning text-dark border border-dark rounded-3" id="prepare-calup">
+                    <i class="fa-solid fa-file-circle-plus me-1"></i>Pregătește calup
+                </button>
+            </div>
         </div>
     </div>
 
@@ -174,15 +179,8 @@
             </table>
         </div>
 
-        <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center gap-3 px-3">
-            <div>
-                {{ $facturi->appends(request()->except('page'))->links() }}
-            </div>
-            <div>
-                <button type="button" class="btn btn-sm btn-success text-white border border-dark rounded-3" id="prepare-calup">
-                    <i class="fa-solid fa-file-circle-plus me-1"></i>Pregătește calup
-                </button>
-            </div>
+        <div class="px-3">
+            {{ $facturi->appends(request()->except('page'))->links() }}
         </div>
     </div>
 </div>
@@ -196,6 +194,7 @@
             </div>
             <form action="{{ route('facturi-furnizori.plati-calupuri.store') }}" method="POST" id="calup-form" enctype="multipart/form-data">
                 @csrf
+                <input type="hidden" name="status" value="{{ $filters['status'] }}">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-6 mb-3">
@@ -239,7 +238,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <p class="mb-0">Selectați cel puțin o factură neplătită pentru a pregăti un calup.</p>
+                <p class="mb-0">Selectați cel puțin o factură neplătită.</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Închide</button>
@@ -279,14 +278,28 @@
         const prepareButton = document.getElementById('prepare-calup');
         const selectedContainer = document.getElementById('calup-form-selected');
         const selectedCount = document.getElementById('calup-selected-count');
+        const getModalInstance = (element) => {
+            if (!element) {
+                return null;
+            }
+
+            const bootstrap = window.bootstrap;
+
+            if (!bootstrap || !bootstrap.Modal) {
+                return null;
+            }
+
+            if (typeof bootstrap.Modal.getOrCreateInstance === 'function') {
+                return bootstrap.Modal.getOrCreateInstance(element);
+            }
+
+            return new bootstrap.Modal(element);
+        };
+
         const calupModalElement = document.getElementById('calupModal');
-        const bootstrapModal = calupModalElement && typeof bootstrap !== 'undefined'
-            ? new bootstrap.Modal(calupModalElement)
-            : null;
+        const calupModal = getModalInstance(calupModalElement);
         const selectionWarningModalElement = document.getElementById('calupSelectionWarningModal');
-        const selectionWarningModal = selectionWarningModalElement && typeof bootstrap !== 'undefined'
-            ? new bootstrap.Modal(selectionWarningModalElement)
-            : null;
+        const selectionWarningModal = getModalInstance(selectionWarningModalElement);
 
         const collectSelectedValues = () => checkboxItems
             .filter(checkbox => checkbox.checked && !checkbox.disabled)
@@ -324,6 +337,12 @@
             });
         }
 
+        checkboxItems.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                updateSelectedCounter(collectSelectedValues());
+            });
+        });
+
         if (prepareButton) {
             prepareButton.addEventListener('click', (event) => {
                 const selected = collectSelectedValues();
@@ -343,18 +362,20 @@
                 syncSelectedInputs(selected);
                 updateSelectedCounter(selected);
 
-                if (bootstrapModal) {
-                    bootstrapModal.show();
+                if (calupModal) {
+                    calupModal.show();
                 }
             });
         }
 
-        if (calupModalElement && calupModalElement.dataset.showOnLoad === 'true' && bootstrapModal) {
+        if (calupModalElement && calupModalElement.dataset.showOnLoad === 'true' && calupModal) {
             const selected = collectSelectedValues();
             syncSelectedInputs(selected);
             updateSelectedCounter(selected);
-            bootstrapModal.show();
+            calupModal.show();
         }
+
+        updateSelectedCounter(collectSelectedValues());
     });
 </script>
 @endsection
