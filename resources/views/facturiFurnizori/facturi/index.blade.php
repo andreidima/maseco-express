@@ -158,13 +158,13 @@
                             <td class="text-muted">{{ \Illuminate\Support\Str::limit($factura->observatii, 60) }}</td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap">
-                                    <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="btn btn-sm btn-secondary text-white border border-dark rounded-3">
+                                    <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="badge bg-secondary text-dark text-decoration-none rounded-3 px-3 py-2">
                                         <i class="fa-solid fa-eye me-1"></i>Vezi
                                     </a>
-                                    <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="btn btn-sm btn-primary text-white border border-dark rounded-3">
+                                    <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="badge bg-primary text-white text-decoration-none rounded-3 px-3 py-2">
                                         <i class="fa-solid fa-pen-to-square me-1"></i>Editează
                                     </a>
-                                    <button type="button" class="btn btn-sm btn-danger text-white border border-dark rounded-3" data-bs-toggle="modal" data-bs-target="#stergeFactura{{ $factura->id }}">
+                                    <button type="button" class="badge bg-danger text-white border-0 rounded-3 px-3 py-2" data-bs-toggle="modal" data-bs-target="#stergeFactura{{ $factura->id }}">
                                         <i class="fa-solid fa-trash-can me-1"></i>Șterge
                                     </button>
                                 </div>
@@ -198,7 +198,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-6 mb-3">
-                            <label for="denumire_calup" class="mb-0 ps-2">Denumire calup</label>
+                            <label for="denumire_calup" class="mb-0 ps-2">Denumire calup<span class="text-danger">*</span></label>
                             <input type="text" name="denumire_calup" id="denumire_calup" class="form-control bg-white rounded-3 {{ $errors->has('denumire_calup') ? 'is-invalid' : '' }}" value="{{ old('denumire_calup') }}" required>
                         </div>
                         <div class="col-lg-3 mb-3">
