@@ -19,8 +19,8 @@
             </span>
         </div>
         <div class="col-lg-6 text-end">
-            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.index') }}">
-                <i class="fa-solid fa-rotate-left me-1"></i>Înapoi la listă
+            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.index') }}">
+                <i class="fa-solid fa-rotate-left me-1"></i>Înapoi la facturi
             </a>
         </div>
     </div>
@@ -29,37 +29,15 @@
         @include('errors')
 
         <div class="px-3">
-            <div class="row g-3 mb-3">
-                <div class="col-lg-4">
-                    <div class="border border-dark rounded-3 p-3 h-100 bg-white">
-                        <h6 class="text-uppercase text-muted">Sumar calup</h6>
-                        <p class="mb-1"><strong>Facturi atașate:</strong> {{ $calup->facturi->count() }}</p>
-                        <p class="mb-1"><strong>Total sume:</strong> {{ number_format($calup->facturi->sum('suma'), 2) }}</p>
-                        <p class="mb-1"><strong>Data plată:</strong> {{ $calup->data_plata?->format('d.m.Y') ?: 'Nespecificată' }}</p>
-                        @if ($calup->fisier_pdf)
-                            <p class="mb-0"><a href="{{ route('facturi-furnizori.plati-calupuri.descarca-fisier', $calup) }}">Descarcă PDF asociat</a> <span class="text-muted small">({{ basename($calup->fisier_pdf) }})</span></p>
-                        @endif
-                    </div>
-                </div>
-                <div class="col-lg-8">
-                    <div class="border border-dark rounded-3 p-3 h-100 bg-white">
-                        <h6 class="text-uppercase text-muted">Acțiuni rapide</h6>
-                        <div class="d-flex flex-wrap gap-2">
-                            @if ($calup->status !== \App\Models\FacturiFurnizori\PlataCalup::STATUS_PLATIT)
-                                <form action="{{ route('facturi-furnizori.plati-calupuri.marcheaza-platit', $calup) }}" method="POST" class="d-flex flex-wrap align-items-center gap-2">
-                                    @csrf
-                                    <label for="data_plata_actiune" class="mb-0">Data plată:</label>
-                                    <input type="date" name="data_plata" id="data_plata_actiune" class="form-control form-control-sm bg-white rounded-3" value="{{ now()->format('Y-m-d') }}">
-                                    <button type="submit" class="btn btn-sm btn-success text-white border border-dark rounded-3">Marchează plătit</button>
-                                </form>
-                            @else
-                                <form action="{{ route('facturi-furnizori.plati-calupuri.redeschide', $calup) }}" method="POST">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-warning border border-dark rounded-3">Redeschide calup</button>
-                                </form>
-                            @endif
-                        </div>
-                    </div>
+            <div class="mb-3">
+                <div class="border border-dark rounded-3 p-3 bg-white">
+                    <h6 class="text-uppercase text-muted">Sumar calup</h6>
+                    <p class="mb-1"><strong>Facturi atașate:</strong> {{ $calup->facturi->count() }}</p>
+                    <p class="mb-1"><strong>Total sume:</strong> {{ number_format($calup->facturi->sum('suma'), 2) }}</p>
+                    <p class="mb-1"><strong>Data plată:</strong> {{ $calup->data_plata?->format('d.m.Y') ?: 'Nespecificată' }}</p>
+                    @if ($calup->fisier_pdf)
+                        <p class="mb-0"><a href="{{ route('facturi-furnizori.plati-calupuri.descarca-fisier', $calup) }}">Descarcă PDF asociat</a> <span class="text-muted small">({{ basename($calup->fisier_pdf) }})</span></p>
+                    @endif
                 </div>
             </div>
 
