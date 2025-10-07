@@ -278,28 +278,36 @@
         const prepareButton = document.getElementById('prepare-calup');
         const selectedContainer = document.getElementById('calup-form-selected');
         const selectedCount = document.getElementById('calup-selected-count');
-        const getModalInstance = (element) => {
+        const showModal = (element, fallbackMessage = null) => {
             if (!element) {
-                return null;
+                return;
             }
 
             const bootstrap = window.bootstrap;
 
-            if (!bootstrap || !bootstrap.Modal) {
-                return null;
+            if (bootstrap && bootstrap.Modal) {
+                const modalInstance =
+                    typeof bootstrap.Modal.getOrCreateInstance === 'function'
+                        ? bootstrap.Modal.getOrCreateInstance(element)
+                        : new bootstrap.Modal(element);
+                modalInstance.show();
+                return;
             }
 
-            if (typeof bootstrap.Modal.getOrCreateInstance === 'function') {
-                return bootstrap.Modal.getOrCreateInstance(element);
+            const $ = window.jQuery || window.$;
+
+            if (typeof $ === 'function' && typeof $(element).modal === 'function') {
+                $(element).modal('show');
+                return;
             }
 
-            return new bootstrap.Modal(element);
+            if (fallbackMessage) {
+                alert(fallbackMessage);
+            }
         };
 
         const calupModalElement = document.getElementById('calupModal');
-        const calupModal = getModalInstance(calupModalElement);
         const selectionWarningModalElement = document.getElementById('calupSelectionWarningModal');
-        const selectionWarningModal = getModalInstance(selectionWarningModalElement);
 
         const collectSelectedValues = () => checkboxItems
             .filter(checkbox => checkbox.checked && !checkbox.disabled)
@@ -350,11 +358,7 @@
                 if (!selected.length) {
                     event.preventDefault();
 
-                    if (selectionWarningModal) {
-                        selectionWarningModal.show();
-                    } else {
-                        alert('Selectați cel puțin o factură neplătită.');
-                    }
+                    showModal(selectionWarningModalElement, 'Selectați cel puțin o factură neplătită.');
 
                     return;
                 }
@@ -362,17 +366,15 @@
                 syncSelectedInputs(selected);
                 updateSelectedCounter(selected);
 
-                if (calupModal) {
-                    calupModal.show();
-                }
+                showModal(calupModalElement);
             });
         }
 
-        if (calupModalElement && calupModalElement.dataset.showOnLoad === 'true' && calupModal) {
+        if (calupModalElement && calupModalElement.dataset.showOnLoad === 'true') {
             const selected = collectSelectedValues();
             syncSelectedInputs(selected);
             updateSelectedCounter(selected);
-            calupModal.show();
+            showModal(calupModalElement);
         }
 
         updateSelectedCounter(collectSelectedValues());
