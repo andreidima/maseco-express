@@ -1,47 +1,62 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="card mx-2" style="border-radius: 30px;">
-        <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2" style="border-radius: 30px 30px 0 0;">
-            <div>
-                <span class="badge bg-secondary fs-5">Calup: {{ $calup->denumire_calup }}</span>
-                <span class="badge bg-info text-dark ms-2">Status: {{ $calup->status }}</span>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="{{ route('facturi-furnizori.plati-calupuri.index') }}" class="btn btn-outline-secondary btn-sm">Inapoi la lista</a>
-            </div>
+@php
+    $calupStatusLabels = $statusOptions;
+    $facturaStatusLabels = [
+        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA => 'Neplătită',
+        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_IN_CALUP => 'Programată la plată',
+        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_PLATITA => 'Plătită',
+    ];
+@endphp
+<div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
+    <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
+        <div class="col-lg-6">
+            <span class="badge culoare1 fs-5">
+                <i class="fa-solid fa-layer-group me-1"></i>Calup: {{ $calup->denumire_calup }}
+            </span>
+            <span class="badge bg-white border border-dark rounded-pill text-dark ms-2">
+                <small>Status: {{ $calupStatusLabels[$calup->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $calup->status)) }}</small>
+            </span>
         </div>
-        <div class="card-body">
-            @include('errors')
+        <div class="col-lg-6 text-end">
+            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.index') }}">
+                <i class="fa-solid fa-rotate-left me-1"></i>Înapoi la listă
+            </a>
+        </div>
+    </div>
 
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="border rounded p-3 h-100">
+    <div class="card-body px-0 py-3">
+        @include('errors')
+
+        <div class="px-3">
+            <div class="row g-3 mb-3">
+                <div class="col-lg-4">
+                    <div class="border border-dark rounded-3 p-3 h-100 bg-white">
                         <h6 class="text-uppercase text-muted">Sumar calup</h6>
-                        <p class="mb-1"><strong>Facturi atasate:</strong> {{ $calup->facturi->count() }}</p>
+                        <p class="mb-1"><strong>Facturi atașate:</strong> {{ $calup->facturi->count() }}</p>
                         <p class="mb-1"><strong>Total sume:</strong> {{ number_format($calup->facturi->sum('suma'), 2) }}</p>
-                        <p class="mb-1"><strong>Data plata:</strong> {{ $calup->data_plata?->format('d.m.Y') ?: 'Nespecificata' }}</p>
+                        <p class="mb-1"><strong>Data plată:</strong> {{ $calup->data_plata?->format('d.m.Y') ?: 'Nespecificată' }}</p>
                         @if ($calup->fisier_pdf)
-                            <p class="mb-0"><a href="{{ route('facturi-furnizori.plati-calupuri.descarca-fisier', $calup) }}">Descarca PDF asociat</a> <span class="text-muted small">({{ basename($calup->fisier_pdf) }})</span></p>
+                            <p class="mb-0"><a href="{{ route('facturi-furnizori.plati-calupuri.descarca-fisier', $calup) }}">Descarcă PDF asociat</a> <span class="text-muted small">({{ basename($calup->fisier_pdf) }})</span></p>
                         @endif
                     </div>
                 </div>
-                <div class="col-md-8">
-                    <div class="border rounded p-3 h-100">
-                        <h6 class="text-uppercase text-muted">Actiuni rapide</h6>
+                <div class="col-lg-8">
+                    <div class="border border-dark rounded-3 p-3 h-100 bg-white">
+                        <h6 class="text-uppercase text-muted">Acțiuni rapide</h6>
                         <div class="d-flex flex-wrap gap-2">
                             @if ($calup->status !== \App\Models\FacturiFurnizori\PlataCalup::STATUS_PLATIT)
-                                <form action="{{ route('facturi-furnizori.plati-calupuri.marcheaza-platit', $calup) }}" method="POST" class="d-flex align-items-center gap-2">
+                                <form action="{{ route('facturi-furnizori.plati-calupuri.marcheaza-platit', $calup) }}" method="POST" class="d-flex flex-wrap align-items-center gap-2">
                                     @csrf
-                                    <label for="data_plata_actiune" class="form-label mb-0">Data plata:</label>
-                                    <input type="date" name="data_plata" id="data_plata_actiune" class="form-control form-control-sm" value="{{ now()->format('Y-m-d') }}">
-                                    <button type="submit" class="btn btn-success btn-sm">Marcheaza platit</button>
+                                    <label for="data_plata_actiune" class="mb-0">Data plată:</label>
+                                    <input type="date" name="data_plata" id="data_plata_actiune" class="form-control form-control-sm bg-white rounded-3" value="{{ now()->format('Y-m-d') }}">
+                                    <button type="submit" class="btn btn-sm btn-success text-white border border-dark rounded-3">Marchează plătit</button>
                                 </form>
                             @else
                                 <form action="{{ route('facturi-furnizori.plati-calupuri.redeschide', $calup) }}" method="POST">
                                     @csrf
-                                    <button type="submit" class="btn btn-warning btn-sm">Redeschide calup</button>
+                                    <button type="submit" class="btn btn-sm btn-warning border border-dark rounded-3">Redeschide calup</button>
                                 </form>
                             @endif
                         </div>
@@ -49,30 +64,32 @@
                 </div>
             </div>
 
-            <form action="{{ route('facturi-furnizori.plati-calupuri.update', $calup) }}" method="POST" enctype="multipart/form-data" class="mb-4">
+            <form action="{{ route('facturi-furnizori.plati-calupuri.update', $calup) }}" method="POST" enctype="multipart/form-data" class="border border-dark rounded-3 p-3 mb-3 bg-white">
                 @csrf
                 @method('PUT')
                 @include('facturiFurnizori.calupuri._form', ['calup' => $calup, 'disableStatus' => false])
-                <div class="d-flex justify-content-end gap-2">
-                    <button type="submit" class="btn btn-primary">Actualizeaza calup</button>
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-sm btn-primary text-white border border-dark rounded-3">
+                        <i class="fa-solid fa-floppy-disk me-1"></i>Actualizează calup
+                    </button>
                 </div>
             </form>
 
-            <div class="border rounded p-3 mb-4">
-                <h5 class="mb-3">Facturi atasate</h5>
+            <div class="border border-dark rounded-3 p-3 mb-3 bg-white">
+                <h6 class="text-uppercase text-muted mb-3">Facturi atașate</h6>
                 @if ($calup->facturi->isEmpty())
-                    <p class="text-muted mb-0">Nu sunt facturi atasate acestui calup.</p>
+                    <p class="text-muted mb-0">Nu sunt facturi atașate acestui calup.</p>
                 @else
                     <div class="table-responsive">
-                        <table class="table table-sm table-hover align-middle mb-0">
-                            <thead class="table-light">
+                        <table class="table table-sm table-hover table-bordered border-dark align-middle mb-0">
+                            <thead class="text-white rounded culoare2">
                                 <tr>
                                     <th>Furnizor</th>
-                                    <th>Numar</th>
-                                    <th>Scadenta</th>
-                                    <th class="text-end">Suma</th>
-                                    <th>Status factura</th>
-                                    <th class="text-end">Actiuni</th>
+                                    <th>Număr</th>
+                                    <th>Scadență</th>
+                                    <th class="text-end">Sumă</th>
+                                    <th>Status factură</th>
+                                    <th class="text-end">Acțiuni</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -82,13 +99,17 @@
                                         <td>{{ $factura->numar_factura }}</td>
                                         <td>{{ $factura->data_scadenta?->format('d.m.Y') }}</td>
                                         <td class="text-end">{{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</td>
-                                        <td><span class="badge bg-secondary text-uppercase">{{ $factura->status }}</span></td>
+                                        <td>
+                                            <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
+                                                <small>{{ $facturaStatusLabels[$factura->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $factura->status)) }}</small>
+                                            </span>
+                                        </td>
                                         <td class="text-end">
                                             @if ($calup->status !== \App\Models\FacturiFurnizori\PlataCalup::STATUS_PLATIT)
                                                 <form action="{{ route('facturi-furnizori.plati-calupuri.detaseaza-factura', [$calup, $factura]) }}" method="POST" onsubmit="return confirm('Elimini factura din calup?');">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-outline-danger btn-sm">Elimina</button>
+                                                    <button type="submit" class="badge bg-danger text-white border-0 rounded-3 px-3 py-2">Elimină</button>
                                                 </form>
                                             @else
                                                 <span class="text-muted">-</span>
@@ -102,31 +123,31 @@
                 @endif
             </div>
 
-            <div class="border rounded p-3">
-                <h5 class="mb-3">Adauga facturi in calup</h5>
+            <div class="border border-dark rounded-3 p-3 bg-white">
+                <h6 class="text-uppercase text-muted mb-3">Adaugă facturi în calup</h6>
                 @if ($facturiDisponibile->isEmpty())
-                    <p class="text-muted mb-0">Nu exista facturi neplatite disponibile.</p>
+                    <p class="text-muted mb-0">Nu există facturi neplătite disponibile.</p>
                 @else
                     <form action="{{ route('facturi-furnizori.plati-calupuri.atasare-facturi', $calup) }}" method="POST" id="attach-form">
                         @csrf
                         <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
                             <table class="table table-sm table-hover align-middle mb-0">
-                                <thead class="table-light">
+                                <thead class="text-white rounded culoare2">
                                     <tr>
-                                        <th>
+                                        <th class="text-center" style="width: 50px;">
                                             <input type="checkbox" id="attach-toggle-all">
                                         </th>
                                         <th>Furnizor</th>
-                                        <th>Numar</th>
-                                        <th>Scadenta</th>
-                                        <th class="text-end">Suma</th>
-                                        <th>Moneda</th>
+                                        <th>Număr</th>
+                                        <th>Scadență</th>
+                                        <th class="text-end">Sumă</th>
+                                        <th>Monedă</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($facturiDisponibile as $facturaDisponibila)
                                         <tr>
-                                            <td>
+                                            <td class="text-center">
                                                 <input type="checkbox" name="facturi[]" value="{{ $facturaDisponibila->id }}" class="attach-checkbox">
                                             </td>
                                             <td>{{ $facturaDisponibila->denumire_furnizor }}</td>
@@ -141,7 +162,9 @@
                         </div>
                         <div class="d-flex justify-content-end gap-2 mt-3">
                             <span class="badge bg-info text-dark" id="attach-counter">Selectate: 0</span>
-                            <button type="submit" class="btn btn-success">Adauga in calup</button>
+                            <button type="submit" class="btn btn-sm btn-success text-white border border-dark rounded-3">
+                                <i class="fa-solid fa-plus me-1"></i>Adaugă în calup
+                            </button>
                         </div>
                     </form>
                 @endif

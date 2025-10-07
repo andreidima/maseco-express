@@ -1,47 +1,56 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid">
-    <div class="card mx-2" style="border-radius: 30px;">
-        <div class="card-header d-flex justify-content-between align-items-center" style="border-radius: 30px 30px 0 0;">
-            <span class="badge bg-primary fs-5">Creeaza calup de plata</span>
-            <a href="{{ route('facturi-furnizori.plati-calupuri.index') }}" class="btn btn-outline-secondary btn-sm">Inapoi la calupuri</a>
+<div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
+    <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
+        <div class="col-lg-6">
+            <span class="badge culoare1 fs-5">
+                <i class="fa-solid fa-layer-group me-1"></i>Creează calup de plată
+            </span>
         </div>
-        <div class="card-body">
-            @include('errors')
+        <div class="col-lg-6 text-end">
+            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.index') }}">
+                <i class="fa-solid fa-rotate-left me-1"></i>Înapoi la calupuri
+            </a>
+        </div>
+    </div>
 
-            <form action="{{ route('facturi-furnizori.plati-calupuri.store') }}" method="POST" enctype="multipart/form-data" id="calup-create-form">
+    <div class="card-body px-0 py-3">
+        @include('errors')
+
+        <div class="px-3">
+            <form action="{{ route('facturi-furnizori.plati-calupuri.store') }}" method="POST" enctype="multipart/form-data" id="calup-create-form" class="border border-dark rounded-3 p-3 bg-white">
                 @csrf
                 @include('facturiFurnizori.calupuri._form', ['calup' => null, 'disableStatus' => true])
 
-                <div class="border rounded p-3 mb-3">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h5 class="mb-0">Selecteaza facturi ({{ count($facturiDisponibile) }})</h5>
+                <div class="border border-dark rounded-3 p-3 mb-3">
+                    <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3">
+                        <h5 class="mb-2 mb-lg-0">Selectează facturi ({{ count($facturiDisponibile) }})</h5>
                         <span id="selected-counter" class="badge bg-info text-dark">Selectate: 0</span>
                     </div>
 
                     @if ($facturiDisponibile->isEmpty())
-                        <p class="text-muted mb-0">Nu exista facturi disponibile pentru selectie.</p>
+                        <p class="text-muted mb-0">Nu există facturi disponibile pentru selecție.</p>
                     @else
                         <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
                             <table class="table table-sm table-hover align-middle mb-0">
-                                <thead class="table-light">
+                                <thead class="text-white rounded culoare2">
                                     <tr>
-                                        <th>
+                                        <th class="text-center" style="width: 50px;">
                                             <input type="checkbox" id="toggle-all">
                                         </th>
                                         <th>Furnizor</th>
-                                        <th>Numar</th>
+                                        <th>Număr</th>
                                         <th>Data</th>
-                                        <th>Scadenta</th>
-                                        <th class="text-end">Suma</th>
-                                        <th>Moneda</th>
+                                        <th>Scadență</th>
+                                        <th class="text-end">Sumă</th>
+                                        <th>Monedă</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($facturiDisponibile as $factura)
                                         <tr>
-                                            <td>
+                                            <td class="text-center">
                                                 <input type="checkbox" name="facturi[]" value="{{ $factura->id }}" class="factura-checkbox" @checked(in_array($factura->id, $facturiSelectate))>
                                             </td>
                                             <td>{{ $factura->denumire_furnizor }}</td>
@@ -58,9 +67,13 @@
                     @endif
                 </div>
 
-                <div class="d-flex justify-content-end gap-2">
-                    <a href="{{ route('facturi-furnizori.plati-calupuri.index') }}" class="btn btn-link">Renunta</a>
-                    <button type="submit" class="btn btn-primary">Salveaza calupul</button>
+                <div class="d-flex flex-column flex-lg-row justify-content-lg-end gap-2">
+                    <a href="{{ route('facturi-furnizori.plati-calupuri.index') }}" class="btn btn-sm btn-secondary text-white border border-dark rounded-3">
+                        <i class="fa-solid fa-angles-left me-1"></i>Renunță
+                    </a>
+                    <button type="submit" class="btn btn-sm btn-primary text-white border border-dark rounded-3">
+                        <i class="fa-solid fa-floppy-disk me-1"></i>Salvează calupul
+                    </button>
                 </div>
             </form>
         </div>
