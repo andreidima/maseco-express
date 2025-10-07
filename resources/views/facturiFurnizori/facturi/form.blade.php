@@ -16,6 +16,7 @@
             value="{{ old('denumire_furnizor', $factura->denumire_furnizor ?? '') }}"
             list="furnizor-suggestions"
             autocomplete="off"
+            data-typeahead-tip="furnizor"
             required
         >
         <datalist id="furnizor-suggestions"></datalist>
@@ -112,6 +113,7 @@
             value="{{ old('departament_vehicul', $factura->departament_vehicul ?? '') }}"
             list="departament-suggestions"
             autocomplete="off"
+            data-typeahead-tip="departament"
         >
         <datalist id="departament-suggestions"></datalist>
         @error('departament_vehicul')

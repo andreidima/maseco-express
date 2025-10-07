@@ -25,10 +25,32 @@
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
                 <div class="row mb-1 custom-search-form d-flex justify-content-center">
                     <div class="col-lg-4">
-                        <input type="text" class="form-control rounded-3" id="filter-furnizor" name="furnizor" placeholder="Furnizor" value="{{ $filters['furnizor'] }}">
+                        <input
+                            type="text"
+                            class="form-control rounded-3"
+                            id="filter-furnizor"
+                            name="furnizor"
+                            placeholder="Furnizor"
+                            value="{{ $filters['furnizor'] }}"
+                            list="filter-furnizor-suggestions"
+                            autocomplete="off"
+                            data-typeahead-tip="furnizor"
+                        >
+                        <datalist id="filter-furnizor-suggestions"></datalist>
                     </div>
                     <div class="col-lg-4">
-                        <input type="text" class="form-control rounded-3" id="filter-departament" name="departament" placeholder="Departament" value="{{ $filters['departament'] }}">
+                        <input
+                            type="text"
+                            class="form-control rounded-3"
+                            id="filter-departament"
+                            name="departament"
+                            placeholder="Departament"
+                            value="{{ $filters['departament'] }}"
+                            list="filter-departament-suggestions"
+                            autocomplete="off"
+                            data-typeahead-tip="departament"
+                        >
+                        <datalist id="filter-departament-suggestions"></datalist>
                     </div>
                     <div class="col-lg-4">
                         <select name="moneda" id="filter-moneda" class="form-select bg-white rounded-3">
@@ -393,5 +415,6 @@
             initializeModalIfNeeded();
         });
     </script>
+    @include('facturiFurnizori.facturi._typeahead')
 @endpush
 @endsection
