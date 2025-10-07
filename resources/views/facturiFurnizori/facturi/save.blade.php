@@ -16,9 +16,6 @@
                         <i class="fa-solid fa-file-invoice-dollar me-1"></i>
                         {{ $isEdit ? 'Modifică factură furnizor' : 'Adaugă factură furnizor' }}
                     </span>
-                    <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.index') }}">
-                        <i class="fa-solid fa-rotate-left me-1"></i>Înapoi la listă
-                    </a>
                 </div>
 
                 @include('errors')

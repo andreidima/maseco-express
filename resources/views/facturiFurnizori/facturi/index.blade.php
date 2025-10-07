@@ -159,11 +159,9 @@
                             <td class="text-end">
                                 <div class="text-end">
                                     <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="flex me-1">
-                                        <span class="badge bg-success">Vezi</span>
-                                    </a>
+                                        <span class="badge bg-success">Vezi</span></a>
                                     <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="flex me-1">
-                                        <span class="badge bg-primary">Editează</span>
-                                    </a>
+                                        <span class="badge bg-primary">Editează</span></a>
                                     <a href="#" class="flex"
                                         data-bs-toggle="modal"
                                         data-bs-target="#stergeFactura{{ $factura->id }}">
