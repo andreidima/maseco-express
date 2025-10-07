@@ -29,15 +29,26 @@
         <div class="col-lg-8 mb-0" id="formularFacturi">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
                 @csrf
-                <input type="hidden" name="status" value="{{ $filters['status'] === 'all' ? 'all' : $filters['status'] }}">
                 <div class="row mb-1 custom-search-form d-flex justify-content-center">
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
+                        <select name="status" id="filter-status" class="form-select bg-white rounded-3">
+                            @foreach ($statusTabs as $statusKey => $statusLabel)
+                                @php
+                                    $statusCount = $tabCounts[$statusKey] ?? null;
+                                @endphp
+                                <option value="{{ $statusKey }}" @selected($filters['status'] === $statusKey)>
+                                    {{ $statusLabel }}@if (!is_null($statusCount)) ({{ $statusCount }}) @endif
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-lg-3">
                         <input type="text" class="form-control rounded-3" id="filter-furnizor" name="furnizor" placeholder="Furnizor" value="{{ $filters['furnizor'] }}">
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <input type="text" class="form-control rounded-3" id="filter-departament" name="departament" placeholder="Departament" value="{{ $filters['departament'] }}">
                     </div>
-                    <div class="col-lg-4">
+                    <div class="col-lg-3">
                         <select name="moneda" id="filter-moneda" class="form-select bg-white rounded-3">
                             <option value="">Monedă</option>
                             @foreach ($monede as $moneda)
@@ -76,30 +87,6 @@
 
     <div class="card-body px-0 py-3">
         @include('errors')
-
-        <div class="px-3">
-            <div class="d-flex flex-wrap gap-2 mb-3">
-                @foreach ($statusTabs as $statusKey => $statusLabel)
-                    @php
-                        $isActiveTab = $filters['status'] === $statusKey;
-                        if ($statusKey === 'all' && $filters['status'] === 'all') {
-                            $isActiveTab = true;
-                        }
-                    @endphp
-                    @php
-                        $tabQuery = array_merge(request()->except(['page', 'status']), ['status' => $statusKey]);
-                        $tabQuery = array_filter($tabQuery, fn ($value) => !($value === null || $value === ''));
-                    @endphp
-                    <a
-                        href="{{ route('facturi-furnizori.facturi.index', $tabQuery) }}"
-                        class="badge {{ $isActiveTab ? 'bg-dark text-white' : 'bg-white text-dark' }} border border-dark rounded-pill d-flex align-items-center gap-2 text-decoration-none px-3 py-2"
-                    >
-                        <span class="text-uppercase small">{{ $statusLabel }}</span>
-                        <span class="badge {{ $isActiveTab ? 'bg-white text-dark' : 'bg-dark text-white' }}">{{ $tabCounts[$statusKey] ?? 0 }}</span>
-                    </a>
-                @endforeach
-            </div>
-        </div>
 
         <div class="table-responsive rounded">
             <table class="table table-sm table-striped table-hover rounded align-middle">
