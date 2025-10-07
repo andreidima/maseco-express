@@ -1,6 +1,24 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $selectedFacturiOld = collect(old('facturi', []))->map(fn ($id) => (int) $id)->all();
+    $calupErrorFields = ['denumire_calup', 'data_plata', 'observatii', 'status', 'fisier_pdf', 'facturi', 'facturi.*'];
+    $shouldShowCalupModal = !empty($selectedFacturiOld);
+
+    foreach ($calupErrorFields as $field) {
+        if ($errors->has($field)) {
+            $shouldShowCalupModal = true;
+            break;
+        }
+    }
+
+    $tabCounts = [
+        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA => $statusCounts[\App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA] ?? 0,
+        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_PLATITA => $statusCounts[\App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_PLATITA] ?? 0,
+        'all' => $totalFacturi,
+    ];
+@endphp
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
         <div class="col-lg-2 mb-2">
@@ -11,22 +29,15 @@
         <div class="col-lg-8 mb-0" id="formularFacturi">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
                 @csrf
+                <input type="hidden" name="status" value="{{ $filters['status'] === 'all' ? 'all' : $filters['status'] }}">
                 <div class="row mb-1 custom-search-form d-flex justify-content-center">
-                    <div class="col-lg-3">
-                        <select name="status" id="filter-status" class="form-select bg-white rounded-3">
-                            <option value="">Status</option>
-                            @foreach ($statusOptions as $key => $label)
-                                <option value="{{ $key }}" @selected($filters['status'] === $key)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <input type="text" class="form-control rounded-3" id="filter-furnizor" name="furnizor" placeholder="Furnizor" value="{{ $filters['furnizor'] }}">
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <input type="text" class="form-control rounded-3" id="filter-departament" name="departament" placeholder="Departament" value="{{ $filters['departament'] }}">
                     </div>
-                    <div class="col-lg-3">
+                    <div class="col-lg-4">
                         <select name="moneda" id="filter-moneda" class="form-select bg-white rounded-3">
                             <option value="">Monedă</option>
                             @foreach ($monede as $moneda)
@@ -45,7 +56,6 @@
                     <div class="col-lg-3">
                         <input type="number" min="0" class="form-control rounded-3" id="filter-scadente-in-zile" name="scadente_in_zile" placeholder="Scadente în (zile)" value="{{ $filters['scadente_in_zile'] }}">
                     </div>
-                    <div class="col-lg-3"></div>
                 </div>
                 <div class="row custom-search-form justify-content-center">
                     <button class="btn btn-sm btn-primary text-white col-md-4 me-3 border border-dark rounded-3" type="submit">
@@ -58,9 +68,6 @@
             </form>
         </div>
         <div class="col-lg-2 text-lg-end">
-            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3 me-2" href="{{ route('facturi-furnizori.plati-calupuri.index') }}" role="button">
-                <i class="fa-solid fa-layer-group me-1"></i>Calupuri plăți
-            </a>
             <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.create') }}" role="button">
                 <i class="fas fa-plus-square text-white me-1"></i>Adaugă factură
             </a>
@@ -72,11 +79,24 @@
 
         <div class="px-3">
             <div class="d-flex flex-wrap gap-2 mb-3">
-                @foreach ($statusOptions as $statusKey => $statusLabel)
-                    <span class="badge bg-white border border-dark rounded-pill text-dark d-flex align-items-center gap-2 py-2 px-3">
+                @foreach ($statusTabs as $statusKey => $statusLabel)
+                    @php
+                        $isActiveTab = $filters['status'] === $statusKey;
+                        if ($statusKey === 'all' && $filters['status'] === 'all') {
+                            $isActiveTab = true;
+                        }
+                    @endphp
+                    @php
+                        $tabQuery = array_merge(request()->except(['page', 'status']), ['status' => $statusKey]);
+                        $tabQuery = array_filter($tabQuery, fn ($value) => !($value === null || $value === ''));
+                    @endphp
+                    <a
+                        href="{{ route('facturi-furnizori.facturi.index', $tabQuery) }}"
+                        class="badge {{ $isActiveTab ? 'bg-dark text-white' : 'bg-white text-dark' }} border border-dark rounded-pill d-flex align-items-center gap-2 text-decoration-none px-3 py-2"
+                    >
                         <span class="text-uppercase small">{{ $statusLabel }}</span>
-                        <span class="badge bg-dark text-white">{{ $statusCounts[$statusKey] ?? 0 }}</span>
-                    </span>
+                        <span class="badge {{ $isActiveTab ? 'bg-white text-dark' : 'bg-dark text-white' }}">{{ $tabCounts[$statusKey] ?? 0 }}</span>
+                    </a>
                 @endforeach
             </div>
         </div>
@@ -102,8 +122,18 @@
                 <tbody>
                     @forelse ($facturi as $factura)
                         <tr>
+                            @php
+                                $checkboxDisabled = $factura->status !== \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA;
+                                $shouldCheck = in_array($factura->id, $selectedFacturiOld, true);
+                            @endphp
                             <td class="text-center">
-                                <input type="checkbox" class="select-factura" value="{{ $factura->id }}" @disabled($factura->status !== \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA)>
+                                <input
+                                    type="checkbox"
+                                    class="select-factura"
+                                    value="{{ $factura->id }}"
+                                    @disabled($checkboxDisabled)
+                                    @checked(!$checkboxDisabled && $shouldCheck)
+                                >
                             </td>
                             <td>{{ $factura->denumire_furnizor }}</td>
                             <td>{{ $factura->numar_factura }}</td>
@@ -155,7 +185,7 @@
                 {{ $facturi->appends(request()->except('page'))->links() }}
             </div>
             <div>
-                <button type="button" class="btn btn-sm btn-success text-white border border-dark rounded-3" id="prepare-calup">
+                <button type="button" class="btn btn-sm btn-success text-white border border-dark rounded-3" id="prepare-calup" data-bs-toggle="modal" data-bs-target="#calupModal">
                     <i class="fa-solid fa-file-circle-plus me-1"></i>Pregătește calup
                 </button>
             </div>
@@ -163,7 +193,54 @@
     </div>
 </div>
 
-<form method="GET" action="{{ route('facturi-furnizori.plati-calupuri.create') }}" id="create-calup-form" class="d-none"></form>
+<div class="modal fade" id="calupModal" tabindex="-1" aria-labelledby="calupModalLabel" aria-hidden="true" @if ($shouldShowCalupModal) data-show-on-load="true" @endif>
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="calupModalLabel">Pregătește calup pentru <span id="calup-selected-count" class="text-primary fw-bold">0</span> facturi</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('facturi-furnizori.plati-calupuri.store') }}" method="POST" id="calup-form" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-lg-6 mb-3">
+                            <label for="denumire_calup" class="mb-0 ps-2">Denumire calup</label>
+                            <input type="text" name="denumire_calup" id="denumire_calup" class="form-control bg-white rounded-3 {{ $errors->has('denumire_calup') ? 'is-invalid' : '' }}" value="{{ old('denumire_calup') }}" required>
+                        </div>
+                        <div class="col-lg-3 mb-3">
+                            <label for="data_plata" class="mb-0 ps-2">Data plată</label>
+                            <input type="date" name="data_plata" id="data_plata" class="form-control bg-white rounded-3 {{ $errors->has('data_plata') ? 'is-invalid' : '' }}" value="{{ old('data_plata') }}">
+                        </div>
+                        <div class="col-lg-3 mb-3">
+                            <label class="mb-0 ps-2">Status</label>
+                            <input type="text" class="form-control bg-light rounded-3" value="Deschis" disabled>
+                            <input type="hidden" name="status" value="{{ \App\Models\FacturiFurnizori\PlataCalup::STATUS_DESCHIS }}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="observatii" class="mb-0 ps-2">Observații</label>
+                        <textarea name="observatii" id="observatii" class="form-control bg-white rounded-3 {{ $errors->has('observatii') ? 'is-invalid' : '' }}" rows="3">{{ old('observatii') }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="fisier_pdf" class="mb-0 ps-2">Fișier PDF</label>
+                        <input type="file" name="fisier_pdf" id="fisier_pdf" class="form-control bg-white rounded-3 {{ $errors->has('fisier_pdf') ? 'is-invalid' : '' }}" accept="application/pdf">
+                    </div>
+                    <div id="calup-form-selected" class="d-none"></div>
+                    @if ($errors->has('facturi'))
+                        <div class="alert alert-danger mb-0">{{ $errors->first('facturi') }}</div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                    <button type="submit" class="btn btn-success text-white border border-dark rounded-3">
+                        <i class="fa-solid fa-floppy-disk me-1"></i>Salvează calupul
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @foreach ($facturi as $factura)
     <div class="modal fade text-dark" id="stergeFactura{{ $factura->id }}" tabindex="-1" role="dialog" aria-labelledby="stergeFacturaLabel{{ $factura->id }}" aria-hidden="true">
@@ -194,7 +271,12 @@
         const selectAll = document.getElementById('select-all');
         const checkboxItems = Array.from(document.querySelectorAll('.select-factura'));
         const prepareButton = document.getElementById('prepare-calup');
-        const form = document.getElementById('create-calup-form');
+        const selectedContainer = document.getElementById('calup-form-selected');
+        const selectedCount = document.getElementById('calup-selected-count');
+        const calupModalElement = document.getElementById('calupModal');
+        const bootstrapModal = calupModalElement && typeof bootstrap !== 'undefined'
+            ? new bootstrap.Modal(calupModalElement)
+            : null;
 
         if (selectAll) {
             selectAll.addEventListener('change', () => {
@@ -207,27 +289,60 @@
         }
 
         if (prepareButton) {
-            prepareButton.addEventListener('click', () => {
+            prepareButton.addEventListener('click', (event) => {
                 const selected = checkboxItems
                     .filter(checkbox => checkbox.checked && !checkbox.disabled)
                     .map(item => item.value);
 
                 if (!selected.length) {
                     alert('Selectați cel puțin o factură neplătită.');
-                    return;
+                    event.stopPropagation();
+                    event.preventDefault();
+                    return false;
                 }
 
-                form.innerHTML = '';
+                if (selectedContainer) {
+                    selectedContainer.innerHTML = '';
+                    selected.forEach(value => {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = 'facturi[]';
+                        input.value = value;
+                        selectedContainer.appendChild(input);
+                    });
+                }
+
+                if (selectedCount) {
+                    selectedCount.textContent = selected.length.toString();
+                }
+
+                if (bootstrapModal) {
+                    bootstrapModal.show();
+                }
+            });
+        }
+
+        if (calupModalElement && calupModalElement.dataset.showOnLoad === 'true' && bootstrapModal) {
+            const selected = checkboxItems
+                .filter(checkbox => checkbox.checked && !checkbox.disabled)
+                .map(item => item.value);
+
+            if (selectedContainer) {
+                selectedContainer.innerHTML = '';
                 selected.forEach(value => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = 'facturi[]';
                     input.value = value;
-                    form.appendChild(input);
+                    selectedContainer.appendChild(input);
                 });
+            }
 
-                form.submit();
-            });
+            if (selectedCount) {
+                selectedCount.textContent = selected.length.toString();
+            }
+
+            bootstrapModal.show();
         }
     });
 </script>

@@ -17,7 +17,7 @@ class FacturaFurnizorController extends Controller
     public function index(Request $request)
     {
         $filters = [
-            'status' => $request->string('status')->toString() ?: null,
+            'status' => null,
             'furnizor' => $request->string('furnizor')->toString() ?: null,
             'departament' => $request->string('departament')->toString() ?: null,
             'moneda' => $request->string('moneda')->toString() ?: null,
@@ -30,13 +30,22 @@ class FacturaFurnizorController extends Controller
 
         $query = FacturaFurnizor::query();
 
-        if ($filters['status']) {
-            $query->where('status', $filters['status']);
+        $requestedStatus = $request->string('status')->toString();
+        $validStatuses = [
+            FacturaFurnizor::STATUS_NEPLATITA,
+            FacturaFurnizor::STATUS_PLATITA,
+        ];
+
+        if ($requestedStatus === 'all') {
+            $filters['status'] = 'all';
+        } elseif (in_array($requestedStatus, $validStatuses, true)) {
+            $filters['status'] = $requestedStatus;
         } else {
-            $query->whereIn('status', [
-                FacturaFurnizor::STATUS_NEPLATITA,
-                FacturaFurnizor::STATUS_IN_CALUP,
-            ]);
+            $filters['status'] = FacturaFurnizor::STATUS_NEPLATITA;
+        }
+
+        if ($filters['status'] !== 'all') {
+            $query->where('status', $filters['status']);
         }
 
         if ($filters['furnizor']) {
@@ -78,8 +87,11 @@ class FacturaFurnizorController extends Controller
 
         $statusCounts = FacturaFurnizor::query()
             ->select('status', DB::raw('count(*) as total'))
+            ->whereIn('status', $validStatuses)
             ->groupBy('status')
             ->pluck('total', 'status');
+
+        $totalFacturi = FacturaFurnizor::query()->count();
 
         $monede = FacturaFurnizor::query()
             ->select('moneda')
@@ -92,6 +104,12 @@ class FacturaFurnizorController extends Controller
             'filters' => $filters,
             'statusCounts' => $statusCounts,
             'statusOptions' => $this->statusOptions(),
+            'statusTabs' => [
+                FacturaFurnizor::STATUS_NEPLATITA => 'Neplătite',
+                FacturaFurnizor::STATUS_PLATITA => 'Plătite',
+                'all' => 'Toate',
+            ],
+            'totalFacturi' => $totalFacturi,
             'monede' => $monede,
         ]);
     }
@@ -220,7 +238,6 @@ class FacturaFurnizorController extends Controller
     {
         return [
             FacturaFurnizor::STATUS_NEPLATITA => 'Neplătită',
-            FacturaFurnizor::STATUS_IN_CALUP => 'Programată la plată',
             FacturaFurnizor::STATUS_PLATITA => 'Plătită',
         ];
     }

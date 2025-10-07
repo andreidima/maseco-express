@@ -30,7 +30,6 @@ class FacturaFurnizor extends Model
     ];
 
     public const STATUS_NEPLATITA = 'neplatita';
-    public const STATUS_IN_CALUP = 'in_calup';
     public const STATUS_PLATITA = 'platita';
 
     /**

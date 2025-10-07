@@ -38,6 +38,6 @@ class FacturaFurnizorFactory extends Factory
 
     public function inCalup(): self
     {
-        return $this->state(fn () => ['status' => FacturaFurnizor::STATUS_IN_CALUP]);
+        return $this->state(fn () => ['status' => FacturaFurnizor::STATUS_PLATITA]);
     }
 }

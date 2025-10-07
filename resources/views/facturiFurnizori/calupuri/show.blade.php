@@ -5,7 +5,6 @@
     $calupStatusLabels = $statusOptions;
     $facturaStatusLabels = [
         \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA => 'Neplătită',
-        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_IN_CALUP => 'Programată la plată',
         \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_PLATITA => 'Plătită',
     ];
 @endphp
