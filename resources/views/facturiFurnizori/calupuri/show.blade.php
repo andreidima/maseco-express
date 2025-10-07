@@ -3,10 +3,6 @@
 @section('content')
 @php
     $calupStatusLabels = $statusOptions;
-    $facturaStatusLabels = [
-        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_NEPLATITA => 'Neplătită',
-        \App\Models\FacturiFurnizori\FacturaFurnizor::STATUS_PLATITA => 'Plătită',
-    ];
 @endphp
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
@@ -65,7 +61,6 @@
                                     <th>Număr</th>
                                     <th>Scadență</th>
                                     <th class="text-end">Sumă</th>
-                                    <th>Status factură</th>
                                     <th class="text-end">Acțiuni</th>
                                 </tr>
                             </thead>
@@ -76,11 +71,6 @@
                                         <td>{{ $factura->numar_factura }}</td>
                                         <td>{{ $factura->data_scadenta?->format('d.m.Y') }}</td>
                                         <td class="text-end">{{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</td>
-                                        <td>
-                                            <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
-                                                <small>{{ $facturaStatusLabels[$factura->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $factura->status)) }}</small>
-                                            </span>
-                                        </td>
                                         <td class="text-end">
                                             @if ($calup->status !== \App\Models\FacturiFurnizori\PlataCalup::STATUS_PLATIT)
                                                 <form action="{{ route('facturi-furnizori.plati-calupuri.detaseaza-factura', [$calup, $factura]) }}" method="POST" onsubmit="return confirm('Elimini factura din calup?');">
@@ -103,7 +93,7 @@
             <div class="border border-dark rounded-3 p-3 bg-white">
                 <h6 class="text-uppercase text-muted mb-3">Adaugă facturi în calup</h6>
                 @if ($facturiDisponibile->isEmpty())
-                    <p class="text-muted mb-0">Nu există facturi neplătite disponibile.</p>
+                    <p class="text-muted mb-0">Nu există facturi disponibile.</p>
                 @else
                     <form action="{{ route('facturi-furnizori.plati-calupuri.atasare-facturi', $calup) }}" method="POST" id="attach-form">
                         @csrf
