@@ -75,7 +75,7 @@ class FacturaFurnizorController extends Controller
         }
 
         $facturi = $query
-            ->with('calupuri:id,denumire_calup,status,data_plata')
+            ->with('calupuri:id,denumire_calup,data_plata')
             ->orderBy('data_scadenta')
             ->orderBy('denumire_furnizor')
             ->paginate(25)
