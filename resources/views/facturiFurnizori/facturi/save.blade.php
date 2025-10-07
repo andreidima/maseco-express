@@ -24,25 +24,15 @@
                 @include('errors')
 
                 <div class="card-body py-3 px-4 border border-secondary bg-white" style="border-radius: 0 0 40px 40px;">
-                    @if ($isEdit)
+                    @if ($isEdit && $factura->calupuri->isNotEmpty())
                         <div class="row mb-3">
-                            <div class="col-lg-6 mb-3 mb-lg-0">
-                                <div class="border border-dark rounded-3 p-3 h-100 bg-white">
-                                    <span class="text-uppercase text-muted small d-block">Status curent</span>
-                                    <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
-                                        <small>{{ $statusOptions[$factura->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $factura->status)) }}</small>
-                                    </span>
-                                </div>
-                            </div>
                             <div class="col-lg-6">
-                                @if ($factura->calupuri->isNotEmpty())
-                                    <div class="border border-dark rounded-3 p-3 h-100 bg-white">
-                                        <span class="text-uppercase text-muted small d-block mb-1">Face parte din calup</span>
-                                        @foreach ($factura->calupuri as $calup)
-                                            <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="badge bg-info text-dark text-decoration-none me-1 mb-1">{{ $calup->denumire_calup }}</a>
-                                        @endforeach
-                                    </div>
-                                @endif
+                                <div class="border border-dark rounded-3 p-3 h-100 bg-white">
+                                    <span class="text-uppercase text-muted small d-block mb-1">Face parte din calup</span>
+                                    @foreach ($factura->calupuri as $calup)
+                                        <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="badge bg-info text-dark text-decoration-none me-1 mb-1">{{ $calup->denumire_calup }}</a>
+                                    @endforeach
+                                </div>
                             </div>
                         </div>
                     @endif

@@ -20,7 +20,6 @@ class FacturaFurnizor extends Model
         'moneda',
         'departament_vehicul',
         'observatii',
-        'status',
     ];
 
     protected $casts = [
@@ -28,9 +27,6 @@ class FacturaFurnizor extends Model
         'data_scadenta' => 'date',
         'suma' => 'decimal:2',
     ];
-
-    public const STATUS_NEPLATITA = 'neplatita';
-    public const STATUS_PLATITA = 'platita';
 
     /**
      * Batch payments associated with the invoice.
