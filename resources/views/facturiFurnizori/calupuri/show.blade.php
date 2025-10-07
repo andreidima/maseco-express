@@ -66,11 +66,14 @@
                                         <td>{{ $factura->data_scadenta?->format('d.m.Y') }}</td>
                                         <td class="text-end">{{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</td>
                                         <td class="text-end">
-                                            <form action="{{ route('facturi-furnizori.plati-calupuri.detaseaza-factura', [$calup, $factura]) }}" method="POST" onsubmit="return confirm('Elimini factura din calup?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="badge bg-danger text-white border-0 rounded-3 px-3 py-2">Elimină</button>
-                                            </form>
+                                            <button
+                                                type="button"
+                                                class="badge bg-danger text-white border-0 rounded-3 px-3 py-2"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#detaseazaFacturaModal{{ $factura->id }}"
+                                            >
+                                                Elimină
+                                            </button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -79,6 +82,39 @@
                     </div>
                 @endif
             </div>
+
+            @foreach ($calup->facturi as $factura)
+                <div
+                    class="modal fade"
+                    id="detaseazaFacturaModal{{ $factura->id }}"
+                    tabindex="-1"
+                    aria-labelledby="detaseazaFacturaModalLabel{{ $factura->id }}"
+                    aria-hidden="true"
+                >
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-danger text-white">
+                                <h5 class="modal-title" id="detaseazaFacturaModalLabel{{ $factura->id }}">
+                                    Elimină factura din calup
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-start">
+                                Sigur dorești să elimini factura <strong>{{ $factura->numar_factura }}</strong>
+                                de la <strong>{{ $factura->denumire_furnizor }}</strong> din acest calup?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                                <form action="{{ route('facturi-furnizori.plati-calupuri.detaseaza-factura', [$calup, $factura]) }}" method="POST">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-danger">Elimină factura</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
 
             <div class="border border-dark rounded-3 p-3 bg-white">
                 <h6 class="text-uppercase text-muted mb-3">Adaugă facturi în calup</h6>

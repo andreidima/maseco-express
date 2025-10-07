@@ -57,6 +57,13 @@
                     <div class="col-lg-3">
                         <input type="date" class="form-control rounded-3" id="filter-calup-data" name="calup_data_plata" value="{{ $filters['calup_data_plata'] }}">
                     </div>
+                    <div class="col-lg-3">
+                        <select name="status" id="filter-status" class="form-select bg-white rounded-3">
+                            <option value="" @selected(!$filters['status'])>Toate</option>
+                            <option value="neplatite" @selected($filters['status'] === 'neplatite')>Neplătite ({{ $neplatiteCount }})</option>
+                            <option value="platite" @selected($filters['status'] === 'platite')>Plătite</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="row custom-search-form justify-content-center">
                     <button class="btn btn-sm btn-primary text-white col-md-4 me-3 border border-dark rounded-3" type="submit">

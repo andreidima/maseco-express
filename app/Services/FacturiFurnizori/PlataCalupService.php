@@ -51,7 +51,7 @@ class PlataCalupService
     public function detachFactura(PlataCalup $calup, FacturaFurnizor $factura): void
     {
         $this->db->transaction(function () use ($calup, $factura) {
-            $calup->facturi()->where('ff_facturi.id', $factura->id)->detach();
+            $calup->facturi()->detach($factura->id);
         });
     }
 }
