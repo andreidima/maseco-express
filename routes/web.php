@@ -199,12 +199,6 @@ Route::group(['middleware' => 'auth'], function () {
             Route::delete('plati-calupuri/{plataCalup}/facturi/{factura}', [PlataCalupController::class, 'detaseazaFactura'])
                 ->name('plati-calupuri.detaseaza-factura');
 
-            Route::post('plati-calupuri/{plataCalup}/marcheaza-platit', [PlataCalupController::class, 'marcheazaPlatit'])
-                ->name('plati-calupuri.marcheaza-platit');
-
-            Route::post('plati-calupuri/{plataCalup}/redeschide', [PlataCalupController::class, 'redeschide'])
-                ->name('plati-calupuri.redeschide');
-
             Route::get('plati-calupuri/{plataCalup}/descarca-fisier', [PlataCalupController::class, 'descarcaFisier'])
                 ->name('plati-calupuri.descarca-fisier');
         });

@@ -1,13 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-@php
-    $calupStatusLabels = [
-        \App\Models\FacturiFurnizori\PlataCalup::STATUS_DESCHIS => 'Deschis',
-        \App\Models\FacturiFurnizori\PlataCalup::STATUS_PLATIT => 'Plătit',
-        \App\Models\FacturiFurnizori\PlataCalup::STATUS_ANULAT => 'Anulat',
-    ];
-@endphp
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
         <div class="col-lg-6">
@@ -60,7 +53,6 @@
                             <thead class="text-white rounded culoare2">
                                 <tr>
                                     <th>Denumire</th>
-                                    <th>Status</th>
                                     <th>Data plată</th>
                                     <th class="text-end">Acțiuni</th>
                                 </tr>
@@ -69,11 +61,6 @@
                                 @foreach ($factura->calupuri as $calup)
                                     <tr>
                                         <td>{{ $calup->denumire_calup }}</td>
-                                        <td>
-                                            <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
-                                                <small>{{ $calupStatusLabels[$calup->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $calup->status)) }}</small>
-                                            </span>
-                                        </td>
                                         <td>{{ $calup->data_plata?->format('d.m.Y') ?: '-' }}</td>
                                         <td class="text-end">
                                             <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="badge bg-secondary text-dark text-decoration-none rounded-3 px-3 py-2">Vezi calup</a>

@@ -1,17 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
-@php
-    $calupStatusLabels = $statusOptions;
-@endphp
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
         <div class="col-lg-6">
             <span class="badge culoare1 fs-5">
                 <i class="fa-solid fa-layer-group me-1"></i>Calup: {{ $calup->denumire_calup }}
-            </span>
-            <span class="badge bg-white border border-dark rounded-pill text-dark ms-2">
-                <small>Status: {{ $calupStatusLabels[$calup->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $calup->status)) }}</small>
             </span>
         </div>
         <div class="col-lg-6 text-end">
@@ -40,7 +34,7 @@
             <form action="{{ route('facturi-furnizori.plati-calupuri.update', $calup) }}" method="POST" enctype="multipart/form-data" class="border border-dark rounded-3 p-3 mb-3 bg-white">
                 @csrf
                 @method('PUT')
-                @include('facturiFurnizori.calupuri._form', ['calup' => $calup, 'disableStatus' => false])
+                @include('facturiFurnizori.calupuri._form', ['calup' => $calup])
                 <div class="d-flex justify-content-end">
                     <button type="submit" class="btn btn-sm btn-primary text-white border border-dark rounded-3">
                         <i class="fa-solid fa-floppy-disk me-1"></i>Actualizează calup
@@ -72,15 +66,11 @@
                                         <td>{{ $factura->data_scadenta?->format('d.m.Y') }}</td>
                                         <td class="text-end">{{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</td>
                                         <td class="text-end">
-                                            @if ($calup->status !== \App\Models\FacturiFurnizori\PlataCalup::STATUS_PLATIT)
-                                                <form action="{{ route('facturi-furnizori.plati-calupuri.detaseaza-factura', [$calup, $factura]) }}" method="POST" onsubmit="return confirm('Elimini factura din calup?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="badge bg-danger text-white border-0 rounded-3 px-3 py-2">Elimină</button>
-                                                </form>
-                                            @else
-                                                <span class="text-muted">-</span>
-                                            @endif
+                                            <form action="{{ route('facturi-furnizori.plati-calupuri.detaseaza-factura', [$calup, $factura]) }}" method="POST" onsubmit="return confirm('Elimini factura din calup?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="badge bg-danger text-white border-0 rounded-3 px-3 py-2">Elimină</button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @endforeach
