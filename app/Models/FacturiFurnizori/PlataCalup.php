@@ -16,16 +16,11 @@ class PlataCalup extends Model
         'data_plata',
         'fisier_pdf',
         'observatii',
-        'status',
     ];
 
     protected $casts = [
         'data_plata' => 'date',
     ];
-
-    public const STATUS_DESCHIS = 'deschis';
-    public const STATUS_PLATIT = 'platit';
-    public const STATUS_ANULAT = 'anulat';
 
     /**
      * Invoices linked to this payment batch.

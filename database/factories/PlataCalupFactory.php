@@ -20,7 +20,6 @@ class PlataCalupFactory extends Factory
             'data_plata' => null,
             'fisier_pdf' => null,
             'observatii' => $this->faker->optional()->sentence(),
-            'status' => PlataCalup::STATUS_DESCHIS,
         ];
     }
 
@@ -28,7 +27,6 @@ class PlataCalupFactory extends Factory
     {
         return $this->state(function () {
             return [
-                'status' => PlataCalup::STATUS_PLATIT,
                 'data_plata' => Carbon::now()->subDays($this->faker->numberBetween(0, 15)),
             ];
         });
