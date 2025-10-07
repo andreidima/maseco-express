@@ -157,16 +157,18 @@
                             </td>
                             <td class="text-muted">{{ \Illuminate\Support\Str::limit($factura->observatii, 60) }}</td>
                             <td class="text-end">
-                                <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap">
-                                    <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="badge bg-secondary text-dark text-decoration-none rounded-3 px-3 py-2">
-                                        <i class="fa-solid fa-eye me-1"></i>Vezi
+                                <div class="text-end">
+                                    <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="flex me-1">
+                                        <span class="badge bg-success">Vezi</span>
                                     </a>
-                                    <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="badge bg-primary text-white text-decoration-none rounded-3 px-3 py-2">
-                                        <i class="fa-solid fa-pen-to-square me-1"></i>Editează
+                                    <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="flex me-1">
+                                        <span class="badge bg-primary">Editează</span>
                                     </a>
-                                    <button type="button" class="badge bg-danger text-white border-0 rounded-3 px-3 py-2" data-bs-toggle="modal" data-bs-target="#stergeFactura{{ $factura->id }}">
-                                        <i class="fa-solid fa-trash-can me-1"></i>Șterge
-                                    </button>
+                                    <a href="#" class="flex"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#stergeFactura{{ $factura->id }}">
+                                        <span class="badge bg-danger">Șterge</span>
+                                    </a>
                                 </div>
                             </td>
                         </tr>
