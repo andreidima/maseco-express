@@ -210,6 +210,36 @@ class PlataCalupController extends Controller
         return back()->with('status', 'Factura a fost eliminata din calup.');
     }
 
+    public function vizualizeazaFisier(PlataCalup $plataCalup, PlataCalupFisier $fisier)
+    {
+        if ($fisier->plata_calup_id !== $plataCalup->id) {
+            abort(404);
+        }
+
+        if (!$fisier->isPreviewable()) {
+            return back()->with('error', 'Fisierul nu poate fi deschis în browser.');
+        }
+
+        if (!Storage::exists($fisier->cale)) {
+            return back()->with('error', 'Fisierul nu a putut fi gasit.');
+        }
+
+        $displayName = $fisier->nume_original ?: basename($fisier->cale);
+        $safeDisplayName = addcslashes($displayName, "\\\"");
+
+        $headers = [
+            'Content-Disposition' => 'inline; filename="' . $safeDisplayName . '"',
+        ];
+
+        $mimeType = Storage::mimeType($fisier->cale);
+
+        if ($mimeType) {
+            $headers['Content-Type'] = $mimeType;
+        }
+
+        return Storage::response($fisier->cale, $displayName, $headers);
+    }
+
     public function descarcaFisier(PlataCalup $plataCalup, ?PlataCalupFisier $fisier = null)
     {
         if ($fisier && $fisier->plata_calup_id !== $plataCalup->id) {

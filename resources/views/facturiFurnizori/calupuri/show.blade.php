@@ -53,6 +53,16 @@
                                             <td class="align-middle">{{ $fisier->nume_original ?: basename($fisier->cale) }}</td>
                                             <td class="align-middle">{{ $fisier->created_at?->format('d.m.Y H:i') }}</td>
                                             <td class="text-end">
+                                                @if ($fisier->isPreviewable())
+                                                    <a
+                                                        href="{{ route('facturi-furnizori.plati-calupuri.vizualizeaza-fisier', [$calup, $fisier]) }}"
+                                                        class="btn btn-sm btn-outline-secondary border border-secondary me-2"
+                                                        target="_blank"
+                                                        rel="noopener"
+                                                    >
+                                                        <i class="fa-solid fa-up-right-from-square me-1"></i>Deschide
+                                                    </a>
+                                                @endif
                                                 <a
                                                     href="{{ route('facturi-furnizori.plati-calupuri.descarca-fisier', [$calup, $fisier]) }}"
                                                     class="btn btn-sm btn-outline-primary border border-primary me-2"
