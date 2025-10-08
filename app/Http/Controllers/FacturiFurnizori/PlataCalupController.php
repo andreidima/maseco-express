@@ -290,9 +290,10 @@ class PlataCalupController extends Controller
 
     private function salveazaFisier(PlataCalup $plataCalup, UploadedFile $file): PlataCalupFisier
     {
-        $folder = 'facturi-furnizori/calupuri';
+        $folder = $this->folderPentruCalup($plataCalup);
         $filename = $this->genereazaNumeFisier($file, $folder);
 
+        Storage::makeDirectory($folder);
         Storage::putFileAs($folder, $file, $filename);
 
         return $plataCalup->fisiere()->create([
@@ -322,6 +323,11 @@ class PlataCalupController extends Controller
         }
 
         return $filename;
+    }
+
+    private function folderPentruCalup(PlataCalup $plataCalup): string
+    {
+        return 'facturi-furnizori/calupuri/' . $plataCalup->id;
     }
 
     public function stergeFisier(PlataCalup $plataCalup, PlataCalupFisier $fisier)
