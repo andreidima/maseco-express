@@ -197,8 +197,13 @@ class FacturaFurnizorController extends Controller
     public function sugestii(Request $request)
     {
         $tip = $request->string('tip')->toString();
-        $cautare = $request->string('q')->toString();
-        $limit = min($request->integer('limit', 10), 20);
+        $cautare = trim($request->string('q')->toString());
+        $initial = $request->boolean('initial');
+
+        $implicitLimit = $initial ? 50 : 10;
+        $limitMax = $initial ? 75 : 20;
+        $limitSolicitat = (int) $request->integer('limit', $implicitLimit);
+        $limit = max(1, min($limitSolicitat, $limitMax));
 
         $coloana = match ($tip) {
             'furnizor' => 'denumire_furnizor',
@@ -211,10 +216,10 @@ class FacturaFurnizorController extends Controller
         }
 
         $valori = FacturaFurnizor::query()
-            ->when($cautare, function ($query) use ($coloana, $cautare) {
+            ->whereNotNull($coloana)
+            ->when($cautare !== '', function ($query) use ($coloana, $cautare) {
                 $query->where($coloana, 'like', $cautare . '%');
             })
-            ->whereNotNull($coloana)
             ->distinct()
             ->orderBy($coloana)
             ->limit($limit)

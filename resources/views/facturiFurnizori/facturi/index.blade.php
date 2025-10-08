@@ -35,6 +35,7 @@
                             list="filter-furnizor-suggestions"
                             autocomplete="off"
                             data-typeahead-tip="furnizor"
+                            data-typeahead-minlength="1"
                         >
                         <datalist id="filter-furnizor-suggestions"></datalist>
                         <small class="form-text text-muted ps-1">
@@ -52,6 +53,7 @@
                             list="filter-departament-suggestions"
                             autocomplete="off"
                             data-typeahead-tip="departament"
+                            data-typeahead-minlength="1"
                         >
                         <datalist id="filter-departament-suggestions"></datalist>
                         <small class="form-text text-muted ps-1">
