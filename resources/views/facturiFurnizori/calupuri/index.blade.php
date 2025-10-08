@@ -18,24 +18,15 @@
         </div>
         <div class="col-12 mt-3">
             <form method="GET" action="{{ url()->current() }}" class="row g-2 g-md-3 align-items-end">
-                <div class="col-12 col-md-6 col-xl-3">
-                    <label for="filter-status" class="mb-0 ps-2">Status</label>
-                    <select name="status" id="filter-status" class="form-select bg-white rounded-3">
-                        <option value="">Toate</option>
-                        @foreach ($statusOptions as $key => $label)
-                            <option value="{{ $key }}" @selected($filters['status'] === $key)>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-12 col-md-6 col-xl-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label for="filter-data-de" class="mb-0 ps-2">Data plată de la</label>
                     <input type="date" name="data_plata_de_la" id="filter-data-de" class="form-control bg-white rounded-3" value="{{ $filters['data_plata_de_la'] }}">
                 </div>
-                <div class="col-12 col-md-6 col-xl-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label for="filter-data-pana" class="mb-0 ps-2">Data plată până la</label>
                     <input type="date" name="data_plata_pana" id="filter-data-pana" class="form-control bg-white rounded-3" value="{{ $filters['data_plata_pana'] }}">
                 </div>
-                <div class="col-12 col-md-6 col-xl-3">
+                <div class="col-12 col-md-6 col-xl-4">
                     <label for="filter-cauta" class="mb-0 ps-2">Caută</label>
                     <input type="text" name="cauta" id="filter-cauta" class="form-control bg-white rounded-3" placeholder="Denumire sau observații" value="{{ $filters['cauta'] }}">
                 </div>
@@ -59,7 +50,6 @@
                 <thead class="text-white rounded culoare2">
                     <tr>
                         <th>Denumire</th>
-                        <th>Status</th>
                         <th>Data plată</th>
                         <th class="text-center">Facturi</th>
                         <th>Observații</th>
@@ -70,11 +60,6 @@
                     @forelse ($calupuri as $calup)
                         <tr>
                             <td>{{ $calup->denumire_calup }}</td>
-                            <td>
-                                <span class="badge bg-white border border-dark rounded-pill text-dark fw-normal">
-                                    <small>{{ $statusOptions[$calup->status] ?? \Illuminate\Support\Str::title(str_replace('_', ' ', $calup->status)) }}</small>
-                                </span>
-                            </td>
                             <td>{{ $calup->data_plata?->format('d.m.Y') ?: '-' }}</td>
                             <td class="text-center">{{ $calup->facturi_count }}</td>
                             <td class="text-muted">{{ \Illuminate\Support\Str::limit($calup->observatii, 60) }}</td>
@@ -91,7 +76,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">Nu există calupuri înregistrate.</td>
+                            <td colspan="5" class="text-center text-muted py-4">Nu există calupuri înregistrate.</td>
                         </tr>
                     @endforelse
                 </tbody>

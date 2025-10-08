@@ -17,6 +17,13 @@ class FacturaFurnizorController extends Controller
     {
         $scadenteInZileInput = $request->input('scadente_in_zile');
 
+        $statusFilter = $request->string('status')->toString();
+        $allowedStatuses = ['neplatite', 'platite'];
+
+        if (!in_array($statusFilter, $allowedStatuses, true)) {
+            $statusFilter = null;
+        }
+
         $filters = [
             'furnizor' => $request->string('furnizor')->toString() ?: null,
             'departament' => $request->string('departament')->toString() ?: null,
@@ -28,6 +35,7 @@ class FacturaFurnizorController extends Controller
                 : (int) $scadenteInZileInput,
             'calup' => $request->string('calup')->toString() ?: null,
             'calup_data_plata' => $request->string('calup_data_plata')->toString() ?: null,
+            'status' => $statusFilter,
         ];
 
         $query = FacturaFurnizor::query();
@@ -74,8 +82,14 @@ class FacturaFurnizorController extends Controller
             });
         }
 
+        if ($filters['status'] === 'neplatite') {
+            $query->whereDoesntHave('calupuri');
+        } elseif ($filters['status'] === 'platite') {
+            $query->whereHas('calupuri');
+        }
+
         $facturi = $query
-            ->with('calupuri:id,denumire_calup,status,data_plata')
+            ->with('calupuri:id,denumire_calup,data_plata')
             ->orderBy('data_scadenta')
             ->orderBy('denumire_furnizor')
             ->paginate(25)
@@ -87,10 +101,13 @@ class FacturaFurnizorController extends Controller
             ->orderBy('moneda')
             ->pluck('moneda');
 
+        $neplatiteCount = FacturaFurnizor::query()->whereDoesntHave('calupuri')->count();
+
         return view('facturiFurnizori.facturi.index', [
             'facturi' => $facturi,
             'filters' => $filters,
             'monede' => $monede,
+            'neplatiteCount' => $neplatiteCount,
         ]);
     }
 
@@ -180,8 +197,13 @@ class FacturaFurnizorController extends Controller
     public function sugestii(Request $request)
     {
         $tip = $request->string('tip')->toString();
-        $cautare = $request->string('q')->toString();
-        $limit = min($request->integer('limit', 10), 20);
+        $cautare = trim($request->string('q')->toString());
+        $initial = $request->boolean('initial');
+
+        $implicitLimit = $initial ? 50 : 10;
+        $limitMax = $initial ? 75 : 20;
+        $limitSolicitat = (int) $request->integer('limit', $implicitLimit);
+        $limit = max(1, min($limitSolicitat, $limitMax));
 
         $coloana = match ($tip) {
             'furnizor' => 'denumire_furnizor',
@@ -194,10 +216,10 @@ class FacturaFurnizorController extends Controller
         }
 
         $valori = FacturaFurnizor::query()
-            ->when($cautare, function ($query) use ($coloana, $cautare) {
+            ->whereNotNull($coloana)
+            ->when($cautare !== '', function ($query) use ($coloana, $cautare) {
                 $query->where($coloana, 'like', $cautare . '%');
             })
-            ->whereNotNull($coloana)
             ->distinct()
             ->orderBy($coloana)
             ->limit($limit)

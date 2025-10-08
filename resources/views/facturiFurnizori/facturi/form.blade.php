@@ -16,9 +16,14 @@
             value="{{ old('denumire_furnizor', $factura->denumire_furnizor ?? '') }}"
             list="furnizor-suggestions"
             autocomplete="off"
+            data-typeahead-tip="furnizor"
+            data-typeahead-minlength="1"
             required
         >
         <datalist id="furnizor-suggestions"></datalist>
+        <small class="form-text text-muted ps-2">
+            <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Autocomplete disponibil
+        </small>
         @error('denumire_furnizor')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
@@ -112,8 +117,13 @@
             value="{{ old('departament_vehicul', $factura->departament_vehicul ?? '') }}"
             list="departament-suggestions"
             autocomplete="off"
+            data-typeahead-tip="departament"
+            data-typeahead-minlength="1"
         >
         <datalist id="departament-suggestions"></datalist>
+        <small class="form-text text-muted ps-3">
+            <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Autocomplete disponibil
+        </small>
         @error('departament_vehicul')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror

@@ -1,7 +1,5 @@
 @php
     $calup ??= null;
-    $disableStatus ??= false;
-    $statusValue = old('status', $calup->status ?? \App\Models\FacturiFurnizori\PlataCalup::STATUS_DESCHIS);
 @endphp
 
 <div class="row">
@@ -25,22 +23,6 @@
             class="form-control bg-white rounded-3 {{ $errors->has('data_plata') ? 'is-invalid' : '' }}"
             value="{{ old('data_plata', optional($calup?->data_plata)->format('Y-m-d')) }}"
         >
-    </div>
-    <div class="col-lg-3 mb-3">
-        <label for="status" class="mb-0 ps-2">Status</label>
-        <select
-            name="status"
-            id="status"
-            class="form-select bg-white rounded-3 {{ $errors->has('status') ? 'is-invalid' : '' }}"
-            @disabled($disableStatus)
-        >
-            @foreach ($statusOptions as $key => $label)
-                <option value="{{ $key }}" @selected($statusValue === $key)>{{ $label }}</option>
-            @endforeach
-        </select>
-        @if ($disableStatus)
-            <input type="hidden" name="status" value="{{ $statusValue }}">
-        @endif
     </div>
 </div>
 <div class="mb-3">

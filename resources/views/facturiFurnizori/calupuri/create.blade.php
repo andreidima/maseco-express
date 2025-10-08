@@ -21,7 +21,7 @@
         <div class="px-3">
             <form action="{{ route('facturi-furnizori.plati-calupuri.store') }}" method="POST" enctype="multipart/form-data" id="calup-create-form" class="border border-dark rounded-3 p-3 bg-white">
                 @csrf
-                @include('facturiFurnizori.calupuri._form', ['calup' => null, 'disableStatus' => true])
+                @include('facturiFurnizori.calupuri._form', ['calup' => null])
 
                 <div class="border border-dark rounded-3 p-3 mb-3">
                     <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center mb-3">
