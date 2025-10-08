@@ -36,6 +36,7 @@
             id="numar_factura"
             class="form-control bg-white rounded-3 {{ $errors->has('numar_factura') ? 'is-invalid' : '' }}"
             value="{{ old('numar_factura', $factura->numar_factura ?? '') }}"
+            autocomplete="off"
             required
         >
         @error('numar_factura')
