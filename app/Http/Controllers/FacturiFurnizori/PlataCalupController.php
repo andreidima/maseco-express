@@ -22,17 +22,12 @@ class PlataCalupController extends Controller
     public function index(Request $request)
     {
         $filters = [
-            'status' => $request->string('status')->toString() ?: null,
             'data_plata_de_la' => $request->string('data_plata_de_la')->toString() ?: null,
             'data_plata_pana' => $request->string('data_plata_pana')->toString() ?: null,
             'cauta' => $request->string('cauta')->toString() ?: null,
         ];
 
         $query = PlataCalup::query()->withCount('facturi');
-
-        if ($filters['status']) {
-            $query->where('status', $filters['status']);
-        }
 
         if ($filters['data_plata_de_la']) {
             $query->whereDate('data_plata', '>=', Carbon::parse($filters['data_plata_de_la']));
@@ -57,7 +52,6 @@ class PlataCalupController extends Controller
         return view('facturiFurnizori.calupuri.index', [
             'calupuri' => $calupuri,
             'filters' => $filters,
-            'statusOptions' => $this->statusOptions(),
         ]);
     }
 
@@ -76,7 +70,6 @@ class PlataCalupController extends Controller
             ->get();
 
         return view('facturiFurnizori.calupuri.create', [
-            'statusOptions' => $this->statusOptions(),
             'facturiDisponibile' => $facturiDisponibile,
             'facturiSelectate' => $facturiSelectate,
         ]);
@@ -87,8 +80,6 @@ class PlataCalupController extends Controller
         $payload = $request->validated();
         $facturi = $payload['facturi'] ?? [];
         unset($payload['facturi']);
-
-        $payload['status'] = PlataCalup::STATUS_DESCHIS;
 
         if ($request->hasFile('fisier_pdf')) {
             $payload['fisier_pdf'] = $this->uploadFisierPdf($request->file('fisier_pdf'));
@@ -121,7 +112,6 @@ class PlataCalupController extends Controller
         return view('facturiFurnizori.calupuri.show', [
             'calup' => $plataCalup,
             'facturiDisponibile' => $facturiDisponibile,
-            'statusOptions' => $this->statusOptions(),
         ]);
     }
 
@@ -145,20 +135,7 @@ class PlataCalupController extends Controller
             unset($payload['fisier_pdf']);
         }
 
-        $statusCurent = $plataCalup->status;
-        $statusNou = $payload['status'] ?? $statusCurent;
-
-        if ($statusCurent !== PlataCalup::STATUS_PLATIT && $statusNou === PlataCalup::STATUS_PLATIT) {
-            $this->plataCalupService->markAsPaid($plataCalup, isset($payload['data_plata']) ? Carbon::parse($payload['data_plata']) : null);
-            $plataCalup->refresh();
-            unset($payload['status'], $payload['data_plata']);
-        } elseif ($statusCurent === PlataCalup::STATUS_PLATIT && $statusNou === PlataCalup::STATUS_DESCHIS) {
-            $this->plataCalupService->reopen($plataCalup);
-            $plataCalup->refresh();
-            unset($payload['status']);
-        } else {
-            $plataCalup->update($payload);
-        }
+        $plataCalup->update($payload);
 
         if (is_array($facturi)) {
             $idsCurente = $plataCalup->facturi()->pluck('ff_facturi.id')->toArray();
@@ -186,10 +163,6 @@ class PlataCalupController extends Controller
 
     public function destroy(PlataCalup $plataCalup)
     {
-        if ($plataCalup->status === PlataCalup::STATUS_PLATIT) {
-            return back()->with('error', 'Un calup platit nu poate fi sters.');
-        }
-
         $plataCalup->load('facturi');
 
         foreach ($plataCalup->facturi as $factura) {
@@ -225,25 +198,6 @@ class PlataCalupController extends Controller
         return back()->with('status', 'Factura a fost eliminata din calup.');
     }
 
-    public function marcheazaPlatit(Request $request, PlataCalup $plataCalup)
-    {
-        $dataPlata = $request->string('data_plata')->toString();
-        $this->plataCalupService->markAsPaid($plataCalup, $dataPlata ? Carbon::parse($dataPlata) : null);
-
-        return redirect()
-            ->route('facturi-furnizori.plati-calupuri.show', $plataCalup)
-            ->with('status', 'Calupul a fost marcat ca platit.');
-    }
-
-    public function redeschide(PlataCalup $plataCalup)
-    {
-        $this->plataCalupService->reopen($plataCalup);
-
-        return redirect()
-            ->route('facturi-furnizori.plati-calupuri.show', $plataCalup)
-            ->with('status', 'Calupul a fost redeschis.');
-    }
-
     public function descarcaFisier(PlataCalup $plataCalup)
     {
         if (!$plataCalup->fisier_pdf || !Storage::exists($plataCalup->fisier_pdf)) {
@@ -269,15 +223,6 @@ class PlataCalupController extends Controller
         Storage::putFileAs($folder, $file, $filename);
 
         return $path;
-    }
-
-    private function statusOptions(): array
-    {
-        return [
-            PlataCalup::STATUS_DESCHIS => 'Deschis',
-            PlataCalup::STATUS_PLATIT => 'Plătit',
-            PlataCalup::STATUS_ANULAT => 'Anulat',
-        ];
     }
 }
 

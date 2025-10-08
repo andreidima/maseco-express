@@ -17,10 +17,8 @@ return new class extends Migration
             $table->date('data_plata')->nullable();
             $table->string('fisier_pdf')->nullable();
             $table->text('observatii')->nullable();
-            $table->string('status', 20)->default('deschis');
             $table->timestamps();
-
-            $table->index(['status', 'data_plata']);
+            $table->index('data_plata');
         });
     }
 
