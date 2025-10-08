@@ -3,7 +3,7 @@
 @section('content')
 @php
     $selectedFacturiOld = collect(old('facturi', []))->map(fn ($id) => (int) $id)->all();
-    $calupErrorFields = ['denumire_calup', 'data_plata', 'observatii', 'fisier_pdf', 'facturi', 'facturi.*'];
+    $calupErrorFields = ['denumire_calup', 'data_plata', 'observatii', 'fisiere_pdf', 'fisiere_pdf.*', 'facturi', 'facturi.*'];
     $shouldShowCalupModal = !empty($selectedFacturiOld);
 
     foreach ($calupErrorFields as $field) {
@@ -237,9 +237,28 @@
                         <label for="observatii" class="mb-0 ps-2">Observații</label>
                         <textarea name="observatii" id="observatii" class="form-control bg-white rounded-3 {{ $errors->has('observatii') ? 'is-invalid' : '' }}" rows="3">{{ old('observatii') }}</textarea>
                     </div>
+                    @php
+                        $fisiereModalErrors = $errors->has('fisiere_pdf') || collect($errors->get('fisiere_pdf.*'))->flatten()->isNotEmpty();
+                    @endphp
                     <div class="mb-3">
-                        <label for="fisier_pdf" class="mb-0 ps-2">Fișier PDF</label>
-                        <input type="file" name="fisier_pdf" id="fisier_pdf" class="form-control bg-white rounded-3 {{ $errors->has('fisier_pdf') ? 'is-invalid' : '' }}" accept="application/pdf">
+                        <label for="fisiere_pdf_modal" class="mb-0 ps-2">Fișiere PDF</label>
+                        <input
+                            type="file"
+                            name="fisiere_pdf[]"
+                            id="fisiere_pdf_modal"
+                            class="form-control bg-white rounded-3 {{ $fisiereModalErrors ? 'is-invalid' : '' }}"
+                            accept="application/pdf"
+                            multiple
+                        >
+                        <small class="form-text text-muted">Poți selecta unul sau mai multe fișiere PDF.</small>
+                        @if ($errors->has('fisiere_pdf'))
+                            <div class="invalid-feedback d-block">{{ $errors->first('fisiere_pdf') }}</div>
+                        @endif
+                        @foreach ($errors->get('fisiere_pdf.*') as $messages)
+                            @foreach ((array) $messages as $message)
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @endforeach
+                        @endforeach
                     </div>
                     <div id="calup-form-selected" class="d-none"></div>
                     @if ($errors->has('facturi'))

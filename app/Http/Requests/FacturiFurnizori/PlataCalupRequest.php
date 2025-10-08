@@ -25,7 +25,8 @@ class PlataCalupRequest extends FormRequest
             'denumire_calup' => ['required', 'string', 'max:150'],
             'data_plata' => ['nullable', 'date'],
             'observatii' => ['nullable', 'string'],
-            'fisier_pdf' => ['nullable', 'file', 'mimetypes:application/pdf', 'max:10240'],
+            'fisiere_pdf' => ['nullable', 'array'],
+            'fisiere_pdf.*' => ['file', 'mimetypes:application/pdf', 'max:10240'],
             'facturi' => ['nullable', 'array'],
             'facturi.*' => ['integer', 'exists:ff_facturi,id'],
         ];
@@ -37,8 +38,9 @@ class PlataCalupRequest extends FormRequest
             'denumire_calup.required' => 'Denumirea calupului este obligatorie.',
             'denumire_calup.max' => 'Denumirea calupului poate avea cel mult 150 de caractere.',
             'data_plata.date' => 'Data platii trebuie sa fie o data valida.',
-            'fisier_pdf.mimetypes' => 'Fisierul incarcat trebuie sa fie PDF.',
-            'fisier_pdf.max' => 'Fisierul PDF poate avea cel mult 10MB.',
+            'fisiere_pdf.array' => 'Lista de fisiere nu este valida.',
+            'fisiere_pdf.*.mimetypes' => 'Fiecare fisier incarcat trebuie sa fie PDF.',
+            'fisiere_pdf.*.max' => 'Fiecare fisier PDF poate avea cel mult 10MB.',
             'facturi.array' => 'Lista de facturi nu este valida.',
             'facturi.*.exists' => 'Cel putin una dintre facturile selectate nu mai exista.',
         ];
@@ -50,7 +52,7 @@ class PlataCalupRequest extends FormRequest
             'denumire_calup' => 'denumire calup',
             'data_plata' => 'data platii',
             'observatii' => 'observatii',
-            'fisier_pdf' => 'fisier PDF',
+            'fisiere_pdf' => 'fisiere PDF',
             'facturi' => 'facturi selectate',
         ];
     }
