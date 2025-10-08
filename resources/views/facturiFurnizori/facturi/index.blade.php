@@ -37,6 +37,9 @@
                             data-typeahead-tip="furnizor"
                         >
                         <datalist id="filter-furnizor-suggestions"></datalist>
+                        <small class="form-text text-muted ps-1">
+                            <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Autocomplete disponibil
+                        </small>
                     </div>
                     <div class="col-lg-4">
                         <input
@@ -51,6 +54,9 @@
                             data-typeahead-tip="departament"
                         >
                         <datalist id="filter-departament-suggestions"></datalist>
+                        <small class="form-text text-muted ps-1">
+                            <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Autocomplete disponibil
+                        </small>
                     </div>
                     <div class="col-lg-4">
                         <select name="moneda" id="filter-moneda" class="form-select bg-white rounded-3">

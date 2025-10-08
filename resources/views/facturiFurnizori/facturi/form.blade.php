@@ -20,6 +20,9 @@
             required
         >
         <datalist id="furnizor-suggestions"></datalist>
+        <small class="form-text text-muted ps-2">
+            <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Autocomplete disponibil
+        </small>
         @error('denumire_furnizor')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
@@ -116,6 +119,9 @@
             data-typeahead-tip="departament"
         >
         <datalist id="departament-suggestions"></datalist>
+        <small class="form-text text-muted ps-3">
+            <i class="fa-solid fa-wand-magic-sparkles me-1"></i>Autocomplete disponibil
+        </small>
         @error('departament_vehicul')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
