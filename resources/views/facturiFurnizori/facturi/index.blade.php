@@ -103,7 +103,7 @@
                 <div class="row g-2 mb-2 custom-search-form d-flex justify-content-center">
                     <div class="col-lg-3 col-md-6">
                         <select name="status" id="filter-status" class="form-select bg-white rounded-3">
-                            <option value="" @selected($filters['status'] === '')>Toate</option>
+                            <option value="toate" @selected($filters['status'] === 'toate')>Toate</option>
                             <option value="neplatite" @selected($filters['status'] === 'neplatite')>Neplătite ({{ $neplatiteCount }})</option>
                             <option value="platite" @selected($filters['status'] === 'platite')>Arhivate (în calupuri)</option>
                         </select>
