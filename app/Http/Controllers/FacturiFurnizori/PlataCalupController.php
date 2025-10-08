@@ -7,11 +7,13 @@ use App\Http\Requests\FacturiFurnizori\AttachFacturiRequest;
 use App\Http\Requests\FacturiFurnizori\PlataCalupRequest;
 use App\Models\FacturiFurnizori\FacturaFurnizor;
 use App\Models\FacturiFurnizori\PlataCalup;
+use App\Models\FacturiFurnizori\PlataCalupFisier;
 use App\Services\FacturiFurnizori\PlataCalupService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PlataCalupController extends Controller
 {
@@ -81,13 +83,15 @@ class PlataCalupController extends Controller
         $facturi = $payload['facturi'] ?? [];
         unset($payload['facturi']);
 
-        if ($request->hasFile('fisier_pdf')) {
-            $payload['fisier_pdf'] = $this->uploadFisierPdf($request->file('fisier_pdf'));
-        } else {
-            unset($payload['fisier_pdf']);
-        }
+        $fisiereNoi = $this->normalizeUploadedFiles($request->file('fisiere_pdf'));
+        unset($payload['fisiere_pdf']);
 
         $calup = PlataCalup::create($payload);
+
+        if (!empty($fisiereNoi)) {
+            $this->adaugaFisiere($calup, $fisiereNoi);
+            $calup->load('fisiere');
+        }
 
         if (!empty($facturi)) {
             $this->plataCalupService->attachFacturi($calup, $facturi);
@@ -132,16 +136,15 @@ class PlataCalupController extends Controller
         $facturi = $payload['facturi'] ?? null;
         unset($payload['facturi']);
 
-        if ($request->hasFile('fisier_pdf')) {
-            if ($plataCalup->fisier_pdf) {
-                Storage::delete($plataCalup->fisier_pdf);
-            }
-            $payload['fisier_pdf'] = $this->uploadFisierPdf($request->file('fisier_pdf'));
-        } else {
-            unset($payload['fisier_pdf']);
-        }
+        $fisiereNoi = $this->normalizeUploadedFiles($request->file('fisiere_pdf'));
+        unset($payload['fisiere_pdf']);
 
         $plataCalup->update($payload);
+
+        if (!empty($fisiereNoi)) {
+            $this->adaugaFisiere($plataCalup, $fisiereNoi);
+            $plataCalup->load('fisiere');
+        }
 
         if (is_array($facturi)) {
             $idsCurente = $plataCalup->facturi()->pluck('ff_facturi.id')->toArray();
@@ -169,14 +172,16 @@ class PlataCalupController extends Controller
 
     public function destroy(PlataCalup $plataCalup)
     {
-        $plataCalup->load('facturi');
+        $plataCalup->load(['facturi', 'fisiere']);
 
         foreach ($plataCalup->facturi as $factura) {
             $this->plataCalupService->detachFactura($plataCalup, $factura);
         }
 
-        if ($plataCalup->fisier_pdf) {
-            Storage::delete($plataCalup->fisier_pdf);
+        foreach ($plataCalup->fisiere as $fisier) {
+            if ($fisier->cale && Storage::exists($fisier->cale)) {
+                Storage::delete($fisier->cale);
+            }
         }
 
         $plataCalup->delete();
@@ -204,31 +209,103 @@ class PlataCalupController extends Controller
         return back()->with('status', 'Factura a fost eliminata din calup.');
     }
 
-    public function descarcaFisier(PlataCalup $plataCalup)
+    public function descarcaFisier(PlataCalup $plataCalup, ?PlataCalupFisier $fisier = null)
     {
-        if (!$plataCalup->fisier_pdf || !Storage::exists($plataCalup->fisier_pdf)) {
+        if ($fisier && $fisier->plata_calup_id !== $plataCalup->id) {
+            abort(404);
+        }
+
+        $fisierSelectat = $fisier;
+
+        if (!$fisierSelectat) {
+            $fisierSelectat = $plataCalup->fisiere()->orderBy('created_at')->first();
+        }
+
+        if (!$fisierSelectat || !Storage::exists($fisierSelectat->cale)) {
             return back()->with('error', 'Fisierul nu a putut fi descarcat.');
         }
 
-        return Storage::download($plataCalup->fisier_pdf, basename($plataCalup->fisier_pdf));
+        $downloadName = $fisierSelectat->nume_original ?: basename($fisierSelectat->cale);
+
+        return Storage::download($fisierSelectat->cale, $downloadName);
     }
 
-    private function uploadFisierPdf(UploadedFile $file): string
+    /**
+     * @param array<int, UploadedFile>|UploadedFile|null $files
+     * @return array<int, UploadedFile>
+     */
+    private function normalizeUploadedFiles($files): array
+    {
+        if (empty($files)) {
+            return [];
+        }
+
+        if ($files instanceof UploadedFile) {
+            $files = [$files];
+        }
+
+        return array_values(array_filter($files, fn ($file) => $file instanceof UploadedFile));
+    }
+
+    /**
+     * @param array<int, UploadedFile> $files
+     */
+    private function adaugaFisiere(PlataCalup $plataCalup, array $files): void
+    {
+        foreach ($files as $file) {
+            $this->salveazaFisier($plataCalup, $file);
+        }
+    }
+
+    private function salveazaFisier(PlataCalup $plataCalup, UploadedFile $file): PlataCalupFisier
     {
         $folder = 'facturi-furnizori/calupuri';
-        $filename = $file->getClientOriginalName() ?: ('calup_' . uniqid() . '.pdf');
-        $path = $folder . '/' . $filename;
-
-        while (Storage::exists($path)) {
-            $name = pathinfo($filename, PATHINFO_FILENAME);
-            $extension = $file->getClientOriginalExtension() ?: 'pdf';
-            $filename = $name . '_' . uniqid() . '.' . $extension;
-            $path = $folder . '/' . $filename;
-        }
+        $filename = $this->genereazaNumeFisier($file, $folder);
 
         Storage::putFileAs($folder, $file, $filename);
 
-        return $path;
+        return $plataCalup->fisiere()->create([
+            'cale' => $folder . '/' . $filename,
+            'nume_original' => $file->getClientOriginalName() ?: $filename,
+        ]);
+    }
+
+    private function genereazaNumeFisier(UploadedFile $file, string $folder): string
+    {
+        $originalName = $file->getClientOriginalName() ?: 'calup';
+        $extension = strtolower($file->getClientOriginalExtension() ?: 'pdf');
+        $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+        $baseName = Str::slug(Str::ascii($baseName) ?: 'calup', '_');
+
+        if ($baseName === '') {
+            $baseName = 'calup';
+        }
+
+        $baseName = substr($baseName, 0, 120);
+        $filename = $baseName . '.' . $extension;
+        $counter = 1;
+
+        while (Storage::exists($folder . '/' . $filename)) {
+            $filename = $baseName . '_' . $counter . '.' . $extension;
+            $counter++;
+        }
+
+        return $filename;
+    }
+
+    public function stergeFisier(PlataCalup $plataCalup, PlataCalupFisier $fisier)
+    {
+        if ($fisier->plata_calup_id !== $plataCalup->id) {
+            abort(404);
+        }
+
+        if ($fisier->cale && Storage::exists($fisier->cale)) {
+            Storage::delete($fisier->cale);
+        }
+
+        $fisier->delete();
+
+        return back()->with('status', 'Fisierul a fost sters.');
     }
 }
 

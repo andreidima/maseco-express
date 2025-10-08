@@ -1,5 +1,6 @@
 @php
     $calup ??= null;
+    $fisiereErrors = $errors->has('fisiere_pdf') || collect($errors->get('fisiere_pdf.*'))->flatten()->isNotEmpty();
 @endphp
 
 <div class="row">
@@ -35,17 +36,25 @@
     >{{ old('observatii', $calup->observatii ?? '') }}</textarea>
 </div>
 <div class="mb-3">
-    <label for="fisier_pdf" class="mb-0 ps-2">Fișier PDF</label>
+    <label for="fisiere_pdf" class="mb-0 ps-2">Fișiere PDF</label>
     <input
         type="file"
-        name="fisier_pdf"
-        id="fisier_pdf"
-        class="form-control bg-white rounded-3 {{ $errors->has('fisier_pdf') ? 'is-invalid' : '' }}"
+        name="fisiere_pdf[]"
+        id="fisiere_pdf"
+        class="form-control bg-white rounded-3 {{ $fisiereErrors ? 'is-invalid' : '' }}"
         accept="application/pdf"
+        multiple
     >
-    @if (!empty($calup?->fisier_pdf))
-        <p class="mt-2 mb-0">
-            <a href="{{ route('facturi-furnizori.plati-calupuri.descarca-fisier', $calup) }}">Descarcă fișier existent</a>
-        </p>
+    <small class="form-text text-muted">Poți selecta unul sau mai multe fișiere PDF.</small>
+    @if ($errors->has('fisiere_pdf'))
+        <div class="invalid-feedback d-block">{{ $errors->first('fisiere_pdf') }}</div>
+    @endif
+    @foreach ($errors->get('fisiere_pdf.*') as $messages)
+        @foreach ((array) $messages as $message)
+            <div class="invalid-feedback d-block">{{ $message }}</div>
+        @endforeach
+    @endforeach
+    @if ($calup && $calup->relationLoaded('fisiere') && $calup->fisiere->isNotEmpty())
+        <p class="mt-2 mb-0 text-muted small">Fișierele deja încărcate sunt listate mai jos.</p>
     @endif
 </div>
