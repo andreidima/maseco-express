@@ -15,13 +15,18 @@ class FacturaFurnizorController extends Controller
      */
     public function index(Request $request)
     {
-        $scadenteInZileInput = $request->input('scadente_in_zile');
-
-        $statusFilter = $request->string('status')->toString();
         $allowedStatuses = ['neplatite', 'platite'];
+        $defaultStatus = 'neplatite';
+        $statusParam = $request->query('status', '__absent__');
 
-        if (!in_array($statusFilter, $allowedStatuses, true)) {
-            $statusFilter = null;
+        if ($statusParam === '__absent__') {
+            $statusFilter = $defaultStatus;
+            $statusValueForForm = $defaultStatus;
+        } else {
+            $statusValueForForm = is_string($statusParam) ? $statusParam : '';
+            $statusFilter = in_array($statusValueForForm, $allowedStatuses, true)
+                ? $statusValueForForm
+                : null;
         }
 
         $filters = [
@@ -30,12 +35,9 @@ class FacturaFurnizorController extends Controller
             'moneda' => $request->string('moneda')->toString() ?: null,
             'scadenta_de_la' => $request->string('scadenta_de_la')->toString() ?: null,
             'scadenta_pana' => $request->string('scadenta_pana')->toString() ?: null,
-            'scadente_in_zile' => ($scadenteInZileInput === null || $scadenteInZileInput === '')
-                ? null
-                : (int) $scadenteInZileInput,
             'calup' => $request->string('calup')->toString() ?: null,
             'calup_data_plata' => $request->string('calup_data_plata')->toString() ?: null,
-            'status' => $statusFilter,
+            'status' => $statusValueForForm,
         ];
 
         $query = FacturaFurnizor::query();
@@ -60,16 +62,6 @@ class FacturaFurnizorController extends Controller
             $query->whereDate('data_scadenta', '<=', Carbon::parse($filters['scadenta_pana']));
         }
 
-        if (!is_null($filters['scadente_in_zile'])) {
-            $days = $filters['scadente_in_zile'];
-            $start = now()->startOfDay();
-            $end   = ($days === 0)
-                ? $start->copy()->endOfDay()        // exactly today
-                : now()->addDays($days)->endOfDay(); // next N days
-
-            $query->whereBetween('data_scadenta', [$start, $end]);
-        }
-
         if ($filters['calup'] || $filters['calup_data_plata']) {
             $query->whereHas('calupuri', function ($subQuery) use ($filters) {
                 if ($filters['calup']) {
@@ -82,14 +74,15 @@ class FacturaFurnizorController extends Controller
             });
         }
 
-        if ($filters['status'] === 'neplatite') {
+        if ($statusFilter === 'neplatite') {
             $query->whereDoesntHave('calupuri');
-        } elseif ($filters['status'] === 'platite') {
+        } elseif ($statusFilter === 'platite') {
             $query->whereHas('calupuri');
         }
 
         $facturi = $query
             ->with('calupuri:id,denumire_calup,data_plata')
+            ->orderByRaw('data_scadenta IS NULL')
             ->orderBy('data_scadenta')
             ->orderBy('denumire_furnizor')
             ->paginate(25)

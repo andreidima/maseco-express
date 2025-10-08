@@ -101,16 +101,22 @@ class PlataCalupController extends Controller
 
     public function show(PlataCalup $plataCalup)
     {
-        $plataCalup->load(['facturi' => fn ($query) => $query->orderBy('data_scadenta')]);
+        $plataCalup->load(['facturi' => fn ($query) => $query->orderByRaw('data_scadenta IS NULL')->orderBy('data_scadenta')]);
+
+        $facturiCalup = $plataCalup->facturi
+            ->sortBy(fn (FacturaFurnizor $factura) => $factura->data_scadenta?->timestamp ?? PHP_INT_MAX)
+            ->values();
 
         $facturiDisponibile = FacturaFurnizor::query()
             ->whereDoesntHave('calupuri')
+            ->orderByRaw('data_scadenta IS NULL')
             ->orderBy('data_scadenta')
             ->orderBy('denumire_furnizor')
             ->get();
 
         return view('facturiFurnizori.calupuri.show', [
             'calup' => $plataCalup,
+            'facturiCalup' => $facturiCalup,
             'facturiDisponibile' => $facturiDisponibile,
         ]);
     }
