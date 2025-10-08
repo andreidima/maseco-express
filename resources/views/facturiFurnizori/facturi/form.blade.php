@@ -107,7 +107,7 @@
     </div>
 </div>
 
-<div class="row mb-0 px-3">
+<div class="row mb-0">
     <div class="col-lg-6 mb-4">
         <label for="departament_vehicul" class="mb-0 ps-3">Nr auto / departament</label>
         <input

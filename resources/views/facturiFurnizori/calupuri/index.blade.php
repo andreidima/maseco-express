@@ -16,9 +16,9 @@
             <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3 me-2" href="{{ $facturiIndexUrl }}">
                 <i class="fa-solid fa-rotate-left me-1"></i>Înapoi la facturi
             </a>
-            <a class="btn btn-sm btn-primary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.create') }}">
+            {{-- <a class="btn btn-sm btn-primary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.create') }}">
                 <i class="fa-solid fa-plus me-1"></i>Creează calup
-            </a>
+            </a> --}}
         </div>
         <div class="col-12 mt-3">
             <form method="GET" action="{{ url()->current() }}" class="row g-2 g-md-3 align-items-end">

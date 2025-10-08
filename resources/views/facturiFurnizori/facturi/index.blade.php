@@ -117,15 +117,15 @@
         </div>
         <div class="col-lg-2 text-lg-end mt-3 mt-lg-0">
             <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
-                <a class="btn btn-sm btn-info text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.index') }}" role="button">
-                    <i class="fa-solid fa-layer-group text-white me-1"></i>Vezi toate calupurile
-                </a>
                 <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.create') }}" role="button">
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă factură
                 </a>
                 <button type="button" class="btn btn-sm btn-warning text-dark border border-dark rounded-3" id="prepare-calup">
                     <i class="fa-solid fa-file-circle-plus me-1"></i>Pregătește calup
                 </button>
+                <a class="btn btn-sm btn-info text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.index') }}" role="button">
+                    <i class="fa-solid fa-layer-group text-white me-1"></i>Vezi toate calupurile
+                </a>
             </div>
         </div>
     </div>
@@ -176,7 +176,7 @@
                             <td>
                                 @if ($factura->calupuri->isNotEmpty())
                                     @foreach ($factura->calupuri as $calup)
-                                        <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="badge bg-info text-dark text-decoration-none mb-1">{{ $calup->denumire_calup }}</a>
+                                        <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="badge bg-info text-white text-decoration-none mb-1">{{ $calup->denumire_calup }}</a>
                                     @endforeach
                                 @else
                                     <span class="text-muted">-</span>
