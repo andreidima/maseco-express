@@ -37,6 +37,9 @@
 </head>
 <body class="d-flex flex-column h-100">
     @auth
+    @php
+        $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
+    @endphp
     {{-- <div id="app"> --}}
     <header>
         <nav class="navbar navbar-lg navbar-expand-lg navbar-dark shadow culoare1"
@@ -64,7 +67,7 @@
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('facturi-furnizori.facturi.index') }}">
+                                    <a class="dropdown-item" href="{{ $facturiIndexUrl }}">
                                         <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
                                     </a>
                                 </li>
@@ -245,7 +248,7 @@
                                 </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
-                                    <a class="dropdown-item" href="{{ route('facturi-furnizori.facturi.index') }}">
+                                    <a class="dropdown-item" href="{{ $facturiIndexUrl }}">
                                         <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
                                     </a>
                                 </li>

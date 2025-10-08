@@ -4,6 +4,7 @@
     /** @var \App\Models\FacturiFurnizori\FacturaFurnizor|null $factura */
     $factura ??= null;
     $isEdit = $factura?->exists;
+    $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
 @endphp
 
 @section('content')
@@ -16,7 +17,7 @@
                         <i class="fa-solid fa-file-invoice-dollar me-1"></i>
                         {{ $isEdit ? 'Modifică factură furnizor' : 'Adaugă factură furnizor' }}
                     </span>
-                    <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.index') }}">
+                    <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ $facturiIndexUrl }}">
                         <i class="fa-solid fa-rotate-left me-1"></i>Înapoi la listă
                     </a>
                 </div>
@@ -52,7 +53,7 @@
                             'factura' => $factura,
                             'buttonText' => $isEdit ? 'Actualizează factura' : 'Salvează factura',
                             'buttonClass' => $isEdit ? 'btn-primary' : 'btn-success',
-                            'cancelUrl' => route('facturi-furnizori.facturi.index'),
+                            'cancelUrl' => $facturiIndexUrl,
                         ])
                     </form>
                 </div>
