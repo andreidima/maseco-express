@@ -2,7 +2,7 @@
     $factura ??= null;
     $buttonText ??= __('Salvează factura');
     $buttonClass ??= 'btn-primary';
-    $cancelUrl ??= route('facturi-furnizori.facturi.index');
+    $cancelUrl ??= \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
 @endphp
 
 <div class="row">
