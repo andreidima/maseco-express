@@ -65,3 +65,13 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 # maseco-express
+
+## Demo data seeder
+
+To reset the supplier invoice datasets with demo information run:
+
+```bash
+php artisan db:seed --class=FacturiFurnizoriDemoSeeder
+```
+
+> **Note:** When invoking the seeder from a Unix shell do not include single backslashes in the class name (for example, `Database\Seeders\...`). The shell treats `\` as an escape character and will pass an invalid class reference to Artisan. The shorter `--class=FacturiFurnizoriDemoSeeder` form avoids that pitfall while still resolving to the fully qualified seeder class.
