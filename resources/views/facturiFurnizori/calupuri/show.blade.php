@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
+@endphp
+
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
@@ -9,7 +13,7 @@
             </span>
         </div>
         <div class="col-lg-6 text-end">
-            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.index') }}">
+            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ $facturiIndexUrl }}">
                 <i class="fa-solid fa-rotate-left me-1"></i>Înapoi la facturi
             </a>
         </div>
@@ -49,6 +53,16 @@
                                             <td class="align-middle">{{ $fisier->nume_original ?: basename($fisier->cale) }}</td>
                                             <td class="align-middle">{{ $fisier->created_at?->format('d.m.Y H:i') }}</td>
                                             <td class="text-end">
+                                                @if ($fisier->isPreviewable())
+                                                    <a
+                                                        href="{{ route('facturi-furnizori.plati-calupuri.vizualizeaza-fisier', [$calup, $fisier]) }}"
+                                                        class="btn btn-sm btn-outline-secondary border border-secondary me-2"
+                                                        target="_blank"
+                                                        rel="noopener"
+                                                    >
+                                                        <i class="fa-solid fa-up-right-from-square me-1"></i>Deschide
+                                                    </a>
+                                                @endif
                                                 <a
                                                     href="{{ route('facturi-furnizori.plati-calupuri.descarca-fisier', [$calup, $fisier]) }}"
                                                     class="btn btn-sm btn-outline-primary border border-primary me-2"

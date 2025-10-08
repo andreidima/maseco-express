@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@php
+    $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
+@endphp
+
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
@@ -12,7 +16,7 @@
             <a class="btn btn-sm btn-primary text-white border border-dark rounded-3 me-2" href="{{ route('facturi-furnizori.facturi.edit', $factura) }}">
                 <i class="fa-solid fa-pen-to-square me-1"></i>Modifică
             </a>
-            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.index') }}">
+            <a class="btn btn-sm btn-secondary text-white border border-dark rounded-3" href="{{ $facturiIndexUrl }}">
                 <i class="fa-solid fa-rotate-left me-1"></i>Înapoi
             </a>
         </div>

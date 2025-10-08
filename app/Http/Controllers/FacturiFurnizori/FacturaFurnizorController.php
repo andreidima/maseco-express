@@ -5,8 +5,10 @@ namespace App\Http\Controllers\FacturiFurnizori;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FacturiFurnizori\FacturaFurnizorRequest;
 use App\Models\FacturiFurnizori\FacturaFurnizor;
+use App\Support\FacturiFurnizori\FacturiIndexFilterState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Http\RedirectResponse;
 
 class FacturaFurnizorController extends Controller
 {
@@ -104,6 +106,8 @@ class FacturaFurnizorController extends Controller
 
         $neplatiteCount = FacturaFurnizor::query()->whereDoesntHave('calupuri')->count();
 
+        FacturiIndexFilterState::remember($request);
+
         return view('facturiFurnizori.facturi.index', [
             'facturi' => $facturi,
             'filters' => $filters,
@@ -132,8 +136,7 @@ class FacturaFurnizorController extends Controller
 
         $factura = FacturaFurnizor::create($payload);
 
-        return redirect()
-            ->route('facturi-furnizori.facturi.index')
+        return $this->redirectToIndexWithFilters()
             ->with('status', 'Factura a fost adaugata cu succes.');
     }
 
@@ -171,8 +174,7 @@ class FacturaFurnizorController extends Controller
 
         $factura->update($payload);
 
-        return redirect()
-            ->route('facturi-furnizori.facturi.index')
+        return $this->redirectToIndexWithFilters()
             ->with('status', 'Factura a fost actualizata cu succes.');
     }
 
@@ -187,9 +189,15 @@ class FacturaFurnizorController extends Controller
 
         $factura->delete();
 
-        return redirect()
-            ->route('facturi-furnizori.facturi.index')
+        return $this->redirectToIndexWithFilters()
             ->with('status', 'Factura a fost stearsa.');
+    }
+
+    protected function redirectToIndexWithFilters(): RedirectResponse
+    {
+        $filters = FacturiIndexFilterState::get();
+
+        return redirect()->route('facturi-furnizori.facturi.index', $filters);
     }
 
     /**
