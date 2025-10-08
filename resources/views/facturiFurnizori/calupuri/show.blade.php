@@ -22,8 +22,7 @@
             <div class="mb-3">
                 <div class="border border-dark rounded-3 p-3 bg-white">
                     <h6 class="text-uppercase text-muted">Sumar calup</h6>
-                    <p class="mb-1"><strong>Facturi atașate:</strong> {{ $calup->facturi->count() }}</p>
-                    <p class="mb-1"><strong>Total sume:</strong> {{ number_format($calup->facturi->sum('suma'), 2) }}</p>
+                    <p class="mb-1"><strong>Facturi atașate:</strong> {{ $facturiCalup->count() }}</p>
                     <p class="mb-1"><strong>Data plată:</strong> {{ $calup->data_plata?->format('d.m.Y') ?: 'Nespecificată' }}</p>
                     <p class="mb-0"><strong>Fișiere PDF:</strong> {{ $calup->fisiere->count() }}</p>
                 </div>
@@ -91,7 +90,7 @@
 
             <div class="border border-dark rounded-3 p-3 mb-3 bg-white">
                 <h6 class="text-uppercase text-muted mb-3">Facturi atașate</h6>
-                @if ($calup->facturi->isEmpty())
+                @if ($facturiCalup->isEmpty())
                     <p class="text-muted mb-0">Nu sunt facturi atașate acestui calup.</p>
                 @else
                     <div class="table-responsive">
@@ -106,7 +105,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($calup->facturi as $factura)
+                                @foreach ($facturiCalup as $factura)
                                     <tr>
                                         <td>{{ $factura->denumire_furnizor }}</td>
                                         <td>{{ $factura->numar_factura }}</td>
@@ -130,7 +129,7 @@
                 @endif
             </div>
 
-            @foreach ($calup->facturi as $factura)
+            @foreach ($facturiCalup as $factura)
                 <div
                     class="modal fade"
                     id="detaseazaFacturaModal{{ $factura->id }}"
@@ -201,7 +200,7 @@
                             </table>
                         </div>
                         <div class="d-flex justify-content-end gap-2 mt-3">
-                            <span class="badge bg-info text-dark" id="attach-counter">Selectate: 0</span>
+                            <span class="badge bg-primary text-white" id="attach-counter">Selectate: 0</span>
                             <button type="submit" class="btn btn-sm btn-success text-white border border-dark rounded-3">
                                 <i class="fa-solid fa-plus me-1"></i>Adaugă în calup
                             </button>

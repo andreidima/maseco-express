@@ -112,12 +112,14 @@ class PlataCalupController extends Controller
 
         $facturiDisponibile = FacturaFurnizor::query()
             ->whereDoesntHave('calupuri')
+            ->orderByRaw('data_scadenta IS NULL')
             ->orderBy('data_scadenta')
             ->orderBy('denumire_furnizor')
             ->get();
 
         return view('facturiFurnizori.calupuri.show', [
             'calup' => $plataCalup,
+            'facturiCalup' => $facturiCalup,
             'facturiDisponibile' => $facturiDisponibile,
         ]);
     }
