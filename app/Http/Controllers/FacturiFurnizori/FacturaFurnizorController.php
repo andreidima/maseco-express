@@ -17,11 +17,18 @@ class FacturaFurnizorController extends Controller
     {
         $scadenteInZileInput = $request->input('scadente_in_zile');
 
-        $statusFilter = $request->string('status')->toString();
         $allowedStatuses = ['neplatite', 'platite'];
+        $defaultStatus = 'platite';
+        $statusParam = $request->query('status', '__absent__');
 
-        if (!in_array($statusFilter, $allowedStatuses, true)) {
-            $statusFilter = null;
+        if ($statusParam === '__absent__') {
+            $statusFilter = $defaultStatus;
+            $statusValueForForm = $defaultStatus;
+        } else {
+            $statusValueForForm = is_string($statusParam) ? $statusParam : '';
+            $statusFilter = in_array($statusValueForForm, $allowedStatuses, true)
+                ? $statusValueForForm
+                : null;
         }
 
         $filters = [
@@ -35,7 +42,7 @@ class FacturaFurnizorController extends Controller
                 : (int) $scadenteInZileInput,
             'calup' => $request->string('calup')->toString() ?: null,
             'calup_data_plata' => $request->string('calup_data_plata')->toString() ?: null,
-            'status' => $statusFilter,
+            'status' => $statusValueForForm,
         ];
 
         $query = FacturaFurnizor::query();
@@ -82,14 +89,15 @@ class FacturaFurnizorController extends Controller
             });
         }
 
-        if ($filters['status'] === 'neplatite') {
+        if ($statusFilter === 'neplatite') {
             $query->whereDoesntHave('calupuri');
-        } elseif ($filters['status'] === 'platite') {
+        } elseif ($statusFilter === 'platite') {
             $query->whereHas('calupuri');
         }
 
         $facturi = $query
             ->with('calupuri:id,denumire_calup,data_plata')
+            ->orderByRaw('data_scadenta IS NULL')
             ->orderBy('data_scadenta')
             ->orderBy('denumire_furnizor')
             ->paginate(25)
