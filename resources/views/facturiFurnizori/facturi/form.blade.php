@@ -6,7 +6,7 @@
 @endphp
 
 <div class="row">
-    <div class="col-lg-6 mb-3">
+    <div class="col-lg-4 mb-3">
         <label for="denumire_furnizor" class="mb-0 ps-2">Denumire furnizor<span class="text-danger">*</span></label>
         <input
             type="text"
@@ -28,25 +28,7 @@
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
-    <div class="col-lg-6 mb-3">
-        <label for="numar_factura" class="mb-0 ps-2">Număr factură<span class="text-danger">*</span></label>
-        <input
-            type="text"
-            name="numar_factura"
-            id="numar_factura"
-            class="form-control bg-white rounded-3 {{ $errors->has('numar_factura') ? 'is-invalid' : '' }}"
-            value="{{ old('numar_factura', $factura->numar_factura ?? '') }}"
-            autocomplete="off"
-            required
-        >
-        @error('numar_factura')
-            <div class="invalid-feedback">{{ $message }}</div>
-        @enderror
-    </div>
-</div>
-
-<div class="row">
-    <div class="col-lg-6 mb-3">
+    <div class="col-lg-4 mb-3">
         <label for="cont_iban" class="mb-0 ps-2">Cont IBAN</label>
         <input
             type="text"
@@ -58,6 +40,21 @@
             autocomplete="off"
         >
         @error('cont_iban')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+    <div class="col-lg-4 mb-3">
+        <label for="numar_factura" class="mb-0 ps-2">Număr factură<span class="text-danger">*</span></label>
+        <input
+            type="text"
+            name="numar_factura"
+            id="numar_factura"
+            class="form-control bg-white rounded-3 {{ $errors->has('numar_factura') ? 'is-invalid' : '' }}"
+            value="{{ old('numar_factura', $factura->numar_factura ?? '') }}"
+            autocomplete="off"
+            required
+        >
+        @error('numar_factura')
             <div class="invalid-feedback">{{ $message }}</div>
         @enderror
     </div>
