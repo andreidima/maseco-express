@@ -17,6 +17,7 @@
             list="furnizor-suggestions"
             autocomplete="off"
             data-typeahead-tip="furnizor"
+            data-typeahead-minlength="1"
             required
         >
         <datalist id="furnizor-suggestions"></datalist>
@@ -117,6 +118,7 @@
             list="departament-suggestions"
             autocomplete="off"
             data-typeahead-tip="departament"
+            data-typeahead-minlength="1"
         >
         <datalist id="departament-suggestions"></datalist>
         <small class="form-text text-muted ps-3">
