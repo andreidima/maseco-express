@@ -13,6 +13,8 @@ class FacturiFurnizoriDemoSeeder extends Seeder
 {
     /**
      * Seed the facturi furnizori tables with demo data.
+     *
+     * Run with: php artisan db:seed --class=FacturiFurnizoriDemoSeeder
      */
     public function run(): void
     {
