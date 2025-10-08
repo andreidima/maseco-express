@@ -1,6 +1,6 @@
 <?php
 
-namespace Database\Factories;
+namespace Database\Factories\FacturiFurnizori;
 
 use App\Models\FacturiFurnizori\FacturaFurnizor;
 use Illuminate\Database\Eloquent\Factories\Factory;
