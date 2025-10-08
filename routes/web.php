@@ -186,6 +186,7 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('facturi-furnizori.')
         ->group(function () {
             Route::get('facturi/sugestii', [FacturaFurnizorController::class, 'sugestii'])->name('facturi.sugestii');
+            Route::get('facturi/ultimul-cont-iban', [FacturaFurnizorController::class, 'ultimulContIban'])->name('facturi.ultimul-cont-iban');
 
             Route::resource('facturi', FacturaFurnizorController::class)
                 ->parameters(['facturi' => 'factura']);

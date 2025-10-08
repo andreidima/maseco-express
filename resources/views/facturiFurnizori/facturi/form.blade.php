@@ -46,6 +46,24 @@
 </div>
 
 <div class="row">
+    <div class="col-lg-6 mb-3">
+        <label for="cont_iban" class="mb-0 ps-2">Cont IBAN</label>
+        <input
+            type="text"
+            name="cont_iban"
+            id="cont_iban"
+            class="form-control bg-white rounded-3 text-uppercase {{ $errors->has('cont_iban') ? 'is-invalid' : '' }}"
+            maxlength="255"
+            value="{{ old('cont_iban', $factura->cont_iban ?? '') }}"
+            autocomplete="off"
+        >
+        @error('cont_iban')
+            <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+    </div>
+</div>
+
+<div class="row">
     <div class="col-lg-3 mb-3">
         <label for="data_factura" class="mb-0 ps-2">Data factură<span class="text-danger">*</span></label>
         <input

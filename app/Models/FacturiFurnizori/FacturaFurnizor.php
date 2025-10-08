@@ -18,6 +18,7 @@ class FacturaFurnizor extends Model
         'data_scadenta',
         'suma',
         'moneda',
+        'cont_iban',
         'departament_vehicul',
         'observatii',
     ];

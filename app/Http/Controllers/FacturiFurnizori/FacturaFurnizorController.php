@@ -133,6 +133,7 @@ class FacturaFurnizorController extends Controller
     {
         $payload = $request->validated();
         $payload['moneda'] = strtoupper($payload['moneda']);
+        $payload['cont_iban'] = $this->normalizeContIban($payload['cont_iban'] ?? null);
 
         $factura = FacturaFurnizor::create($payload);
 
@@ -171,6 +172,7 @@ class FacturaFurnizorController extends Controller
     {
         $payload = $request->validated();
         $payload['moneda'] = strtoupper($payload['moneda']);
+        $payload['cont_iban'] = $this->normalizeContIban($payload['cont_iban'] ?? null);
 
         $factura->update($payload);
 
@@ -237,4 +239,34 @@ class FacturaFurnizorController extends Controller
         return response()->json($valori);
     }
 
+    public function ultimulContIban(Request $request)
+    {
+        $furnizor = trim($request->string('furnizor')->toString());
+
+        if ($furnizor === '') {
+            return response()->json(['message' => 'Furnizorul este necesar.'], 422);
+        }
+
+        $factura = FacturaFurnizor::query()
+            ->where('denumire_furnizor', $furnizor)
+            ->whereNotNull('cont_iban')
+            ->orderByDesc('data_factura')
+            ->orderByDesc('created_at')
+            ->first();
+
+        return response()->json([
+            'cont_iban' => $factura?->cont_iban,
+        ]);
+    }
+
+    protected function normalizeContIban(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $trimmed = trim($value);
+
+        return $trimmed === '' ? null : strtoupper($trimmed);
+    }
 }

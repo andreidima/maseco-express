@@ -35,6 +35,7 @@
                         <p class="mb-1"><strong>Data factură:</strong> {{ $factura->data_factura?->format('d.m.Y') }}</p>
                         <p class="mb-1"><strong>Data scadență:</strong> {{ $factura->data_scadenta?->format('d.m.Y') }}</p>
                         <p class="mb-1"><strong>Sumă:</strong> {{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</p>
+                        <p class="mb-1"><strong>Cont IBAN:</strong> {{ $factura->cont_iban ?: '-' }}</p>
                         <p class="mb-1"><strong>Nr auto / departament:</strong> {{ $factura->departament_vehicul ?: '-' }}</p>
                         <p class="mb-0"><strong>Creată la:</strong> {{ $factura->created_at?->format('d.m.Y H:i') ?: '-' }}</p>
                     </div>
