@@ -56,7 +56,7 @@
                                                 @if ($fisier->isPreviewable())
                                                     <a
                                                         href="{{ route('facturi-furnizori.plati-calupuri.vizualizeaza-fisier', [$calup, $fisier]) }}"
-                                                        class="btn btn-sm btn-outline-secondary border border-secondary me-2"
+                                                        class="btn btn-sm btn-outline-success border border-success me-2"
                                                         target="_blank"
                                                         rel="noopener"
                                                     >

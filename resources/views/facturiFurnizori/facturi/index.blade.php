@@ -23,8 +23,8 @@
         </div>
         <div class="col-lg-8 mb-0" id="formularFacturi">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
-                <div class="row g-2 mb-2 custom-search-form d-flex justify-content-center">
-                    <div class="col-lg-3 col-md-6">
+                <div class="row gy-1 gx-4 mb-2 custom-search-form d-flex justify-content-center">
+                    <div class="col-lg-2 col-md-6">
                         <select name="status" id="filter-status" class="form-select bg-white rounded-3">
                             <option value="toate" @selected($filters['status'] === 'toate')>Toate</option>
                             <option value="neplatite" @selected($filters['status'] === 'neplatite')>Neplătite ({{ $neplatiteCount }})</option>
