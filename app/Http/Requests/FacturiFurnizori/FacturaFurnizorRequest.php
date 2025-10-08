@@ -28,6 +28,7 @@ class FacturaFurnizorRequest extends FormRequest
             'data_scadenta' => ['required', 'date', 'after_or_equal:data_factura'],
             'suma' => ['required', 'numeric', 'min:0'],
             'moneda' => ['required', 'string', 'size:3'],
+            'cont_iban' => ['nullable', 'string', 'max:255'],
             'departament_vehicul' => ['nullable', 'string', 'max:150'],
             'observatii' => ['nullable', 'string'],
         ];
@@ -61,6 +62,7 @@ class FacturaFurnizorRequest extends FormRequest
             'data_scadenta' => 'data scadentei',
             'suma' => 'suma',
             'moneda' => 'moneda',
+            'cont_iban' => 'cont IBAN',
             'departament_vehicul' => 'departament / numar auto',
             'observatii' => 'observatii',
         ];

@@ -17,6 +17,7 @@ class FacturaFurnizorFactory extends Factory
     {
         $dataFactura = $this->faker->dateTimeBetween('-3 months', 'now');
         $dataScadenta = Carbon::instance($dataFactura)->copy()->addDays($this->faker->numberBetween(5, 45));
+        $contIban = $this->faker->optional()->iban('RO');
 
         return [
             'denumire_furnizor' => $this->faker->company(),
@@ -25,6 +26,7 @@ class FacturaFurnizorFactory extends Factory
             'data_scadenta' => $dataScadenta,
             'suma' => $this->faker->randomFloat(2, 100, 5000),
             'moneda' => $this->faker->randomElement(['RON', 'EUR', 'USD']),
+            'cont_iban' => $contIban ? strtoupper($contIban) : null,
             'departament_vehicul' => $this->faker->optional()->word(),
             'observatii' => $this->faker->optional()->sentence(),
         ];

@@ -3,6 +3,7 @@
         const csrfTokenMeta = document.querySelector('meta[name="csrf-token"]');
         const csrfToken = csrfTokenMeta ? csrfTokenMeta.getAttribute('content') : '';
         const endpoint = '{{ route('facturi-furnizori.facturi.sugestii') }}';
+        const lastIbanEndpoint = '{{ route('facturi-furnizori.facturi.ultimul-cont-iban') }}';
         const inputs = document.querySelectorAll('input[data-typeahead-tip]');
 
         const cachedInitialSuggestions = new Map();
@@ -171,5 +172,112 @@
                 }, 250);
             });
         });
+        const getDatalistValues = input => {
+            const datalistId = input.getAttribute('list');
+            if (!datalistId) {
+                return [];
+            }
+
+            const datalist = document.getElementById(datalistId);
+            if (!datalist) {
+                return [];
+            }
+
+            return Array.from(datalist.options).map(option => option.value);
+        };
+
+        const furnizorInput = document.getElementById('denumire_furnizor');
+        const contIbanInput = document.getElementById('cont_iban');
+
+        if (furnizorInput && contIbanInput) {
+            let activeIbanController = null;
+            let lastSupplierFetched = null;
+            let ibanWasEditedManually = contIbanInput.value.trim() !== '';
+
+            const requestLastIban = supplier => {
+                if (supplier === '' || supplier === lastSupplierFetched) {
+                    return;
+                }
+
+                if (activeIbanController) {
+                    activeIbanController.abort();
+                }
+
+                const controller = new AbortController();
+                activeIbanController = controller;
+                lastSupplierFetched = supplier;
+
+                const url = new URL(lastIbanEndpoint, window.location.origin);
+                url.searchParams.set('furnizor', supplier);
+
+                fetch(url, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    signal: controller.signal,
+                })
+                    .then(response => (response.ok ? response.json() : {}))
+                    .then(data => {
+                        if (controller.signal.aborted) {
+                            return;
+                        }
+
+                        const contIban = typeof data?.cont_iban === 'string' ? data.cont_iban : '';
+
+                        if (!ibanWasEditedManually) {
+                            contIbanInput.value = contIban;
+                        }
+                    })
+                    .catch(() => {
+                        if (!controller.signal.aborted) {
+                            lastSupplierFetched = null;
+                        }
+                    })
+                    .finally(() => {
+                        if (activeIbanController === controller) {
+                            activeIbanController = null;
+                        }
+                    });
+            };
+
+            const handleSupplierSelection = () => {
+                const supplier = furnizorInput.value.trim();
+
+                if (!supplier) {
+                    lastSupplierFetched = null;
+                    if (!ibanWasEditedManually) {
+                        contIbanInput.value = '';
+                    }
+
+                    return;
+                }
+
+                const matchesOption = getDatalistValues(furnizorInput).includes(supplier);
+
+                if (!matchesOption) {
+                    return;
+                }
+
+                ibanWasEditedManually = false;
+                requestLastIban(supplier);
+            };
+
+            furnizorInput.addEventListener('change', handleSupplierSelection);
+            furnizorInput.addEventListener('input', () => {
+                if (!furnizorInput.value) {
+                    lastSupplierFetched = null;
+                }
+
+                if (getDatalistValues(furnizorInput).includes(furnizorInput.value.trim())) {
+                    handleSupplierSelection();
+                }
+            });
+
+            contIbanInput.addEventListener('input', () => {
+                ibanWasEditedManually = true;
+                lastSupplierFetched = null;
+            });
+        }
     });
 </script>
