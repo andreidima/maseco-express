@@ -153,7 +153,7 @@
                             </table>
                         </div>
                         <div class="d-flex justify-content-end gap-2 mt-3">
-                            <span class="badge bg-info text-dark" id="attach-counter">Selectate: 0</span>
+                            <span class="badge bg-primary text-white" id="attach-counter">Selectate: 0</span>
                             <button type="submit" class="btn btn-sm btn-success text-white border border-dark rounded-3">
                                 <i class="fa-solid fa-plus me-1"></i>Adaugă în calup
                             </button>

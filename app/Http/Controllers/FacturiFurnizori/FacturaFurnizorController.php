@@ -15,10 +15,8 @@ class FacturaFurnizorController extends Controller
      */
     public function index(Request $request)
     {
-        $scadenteInZileInput = $request->input('scadente_in_zile');
-
         $allowedStatuses = ['neplatite', 'platite'];
-        $defaultStatus = 'platite';
+        $defaultStatus = 'neplatite';
         $statusParam = $request->query('status', '__absent__');
 
         if ($statusParam === '__absent__') {
@@ -37,9 +35,6 @@ class FacturaFurnizorController extends Controller
             'moneda' => $request->string('moneda')->toString() ?: null,
             'scadenta_de_la' => $request->string('scadenta_de_la')->toString() ?: null,
             'scadenta_pana' => $request->string('scadenta_pana')->toString() ?: null,
-            'scadente_in_zile' => ($scadenteInZileInput === null || $scadenteInZileInput === '')
-                ? null
-                : (int) $scadenteInZileInput,
             'calup' => $request->string('calup')->toString() ?: null,
             'calup_data_plata' => $request->string('calup_data_plata')->toString() ?: null,
             'status' => $statusValueForForm,
@@ -65,16 +60,6 @@ class FacturaFurnizorController extends Controller
 
         if ($filters['scadenta_pana']) {
             $query->whereDate('data_scadenta', '<=', Carbon::parse($filters['scadenta_pana']));
-        }
-
-        if (!is_null($filters['scadente_in_zile'])) {
-            $days = $filters['scadente_in_zile'];
-            $start = now()->startOfDay();
-            $end   = ($days === 0)
-                ? $start->copy()->endOfDay()        // exactly today
-                : now()->addDays($days)->endOfDay(); // next N days
-
-            $query->whereBetween('data_scadenta', [$start, $end]);
         }
 
         if ($filters['calup'] || $filters['calup_data_plata']) {
