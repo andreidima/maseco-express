@@ -99,7 +99,7 @@
                             <td class="text-muted">{{ \Illuminate\Support\Str::limit($calup->observatii, 60) }}</td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap">
-                                    <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="badge bg-secondary text-dark text-decoration-none rounded-3 px-3 py-2">Vezi</a>
+                                    <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="badge bg-success text-white text-decoration-none rounded-3 px-3 py-2">Vezi</a>
                                     <form action="{{ route('facturi-furnizori.plati-calupuri.destroy', $calup) }}" method="POST" class="m-0" onsubmit="return confirm('Ștergi acest calup?');">
                                         @csrf
                                         @method('DELETE')
