@@ -24,6 +24,13 @@
         <div class="col-lg-8 mb-0" id="formularFacturi">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
                 <div class="row g-2 mb-2 custom-search-form d-flex justify-content-center">
+                    <div class="col-lg-3 col-md-6">
+                        <select name="status" id="filter-status" class="form-select bg-white rounded-3">
+                            <option value="toate" @selected($filters['status'] === 'toate')>Toate</option>
+                            <option value="neplatite" @selected($filters['status'] === 'neplatite')>Neplătite ({{ $neplatiteCount }})</option>
+                            <option value="platite" @selected($filters['status'] === 'platite')>Arhivate (în calupuri)</option>
+                        </select>
+                    </div>
                     <div class="col-lg-4 col-md-6">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-wand-magic-sparkles text-muted" title="Autocomplete disponibil"></i>
@@ -60,7 +67,7 @@
                         </div>
                         <datalist id="filter-departament-suggestions"></datalist>
                     </div>
-                    <div class="col-lg-4 col-md-6">
+                    <div class="col-lg-2 col-md-6">
                         <select name="moneda" id="filter-moneda" class="form-select bg-white rounded-3">
                             <option value="">Monedă</option>
                             @foreach ($monede as $moneda)
@@ -68,8 +75,6 @@
                             @endforeach
                         </select>
                     </div>
-                </div>
-                <div class="row g-2 mb-2 custom-search-form d-flex justify-content-center">
                     <div class="col-lg-3 col-md-6">
                         <div class="d-flex align-items-center gap-2">
                             <label for="filter-scadenta-de-la" class="form-label small text-muted mb-0 flex-shrink-0 text-nowrap">Scadență de la</label>
@@ -98,15 +103,6 @@
                             value="{{ $filters['calup'] }}"
                             aria-label="Calup"
                         >
-                    </div>
-                </div>
-                <div class="row g-2 mb-2 custom-search-form d-flex justify-content-center">
-                    <div class="col-lg-3 col-md-6">
-                        <select name="status" id="filter-status" class="form-select bg-white rounded-3">
-                            <option value="toate" @selected($filters['status'] === 'toate')>Toate</option>
-                            <option value="neplatite" @selected($filters['status'] === 'neplatite')>Neplătite ({{ $neplatiteCount }})</option>
-                            <option value="platite" @selected($filters['status'] === 'platite')>Arhivate (în calupuri)</option>
-                        </select>
                     </div>
                 </div>
                 <div class="row custom-search-form justify-content-center">

@@ -9,6 +9,7 @@ use App\Models\FacturiFurnizori\FacturaFurnizor;
 use App\Models\FacturiFurnizori\PlataCalup;
 use App\Models\FacturiFurnizori\PlataCalupFisier;
 use App\Services\FacturiFurnizori\PlataCalupService;
+use App\Support\FacturiFurnizori\FacturiIndexFilterState;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -99,7 +100,7 @@ class PlataCalupController extends Controller
         }
 
         return redirect()
-            ->route('facturi-furnizori.facturi.index')
+            ->route('facturi-furnizori.facturi.index', FacturiIndexFilterState::get())
             ->with('status', 'Calupul a fost creat cu succes.');
     }
 
