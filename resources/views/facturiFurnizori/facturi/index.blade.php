@@ -71,25 +71,30 @@
                 </div>
                 <div class="row mb-1 custom-search-form d-flex justify-content-center">
                     <div class="col-lg-3">
-                        <input type="date" class="form-control rounded-3" id="filter-scadenta-de-la" name="scadenta_de_la" placeholder="Scadență de la" value="{{ $filters['scadenta_de_la'] }}">
+                        <label for="filter-scadenta-de-la" class="form-label small text-muted mb-1">Scadență de la</label>
+                        <input type="date" class="form-control rounded-3" id="filter-scadenta-de-la" name="scadenta_de_la" value="{{ $filters['scadenta_de_la'] }}">
                     </div>
                     <div class="col-lg-3">
-                        <input type="date" class="form-control rounded-3" id="filter-scadenta-pana" name="scadenta_pana" placeholder="Scadență până la" value="{{ $filters['scadenta_pana'] }}">
+                        <label for="filter-scadenta-pana" class="form-label small text-muted mb-1">Scadență până la</label>
+                        <input type="date" class="form-control rounded-3" id="filter-scadenta-pana" name="scadenta_pana" value="{{ $filters['scadenta_pana'] }}">
                     </div>
                     <div class="col-lg-3">
+                        <label for="filter-scadente-in-zile" class="form-label small text-muted mb-1">Scadente în (zile)</label>
                         <input type="number" min="0" class="form-control rounded-3" id="filter-scadente-in-zile" name="scadente_in_zile" placeholder="Scadente în (zile)" value="{{ $filters['scadente_in_zile'] }}">
                     </div>
                 </div>
                 <div class="row mb-1 custom-search-form d-flex justify-content-center">
                     <div class="col-lg-3">
+                        <label for="filter-calup" class="form-label small text-muted mb-1">Calup</label>
                         <input type="text" class="form-control rounded-3" id="filter-calup" name="calup" placeholder="Calup" value="{{ $filters['calup'] }}">
                     </div>
                     <div class="col-lg-3">
+                        <label for="filter-calup-data" class="form-label small text-muted mb-1">Data plată calup</label>
                         <input type="date" class="form-control rounded-3" id="filter-calup-data" name="calup_data_plata" value="{{ $filters['calup_data_plata'] }}">
                     </div>
                     <div class="col-lg-3">
                         <select name="status" id="filter-status" class="form-select bg-white rounded-3">
-                            <option value="" @selected(!$filters['status'])>Toate</option>
+                            <option value="" @selected($filters['status'] === '')>Toate</option>
                             <option value="neplatite" @selected($filters['status'] === 'neplatite')>Neplătite ({{ $neplatiteCount }})</option>
                             <option value="platite" @selected($filters['status'] === 'platite')>Plătite</option>
                         </select>
