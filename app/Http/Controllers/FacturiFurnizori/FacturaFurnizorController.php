@@ -23,10 +23,18 @@ class FacturaFurnizorController extends Controller
             $statusFilter = $defaultStatus;
             $statusValueForForm = $defaultStatus;
         } else {
-            $statusValueForForm = is_string($statusParam) ? $statusParam : '';
-            $statusFilter = in_array($statusValueForForm, $allowedStatuses, true)
-                ? $statusValueForForm
-                : null;
+            $normalizedStatus = is_string($statusParam) ? strtolower(trim($statusParam)) : '';
+
+            if ($normalizedStatus === '' || $normalizedStatus === 'toate') {
+                $statusFilter = null;
+                $statusValueForForm = 'toate';
+            } elseif (in_array($normalizedStatus, $allowedStatuses, true)) {
+                $statusFilter = $normalizedStatus;
+                $statusValueForForm = $normalizedStatus;
+            } else {
+                $statusFilter = null;
+                $statusValueForForm = 'toate';
+            }
         }
 
         $filters = [
