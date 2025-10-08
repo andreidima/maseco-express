@@ -9,6 +9,7 @@ use App\Models\FacturiFurnizori\FacturaFurnizor;
 use App\Models\FacturiFurnizori\PlataCalup;
 use App\Models\FacturiFurnizori\PlataCalupFisier;
 use App\Services\FacturiFurnizori\PlataCalupService;
+use App\Support\FacturiFurnizori\FacturiIndexFilterState;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -99,7 +100,7 @@ class PlataCalupController extends Controller
         }
 
         return redirect()
-            ->route('facturi-furnizori.facturi.index')
+            ->route('facturi-furnizori.facturi.index', FacturiIndexFilterState::get())
             ->with('status', 'Calupul a fost creat cu succes.');
     }
 
@@ -209,6 +210,36 @@ class PlataCalupController extends Controller
         return back()->with('status', 'Factura a fost eliminata din calup.');
     }
 
+    public function vizualizeazaFisier(PlataCalup $plataCalup, PlataCalupFisier $fisier)
+    {
+        if ($fisier->plata_calup_id !== $plataCalup->id) {
+            abort(404);
+        }
+
+        if (!$fisier->isPreviewable()) {
+            return back()->with('error', 'Fisierul nu poate fi deschis în browser.');
+        }
+
+        if (!Storage::exists($fisier->cale)) {
+            return back()->with('error', 'Fisierul nu a putut fi gasit.');
+        }
+
+        $displayName = $fisier->nume_original ?: basename($fisier->cale);
+        $safeDisplayName = addcslashes($displayName, "\\\"");
+
+        $headers = [
+            'Content-Disposition' => 'inline; filename="' . $safeDisplayName . '"',
+        ];
+
+        $mimeType = Storage::mimeType($fisier->cale);
+
+        if ($mimeType) {
+            $headers['Content-Type'] = $mimeType;
+        }
+
+        return Storage::response($fisier->cale, $displayName, $headers);
+    }
+
     public function descarcaFisier(PlataCalup $plataCalup, ?PlataCalupFisier $fisier = null)
     {
         if ($fisier && $fisier->plata_calup_id !== $plataCalup->id) {
@@ -259,9 +290,10 @@ class PlataCalupController extends Controller
 
     private function salveazaFisier(PlataCalup $plataCalup, UploadedFile $file): PlataCalupFisier
     {
-        $folder = 'facturi-furnizori/calupuri';
+        $folder = $this->folderPentruCalup($plataCalup);
         $filename = $this->genereazaNumeFisier($file, $folder);
 
+        Storage::makeDirectory($folder);
         Storage::putFileAs($folder, $file, $filename);
 
         return $plataCalup->fisiere()->create([
@@ -291,6 +323,11 @@ class PlataCalupController extends Controller
         }
 
         return $filename;
+    }
+
+    private function folderPentruCalup(PlataCalup $plataCalup): string
+    {
+        return 'facturi-furnizori/calupuri/' . $plataCalup->id;
     }
 
     public function stergeFisier(PlataCalup $plataCalup, PlataCalupFisier $fisier)

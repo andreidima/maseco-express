@@ -55,6 +55,6 @@
         @endforeach
     @endforeach
     @if ($calup && $calup->relationLoaded('fisiere') && $calup->fisiere->isNotEmpty())
-        <p class="mt-2 mb-0 text-muted small">Fișierele deja încărcate sunt listate mai jos.</p>
+        <p class="mt-2 mb-0 text-muted small">Fișierele deja încărcate sunt listate mai sus.</p>
     @endif
 </div>

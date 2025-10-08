@@ -202,6 +202,9 @@ Route::group(['middleware' => 'auth'], function () {
             Route::delete('plati-calupuri/{plataCalup}/fisiere/{fisier}', [PlataCalupController::class, 'stergeFisier'])
                 ->name('plati-calupuri.fisiere.destroy');
 
+            Route::get('plati-calupuri/{plataCalup}/vizualizeaza-fisier/{fisier}', [PlataCalupController::class, 'vizualizeazaFisier'])
+                ->name('plati-calupuri.vizualizeaza-fisier');
+
             Route::get('plati-calupuri/{plataCalup}/descarca-fisier/{fisier?}', [PlataCalupController::class, 'descarcaFisier'])
                 ->name('plati-calupuri.descarca-fisier');
         });
