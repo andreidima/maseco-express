@@ -75,3 +75,19 @@ php artisan db:seed --class=FacturiFurnizoriDemoSeeder
 ```
 
 > **Note:** When invoking the seeder from a Unix shell do not include single backslashes in the class name (for example, `Database\Seeders\...`). The shell treats `\` as an escape character and will pass an invalid class reference to Artisan. The shorter `--class=FacturiFurnizoriDemoSeeder` form avoids that pitfall while still resolving to the fully qualified seeder class.
+
+## Calup file storage
+
+Supplier payment batch (calup) uploads are now stored in directories that mirror the calup identifier (`storage/app/facturi-furnizori/calupuri/{calup_id}`).
+
+To migrate legacy uploads into the new structure, run:
+
+```bash
+php artisan facturi-furnizori:organize-calup-files
+```
+
+You can perform a dry run first to inspect the planned moves without making changes:
+
+```bash
+php artisan facturi-furnizori:organize-calup-files --dry-run
+```

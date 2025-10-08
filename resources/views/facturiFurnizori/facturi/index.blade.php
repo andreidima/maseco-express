@@ -117,6 +117,9 @@
         </div>
         <div class="col-lg-2 text-lg-end mt-3 mt-lg-0">
             <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
+                <a class="btn btn-sm btn-info text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.index') }}" role="button">
+                    <i class="fa-solid fa-layer-group text-white me-1"></i>Vezi toate calupurile
+                </a>
                 <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.create') }}" role="button">
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă factură
                 </a>
