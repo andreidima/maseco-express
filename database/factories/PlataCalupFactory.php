@@ -18,7 +18,6 @@ class PlataCalupFactory extends Factory
         return [
             'denumire_calup' => 'Calup ' . strtoupper($this->faker->bothify('PLT-##')),
             'data_plata' => null,
-            'fisier_pdf' => null,
             'observatii' => $this->faker->optional()->sentence(),
         ];
     }

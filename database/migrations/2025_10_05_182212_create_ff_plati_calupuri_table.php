@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('denumire_calup', 150);
             $table->date('data_plata')->nullable();
-            $table->string('fisier_pdf')->nullable();
             $table->text('observatii')->nullable();
             $table->timestamps();
             $table->index('data_plata');

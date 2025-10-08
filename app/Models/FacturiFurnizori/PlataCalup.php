@@ -4,6 +4,8 @@ namespace App\Models\FacturiFurnizori;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PlataCalup extends Model
 {
@@ -14,7 +16,6 @@ class PlataCalup extends Model
     protected $fillable = [
         'denumire_calup',
         'data_plata',
-        'fisier_pdf',
         'observatii',
     ];
 
@@ -25,8 +26,13 @@ class PlataCalup extends Model
     /**
      * Invoices linked to this payment batch.
      */
-    public function facturi()
+    public function facturi(): BelongsToMany
     {
         return $this->belongsToMany(FacturaFurnizor::class, 'ff_facturi_plati', 'calup_id', 'factura_id')->withTimestamps();
+    }
+
+    public function fisiere(): HasMany
+    {
+        return $this->hasMany(PlataCalupFisier::class, 'plata_calup_id');
     }
 }

@@ -25,8 +25,55 @@
                     <p class="mb-1"><strong>Facturi atașate:</strong> {{ $calup->facturi->count() }}</p>
                     <p class="mb-1"><strong>Total sume:</strong> {{ number_format($calup->facturi->sum('suma'), 2) }}</p>
                     <p class="mb-1"><strong>Data plată:</strong> {{ $calup->data_plata?->format('d.m.Y') ?: 'Nespecificată' }}</p>
-                    @if ($calup->fisier_pdf)
-                        <p class="mb-0"><a href="{{ route('facturi-furnizori.plati-calupuri.descarca-fisier', $calup) }}">Descarcă PDF asociat</a> <span class="text-muted small">({{ basename($calup->fisier_pdf) }})</span></p>
+                    <p class="mb-0"><strong>Fișiere PDF:</strong> {{ $calup->fisiere->count() }}</p>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="border border-dark rounded-3 p-3 bg-white">
+                    <h6 class="text-uppercase text-muted">Fișiere PDF atașate</h6>
+                    @if ($calup->fisiere->isEmpty())
+                        <p class="text-muted mb-0">Nu există fișiere atașate acestui calup.</p>
+                    @else
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover table-bordered border-dark align-middle mb-0">
+                                <thead class="text-white rounded culoare2">
+                                    <tr>
+                                        <th>Nume fișier</th>
+                                        <th>Încărcat la</th>
+                                        <th class="text-end">Acțiuni</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($calup->fisiere as $fisier)
+                                        <tr>
+                                            <td class="align-middle">{{ $fisier->nume_original ?: basename($fisier->cale) }}</td>
+                                            <td class="align-middle">{{ $fisier->created_at?->format('d.m.Y H:i') }}</td>
+                                            <td class="text-end">
+                                                <a
+                                                    href="{{ route('facturi-furnizori.plati-calupuri.descarca-fisier', [$calup, $fisier]) }}"
+                                                    class="btn btn-sm btn-outline-primary border border-primary me-2"
+                                                >
+                                                    <i class="fa-solid fa-download me-1"></i>Descarcă
+                                                </a>
+                                                <form
+                                                    action="{{ route('facturi-furnizori.plati-calupuri.fisiere.destroy', [$calup, $fisier]) }}"
+                                                    method="POST"
+                                                    class="d-inline"
+                                                    onsubmit="return confirm('Ștergi acest fișier PDF?');"
+                                                >
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger border border-danger">
+                                                        <i class="fa-solid fa-trash me-1"></i>Șterge
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     @endif
                 </div>
             </div>
