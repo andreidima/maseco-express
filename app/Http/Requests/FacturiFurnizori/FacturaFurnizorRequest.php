@@ -26,7 +26,7 @@ class FacturaFurnizorRequest extends FormRequest
             'numar_factura' => ['required', 'string', 'max:100'],
             'data_factura' => ['required', 'date'],
             'data_scadenta' => ['required', 'date', 'after_or_equal:data_factura'],
-            'suma' => ['required', 'numeric', 'min:0'],
+            'suma' => ['required', 'numeric'],
             'moneda' => ['required', 'string', 'size:3'],
             'cont_iban' => ['nullable', 'string', 'max:255'],
             'departament_vehicul' => ['nullable', 'string', 'max:150'],

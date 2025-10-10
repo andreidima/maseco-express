@@ -97,7 +97,6 @@
             id="suma"
             class="form-control bg-white rounded-3 {{ $errors->has('suma') ? 'is-invalid' : '' }}"
             step="0.01"
-            min="0"
             value="{{ old('suma', $factura->suma ?? '') }}"
             required
         >
