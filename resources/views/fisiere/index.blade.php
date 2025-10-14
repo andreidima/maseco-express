@@ -107,11 +107,9 @@
                 </table>
             </div>
 
-                <nav>
-                    <ul class="pagination justify-content-center">
-                        {{$fisiere->appends(Request::except('page'))->links()}}
-                    </ul>
-                </nav>
+                <div class="d-flex justify-content-center">
+                    {{$fisiere->appends(Request::except('page'))->links()}}
+                </div>
         </div>
     </div>
 

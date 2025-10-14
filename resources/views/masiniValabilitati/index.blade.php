@@ -114,11 +114,9 @@
         </div>
 
         {{-- Pagination --}}
-        {{-- <nav>
-            <ul class="pagination justify-content-center">
+        {{-- <div class="d-flex justify-content-center">
                 {{ $masiniValabilitati->appends(request()->except('page'))->links() }}
-            </ul>
-        </nav> --}}
+        </div> --}}
     </div>
 </div>
 

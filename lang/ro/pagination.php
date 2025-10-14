@@ -14,4 +14,7 @@ return [
 
     'previous' => '&laquo; Înapoi',
     'next'     => 'Înainte &raquo;',
+    'navigation' => 'Navigare paginare',
+    'range' => 'Se afișează :first-:last din :total de rezultate',
+    'results' => '{1} Se afișează :count rezultat|[2,*] Se afișează :count rezultate',
 ];

@@ -107,11 +107,9 @@
                 </table>
             </div>
 
-                <nav>
-                    <ul class="pagination justify-content-center">
-                        {{$flotaStatusuri->appends(Request::except('page'))->links()}}
-                    </ul>
-                </nav>
+                <div class="d-flex justify-content-center">
+                    {{$flotaStatusuri->appends(Request::except('page'))->links()}}
+                </div>
 
             <div class="row">
                 <div class="col-lg-3 mb-4 d-flex justify-content-around">

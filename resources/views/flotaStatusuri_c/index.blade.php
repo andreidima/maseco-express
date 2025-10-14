@@ -94,11 +94,9 @@
         </div>
 
         {{-- Pagination --}}
-        <nav>
-            <ul class="pagination justify-content-center">
-                {{ $flotaStatusuriC->appends(request()->except('page'))->links() }}
-            </ul>
-        </nav>
+        <div class="d-flex justify-content-center">
+            {{ $flotaStatusuriC->appends(request()->except('page'))->links() }}
+        </div>
     </div>
 </div>
 
