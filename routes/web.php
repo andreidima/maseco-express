@@ -32,6 +32,7 @@ use App\Http\Controllers\KeyPerformanceIndicatorController;
 use App\Http\Controllers\OfertaCursaController;
 use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorController;
 use App\Http\Controllers\FacturiFurnizori\PlataCalupController;
+use App\Http\Controllers\Tech\ImpersonationController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\SeederCenterController;
 
@@ -83,12 +84,17 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('tech.')
         ->middleware('role:super-admin')
         ->group(function () {
+            Route::get('impersonation', [ImpersonationController::class, 'index'])->name('impersonation.index');
+            Route::post('impersonation', [ImpersonationController::class, 'store'])->name('impersonation.start');
             Route::get('migrations', [MigrationCenterController::class, 'index'])->name('migrations.index');
             Route::post('migrations/preview', [MigrationCenterController::class, 'preview'])->name('migrations.preview');
             Route::post('migrations/run', [MigrationCenterController::class, 'run'])->name('migrations.run');
             Route::get('seeders', [SeederCenterController::class, 'index'])->name('seeders.index');
             Route::post('seeders/run', [SeederCenterController::class, 'run'])->name('seeders.run');
         });
+
+    Route::post('impersonation/stop', [ImpersonationController::class, 'destroy'])
+        ->name('impersonation.stop');
 
     Route::get('/file-manager-personalizat/{cale?}', [FileManagerPersonalizatController::class, 'afisareDirectoareSiFisiere'])->where('cale', '.*');
     Route::post('/file-manager-personalizat-director/creaza', [FileManagerPersonalizatController::class, 'directorCreaza']);

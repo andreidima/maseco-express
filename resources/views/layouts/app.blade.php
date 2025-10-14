@@ -39,6 +39,8 @@
     @auth
     @php
         $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
+        $impersonationActive = session()->has('impersonated_by');
+        $impersonatorName = session('impersonated_by_name');
     @endphp
     {{-- <div id="app"> --}}
     <header>
@@ -154,26 +156,6 @@
                                 </li>
                             </ul>
                         </li>
-                        @can('access-tech')
-                            <li class="nav-item me-3 dropdown">
-                                <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarTech" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fa-solid fa-microchip me-1"></i>
-                                    Tech
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="navbarTech">
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('tech.migrations.index') }}">
-                                            <i class="fa-solid fa-database me-1"></i>Migration Center
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('tech.seeders.index') }}">
-                                            <i class="fa-solid fa-seedling me-1"></i>Seeder Center
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        @endcan
                         {{-- <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/camioane">
                                 <i class="fa-solid fa-truck me-1"></i>Camioane
@@ -288,6 +270,31 @@
                                 @endif
                             </ul>
                         </li>
+                        @can('access-tech')
+                            <li class="nav-item me-3 dropdown">
+                                <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarTech" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-microchip me-1"></i>
+                                    Tech
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarTech">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('tech.impersonation.index') }}">
+                                            <i class="fa-solid fa-user-secret me-1"></i>Impersonare utilizatori
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('tech.migrations.index') }}">
+                                            <i class="fa-solid fa-database me-1"></i>Migration Center
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('tech.seeders.index') }}">
+                                            <i class="fa-solid fa-seedling me-1"></i>Seeder Center
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
                     </ul>
 
                     <!-- Right Side Of Navbar -->
@@ -306,6 +313,21 @@
                                 </li> --}}
                             @endif
                         @else
+                            @if ($impersonationActive)
+                                <li class="nav-item d-flex align-items-center me-3 gap-2">
+                                    <span class="badge bg-warning text-dark text-wrap">
+                                        <i class="fa-solid fa-user-secret me-1"></i>
+                                        Impersonare: {{ auth()->user()->name }}
+                                    </span>
+                                    <form method="post" action="{{ route('impersonation.stop') }}" class="d-inline">
+                                        @csrf
+                                        <button type="submit" class="btn btn-outline-light btn-sm"
+                                            title="Revenire la {{ $impersonatorName ?? 'contul inițial' }}">
+                                            <i class="fa-solid fa-person-walking-arrow-loop-left me-1"></i>Stop impersonating
+                                        </button>
+                                    </form>
+                                </li>
+                            @endif
                             <li class="nav-item dropdown">
                                 <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarAuthentication" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     {{ Auth::user()->name }}
