@@ -278,7 +278,7 @@
                                         <i class="fa-solid fa-comment-sms me-1"></i>SMS trimise
                                     </a>
                                 </li>
-                                @if (auth()->user()->role == "1")
+                                @if (auth()->user()->isAdministrator())
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" href="{{ route('utilizatori.index') }}">

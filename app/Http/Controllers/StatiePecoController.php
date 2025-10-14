@@ -34,7 +34,7 @@ class StatiePecoController extends Controller
 
         if ($request->action === "massDelete") {
             // Check if the user is not admin and the document has just 'admin' rights
-            if (auth()->user()->role !== 1) {
+            if (! auth()->user()->isAdministrator()) {
                 abort(403, 'Unauthorized action.');
             }
 

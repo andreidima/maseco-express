@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
-use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+
+use App\Models\Role;
+use App\Models\User;
 
 class UserController extends Controller
 {
@@ -20,8 +23,8 @@ class UserController extends Controller
 
         $searchNume = $request->searchNume;
 
-        $useri = User::
-            when($searchNume, function ($query, $searchNume) {
+        $useri = User::with('roles')
+            ->when($searchNume, function ($query, $searchNume) {
                 return $query->where('name', 'like', '%' . $searchNume . '%');
             })
             ->where('id', '>', 1) // se sare pentru user 1, Andrei Dima
@@ -42,7 +45,10 @@ class UserController extends Controller
     {
         $request->session()->get('userReturnUrl') ?? $request->session()->put('userReturnUrl', url()->previous());
 
-        return view('useri.create');
+        $user = new User();
+        $roles = Role::orderBy('id')->get();
+
+        return view('useri.create', compact('user', 'roles'));
     }
 
     /**
@@ -55,7 +61,14 @@ class UserController extends Controller
     {
         $data = $this->validateRequest($request);
         $data['password'] = Hash::make($data['password']);
-        $user = User::create($data);
+        $roleId = (int) $data['role'];
+
+        $user = DB::transaction(function () use ($data, $roleId) {
+            $user = User::create($data);
+            $user->roles()->sync([$roleId]);
+
+            return $user;
+        });
 
         return redirect($request->session()->get('userReturnUrl') ?? ('/utilizatori'))->with('status', 'Utilizatorul „' . $user->name . '” a fost adăugat cu succes!');
     }
@@ -70,6 +83,8 @@ class UserController extends Controller
     {
         $request->session()->get('userReturnUrl') ?? $request->session()->put('userReturnUrl', url()->previous());
 
+        $user->load('roles');
+
         return view('useri.show', compact('user'));
     }
 
@@ -83,7 +98,10 @@ class UserController extends Controller
     {
         $request->session()->get('userReturnUrl') ?? $request->session()->put('userReturnUrl', url()->previous());
 
-        return view('useri.edit', compact('user'));
+        $user->load('roles');
+        $roles = Role::orderBy('id')->get();
+
+        return view('useri.edit', compact('user', 'roles'));
     }
 
     /**
@@ -96,12 +114,16 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $data = $this->validateRequest($request);
+        $roleId = (int) $data['role'];
         if (is_null($data['password'])){
             unset($data['password']);
         } else {
             $data['password'] = Hash::make($data['password']);
         }
-        $user->update($data);
+        DB::transaction(function () use ($user, $data, $roleId) {
+            $user->update($data);
+            $user->roles()->sync([$roleId]);
+        });
 
         return redirect($request->session()->get('userReturnUrl') ?? ('/utilizatori'))->with('status', 'Utilizatorul „' . $user->name . '” a fost modificat cu succes!');
     }
@@ -137,7 +159,7 @@ class UserController extends Controller
 // dd($request, $request->isMethod('post'));
         return $request->validate(
             [
-                'role' => 'required',
+                'role' => ['required', 'integer', Rule::exists('roles', 'id')],
                 'name' => 'required|max:255',
                 'telefon' => 'nullable|max:50',
                 'email' => 'required|max:255|email:rfc,dns|unique:users,email,' . $request->id,

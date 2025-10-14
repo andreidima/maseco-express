@@ -13,6 +13,8 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
+    protected ?Role $cachedPrimaryRole = null;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -48,6 +50,11 @@ class User extends Authenticatable
         'activ' => 'integer',
     ];
 
+    public const LEGACY_ROLE_LABELS = [
+        1 => 'Admin',
+        2 => 'Dispecer',
+    ];
+
     public function roles()
     {
         return $this->belongsToMany(Role::class)->withTimestamps();
@@ -76,9 +83,55 @@ class User extends Authenticatable
         });
     }
 
+    public function isAdministrator(): bool
+    {
+        return $this->hasRole('admin') || $this->hasRole(1);
+    }
+
     public function assignRole(Role $role): void
     {
         $this->roles()->syncWithoutDetaching([$role->id]);
+    }
+
+    protected function resolvePrimaryRole(): ?Role
+    {
+        if ($this->cachedPrimaryRole instanceof Role) {
+            return $this->cachedPrimaryRole;
+        }
+
+        if (! $this->exists) {
+            return $this->cachedPrimaryRole = null;
+        }
+
+        if ($this->relationLoaded('roles') && $this->roles instanceof Collection) {
+            $this->cachedPrimaryRole = $this->roles->first();
+        } else {
+            $this->cachedPrimaryRole = $this->roles()->first();
+        }
+
+        return $this->cachedPrimaryRole;
+    }
+
+    public function getPrimaryRoleIdAttribute(): ?int
+    {
+        $role = $this->resolvePrimaryRole();
+
+        if ($role) {
+            return (int) $role->id;
+        }
+
+        return $this->role ? (int) $this->role : null;
+    }
+
+    public function getDisplayRoleNameAttribute(): ?string
+    {
+        $role = $this->resolvePrimaryRole();
+
+        if ($role) {
+            return $role->name;
+        }
+
+        return self::LEGACY_ROLE_LABELS[$this->role] ?? null;
     }
 
     public function path()

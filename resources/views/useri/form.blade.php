@@ -9,6 +9,14 @@
     <div class="col-lg-12 px-4 py-2 mb-0 mx-auto">
         <input type="hidden" name="id" value="{{ $user->id }}">
 
+        @php
+            $availableRoles = $roles ?? collect();
+            if ($availableRoles instanceof \Illuminate\Support\Collection && $availableRoles->isEmpty()) {
+                $availableRoles = \App\Models\Role::orderBy('id')->get();
+            }
+            $selectedRole = old('role', $user->primary_role_id);
+        @endphp
+
         <div class="row mb-0">
             <div class="col-lg-6 mb-4">
                 <label for="name" class="mb-0 ps-3">Nume<span class="text-danger">*</span></label>
@@ -22,10 +30,13 @@
             </div>
             <div class="col-lg-3 mb-4">
                 <label for="role" class="mb-0 ps-3">Rol<span class="text-danger">*</span></label>
-                <select class="form-select bg-white rounded-3 {{ $errors->has('role') ? 'is-invalid' : '' }}" name="role">
-                    <option selected></option>
-                    <option value="1" {{ old('role', $user->role) == "1" ? 'selected' : '' }}>Admin</option>
-                    <option value="2" {{ old('role', $user->role) == "2" ? 'selected' : '' }}>Dispecer</option>
+                <select class="form-select bg-white rounded-3 {{ $errors->has('role') ? 'is-invalid' : '' }}" name="role" required>
+                    <option value="" {{ $selectedRole ? '' : 'selected' }}></option>
+                    @foreach ($availableRoles as $roleOption)
+                        <option value="{{ $roleOption->id }}" {{ (string) $selectedRole === (string) $roleOption->id ? 'selected' : '' }}>
+                            {{ $roleOption->name ?? \App\Models\User::LEGACY_ROLE_LABELS[$roleOption->id] ?? $roleOption->slug }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
             <div class="col-lg-3 mb-4">

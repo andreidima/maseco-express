@@ -33,14 +33,7 @@
                                     Rol
                                 </td>
                                 <td>
-                                    @switch($user->role)
-                                        @case(1)
-                                            Admin
-                                            @break
-                                        @case(2)
-                                            Dispecer
-                                            @break
-                                    @endswitch
+                                    {{ $user->display_role_name }}
                                 </td>
                             </tr>
                             <tr>
