@@ -23,8 +23,10 @@ class ImpersonationController extends Controller
                         ->orWhere('email', 'like', '%' . $search . '%');
                 });
             })
+            ->orderBy('activ', 'desc')
+            ->orderBy('role')
             ->orderBy('name')
-            ->paginate(15)
+            ->simplePaginate(100)
             ->appends(['search' => $search]);
 
         return view('tech.impersonation.index', [
