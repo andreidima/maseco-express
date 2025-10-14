@@ -91,3 +91,17 @@ You can perform a dry run first to inspect the planned moves without making chan
 ```bash
 php artisan facturi-furnizori:organize-calup-files --dry-run
 ```
+
+## Tech toolkit rollout checklist
+
+Follow these steps the first time you deploy the new Tech → Migration Center tooling:
+
+1. **Pull the code** on the server (e.g., `git pull origin work`).
+2. **Run the migrations**: `php artisan migrate --force`. This creates the `roles` and `role_user` tables and backfills the existing `users.role` assignments. The guarded legacy schema import (`2024_01_01_000000_import_legacy_schema.php`) exits immediately when a `users` table already exists, so it will not try to recreate your production schema.
+3. **Seed the Tech roles**: `php artisan db:seed --class=RolesTableSeeder --force`. This grants the Super Admin role to user ID 1 so future role checks rely on the pivot table instead of the legacy column.
+4. **Verify access**: user ID 1 always keeps access to the Tech menu, even before the seeder runs, so you can open the Migration Center to preview pending changes with the new interface.
+5. **Plan the legacy cleanup**: once you are satisfied that all users have the correct records in `role_user`, you may create a follow-up migration to drop the old `users.role` column. Keeping it for now avoids breaking older code paths while you transition.
+
+> Tip: from the Migration Center, you can trigger `php artisan migrate --pretend` to review the SQL that will run before committing migrations.
+
+Once your roles are seeded, you can also use the Tech → **Seeder Center** to run `php artisan db:seed --force` for the default `DatabaseSeeder` or any individual seeder class that lives in `database/seeders`. The UI captures the artisan output so you can confirm what ran after each execution.

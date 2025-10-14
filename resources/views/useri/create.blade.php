@@ -19,7 +19,8 @@
                     <form  class="needs-validation" novalidate method="POST" action="/utilizatori" autocomplete="off">
 
                             @include ('useri.form', [
-                                'user' => new App\Models\User,
+                                'user' => $user,
+                                'roles' => $roles,
                                 'buttonText' => 'Adaugă utilizator'
                             ])
                     </form>

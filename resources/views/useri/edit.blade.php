@@ -20,6 +20,7 @@
                         @method('PATCH')
 
                                 @include ('useri.form', [
+                                    'roles' => $roles,
                                     'buttonText' => 'Modifică utilizator'
                                 ])
 

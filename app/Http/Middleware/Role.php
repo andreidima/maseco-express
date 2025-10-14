@@ -15,11 +15,11 @@ class Role
             return redirect('login');
 
         $user = Auth::user();
-// dd($user);
-        foreach($roles as $role) {
-            // Check if user has the role This check will depend on how your roles are set up
-            if($user->role === intval($role))
+
+        foreach ($roles as $role) {
+            if ($user->hasRole($role)) {
                 return $next($request);
+            }
         }
 
         return redirect('login');

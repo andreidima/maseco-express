@@ -130,7 +130,7 @@
                                         /
                                     @endforeach
                                 </th>
-                                @if (auth()->user()->role == "1")
+                                @if (auth()->user()->isAdministrator())
                                     <th class="text-end">Acțiuni</th>
                                 @endif
                             </tr>
@@ -148,7 +148,7 @@
                                         </a>
                                     </td>
                                     <td>
-                                        @if (auth()->user()->role == "1")
+                                        @if (auth()->user()->isAdministrator())
                                             <div class="d-flex justify-content-end">
                                                 <!-- Modify button  -->
                                                 <div class="me-1">
@@ -199,7 +199,7 @@
                                         </a>
                                     </td>
                                     <td>
-                                        @if (auth()->user()->role == "1")
+                                        @if (auth()->user()->isAdministrator())
                                             <div class="d-flex justify-content-end">
                                                 <!-- Modify button -->
                                                 <div class="me-1">
