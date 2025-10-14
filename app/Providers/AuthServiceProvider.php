@@ -25,7 +25,13 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPolicies();
 
         Gate::define('is-admin', function ($user) {
-            return $user->role === 1; // 1 = admin
+            return $user->hasRole('admin') || $user->hasRole(1);
+        });
+
+        Gate::define('access-tech', function ($user) {
+            // User #1 retains emergency access even before the role seeder runs so the
+            // Tech menu (migration tooling, etc.) stays available during rollouts.
+            return $user->id === 1 || $user->hasRole('super-admin');
         });
     }
 }

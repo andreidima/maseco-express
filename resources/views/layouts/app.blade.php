@@ -154,6 +154,26 @@
                                 </li>
                             </ul>
                         </li>
+                        @can('access-tech')
+                            <li class="nav-item me-3 dropdown">
+                                <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarTech" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-microchip me-1"></i>
+                                    Tech
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarTech">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('tech.migrations.index') }}">
+                                            <i class="fa-solid fa-database me-1"></i>Migration Center
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ route('tech.seeders.index') }}">
+                                            <i class="fa-solid fa-seedling me-1"></i>Seeder Center
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endcan
                         {{-- <li class="nav-item me-3">
                             <a class="nav-link active" aria-current="page" href="/camioane">
                                 <i class="fa-solid fa-truck me-1"></i>Camioane
