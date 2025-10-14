@@ -20,5 +20,9 @@ class DatabaseSeeder extends Seeder
         // ]);
 
         \App\Models\LocOperare::factory(2)->create();
+
+        $this->call([
+            RolesTableSeeder::class,
+        ]);
     }
 }
