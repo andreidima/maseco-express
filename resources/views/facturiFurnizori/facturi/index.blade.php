@@ -150,66 +150,40 @@
                         <th class="text-end">Acțiuni</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @forelse ($facturi as $factura)
-                        <tr>
-                            @php
-                                $checkboxDisabled = $factura->calupuri->isNotEmpty();
-                                $shouldCheck = in_array($factura->id, $selectedFacturiOld, true);
-                            @endphp
-                            <td class="text-center">
-                                <input
-                                    type="checkbox"
-                                    class="select-factura"
-                                    value="{{ $factura->id }}"
-                                    @disabled($checkboxDisabled)
-                                    @checked(!$checkboxDisabled && $shouldCheck)
-                                >
-                            </td>
-                            <td>{{ $factura->denumire_furnizor }}</td>
-                            <td>{{ $factura->numar_factura }}</td>
-                            <td>{{ $factura->data_factura?->format('d.m.Y') }}</td>
-                            <td>{{ $factura->data_scadenta?->format('d.m.Y') }}</td>
-                            <td class="text-end">{{ number_format($factura->suma, 2) }}</td>
-                            <td>{{ $factura->moneda }}</td>
-                            <td>{{ $factura->departament_vehicul }}</td>
-                            <td>
-                                @if ($factura->calupuri->isNotEmpty())
-                                    @foreach ($factura->calupuri as $calup)
-                                        <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}" class="badge bg-info text-white text-decoration-none mb-1">{{ $calup->denumire_calup }}</a>
-                                    @endforeach
-                                @else
-                                    <span class="text-muted">-</span>
-                                @endif
-                            </td>
-                            <td class="text-muted">{{ \Illuminate\Support\Str::limit($factura->observatii, 60) }}</td>
-                            <td class="text-end">
-                                <div class="text-end">
-                                    <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="flex me-1">
-                                        <span class="badge bg-success">Vezi</span></a>
-                                    <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="flex me-1">
-                                        <span class="badge bg-primary">Editează</span></a>
-                                    <a href="#" class="flex"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#stergeFactura{{ $factura->id }}">
-                                        <span class="badge bg-danger">Șterge</span>
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
+                <tbody id="facturi-table-body">
+                    @if ($facturi->count())
+                        @include('facturiFurnizori.facturi.partials.factura-rows', [
+                            'facturi' => $facturi,
+                            'selectedFacturiOld' => $selectedFacturiOld,
+                        ])
+                    @else
                         <tr>
                             <td colspan="11" class="text-center text-muted py-4">Nu există facturi înregistrate.</td>
                         </tr>
-                    @endforelse
+                    @endif
                 </tbody>
             </table>
         </div>
 
-        <div class="px-3">
-            {{ $facturi->appends(request()->except('page'))->links() }}
+        <div id="facturi-infinite-scroll" class="px-3">
+            <div
+                id="facturi-load-more-trigger"
+                class="d-flex justify-content-center py-3"
+                data-next-url="{{ $facturi->nextPageUrl() }}"
+            >
+                @if ($facturi->hasMorePages())
+                    <button type="button" class="btn btn-outline-primary" id="facturi-load-more">
+                        <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        <span class="load-more-label">Încarcă mai multe</span>
+                    </button>
+                @endif
+            </div>
         </div>
     </div>
+</div>
+
+<div id="facturi-modals">
+    @include('facturiFurnizori.facturi.partials.factura-modals', ['facturi' => $facturi])
 </div>
 
 <div class="modal fade" id="calupModal" tabindex="-1" aria-labelledby="calupModalLabel" aria-hidden="true" @if ($shouldShowCalupModal) data-show-on-load="true" @endif>
@@ -292,35 +266,10 @@
     </div>
 </div>
 
-@foreach ($facturi as $factura)
-    <div class="modal fade text-dark" id="stergeFactura{{ $factura->id }}" tabindex="-1" role="dialog" aria-labelledby="stergeFacturaLabel{{ $factura->id }}" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white" id="stergeFacturaLabel{{ $factura->id }}">Factura {{ $factura->numar_factura }}</h5>
-                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body" style="text-align:left;">
-                    Sigur ștergi factura <strong>{{ $factura->numar_factura }}</strong> de la <strong>{{ $factura->denumire_furnizor }}</strong>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
-                    <form action="{{ route('facturi-furnizori.facturi.destroy', $factura) }}" method="POST" class="m-0">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Șterge factura</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-@endforeach
-
 @push('page-scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const selectAll = document.getElementById('select-all');
-            const checkboxItems = Array.from(document.querySelectorAll('.select-factura'));
             const prepareButton = document.getElementById('prepare-calup');
             const selectedContainer = document.getElementById('calup-form-selected');
             const selectedCount = document.getElementById('calup-selected-count');
@@ -328,6 +277,17 @@
             const selectionWarningModalElement = document.getElementById('calupSelectionWarningModal');
             const bootstrap = window.bootstrap;
             const bootstrapModal = bootstrap && bootstrap.Modal ? bootstrap.Modal : null;
+            const loadMoreButton = document.getElementById('facturi-load-more');
+            const loadMoreTrigger = document.getElementById('facturi-load-more-trigger');
+            const tableBody = document.getElementById('facturi-table-body');
+            const modalsContainer = document.getElementById('facturi-modals');
+            const loadMoreSpinner = loadMoreButton ? loadMoreButton.querySelector('.spinner-border') : null;
+            const loadMoreLabel = loadMoreButton ? loadMoreButton.querySelector('.load-more-label') : null;
+            const loadState = {
+                loading: false,
+                nextUrl: loadMoreTrigger ? loadMoreTrigger.dataset.nextUrl : null,
+                observer: null,
+            };
 
             const showModal = (element, fallbackMessage = null) => {
                 if (!element) {
@@ -358,7 +318,9 @@
                 }
             };
 
-            const selectableCheckboxes = () => checkboxItems.filter(checkbox => !checkbox.disabled);
+            const checkboxItems = () => Array.from(document.querySelectorAll('.select-factura'));
+
+            const selectableCheckboxes = () => checkboxItems().filter(checkbox => !checkbox.disabled);
 
             const collectSelectedValues = () => selectableCheckboxes()
                 .filter(checkbox => checkbox.checked)
@@ -420,10 +382,10 @@
                 });
             }
 
-            checkboxItems.forEach(checkbox => {
-                checkbox.addEventListener('change', () => {
+            document.addEventListener('change', (event) => {
+                if (event.target && event.target.classList && event.target.classList.contains('select-factura')) {
                     refreshSelectionState();
-                });
+                }
             });
 
             if (prepareButton) {
@@ -449,6 +411,137 @@
 
                 refreshSelectionState();
             };
+
+            const setLoadingState = (isLoading) => {
+                loadState.loading = isLoading;
+
+                if (!loadMoreButton) {
+                    return;
+                }
+
+                if (isLoading) {
+                    loadMoreButton.disabled = true;
+                    if (loadMoreSpinner) {
+                        loadMoreSpinner.classList.remove('d-none');
+                    }
+                    if (loadMoreLabel) {
+                        loadMoreLabel.textContent = 'Se încarcă...';
+                    }
+                } else {
+                    loadMoreButton.disabled = false;
+                    if (loadMoreSpinner) {
+                        loadMoreSpinner.classList.add('d-none');
+                    }
+                    if (loadMoreLabel) {
+                        loadMoreLabel.textContent = 'Încarcă mai multe';
+                    }
+                }
+            };
+
+            const appendHtml = (container, html) => {
+                if (!container || !html) {
+                    return;
+                }
+
+                const template = document.createElement('template');
+                template.innerHTML = html.trim();
+                container.appendChild(template.content);
+            };
+
+            const afterAppend = () => {
+                if (selectAll && selectAll.checked) {
+                    selectableCheckboxes().forEach(checkbox => {
+                        checkbox.checked = true;
+                    });
+                }
+
+                refreshSelectionState();
+            };
+
+            const handleLoadMore = () => {
+                if (!loadState.nextUrl || loadState.loading) {
+                    return;
+                }
+
+                setLoadingState(true);
+
+                fetch(loadState.nextUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Solicitarea a eșuat.');
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.rows_html) {
+                            appendHtml(tableBody, data.rows_html);
+                        }
+
+                        if (data.modals_html) {
+                            appendHtml(modalsContainer, data.modals_html);
+                        }
+
+                        loadState.nextUrl = data.next_url || null;
+
+                        if (loadMoreTrigger) {
+                            loadMoreTrigger.dataset.nextUrl = loadState.nextUrl || '';
+                        }
+
+                        if (loadMoreButton) {
+                            loadMoreButton.classList.remove('btn-danger');
+                        }
+
+                        if (!loadState.nextUrl && loadMoreButton) {
+                            loadMoreButton.remove();
+                        }
+
+                        afterAppend();
+                        setLoadingState(false);
+                    })
+                    .catch(() => {
+                        if (loadMoreButton) {
+                            loadMoreButton.classList.add('btn-danger');
+                        }
+
+                        if (loadMoreLabel) {
+                            loadMoreLabel.textContent = 'A apărut o eroare. Reîncearcă';
+                        }
+
+                        setLoadingState(false);
+                    })
+                    .finally(() => {
+                        if (loadState.observer && !loadState.nextUrl) {
+                            loadState.observer.disconnect();
+                        }
+                    });
+            };
+
+            if (loadMoreButton) {
+                loadMoreButton.addEventListener('click', () => {
+                    handleLoadMore();
+                });
+            }
+
+            if ('IntersectionObserver' in window && loadMoreTrigger) {
+                loadState.observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            handleLoadMore();
+                        }
+                    });
+                }, {
+                    root: null,
+                    rootMargin: '0px 0px 200px 0px',
+                });
+
+                loadState.observer.observe(loadMoreTrigger);
+            }
 
             initializeModalIfNeeded();
         });

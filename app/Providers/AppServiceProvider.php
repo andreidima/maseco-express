@@ -2,11 +2,10 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\ServiceProvider;
-
-use Route;
-
 use Carbon\Carbon;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\ServiceProvider;
+use Route;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,5 +29,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Set the locale to Romanian globally
         Carbon::setLocale('ro');
+
+        // Use Bootstrap pagination views across the application
+        Paginator::useBootstrapFive();
     }
 }

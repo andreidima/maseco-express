@@ -95,7 +95,7 @@ class FacturaFurnizorController extends Controller
             ->orderByRaw('data_scadenta IS NULL')
             ->orderBy('data_scadenta')
             ->orderBy('denumire_furnizor')
-            ->paginate(25)
+            ->cursorPaginate(25)
             ->withQueryString();
 
         $monede = FacturaFurnizor::query()
@@ -107,6 +107,19 @@ class FacturaFurnizorController extends Controller
         $neplatiteCount = FacturaFurnizor::query()->whereDoesntHave('calupuri')->count();
 
         FacturiIndexFilterState::remember($request);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'rows_html' => view('facturiFurnizori.facturi.partials.factura-rows', [
+                    'facturi' => $facturi,
+                    'selectedFacturiOld' => [],
+                ])->render(),
+                'modals_html' => view('facturiFurnizori.facturi.partials.factura-modals', [
+                    'facturi' => $facturi,
+                ])->render(),
+                'next_url' => $facturi->nextPageUrl(),
+            ]);
+        }
 
         return view('facturiFurnizori.facturi.index', [
             'facturi' => $facturi,

@@ -15,5 +15,8 @@ return [
 
     'previous' => '&laquo; Previous',
     'next' => 'Next &raquo;',
+    'navigation' => 'Pagination Navigation',
+    'range' => 'Showing :first to :last of :total results',
+    'results' => '{1} Showing :count result|[2,*] Showing :count results',
 
 ];
