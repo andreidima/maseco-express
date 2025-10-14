@@ -10,7 +10,7 @@ return new class extends Migration {
      */
     public function up(): void
     {
-        if (Schema::hasTable('users')) {
+        if ($this->databaseAlreadyContainsLegacyTables()) {
             return;
         }
 
@@ -29,5 +29,22 @@ return new class extends Migration {
     public function down(): void
     {
         // Intentionally left blank. Dropping the entire legacy schema is risky and should be handled manually.
+    }
+
+    private function databaseAlreadyContainsLegacyTables(): bool
+    {
+        if (Schema::hasTable('users')) {
+            return true;
+        }
+
+        $result = DB::select(<<<'SQL'
+            SELECT 1
+            FROM information_schema.tables
+            WHERE table_schema = DATABASE()
+              AND table_name = 'users'
+            LIMIT 1
+        SQL);
+
+        return ! empty($result);
     }
 };

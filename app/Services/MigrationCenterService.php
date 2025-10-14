@@ -2,18 +2,15 @@
 
 namespace App\Services;
 
-use Illuminate\Database\Migrations\Migrator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
+use Throwable;
 
 class MigrationCenterService
 {
-    public function __construct(private readonly Migrator $migrator)
-    {
-    }
-
     public function getExecutedMigrations(): Collection
     {
         if (! Schema::hasTable('migrations')) {
@@ -29,16 +26,18 @@ class MigrationCenterService
 
     public function getPendingMigrations(): array
     {
-        $paths = array_merge([database_path('migrations')], $this->migrator->paths());
-        $files = $this->migrator->getMigrationFiles($paths);
+        $migrations = $this->discoverMigrationNames();
 
-        if (! $this->migrator->repositoryExists()) {
-            return array_values(array_keys($files));
+        if (! Schema::hasTable('migrations')) {
+            return $migrations;
         }
 
-        $ran = $this->migrator->getRepository()->getRan();
+        $ran = DB::table('migrations')->pluck('migration')->all();
 
-        return array_values(array_diff(array_keys($files), $ran));
+        return collect($migrations)
+            ->diff($ran)
+            ->values()
+            ->all();
     }
 
     public function previewPendingMigrations(): string
@@ -53,5 +52,34 @@ class MigrationCenterService
         Artisan::call('migrate', ['--force' => true]);
 
         return Artisan::output();
+    }
+
+    private function discoverMigrationNames(): array
+    {
+        $paths = array_merge([database_path('migrations')], $this->additionalMigrationPaths());
+
+        return collect($paths)
+            ->filter(fn ($path) => is_dir($path))
+            ->flatMap(function ($path) {
+                return collect(glob($path . DIRECTORY_SEPARATOR . '*.php') ?: [])
+                    ->map(fn ($file) => Str::replaceLast('.php', '', basename($file)));
+            })
+            ->unique()
+            ->sort()
+            ->values()
+            ->all();
+    }
+
+    private function additionalMigrationPaths(): array
+    {
+        if (! app()->bound('migrator')) {
+            return [];
+        }
+
+        try {
+            return app('migrator')->paths();
+        } catch (Throwable) {
+            return [];
+        }
     }
 }
