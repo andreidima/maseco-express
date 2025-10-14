@@ -23,9 +23,11 @@
                         <div class="col-lg-6">
                             <label for="seeder" class="form-label">Seeder class</label>
                             <select name="seeder" id="seeder" class="form-select">
-                                <option value="">DatabaseSeeder (default)</option>
+                                <option value="" data-description="{{ $defaultSeederDescription }}" @selected(empty($selectedSeeder))>
+                                    DatabaseSeeder (default)
+                                </option>
                                 @foreach ($availableSeeders as $seeder)
-                                    <option value="{{ $seeder['class'] }}" @selected($selectedSeeder === $seeder['class'])>
+                                    <option value="{{ $seeder['class'] }}" data-description="{{ $seeder['description'] }}" @selected($selectedSeeder === $seeder['class'])>
                                         {{ $seeder['label'] }}
                                     </option>
                                 @endforeach
@@ -33,6 +35,12 @@
                             @error('seeder')
                                 <div class="text-danger small mt-1">{{ $message }}</div>
                             @enderror
+                        </div>
+                        <div class="col-lg-6">
+                            <label class="form-label">Seeder overview</label>
+                            <div class="alert alert-info mb-0" id="seeder-description">
+                                {{ $selectedSeederDescription ?? $defaultSeederDescription }}
+                            </div>
                         </div>
                         <div class="col-lg-3">
                             <button type="submit" class="btn btn-primary">
@@ -59,4 +67,28 @@
             </div>
         </div>
     </div>
+
+    <script>
+        (function () {
+            const select = document.getElementById('seeder');
+            const descriptionBox = document.getElementById('seeder-description');
+            const fallbackDescription = @json($defaultSeederDescription);
+
+            if (!select || !descriptionBox) {
+                return;
+            }
+
+            const updateDescription = () => {
+                const option = select.options[select.selectedIndex];
+                const description = option ? option.getAttribute('data-description') : '';
+
+                descriptionBox.textContent = description && description.trim() !== ''
+                    ? description
+                    : fallbackDescription;
+            };
+
+            select.addEventListener('change', updateDescription);
+            updateDescription();
+        })();
+    </script>
 @endsection

@@ -6,20 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Services\SeederCenterService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
 use Illuminate\Validation\Rule;
+use Illuminate\View\View;
 use Throwable;
 
 class SeederCenterController extends Controller
 {
     public function index(Request $request, SeederCenterService $service): View
     {
+        $availableSeeders = $service->getAvailableSeeders();
+        $selectedSeeder = $request->session()->get('seeder_selected');
+
         return view('tech.seeders.index', [
-            'availableSeeders' => $service->getAvailableSeeders(),
+            'availableSeeders' => $availableSeeders,
             'executionOutput' => $request->session()->get('seeder_output'),
             'statusMessage' => $request->session()->get('seeder_status'),
             'statusLevel' => $request->session()->get('seeder_status_level', 'info'),
-            'selectedSeeder' => $request->session()->get('seeder_selected'),
+            'selectedSeeder' => $selectedSeeder,
+            'defaultSeederDescription' => $service->describeSeeder(null),
+            'selectedSeederDescription' => $service->describeSeeder($selectedSeeder),
         ]);
     }
 
