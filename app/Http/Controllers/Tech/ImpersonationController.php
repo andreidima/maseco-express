@@ -16,6 +16,7 @@ class ImpersonationController extends Controller
         $search = trim((string) $request->input('search', ''));
 
         $users = User::query()
+            ->with('roles')
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('name', 'like', '%' . $search . '%')

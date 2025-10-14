@@ -37,16 +37,38 @@
                 <table class="table table-hover mb-0">
                     <thead class="table-light">
                         <tr>
+                            <th scope="col" style="width: 4rem">#</th>
                             <th scope="col">Nume</th>
+                            <th scope="col">Rol</th>
+                            <th scope="col">Telefon</th>
                             <th scope="col">Email</th>
+                            <th scope="col">Stare cont</th>
                             <th scope="col" class="text-end">Acțiuni</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse ($users as $user)
+                            @php
+                                $rowNumber = ($users->currentPage() - 1) * $users->perPage() + $loop->iteration;
+                                $roleNames = $user->roles->pluck('name')->filter()->all();
+
+                                if (empty($roleNames) && $user->display_role_name) {
+                                    $roleNames = [$user->display_role_name];
+                                }
+                            @endphp
                             <tr>
+                                <td class="align-middle">{{ $rowNumber }}</td>
                                 <td class="align-middle">{{ $user->name }}</td>
+                                <td class="align-middle">{{ implode(', ', $roleNames) ?: '—' }}</td>
+                                <td class="align-middle">{{ $user->telefon ?: '—' }}</td>
                                 <td class="align-middle">{{ $user->email }}</td>
+                                <td class="align-middle">
+                                    @if ($user->activ)
+                                        <span class="badge bg-success">Deschis</span>
+                                    @else
+                                        <span class="badge bg-danger">Închis</span>
+                                    @endif
+                                </td>
                                 <td class="align-middle text-end">
                                     <form method="post" action="{{ route('tech.impersonation.start') }}" class="d-inline">
                                         @csrf
@@ -60,7 +82,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="3" class="text-center text-muted py-4">
+                                <td colspan="7" class="text-center text-muted py-4">
                                     Nu am găsit niciun utilizator pentru criteriile de căutare introduse.
                                 </td>
                             </tr>
