@@ -113,7 +113,7 @@ class GestiunePieseController extends Controller
 
         $displayColumns = array_values(array_filter(
             $columns,
-            static fn ($column) => ! in_array($column, ['factura_id', 'created_at', 'updated_at'], true)
+            static fn ($column) => ! in_array($column, ['id', 'factura_id', 'created_at', 'updated_at'], true)
         ));
         if ($invoiceDateAlias && ! in_array($invoiceDateAlias, $displayColumns, true)) {
             $displayColumns[] = $invoiceDateAlias;
@@ -122,7 +122,7 @@ class GestiunePieseController extends Controller
         return view('gestiunePiese.index', [
             'denumire' => $denumireSearch,
             'cod' => $codSearch,
-            'dataFactura' => $invoiceDateSearch,
+            'dataFactura' => $useExactInvoiceDate ? $invoiceDateFilter : $invoiceDateSearch,
             'columns' => $displayColumns,
             'items' => $items,
             'hasTable' => $hasTable,

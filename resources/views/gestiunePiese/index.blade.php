@@ -20,34 +20,35 @@
                     <i class="fa-solid fa-warehouse me-1"></i>Gestiune piese
                 </span>
             </div>
-            <div class="col-lg-9">
-                <form class="needs-validation" novalidate method="GET" action="{{ route('gestiune-piese.index') }}">
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-4">
-                            <label class="form-label small text-uppercase text-muted" for="denumire">
-                                Denumire
-                            </label>
-                            <input type="text" class="form-control rounded-3" id="denumire" name="denumire"
-                                placeholder="Caută după denumire" value="{{ $denumire }}">
+            <div class="col-lg-9 mb-2" id="formularGestiunePiese">
+                <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ route('gestiune-piese.index') }}">
+                    <div class="row gy-1 gx-4 mb-2 custom-search-form d-flex justify-content-center">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-font text-muted" title="Caută după denumire"></i>
+                                <input type="text" class="form-control rounded-3 flex-grow-1" id="denumire" name="denumire"
+                                    placeholder="Denumire" value="{{ $denumire }}" autocomplete="off">
+                            </div>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label small text-uppercase text-muted" for="cod">
-                                Cod
-                            </label>
-                            <input type="text" class="form-control rounded-3" id="cod" name="cod"
-                                placeholder="Caută după cod" value="{{ $cod }}">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-barcode text-muted" title="Caută după cod"></i>
+                                <input type="text" class="form-control rounded-3 flex-grow-1" id="cod" name="cod"
+                                    placeholder="Cod" value="{{ $cod }}" autocomplete="off">
+                            </div>
                         </div>
-        
-                        <div class="col-md-4">
-                            <label class="form-label small text-uppercase text-muted" for="data_factura">
-                                Data factură
-                            </label>
-                            <input type="text" class="form-control rounded-3" id="data_factura" name="data_factura"
-                                placeholder="Ex. 2024-03-15" value="{{ $dataFactura }}">
+                        <div class="col-lg-4 col-md-6">
+                            <div class="d-flex align-items-center gap-2">
+                                <label for="data_factura" class="form-label small text-muted mb-0 flex-shrink-0 text-nowrap">
+                                    Data factură
+                                </label>
+                                <input type="date" class="form-control rounded-3" id="data_factura" name="data_factura"
+                                    value="{{ $dataFactura }}">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="row custom-search-form justify-content-center mt-3">
+                    <div class="row custom-search-form justify-content-center mt-2">
                         <button class="btn btn-sm btn-primary text-white col-md-4 me-3 border border-dark rounded-3"
                             type="submit">
                             <i class="fas fa-search text-white me-1"></i>Caută
@@ -107,6 +108,9 @@
                                         </a>
                                     </th>
                                 @endforeach
+                                @if ($invoiceColumn)
+                                    <th class="culoare2 text-white" style="min-width: 130px;">Factură</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -115,21 +119,9 @@
                                     <td>
                                         {{ ($items->currentPage() - 1) * $items->perPage() + $loop->index + 1 }}
                                     </td>
-                                    @if ($invoiceColumn)
-                                        @php
-                                            $invoiceId = $row->{$invoiceColumn} ?? null;
-                                        @endphp
-                                        <td>
-                                            @if ($invoiceId !== null && $invoiceId !== '')
-                                                <a class="btn btn-sm btn-outline-primary border-0 rounded-3"
-                                                    href="{{ route('facturi-furnizori.facturi.show', $invoiceId) }}">
-                                                    <i class="fa-solid fa-file-invoice me-1"></i>Deschide
-                                                </a>
-                                            @else
-                                                —
-                                            @endif
-                                        </td>
-                                    @endif
+                                    @php
+                                        $invoiceId = $invoiceColumn ? ($row->{$invoiceColumn} ?? null) : null;
+                                    @endphp
                                     @foreach ($columns as $column)
                                         @php
                                             $value = $row->{$column} ?? null;
@@ -146,6 +138,18 @@
                                             {{ $value !== null && $value !== '' ? $value : '—' }}
                                         </td>
                                     @endforeach
+                                    @if ($invoiceColumn)
+                                        <td>
+                                            @if ($invoiceId !== null && $invoiceId !== '')
+                                                <a class="btn btn-sm btn-outline-primary border-0 rounded-3"
+                                                    href="{{ route('facturi-furnizori.facturi.show', $invoiceId) }}">
+                                                    <i class="fa-solid fa-file-invoice me-1"></i>Deschide
+                                                </a>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
