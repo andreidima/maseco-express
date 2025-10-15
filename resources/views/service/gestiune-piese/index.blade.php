@@ -83,9 +83,6 @@
                         <thead>
                             <tr>
                                 <th class="culoare2 text-white" style="min-width: 70px;">#</th>
-                                @if ($invoiceColumn)
-                                    <th class="culoare2 text-white" style="min-width: 130px;">Factură</th>
-                                @endif
                                 @foreach ($columns as $column)
                                     @php
                                         $label = $column === 'factura_data_factura'
