@@ -31,6 +31,7 @@ use App\Http\Controllers\DocumentWordController;
 use App\Http\Controllers\KeyPerformanceIndicatorController;
 use App\Http\Controllers\OfertaCursaController;
 use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorController;
+use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorFisierController;
 use App\Http\Controllers\FacturiFurnizori\PlataCalupController;
 use App\Http\Controllers\Service\GestiunePieseController;
 use App\Http\Controllers\Service\ServiceMasiniController;
@@ -223,6 +224,15 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::resource('facturi', FacturaFurnizorController::class)
                 ->parameters(['facturi' => 'factura']);
+
+            Route::get('facturi/{factura}/fisiere/{fisier}/vizualizeaza', [FacturaFurnizorFisierController::class, 'vizualizeaza'])
+                ->name('facturi.fisiere.vizualizeaza');
+
+            Route::get('facturi/{factura}/fisiere/{fisier}/descarca', [FacturaFurnizorFisierController::class, 'descarca'])
+                ->name('facturi.fisiere.descarca');
+
+            Route::delete('facturi/{factura}/fisiere/{fisier}', [FacturaFurnizorFisierController::class, 'destroy'])
+                ->name('facturi.fisiere.destroy');
 
             Route::resource('plati-calupuri', PlataCalupController::class)
                 ->parameters(['plati-calupuri' => 'plataCalup']);
