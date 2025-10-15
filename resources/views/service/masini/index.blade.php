@@ -12,6 +12,11 @@
     $entryOldMatchesEditing = $isEditingEntry && $formContext === 'entry_update' && (int) old('entry_id') === optional($editingEntry)->id;
     $useOldForEntry = $formContext === 'entry_store' || $entryOldMatchesEditing;
     $createMasinaOld = $formContext === 'create_masina';
+    $createMasinaErrorFields = ['denumire', 'numar_inmatriculare', 'serie_sasiu', 'observatii'];
+    $shouldShowCreateModal = $createMasinaOld && collect($createMasinaErrorFields)->contains(fn ($field) => $errors->has($field));
+    $updateMasinaOld = $formContext === 'update_masina' && $selectedMasinaId && (int) old('masina_id') === $selectedMasinaId;
+    $updateMasinaErrorFields = $createMasinaErrorFields;
+    $shouldShowEditModal = $updateMasinaOld && collect($updateMasinaErrorFields)->contains(fn ($field) => $errors->has($field));
 @endphp
 
 @section('content')
@@ -118,118 +123,20 @@
                                 @endforelse
                             </div>
 
-                            <h6 class="fw-semibold mb-3"><i class="fa-solid fa-plus-circle me-1"></i>Adaugă mașină</h6>
-                            <form method="POST" action="{{ route('service-masini.store-masina') }}" class="row g-2">
-                                @csrf
-                                <input type="hidden" name="form_context" value="create_masina">
-                                <div class="col-12">
-                                    <label for="denumire" class="form-label small text-muted mb-1">Denumire mașină <span class="text-danger">*</span></label>
-                                    <input type="text" name="denumire" id="denumire" class="form-control rounded-3"
-                                        value="{{ $createMasinaOld ? old('denumire') : '' }}" required>
-                                    @if ($createMasinaOld && $errors->has('denumire'))
-                                        <div class="text-danger small mt-1">{{ $errors->first('denumire') }}</div>
-                                    @endif
-                                </div>
-                                <div class="col-12">
-                                    <label for="numar_inmatriculare_form" class="form-label small text-muted mb-1">Nr.
-                                        înmatriculare <span class="text-danger">*</span></label>
-                                    <input type="text" name="numar_inmatriculare" id="numar_inmatriculare_form"
-                                        class="form-control rounded-3" value="{{ $createMasinaOld ? old('numar_inmatriculare') : '' }}" required>
-                                    @if ($createMasinaOld && $errors->has('numar_inmatriculare'))
-                                        <div class="text-danger small mt-1">{{ $errors->first('numar_inmatriculare') }}</div>
-                                    @endif
-                                </div>
-                                <div class="col-12">
-                                    <label for="serie_sasiu" class="form-label small text-muted mb-1">Serie șasiu</label>
-                                    <input type="text" name="serie_sasiu" id="serie_sasiu" class="form-control rounded-3"
-                                        value="{{ $createMasinaOld ? old('serie_sasiu') : '' }}">
-                                    @if ($createMasinaOld && $errors->has('serie_sasiu'))
-                                        <div class="text-danger small mt-1">{{ $errors->first('serie_sasiu') }}</div>
-                                    @endif
-                                </div>
-                                <div class="col-12">
-                                    <label for="observatii" class="form-label small text-muted mb-1">Observații</label>
-                                    <textarea name="observatii" id="observatii" rows="2" class="form-control rounded-3">{{ $createMasinaOld ? old('observatii') : '' }}</textarea>
-                                    @if ($createMasinaOld && $errors->has('observatii'))
-                                        <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
-                                    @endif
-                                </div>
-                                <div class="col-12 d-grid">
-                                    <button type="submit" class="btn btn-sm btn-success rounded-3">
-                                        <i class="fa-solid fa-save me-1"></i>Salvează mașina
-                                    </button>
-                                </div>
-                            </form>
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-sm btn-success rounded-3" data-bs-toggle="modal"
+                                    data-bs-target="#createMasinaModal">
+                                    <i class="fa-solid fa-plus-circle me-1"></i>Adaugă mașină
+                                </button>
+                            </div>
 
                             @if ($selectedMasina)
-                                @php
-                                    $updateMasinaOld = $formContext === 'update_masina' && (int) old('masina_id') === $selectedMasinaId;
-                                @endphp
-                                <hr class="my-4">
-                                <h6 class="fw-semibold mb-3"><i class="fa-solid fa-pen-to-square me-1"></i>Editează mașina selectată</h6>
-                                <form method="POST" action="{{ route('service-masini.update-masina', $selectedMasina) }}" class="row g-2">
-                                    @csrf
-                                    @method('PUT')
-                                    <input type="hidden" name="form_context" value="update_masina">
-                                    <input type="hidden" name="masina_id" value="{{ $selectedMasinaId }}">
-                                    <div class="col-12">
-                                        <label for="denumire_edit" class="form-label small text-muted mb-1">Denumire mașină <span class="text-danger">*</span></label>
-                                        <input type="text" name="denumire" id="denumire_edit" class="form-control rounded-3"
-                                            value="{{ $updateMasinaOld ? old('denumire') : $selectedMasina->denumire }}" required>
-                                        @if ($updateMasinaOld && $errors->has('denumire'))
-                                            <div class="text-danger small mt-1">{{ $errors->first('denumire') }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="numar_inmatriculare_edit" class="form-label small text-muted mb-1">Nr. înmatriculare <span class="text-danger">*</span></label>
-                                        <input type="text" name="numar_inmatriculare" id="numar_inmatriculare_edit"
-                                            class="form-control rounded-3"
-                                            value="{{ $updateMasinaOld ? old('numar_inmatriculare') : $selectedMasina->numar_inmatriculare }}"
-                                            required>
-                                        @if ($updateMasinaOld && $errors->has('numar_inmatriculare'))
-                                            <div class="text-danger small mt-1">{{ $errors->first('numar_inmatriculare') }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="serie_sasiu_edit" class="form-label small text-muted mb-1">Serie șasiu</label>
-                                        <input type="text" name="serie_sasiu" id="serie_sasiu_edit" class="form-control rounded-3"
-                                            value="{{ $updateMasinaOld ? old('serie_sasiu') : $selectedMasina->serie_sasiu }}">
-                                        @if ($updateMasinaOld && $errors->has('serie_sasiu'))
-                                            <div class="text-danger small mt-1">{{ $errors->first('serie_sasiu') }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="observatii_edit" class="form-label small text-muted mb-1">Observații</label>
-                                        <textarea name="observatii" id="observatii_edit" rows="2" class="form-control rounded-3">{{ $updateMasinaOld ? old('observatii') : $selectedMasina->observatii }}</textarea>
-                                        @if ($updateMasinaOld && $errors->has('observatii'))
-                                            <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
-                                        @endif
-                                    </div>
-                                    @foreach ($filters as $key => $value)
-                                        @if ($value !== null && $value !== '')
-                                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                        @endif
-                                    @endforeach
-                                    <div class="col-12 d-grid">
-                                        <button type="submit" class="btn btn-sm btn-primary rounded-3">
-                                            <i class="fa-solid fa-rotate me-1"></i>Actualizează mașina
-                                        </button>
-                                    </div>
-                                </form>
-
-                                <form method="POST" action="{{ route('service-masini.destroy-masina', $selectedMasina) }}" class="mt-3"
-                                    onsubmit="return confirm('Ești sigur că vrei să ștergi această mașină și intervențiile asociate?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    @foreach ($filters as $key => $value)
-                                        @if ($value !== null && $value !== '')
-                                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                        @endif
-                                    @endforeach
-                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-3">
-                                        <i class="fa-solid fa-trash-can me-1"></i>Șterge mașina
+                                <div class="d-grid gap-2 mt-3">
+                                    <button type="button" class="btn btn-sm btn-primary rounded-3" data-bs-toggle="modal"
+                                        data-bs-target="#editMasinaModal">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i>Editează mașina selectată
                                     </button>
-                                </form>
+                                </div>
                             @endif
                         </div>
                     </div>
@@ -478,6 +385,152 @@
             </div>
         </div>
     </div>
+    <div class="modal fade" id="createMasinaModal" tabindex="-1" aria-labelledby="createMasinaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <form method="POST" action="{{ route('service-masini.store-masina') }}" class="modal-content">
+                @csrf
+                <input type="hidden" name="form_context" value="create_masina">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createMasinaModalLabel">
+                        <i class="fa-solid fa-plus-circle me-1"></i>Adaugă mașină
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="denumire_create" class="form-label small text-muted mb-1">Denumire mașină
+                            <span class="text-danger">*</span></label>
+                        <input type="text" name="denumire" id="denumire_create" class="form-control rounded-3"
+                            value="{{ $createMasinaOld ? old('denumire') : '' }}" required>
+                        @if ($createMasinaOld && $errors->has('denumire'))
+                            <div class="text-danger small mt-1">{{ $errors->first('denumire') }}</div>
+                        @endif
+                    </div>
+                    <div class="mb-3">
+                        <label for="numar_inmatriculare_create" class="form-label small text-muted mb-1">Nr.
+                            înmatriculare <span class="text-danger">*</span></label>
+                        <input type="text" name="numar_inmatriculare" id="numar_inmatriculare_create"
+                            class="form-control rounded-3"
+                            value="{{ $createMasinaOld ? old('numar_inmatriculare') : '' }}" required>
+                        @if ($createMasinaOld && $errors->has('numar_inmatriculare'))
+                            <div class="text-danger small mt-1">{{ $errors->first('numar_inmatriculare') }}</div>
+                        @endif
+                    </div>
+                    <div class="mb-3">
+                        <label for="serie_sasiu_create" class="form-label small text-muted mb-1">Serie șasiu</label>
+                        <input type="text" name="serie_sasiu" id="serie_sasiu_create" class="form-control rounded-3"
+                            value="{{ $createMasinaOld ? old('serie_sasiu') : '' }}">
+                        @if ($createMasinaOld && $errors->has('serie_sasiu'))
+                            <div class="text-danger small mt-1">{{ $errors->first('serie_sasiu') }}</div>
+                        @endif
+                    </div>
+                    <div class="mb-0">
+                        <label for="observatii_create" class="form-label small text-muted mb-1">Observații</label>
+                        <textarea name="observatii" id="observatii_create" rows="2" class="form-control rounded-3">{{ $createMasinaOld ? old('observatii') : '' }}</textarea>
+                        @if ($createMasinaOld && $errors->has('observatii'))
+                            <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
+                        @endif
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Închide</button>
+                    <button type="submit" class="btn btn-success rounded-3">
+                        <i class="fa-solid fa-save me-1"></i>Salvează mașina
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if ($selectedMasina)
+        <div class="modal fade" id="editMasinaModal" tabindex="-1" aria-labelledby="editMasinaModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editMasinaModalLabel">
+                            <i class="fa-solid fa-pen-to-square me-1"></i>Editează mașina selectată
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <form id="updateMasinaForm" method="POST"
+                        action="{{ route('service-masini.update-masina', $selectedMasina) }}">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="form_context" value="update_masina">
+                        <input type="hidden" name="masina_id" value="{{ $selectedMasinaId }}">
+                        @foreach ($filters as $key => $value)
+                            @if ($value !== null && $value !== '')
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endif
+                        @endforeach
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="denumire_edit" class="form-label small text-muted mb-1">Denumire mașină
+                                    <span class="text-danger">*</span></label>
+                                <input type="text" name="denumire" id="denumire_edit" class="form-control rounded-3"
+                                    value="{{ $updateMasinaOld ? old('denumire') : $selectedMasina->denumire }}" required>
+                                @if ($updateMasinaOld && $errors->has('denumire'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('denumire') }}</div>
+                                @endif
+                            </div>
+                            <div class="mb-3">
+                                <label for="numar_inmatriculare_edit" class="form-label small text-muted mb-1">Nr.
+                                    înmatriculare <span class="text-danger">*</span></label>
+                                <input type="text" name="numar_inmatriculare" id="numar_inmatriculare_edit"
+                                    class="form-control rounded-3"
+                                    value="{{ $updateMasinaOld ? old('numar_inmatriculare') : $selectedMasina->numar_inmatriculare }}"
+                                    required>
+                                @if ($updateMasinaOld && $errors->has('numar_inmatriculare'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('numar_inmatriculare') }}</div>
+                                @endif
+                            </div>
+                            <div class="mb-3">
+                                <label for="serie_sasiu_edit" class="form-label small text-muted mb-1">Serie șasiu</label>
+                                <input type="text" name="serie_sasiu" id="serie_sasiu_edit" class="form-control rounded-3"
+                                    value="{{ $updateMasinaOld ? old('serie_sasiu') : $selectedMasina->serie_sasiu }}">
+                                @if ($updateMasinaOld && $errors->has('serie_sasiu'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('serie_sasiu') }}</div>
+                                @endif
+                            </div>
+                            <div class="mb-0">
+                                <label for="observatii_edit" class="form-label small text-muted mb-1">Observații</label>
+                                <textarea name="observatii" id="observatii_edit" rows="2" class="form-control rounded-3">{{ $updateMasinaOld ? old('observatii') : $selectedMasina->observatii }}</textarea>
+                                @if ($updateMasinaOld && $errors->has('observatii'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
+                                @endif
+                            </div>
+                        </div>
+                    </form>
+                    <div class="modal-footer flex-wrap gap-2">
+                        <form method="POST" action="{{ route('service-masini.destroy-masina', $selectedMasina) }}"
+                            class="me-auto"
+                            onsubmit="return confirm('Ești sigur că vrei să ștergi această mașină și intervențiile asociate?');">
+                            @csrf
+                            @method('DELETE')
+                            @foreach ($filters as $key => $value)
+                                @if ($value !== null && $value !== '')
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endif
+                            @endforeach
+                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-3">
+                                <i class="fa-solid fa-trash-can me-1"></i>Șterge mașina
+                            </button>
+                        </form>
+                        <div class="ms-auto d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">
+                                Renunță
+                            </button>
+                            <button type="submit" class="btn btn-primary rounded-3" form="updateMasinaForm">
+                                <i class="fa-solid fa-rotate me-1"></i>Actualizează mașina
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
 
 @push('page-scripts')
@@ -500,6 +553,25 @@
             });
 
             toggleEntryFields();
+
+            @if ($shouldShowCreateModal || $shouldShowEditModal)
+                if (typeof bootstrap !== 'undefined') {
+                    @if ($shouldShowCreateModal)
+                        var createMasinaModalEl = document.getElementById('createMasinaModal');
+                        if (createMasinaModalEl) {
+                            var createMasinaModal = new bootstrap.Modal(createMasinaModalEl);
+                            createMasinaModal.show();
+                        }
+                    @endif
+                    @if ($shouldShowEditModal)
+                        var editMasinaModalEl = document.getElementById('editMasinaModal');
+                        if (editMasinaModalEl) {
+                            var editMasinaModal = new bootstrap.Modal(editMasinaModalEl);
+                            editMasinaModal.show();
+                        }
+                    @endif
+                }
+            @endif
         });
     </script>
 @endpush
