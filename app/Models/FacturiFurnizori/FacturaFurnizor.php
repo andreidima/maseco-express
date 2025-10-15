@@ -2,7 +2,8 @@
 
 namespace App\Models\FacturiFurnizori;
 
-use App\Models\FacturiFurnizori\GestiunePiesa;
+use App\Models\FacturiFurnizori\FacturaFurnizorFisier;
+use App\Models\Service\GestiunePiesa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -11,7 +12,7 @@ class FacturaFurnizor extends Model
 {
     use HasFactory;
 
-    protected $table = 'ff_facturi';
+    protected $table = 'service_ff_facturi';
 
     protected $fillable = [
         'denumire_furnizor',
@@ -36,11 +37,16 @@ class FacturaFurnizor extends Model
      */
     public function calupuri()
     {
-        return $this->belongsToMany(PlataCalup::class, 'ff_facturi_plati', 'factura_id', 'calup_id')->withTimestamps();
+        return $this->belongsToMany(PlataCalup::class, 'service_ff_facturi_plati', 'factura_id', 'calup_id')->withTimestamps();
     }
 
     public function piese(): HasMany
     {
         return $this->hasMany(GestiunePiesa::class, 'factura_id');
+    }
+
+    public function fisiere(): HasMany
+    {
+        return $this->hasMany(FacturaFurnizorFisier::class, 'factura_id');
     }
 }

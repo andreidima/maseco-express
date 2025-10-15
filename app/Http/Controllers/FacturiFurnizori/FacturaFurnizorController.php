@@ -5,11 +5,15 @@ namespace App\Http\Controllers\FacturiFurnizori;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FacturiFurnizori\FacturaFurnizorRequest;
 use App\Models\FacturiFurnizori\FacturaFurnizor;
+use App\Models\FacturiFurnizori\FacturaFurnizorFisier;
 use App\Support\FacturiFurnizori\FacturiIndexFilterState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FacturaFurnizorController extends Controller
 {
@@ -93,6 +97,7 @@ class FacturaFurnizorController extends Controller
 
         $facturi = $query
             ->with('calupuri:id,denumire_calup,data_plata')
+            ->withCount('fisiere')
             ->orderByRaw('data_scadenta IS NULL')
             ->orderBy('data_scadenta')
             ->orderBy('denumire_furnizor')
@@ -152,6 +157,9 @@ class FacturaFurnizorController extends Controller
         $produse = $this->prepareProduse($payload);
         unset($payload['produse']);
 
+        $fisiereNoi = $this->normalizeUploadedFiles($request->file('fisiere_pdf'));
+        unset($payload['fisiere_pdf']);
+
         $factura = DB::transaction(function () use ($payload, $produse) {
             $factura = FacturaFurnizor::create($payload);
 
@@ -162,6 +170,10 @@ class FacturaFurnizorController extends Controller
             return $factura;
         });
 
+        if (!empty($fisiereNoi)) {
+            $this->adaugaFisiere($factura, $fisiereNoi);
+        }
+
         return $this->redirectToIndexWithFilters()
             ->with('status', 'Factura a fost adaugata cu succes.');
     }
@@ -171,7 +183,7 @@ class FacturaFurnizorController extends Controller
      */
     public function show(FacturaFurnizor $factura)
     {
-        $factura->load(['calupuri', 'piese']);
+        $factura->load(['calupuri', 'piese', 'fisiere']);
 
         return view('facturiFurnizori.facturi.show', [
             'factura' => $factura,
@@ -183,7 +195,7 @@ class FacturaFurnizorController extends Controller
      */
     public function edit(FacturaFurnizor $factura)
     {
-        $factura->loadMissing(['calupuri:id,denumire_calup', 'piese']);
+        $factura->loadMissing(['calupuri:id,denumire_calup', 'piese', 'fisiere']);
 
         return view('facturiFurnizori.facturi.save', [
             'factura' => $factura,
@@ -202,6 +214,9 @@ class FacturaFurnizorController extends Controller
         $produse = $this->prepareProduse($payload);
         unset($payload['produse']);
 
+        $fisiereNoi = $this->normalizeUploadedFiles($request->file('fisiere_pdf'));
+        unset($payload['fisiere_pdf']);
+
         DB::transaction(function () use ($factura, $payload, $produse) {
             $factura->update($payload);
 
@@ -211,6 +226,11 @@ class FacturaFurnizorController extends Controller
                 $factura->piese()->createMany($produse);
             }
         });
+
+        if (!empty($fisiereNoi)) {
+            $factura->refresh();
+            $this->adaugaFisiere($factura, $fisiereNoi);
+        }
 
         return $this->redirectToIndexWithFilters()
             ->with('status', 'Factura a fost actualizata cu succes.');
@@ -223,6 +243,14 @@ class FacturaFurnizorController extends Controller
     {
         if ($factura->calupuri()->exists()) {
             return back()->with('error', 'Factura atasata unui calup nu poate fi stearsa.');
+        }
+
+        $factura->loadMissing('fisiere');
+
+        foreach ($factura->fisiere as $fisier) {
+            if ($fisier->cale && Storage::exists($fisier->cale)) {
+                Storage::delete($fisier->cale);
+            }
         }
 
         $factura->delete();
@@ -271,6 +299,75 @@ class FacturaFurnizorController extends Controller
             ->all();
 
         return $produse;
+    }
+
+    /**
+     * @param array<int, UploadedFile>|UploadedFile|null $files
+     * @return array<int, UploadedFile>
+     */
+    private function normalizeUploadedFiles($files): array
+    {
+        if (empty($files)) {
+            return [];
+        }
+
+        if ($files instanceof UploadedFile) {
+            $files = [$files];
+        }
+
+        return array_values(array_filter($files, fn ($file) => $file instanceof UploadedFile));
+    }
+
+    /**
+     * @param array<int, UploadedFile> $files
+     */
+    private function adaugaFisiere(FacturaFurnizor $factura, array $files): void
+    {
+        foreach ($files as $file) {
+            $this->salveazaFisier($factura, $file);
+        }
+    }
+
+    private function salveazaFisier(FacturaFurnizor $factura, UploadedFile $file): FacturaFurnizorFisier
+    {
+        $folder = $this->folderPentruFactura($factura);
+        $filename = $this->genereazaNumeFisier($file, $folder);
+
+        Storage::makeDirectory($folder);
+        Storage::putFileAs($folder, $file, $filename);
+
+        return $factura->fisiere()->create([
+            'cale' => $folder . '/' . $filename,
+            'nume_original' => $file->getClientOriginalName() ?: $filename,
+        ]);
+    }
+
+    private function genereazaNumeFisier(UploadedFile $file, string $folder): string
+    {
+        $originalName = $file->getClientOriginalName() ?: 'factura';
+        $extension = strtolower($file->getClientOriginalExtension() ?: 'pdf');
+        $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+        $baseName = Str::slug(Str::ascii($baseName) ?: 'factura', '_');
+
+        if ($baseName === '') {
+            $baseName = 'factura';
+        }
+
+        $baseName = substr($baseName, 0, 120);
+        $filename = $baseName . '.' . $extension;
+        $counter = 1;
+
+        while (Storage::exists($folder . '/' . $filename)) {
+            $filename = $baseName . '_' . $counter . '.' . $extension;
+            $counter++;
+        }
+
+        return $filename;
+    }
+
+    private function folderPentruFactura(FacturaFurnizor $factura): string
+    {
+        return 'facturi-furnizori/facturi/' . $factura->id;
     }
 
     /**

@@ -6,34 +6,34 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class PlataCalupFisier extends Model
+class FacturaFurnizorFisier extends Model
 {
     use HasFactory;
 
-    protected $table = 'service_ff_plati_calupuri_fisiere';
+    protected $table = 'service_ff_facturi_fisiere';
 
     protected $fillable = [
-        'plata_calup_id',
+        'factura_id',
         'cale',
         'nume_original',
     ];
 
-    public function calup(): BelongsTo
+    public function factura(): BelongsTo
     {
-        return $this->belongsTo(PlataCalup::class, 'plata_calup_id');
+        return $this->belongsTo(FacturaFurnizor::class, 'factura_id');
     }
 
     public function extension(): ?string
     {
         $source = $this->nume_original ?: $this->cale;
 
-        if (!$source) {
+        if (! $source) {
             return null;
         }
 
         $extension = pathinfo($source, PATHINFO_EXTENSION);
 
-        if (!$extension) {
+        if (! $extension) {
             return null;
         }
 
@@ -44,14 +44,10 @@ class PlataCalupFisier extends Model
     {
         $extension = $this->extension();
 
-        if (!$extension) {
+        if (! $extension) {
             return false;
         }
 
-        return in_array($extension, [
-            'pdf',
-            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg',
-            'txt', 'csv',
-        ], true);
+        return in_array($extension, ['pdf'], true);
     }
 }
