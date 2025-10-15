@@ -3,10 +3,13 @@
 @php
     use Carbon\Carbon;
     use Illuminate\Support\Str;
-    use Throwable;
 
     $currentSort = request('sort');
     $currentDirection = strtolower(request('direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+    $denumire = $denumire ?? '';
+    $cod = $cod ?? '';
+    $dataFactura = $dataFactura ?? '';
+    $invoiceColumn = $invoiceColumn ?? null;
 @endphp
 
 @section('content')
@@ -19,42 +22,30 @@
             </div>
             <div class="col-lg-9">
                 <form class="needs-validation" novalidate method="GET" action="{{ route('gestiune-piese.index') }}">
-                    <div class="row mb-2 custom-search-form justify-content-center">
-                        <div class="col-lg-8">
-                            <input type="text" class="form-control rounded-3" id="search" name="search"
-                                placeholder="Căutare rapidă" value="{{ $search }}">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label small text-uppercase text-muted" for="denumire">
+                                Denumire
+                            </label>
+                            <input type="text" class="form-control rounded-3" id="denumire" name="denumire"
+                                placeholder="Caută după denumire" value="{{ $denumire }}">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small text-uppercase text-muted" for="cod">
+                                Cod
+                            </label>
+                            <input type="text" class="form-control rounded-3" id="cod" name="cod"
+                                placeholder="Caută după cod" value="{{ $cod }}">
+                        </div>
+        
+                        <div class="col-md-4">
+                            <label class="form-label small text-uppercase text-muted" for="data_factura">
+                                Data factură
+                            </label>
+                            <input type="text" class="form-control rounded-3" id="data_factura" name="data_factura"
+                                placeholder="Ex. 2024-03-15" value="{{ $dataFactura }}">
                         </div>
                     </div>
-
-                    @if (!empty($columns))
-                        <div class="text-end">
-                            <button class="btn btn-link text-decoration-none" type="button" data-bs-toggle="collapse"
-                                data-bs-target="#advancedFilters" aria-expanded="{{ request()->has('filters') ? 'true' : 'false' }}"
-                                aria-controls="advancedFilters">
-                                <i class="fa-solid fa-sliders me-1"></i>Filtre avansate
-                            </button>
-                        </div>
-                        <div class="collapse {{ request()->has('filters') ? 'show' : '' }}" id="advancedFilters">
-                            <div class="row g-3 mt-1">
-                                @foreach ($columns as $column)
-                                    @php
-                                        $label = $column === 'factura_data_factura'
-                                            ? 'Data factură'
-                                            : Str::of($column)->replace('_', ' ')->title();
-                                        $rawFilterValue = $filters[$column] ?? '';
-                                        $filterValue = is_array($rawFilterValue) ? implode(', ', $rawFilterValue) : $rawFilterValue;
-                                    @endphp
-                                    <div class="col-md-4">
-                                        <label class="form-label small text-uppercase text-muted" for="filter_{{ $column }}">
-                                            {{ $label }}
-                                        </label>
-                                        <input type="text" class="form-control form-control-sm rounded-3"
-                                            id="filter_{{ $column }}" name="filters[{{ $column }}]" value="{{ $filterValue }}">
-                                    </div>
-                                @endforeach
-                            </div>
-                        </div>
-                    @endif
 
                     <div class="row custom-search-form justify-content-center mt-3">
                         <button class="btn btn-sm btn-primary text-white col-md-4 me-3 border border-dark rounded-3"
@@ -91,6 +82,9 @@
                         <thead>
                             <tr>
                                 <th class="culoare2 text-white" style="min-width: 70px;">#</th>
+                                @if ($invoiceColumn)
+                                    <th class="culoare2 text-white" style="min-width: 130px;">Factură</th>
+                                @endif
                                 @foreach ($columns as $column)
                                     @php
                                         $label = $column === 'factura_data_factura'
@@ -104,7 +98,8 @@
                                         ]);
                                     @endphp
                                     <th class="culoare2 text-white">
-                                        <a class="text-white text-decoration-none" href="{{ route('gestiune-piese.index', $query) }}">
+                                        <a class="text-white text-decoration-none"
+                                            href="{{ route('gestiune-piese.index', $query) }}">
                                             {{ $label }}
                                             @if ($isSorted)
                                                 <i class="fa-solid fa-arrow-{{ $currentDirection === 'asc' ? 'up' : 'down' }} ms-1"></i>
@@ -120,6 +115,21 @@
                                     <td>
                                         {{ ($items->currentPage() - 1) * $items->perPage() + $loop->index + 1 }}
                                     </td>
+                                    @if ($invoiceColumn)
+                                        @php
+                                            $invoiceId = $row->{$invoiceColumn} ?? null;
+                                        @endphp
+                                        <td>
+                                            @if ($invoiceId !== null && $invoiceId !== '')
+                                                <a class="btn btn-sm btn-outline-primary border-0 rounded-3"
+                                                    href="{{ route('facturi-furnizori.facturi.show', $invoiceId) }}">
+                                                    <i class="fa-solid fa-file-invoice me-1"></i>Deschide
+                                                </a>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                    @endif
                                     @foreach ($columns as $column)
                                         @php
                                             $value = $row->{$column} ?? null;
@@ -127,7 +137,7 @@
                                             if ($column === 'factura_data_factura' && $value) {
                                                 try {
                                                     $value = Carbon::parse($value)->format('d.m.Y');
-                                                } catch (Throwable $exception) {
+                                                } catch (\Throwable $exception) {
                                                     // Leave the raw value if parsing fails
                                                 }
                                             }
@@ -139,7 +149,8 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ count($columns) + 1 }}" class="text-center text-muted py-4">
+                                    <td colspan="{{ count($columns) + 1 + ($invoiceColumn ? 1 : 0) }}"
+                                        class="text-center text-muted py-4">
                                         Nu există înregistrări care să corespundă filtrelor alese.
                                     </td>
                                 </tr>
