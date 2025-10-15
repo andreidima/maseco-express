@@ -164,18 +164,9 @@
                                     </a>
                                 </div>
                             </div>
-                            <div class="card-body">
-                                <p class="text-muted mb-0">
-                                    Utilizează butonul „Adaugă intervenție” pentru a crea o înregistrare nouă sau acțiunile din
-                                    tabel pentru a edita/șterge intervențiile existente.
-                                </p>
-                            </div>
                         </div>
 
                         <div class="card shadow-sm border-0">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fa-solid fa-clipboard-list me-1"></i>Istoric intervenții</h6>
-                            </div>
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover mb-0">
                                     <thead class="table-light">
