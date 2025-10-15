@@ -25,19 +25,17 @@
                     <div class="row gy-1 gx-4 mb-2 custom-search-form d-flex justify-content-center">
                         <div class="col-lg-4 col-md-6">
                             <div class="d-flex align-items-center gap-2">
-                                <i class="fa-solid fa-font text-muted" title="Caută după denumire"></i>
                                 <input type="text" class="form-control rounded-3 flex-grow-1" id="denumire" name="denumire"
                                     placeholder="Denumire" value="{{ $denumire }}" autocomplete="off">
                             </div>
                         </div>
                         <div class="col-lg-4 col-md-6">
                             <div class="d-flex align-items-center gap-2">
-                                <i class="fa-solid fa-barcode text-muted" title="Caută după cod"></i>
                                 <input type="text" class="form-control rounded-3 flex-grow-1" id="cod" name="cod"
                                     placeholder="Cod" value="{{ $cod }}" autocomplete="off">
                             </div>
                         </div>
-                        <div class="col-lg-4 col-md-6">
+                        <div class="col-lg-2 col-md-6">
                             <div class="d-flex align-items-center gap-2">
                                 <label for="data_factura" class="form-label small text-muted mb-0 flex-shrink-0 text-nowrap">
                                     Data factură
@@ -83,9 +81,6 @@
                         <thead>
                             <tr>
                                 <th class="culoare2 text-white" style="min-width: 70px;">#</th>
-                                @if ($invoiceColumn)
-                                    <th class="culoare2 text-white" style="min-width: 130px;">Factură</th>
-                                @endif
                                 @foreach ($columns as $column)
                                     @php
                                         $label = $column === 'factura_data_factura'
