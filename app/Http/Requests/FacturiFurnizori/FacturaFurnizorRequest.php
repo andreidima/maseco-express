@@ -37,6 +37,8 @@ class FacturaFurnizorRequest extends FormRequest
             'produse.*.cod' => ['nullable', 'string', 'max:100'],
             'produse.*.nr_bucati' => ['nullable', 'numeric'],
             'produse.*.pret' => ['nullable', 'numeric'],
+            'fisiere_pdf' => ['nullable', 'array'],
+            'fisiere_pdf.*' => ['file', 'mimes:pdf', 'max:10240'],
         ];
     }
 

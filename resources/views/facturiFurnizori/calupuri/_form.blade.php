@@ -35,7 +35,7 @@
         rows="3"
     >{{ old('observatii', $calup->observatii ?? '') }}</textarea>
 </div>
-<div class="mb-3">
+<div class="mb-3 d-none" aria-hidden="true">
     <label for="fisiere_pdf" class="mb-0 ps-2">Fișiere PDF</label>
     <input
         type="file"

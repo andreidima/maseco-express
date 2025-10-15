@@ -213,7 +213,7 @@
                     @php
                         $fisiereModalErrors = $errors->has('fisiere_pdf') || collect($errors->get('fisiere_pdf.*'))->flatten()->isNotEmpty();
                     @endphp
-                    <div class="mb-3">
+                    <div class="mb-3 d-none" aria-hidden="true">
                         <label for="fisiere_pdf_modal" class="mb-0 ps-2">Fișiere PDF</label>
                         <input
                             type="file"

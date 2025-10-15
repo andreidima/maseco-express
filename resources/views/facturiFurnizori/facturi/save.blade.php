@@ -40,6 +40,7 @@
                         novalidate
                         action="{{ $isEdit ? route('facturi-furnizori.facturi.update', $factura) : route('facturi-furnizori.facturi.store') }}"
                         method="POST"
+                        enctype="multipart/form-data"
                     >
                         @csrf
                         @if ($isEdit)
