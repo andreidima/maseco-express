@@ -5,6 +5,7 @@
     $factura ??= null;
     $isEdit = $factura?->exists;
     $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
+    $fisiereExistente = collect($factura?->fisiere ?? []);
 @endphp
 
 @section('content')
@@ -52,8 +53,51 @@
                             'buttonText' => $isEdit ? 'Actualizează factura' : 'Salvează factura',
                             'buttonClass' => $isEdit ? 'btn-primary' : 'btn-success',
                             'cancelUrl' => $facturiIndexUrl,
+                            'fisiereExistente' => $fisiereExistente,
                         ])
                     </form>
+
+                    @if ($isEdit && $fisiereExistente->isNotEmpty())
+                        <div class="border border-dark rounded-3 p-3 bg-white mt-4">
+                            <span class="text-uppercase text-muted small d-block mb-2">Fișiere existente</span>
+                            <ul class="list-group list-group-flush">
+                                @foreach ($fisiereExistente as $fisier)
+                                    <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                        <div class="me-2">
+                                            <i class="fa-solid fa-file-pdf text-danger me-2"></i>
+                                            {{ $fisier->nume_original ?: basename($fisier->cale) }}
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <a
+                                                class="btn btn-sm btn-outline-primary"
+                                                href="{{ route('facturi-furnizori.facturi.fisiere.vizualizeaza', [$factura, $fisier]) }}"
+                                                target="_blank"
+                                            >
+                                                <i class="fa-solid fa-eye me-1"></i>Vezi
+                                            </a>
+                                            <a
+                                                class="btn btn-sm btn-outline-secondary"
+                                                href="{{ route('facturi-furnizori.facturi.fisiere.descarca', [$factura, $fisier]) }}"
+                                            >
+                                                <i class="fa-solid fa-download me-1"></i>Descarcă
+                                            </a>
+                                            <form
+                                                action="{{ route('facturi-furnizori.facturi.fisiere.destroy', [$factura, $fisier]) }}"
+                                                method="POST"
+                                                class="d-inline"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                                    <i class="fa-solid fa-trash me-1"></i>Șterge
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

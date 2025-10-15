@@ -10,8 +10,15 @@
     $isEditingEntry = $editingEntry !== null;
     $formContext = old('form_context');
     $entryOldMatchesEditing = $isEditingEntry && $formContext === 'entry_update' && (int) old('entry_id') === optional($editingEntry)->id;
-    $useOldForEntry = $formContext === 'entry_store' || $entryOldMatchesEditing;
+    $createEntryOld = $formContext === 'entry_store';
+    $shouldShowCreateEntryModal = $createEntryOld && $errors->any();
+    $shouldShowEditEntryModal = $isEditingEntry && (!$errors->any() || $entryOldMatchesEditing);
     $createMasinaOld = $formContext === 'create_masina';
+    $createMasinaErrorFields = ['denumire', 'numar_inmatriculare', 'serie_sasiu', 'observatii'];
+    $shouldShowCreateModal = $createMasinaOld && collect($createMasinaErrorFields)->contains(fn ($field) => $errors->has($field));
+    $updateMasinaOld = $formContext === 'update_masina' && $selectedMasinaId && (int) old('masina_id') === $selectedMasinaId;
+    $updateMasinaErrorFields = $createMasinaErrorFields;
+    $shouldShowEditModal = $updateMasinaOld && collect($updateMasinaErrorFields)->contains(fn ($field) => $errors->has($field));
 @endphp
 
 @section('content')
@@ -87,20 +94,21 @@
             @endif
 
             <div class="row g-4">
-                <div class="col-lg-4">
+                <div class="col-lg-2">
                     <div class="card h-100 shadow-sm border-0">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <span class="fw-semibold"><i class="fa-solid fa-car-side me-1"></i>Mașini</span>
                         </div>
                         <div class="card-body">
-                            <div class="list-group mb-4" style="max-height: 320px; overflow-y: auto;">
+                            <div class="list-group mb-4" style="max-height: 450px; overflow-y: auto;">
                                 @forelse ($masini as $masina)
                                     @php
                                         $masinaQuery = $queryParams;
                                         $masinaQuery['masina_id'] = $masina->id;
                                     @endphp
                                     <a href="{{ route('service-masini.index', $masinaQuery) }}"
-                                        class="list-group-item list-group-item-action rounded-3 mb-2 {{ $selectedMasinaId === $masina->id ? 'active text-white' : '' }}">
+                                        class="list-group-item list-group-item-action rounded-3 mb-2 {{ $selectedMasinaId === $masina->id ? 'active text-white' : '' }}"
+                                        style="padding-top: 0.35rem; padding-bottom: 0.35rem;">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <div class="fw-semibold">{{ $masina->denumire }}</div>
@@ -118,124 +126,26 @@
                                 @endforelse
                             </div>
 
-                            <h6 class="fw-semibold mb-3"><i class="fa-solid fa-plus-circle me-1"></i>Adaugă mașină</h6>
-                            <form method="POST" action="{{ route('service-masini.store-masina') }}" class="row g-2">
-                                @csrf
-                                <input type="hidden" name="form_context" value="create_masina">
-                                <div class="col-12">
-                                    <label for="denumire" class="form-label small text-muted mb-1">Denumire mașină <span class="text-danger">*</span></label>
-                                    <input type="text" name="denumire" id="denumire" class="form-control rounded-3"
-                                        value="{{ $createMasinaOld ? old('denumire') : '' }}" required>
-                                    @if ($createMasinaOld && $errors->has('denumire'))
-                                        <div class="text-danger small mt-1">{{ $errors->first('denumire') }}</div>
-                                    @endif
-                                </div>
-                                <div class="col-12">
-                                    <label for="numar_inmatriculare_form" class="form-label small text-muted mb-1">Nr.
-                                        înmatriculare <span class="text-danger">*</span></label>
-                                    <input type="text" name="numar_inmatriculare" id="numar_inmatriculare_form"
-                                        class="form-control rounded-3" value="{{ $createMasinaOld ? old('numar_inmatriculare') : '' }}" required>
-                                    @if ($createMasinaOld && $errors->has('numar_inmatriculare'))
-                                        <div class="text-danger small mt-1">{{ $errors->first('numar_inmatriculare') }}</div>
-                                    @endif
-                                </div>
-                                <div class="col-12">
-                                    <label for="serie_sasiu" class="form-label small text-muted mb-1">Serie șasiu</label>
-                                    <input type="text" name="serie_sasiu" id="serie_sasiu" class="form-control rounded-3"
-                                        value="{{ $createMasinaOld ? old('serie_sasiu') : '' }}">
-                                    @if ($createMasinaOld && $errors->has('serie_sasiu'))
-                                        <div class="text-danger small mt-1">{{ $errors->first('serie_sasiu') }}</div>
-                                    @endif
-                                </div>
-                                <div class="col-12">
-                                    <label for="observatii" class="form-label small text-muted mb-1">Observații</label>
-                                    <textarea name="observatii" id="observatii" rows="2" class="form-control rounded-3">{{ $createMasinaOld ? old('observatii') : '' }}</textarea>
-                                    @if ($createMasinaOld && $errors->has('observatii'))
-                                        <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
-                                    @endif
-                                </div>
-                                <div class="col-12 d-grid">
-                                    <button type="submit" class="btn btn-sm btn-success rounded-3">
-                                        <i class="fa-solid fa-save me-1"></i>Salvează mașina
-                                    </button>
-                                </div>
-                            </form>
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-sm btn-success rounded-3" data-bs-toggle="modal"
+                                    data-bs-target="#createMasinaModal">
+                                    <i class="fa-solid fa-plus-circle me-1"></i>Adaugă mașină
+                                </button>
+                            </div>
 
                             @if ($selectedMasina)
-                                @php
-                                    $updateMasinaOld = $formContext === 'update_masina' && (int) old('masina_id') === $selectedMasinaId;
-                                @endphp
-                                <hr class="my-4">
-                                <h6 class="fw-semibold mb-3"><i class="fa-solid fa-pen-to-square me-1"></i>Editează mașina selectată</h6>
-                                <form method="POST" action="{{ route('service-masini.update-masina', $selectedMasina) }}" class="row g-2">
-                                    @csrf
-                                    @method('PUT')
-                                    <input type="hidden" name="form_context" value="update_masina">
-                                    <input type="hidden" name="masina_id" value="{{ $selectedMasinaId }}">
-                                    <div class="col-12">
-                                        <label for="denumire_edit" class="form-label small text-muted mb-1">Denumire mașină <span class="text-danger">*</span></label>
-                                        <input type="text" name="denumire" id="denumire_edit" class="form-control rounded-3"
-                                            value="{{ $updateMasinaOld ? old('denumire') : $selectedMasina->denumire }}" required>
-                                        @if ($updateMasinaOld && $errors->has('denumire'))
-                                            <div class="text-danger small mt-1">{{ $errors->first('denumire') }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="numar_inmatriculare_edit" class="form-label small text-muted mb-1">Nr. înmatriculare <span class="text-danger">*</span></label>
-                                        <input type="text" name="numar_inmatriculare" id="numar_inmatriculare_edit"
-                                            class="form-control rounded-3"
-                                            value="{{ $updateMasinaOld ? old('numar_inmatriculare') : $selectedMasina->numar_inmatriculare }}"
-                                            required>
-                                        @if ($updateMasinaOld && $errors->has('numar_inmatriculare'))
-                                            <div class="text-danger small mt-1">{{ $errors->first('numar_inmatriculare') }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="serie_sasiu_edit" class="form-label small text-muted mb-1">Serie șasiu</label>
-                                        <input type="text" name="serie_sasiu" id="serie_sasiu_edit" class="form-control rounded-3"
-                                            value="{{ $updateMasinaOld ? old('serie_sasiu') : $selectedMasina->serie_sasiu }}">
-                                        @if ($updateMasinaOld && $errors->has('serie_sasiu'))
-                                            <div class="text-danger small mt-1">{{ $errors->first('serie_sasiu') }}</div>
-                                        @endif
-                                    </div>
-                                    <div class="col-12">
-                                        <label for="observatii_edit" class="form-label small text-muted mb-1">Observații</label>
-                                        <textarea name="observatii" id="observatii_edit" rows="2" class="form-control rounded-3">{{ $updateMasinaOld ? old('observatii') : $selectedMasina->observatii }}</textarea>
-                                        @if ($updateMasinaOld && $errors->has('observatii'))
-                                            <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
-                                        @endif
-                                    </div>
-                                    @foreach ($filters as $key => $value)
-                                        @if ($value !== null && $value !== '')
-                                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                        @endif
-                                    @endforeach
-                                    <div class="col-12 d-grid">
-                                        <button type="submit" class="btn btn-sm btn-primary rounded-3">
-                                            <i class="fa-solid fa-rotate me-1"></i>Actualizează mașina
-                                        </button>
-                                    </div>
-                                </form>
-
-                                <form method="POST" action="{{ route('service-masini.destroy-masina', $selectedMasina) }}" class="mt-3"
-                                    onsubmit="return confirm('Ești sigur că vrei să ștergi această mașină și intervențiile asociate?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    @foreach ($filters as $key => $value)
-                                        @if ($value !== null && $value !== '')
-                                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                        @endif
-                                    @endforeach
-                                    <button type="submit" class="btn btn-sm btn-outline-danger w-100 rounded-3">
-                                        <i class="fa-solid fa-trash-can me-1"></i>Șterge mașina
+                                <div class="d-grid gap-2 mt-3">
+                                    <button type="button" class="btn btn-sm btn-primary rounded-3" data-bs-toggle="modal"
+                                        data-bs-target="#editMasinaModal">
+                                        <i class="fa-solid fa-pen-to-square me-1"></i>Editează mașina selectată
                                     </button>
-                                </form>
+                                </div>
                             @endif
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-8">
+                <div class="col-lg-10">
                     @if ($selectedMasina)
                         <div class="card shadow-sm border-0 mb-4">
                             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
@@ -243,153 +153,20 @@
                                     <h5 class="mb-0">{{ $selectedMasina->denumire }}</h5>
                                     <small class="text-muted">Nr. înmatriculare: {{ $selectedMasina->numar_inmatriculare }}</small>
                                 </div>
-                                <a class="btn btn-outline-primary btn-sm rounded-3"
-                                    href="{{ route('service-masini.export', $queryParams + ['masina_id' => $selectedMasina->id]) }}">
-                                    <i class="fa-solid fa-file-pdf me-1"></i>Descarcă PDF
-                                </a>
-                            </div>
-                            <div class="card-body">
-                                @php
-                                    $entryFormAction = $isEditingEntry
-                                        ? route('service-masini.entries.update', [$selectedMasina, $editingEntry])
-                                        : route('service-masini.entries.store', $selectedMasina);
-                                    $defaultTip = $isEditingEntry ? $editingEntry->tip : 'piesa';
-                                    $defaultCantitate = $isEditingEntry && $editingEntry->cantitate !== null
-                                        ? number_format((float) $editingEntry->cantitate, 2, '.', '')
-                                        : '1';
-                                @endphp
-                                <form method="POST" action="{{ $entryFormAction }}" class="row g-3" id="service-entry-form">
-                                    @csrf
-                                    @if ($isEditingEntry)
-                                        @method('PUT')
-                                    @endif
-                                    @foreach ($filters as $key => $value)
-                                        @if ($value !== null && $value !== '')
-                                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                        @endif
-                                    @endforeach
-                                    <input type="hidden" name="form_context" value="{{ $isEditingEntry ? 'entry_update' : 'entry_store' }}">
-                                    @if ($isEditingEntry)
-                                        <input type="hidden" name="entry_id" value="{{ $editingEntry->id }}">
-                                    @endif
-
-                                    <div class="col-12">
-                                        <label class="form-label small text-muted mb-1">Tip intervenție <span class="text-danger">*</span></label>
-                                        <div class="d-flex gap-3">
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="tip" id="tip_piesa"
-                                                    value="piesa"
-                                                    {{ ($useOldForEntry ? old('tip', $defaultTip) : $defaultTip) === 'piesa' ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="tip_piesa">
-                                                    Alocare piesă din gestiune
-                                                </label>
-                                            </div>
-                                            <div class="form-check">
-                                                <input class="form-check-input" type="radio" name="tip" id="tip_manual"
-                                                    value="manual"
-                                                    {{ ($useOldForEntry ? old('tip', $defaultTip) : $defaultTip) === 'manual' ? 'checked' : '' }}>
-                                                <label class="form-check-label" for="tip_manual">
-                                                    Intervenție manuală
-                                                </label>
-                                            </div>
-                                        </div>
-                                        @error('tip')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6" data-entry="piesa">
-                                        <label for="gestiune_piesa_id" class="form-label small text-muted mb-1">Piesă <span class="text-danger">*</span>
-                                            <small class="text-muted">(pentru alocări din gestiune)</small>
-                                        </label>
-                                        @php
-                                            $selectedPiece = $useOldForEntry ? (int) old('gestiune_piesa_id') : ($isEditingEntry ? (int) $editingEntry->gestiune_piesa_id : null);
-                                        @endphp
-                                        <select name="gestiune_piesa_id" id="gestiune_piesa_id"
-                                            class="form-select rounded-3">
-                                            <option value="">Selectează piesa</option>
-                                            @foreach ($availablePieces as $piesa)
-                                                <option value="{{ $piesa->id }}" @selected($selectedPiece === $piesa->id)>
-                                                    {{ $piesa->denumire }} ({{ $piesa->cod }}) - {{ number_format((float) $piesa->nr_bucati, 2) }} buc
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('gestiune_piesa_id')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-3" data-entry="piesa">
-                                        <label for="cantitate" class="form-label small text-muted mb-1">Cantitate <span class="text-danger">*</span>
-                                            <small class="text-muted">(pentru alocări din gestiune)</small>
-                                        </label>
-                                        <input type="number" step="0.01" min="0" class="form-control rounded-3"
-                                            id="cantitate" name="cantitate"
-                                            value="{{ $useOldForEntry ? old('cantitate') : $defaultCantitate }}">
-                                        @error('cantitate')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6" data-entry="manual">
-                                        <label for="denumire_interventie" class="form-label small text-muted mb-1">Denumire
-                                            intervenție <span class="text-danger">*</span>
-                                            <small class="text-muted">(pentru intervenții manuale)</small>
-                                        </label>
-                                        <input type="text" class="form-control rounded-3" id="denumire_interventie"
-                                            name="denumire_interventie"
-                                            value="{{ $useOldForEntry ? old('denumire_interventie') : ($isEditingEntry ? $editingEntry->denumire_interventie : '') }}">
-                                        @error('denumire_interventie')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label for="data_montaj" class="form-label small text-muted mb-1">Data intervenției <span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control rounded-3" id="data_montaj" name="data_montaj"
-                                            value="{{ $useOldForEntry ? old('data_montaj') : ($isEditingEntry ? optional($editingEntry->data_montaj)->toDateString() : now()->toDateString()) }}"
-                                            required>
-                                        @error('data_montaj')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <label for="nume_mecanic" class="form-label small text-muted mb-1">Nume mecanic <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control rounded-3" id="nume_mecanic" name="nume_mecanic"
-                                            value="{{ $useOldForEntry ? old('nume_mecanic') : ($isEditingEntry ? $editingEntry->nume_mecanic : '') }}" required>
-                                        @error('nume_mecanic')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12">
-                                        <label for="observatii_interventie" class="form-label small text-muted mb-1">Observații</label>
-                                        <textarea name="observatii" id="observatii_interventie" rows="3" class="form-control rounded-3">{{ $useOldForEntry ? old('observatii') : ($isEditingEntry ? $editingEntry->observatii : '') }}</textarea>
-                                        @error('observatii')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-
-                                    <div class="col-12 d-flex justify-content-end gap-2">
-                                        @if ($isEditingEntry)
-                                            <a class="btn btn-outline-secondary rounded-3"
-                                                href="{{ route('service-masini.index', $queryParams + ['masina_id' => $selectedMasina->id]) }}">
-                                                Renunță
-                                            </a>
-                                        @endif
-                                        <button type="submit" class="btn btn-primary rounded-3">
-                                            <i class="fa-solid fa-paper-plane me-1"></i>{{ $isEditingEntry ? 'Actualizează intervenția' : 'Salvează intervenția' }}
-                                        </button>
-                                    </div>
-                                </form>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <button type="button" class="btn btn-success btn-sm rounded-3"
+                                        data-bs-toggle="modal" data-bs-target="#createEntryModal">
+                                        <i class="fa-solid fa-plus-circle me-1"></i>Adaugă intervenție
+                                    </button>
+                                    <a class="btn btn-outline-primary btn-sm rounded-3"
+                                        href="{{ route('service-masini.export', $queryParams + ['masina_id' => $selectedMasina->id]) }}">
+                                        <i class="fa-solid fa-file-pdf me-1"></i>Descarcă PDF
+                                    </a>
+                                </div>
                             </div>
                         </div>
 
                         <div class="card shadow-sm border-0">
-                            <div class="card-header">
-                                <h6 class="mb-0"><i class="fa-solid fa-clipboard-list me-1"></i>Istoric intervenții</h6>
-                            </div>
                             <div class="table-responsive">
                                 <table class="table table-striped table-hover mb-0">
                                     <thead class="table-light">
@@ -401,7 +178,7 @@
                                             <th style="min-width: 90px;">Cantitate</th>
                                             <th style="min-width: 150px;">Mecanic</th>
                                             <th style="min-width: 150px;">Utilizator</th>
-                                            <th>Observații</th>
+                                            <th>Obs</th>
                                             <th class="text-end" style="min-width: 140px;">Acțiuni</th>
                                         </tr>
                                     </thead>
@@ -433,7 +210,17 @@
                                                 </td>
                                                 <td>{{ $entry->nume_mecanic ?? '—' }}</td>
                                                 <td>{{ $entry->nume_utilizator ?? optional($entry->user)->name ?? '—' }}</td>
-                                                <td class="text-wrap" style="max-width: 220px;">{{ $entry->observatii ?? '—' }}</td>
+                                                <td class="text-center">
+                                                    @if ($entry->observatii)
+                                                        <button type="button" class="btn btn-link p-0 text-decoration-none"
+                                                            data-bs-toggle="tooltip" data-bs-trigger="hover focus"
+                                                            title="{{ $entry->observatii }}" aria-label="Vizualizează observațiile">
+                                                            <i class="fa-solid fa-circle-info"></i>
+                                                        </button>
+                                                    @else
+                                                        —
+                                                    @endif
+                                                </td>
                                                 <td class="text-end">
                                                     <div class="d-flex justify-content-end gap-2">
                                                         <a class="btn btn-outline-primary btn-sm"
@@ -478,28 +265,510 @@
             </div>
         </div>
     </div>
+    @if ($selectedMasina)
+        @php
+            $createEntryTip = $createEntryOld ? old('tip', 'piesa') : 'piesa';
+            $createEntrySelectedPiece = $createEntryOld ? (int) old('gestiune_piesa_id') : null;
+            $createEntryCantitate = $createEntryOld ? old('cantitate', '1') : '1';
+            $createEntryDate = $createEntryOld ? old('data_montaj', now()->toDateString()) : now()->toDateString();
+            $createEntryMechanic = $createEntryOld ? old('nume_mecanic') : '';
+            $createEntryObservatii = $createEntryOld ? old('observatii') : '';
+            $createEntryDenumire = $createEntryOld ? old('denumire_interventie') : '';
+        @endphp
+        <div class="modal fade" id="createEntryModal" tabindex="-1" aria-labelledby="createEntryModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                <form id="create-entry-form" method="POST"
+                    action="{{ route('service-masini.entries.store', $selectedMasina) }}" class="modal-content">
+                    @csrf
+                    @foreach ($filters as $key => $value)
+                        @if ($value !== null && $value !== '')
+                            <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                        @endif
+                    @endforeach
+                    <input type="hidden" name="form_context" value="entry_store">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="createEntryModalLabel">
+                            <i class="fa-solid fa-plus-circle me-1"></i>Adaugă intervenție
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label small text-muted mb-1">Tip intervenție <span class="text-danger">*</span></label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tip" id="tip_piesa_create"
+                                        value="piesa" {{ $createEntryTip === 'piesa' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="tip_piesa_create">
+                                        Alocare piesă din gestiune
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="tip" id="tip_manual_create"
+                                        value="manual" {{ $createEntryTip === 'manual' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="tip_manual_create">
+                                        Intervenție manuală
+                                    </label>
+                                </div>
+                            </div>
+                            @if ($createEntryOld && $errors->has('tip'))
+                                <div class="text-danger small mt-1">{{ $errors->first('tip') }}</div>
+                            @endif
+                        </div>
+
+                        <div class="row g-3">
+                            <div class="col-lg-6" data-entry="piesa">
+                                <label for="gestiune_piesa_id_create" class="form-label small text-muted mb-1">Piesă
+                                    <span class="text-danger">*</span>
+                                    <small class="text-muted">(pentru alocări din gestiune)</small>
+                                </label>
+                                <select name="gestiune_piesa_id" id="gestiune_piesa_id_create"
+                                    class="form-select rounded-3">
+                                    <option value="">Selectează piesa</option>
+                                    @foreach ($availablePieces as $piesa)
+                                        <option value="{{ $piesa->id }}" @selected($createEntrySelectedPiece === $piesa->id)>
+                                            {{ $piesa->denumire }} ({{ $piesa->cod }}) -
+                                            {{ number_format((float) $piesa->nr_bucati, 2) }} buc
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @if ($createEntryOld && $errors->has('gestiune_piesa_id'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('gestiune_piesa_id') }}</div>
+                                @endif
+                            </div>
+
+                            <div class="col-lg-6" data-entry="piesa">
+                                <label for="cantitate_create" class="form-label small text-muted mb-1">Cantitate
+                                    <span class="text-danger">*</span>
+                                    <small class="text-muted">(pentru alocări din gestiune)</small>
+                                </label>
+                                <input type="number" step="0.01" min="0" class="form-control rounded-3"
+                                    id="cantitate_create" name="cantitate" value="{{ $createEntryCantitate }}">
+                                @if ($createEntryOld && $errors->has('cantitate'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('cantitate') }}</div>
+                                @endif
+                            </div>
+
+                            <div class="col-lg-6" data-entry="manual">
+                                <label for="denumire_interventie_create" class="form-label small text-muted mb-1">Denumire
+                                    intervenție <span class="text-danger">*</span>
+                                    <small class="text-muted">(pentru intervenții manuale)</small>
+                                </label>
+                                <input type="text" class="form-control rounded-3" id="denumire_interventie_create"
+                                    name="denumire_interventie" value="{{ $createEntryDenumire }}">
+                                @if ($createEntryOld && $errors->has('denumire_interventie'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('denumire_interventie') }}</div>
+                                @endif
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label for="data_montaj_create" class="form-label small text-muted mb-1">Data intervenției
+                                    <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control rounded-3" id="data_montaj_create" name="data_montaj"
+                                    value="{{ $createEntryDate }}">
+                                @if ($createEntryOld && $errors->has('data_montaj'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('data_montaj') }}</div>
+                                @endif
+                            </div>
+
+                            <div class="col-lg-6">
+                                <label for="nume_mecanic_create" class="form-label small text-muted mb-1">Nume mecanic
+                                    <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control rounded-3" id="nume_mecanic_create"
+                                    name="nume_mecanic" value="{{ $createEntryMechanic }}">
+                                @if ($createEntryOld && $errors->has('nume_mecanic'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('nume_mecanic') }}</div>
+                                @endif
+                            </div>
+
+                            <div class="col-12">
+                                <label for="observatii_create_entry" class="form-label small text-muted mb-1">Observații</label>
+                                <textarea name="observatii" id="observatii_create_entry" rows="3" class="form-control rounded-3">{{ $createEntryObservatii }}</textarea>
+                                @if ($createEntryOld && $errors->has('observatii'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Închide</button>
+                        <button type="submit" class="btn btn-primary rounded-3">
+                            <i class="fa-solid fa-paper-plane me-1"></i>Salvează intervenția
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        @if ($isEditingEntry)
+            @php
+                $editEntryTip = $entryOldMatchesEditing ? old('tip', $editingEntry->tip ?? 'piesa') : ($editingEntry->tip ?? 'piesa');
+                $editEntrySelectedPiece = $entryOldMatchesEditing
+                    ? (int) old('gestiune_piesa_id', optional($editingEntry)->gestiune_piesa_id)
+                    : optional($editingEntry)->gestiune_piesa_id;
+                $editEntryCantitateDefault = $editingEntry && $editingEntry->cantitate !== null
+                    ? number_format((float) $editingEntry->cantitate, 2, '.', '')
+                    : '1';
+                $editEntryCantitate = $entryOldMatchesEditing ? old('cantitate', $editEntryCantitateDefault) : $editEntryCantitateDefault;
+                $editEntryDenumire = $entryOldMatchesEditing
+                    ? old('denumire_interventie', $editingEntry->denumire_interventie)
+                    : $editingEntry->denumire_interventie;
+                $editEntryDateDefault = optional($editingEntry->data_montaj)->toDateString() ?? now()->toDateString();
+                $editEntryDate = $entryOldMatchesEditing ? old('data_montaj', $editEntryDateDefault) : $editEntryDateDefault;
+                $editEntryMechanic = $entryOldMatchesEditing ? old('nume_mecanic', $editingEntry->nume_mecanic) : $editingEntry->nume_mecanic;
+                $editEntryObservatii = $entryOldMatchesEditing ? old('observatii', $editingEntry->observatii) : $editingEntry->observatii;
+            @endphp
+            <div class="modal fade" id="editEntryModal" tabindex="-1" aria-labelledby="editEntryModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <form id="edit-entry-form" method="POST"
+                        action="{{ route('service-masini.entries.update', [$selectedMasina, $editingEntry]) }}"
+                        class="modal-content">
+                        @csrf
+                        @method('PUT')
+                        @foreach ($filters as $key => $value)
+                            @if ($value !== null && $value !== '')
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endif
+                        @endforeach
+                        <input type="hidden" name="form_context" value="entry_update">
+                        <input type="hidden" name="entry_id" value="{{ $editingEntry->id }}">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="editEntryModalLabel">
+                                <i class="fa-solid fa-pen-to-square me-1"></i>Editează intervenția selectată
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label small text-muted mb-1">Tip intervenție <span class="text-danger">*</span></label>
+                                <div class="d-flex gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tip" id="tip_piesa_edit"
+                                            value="piesa" {{ $editEntryTip === 'piesa' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="tip_piesa_edit">
+                                            Alocare piesă din gestiune
+                                        </label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="tip" id="tip_manual_edit"
+                                            value="manual" {{ $editEntryTip === 'manual' ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="tip_manual_edit">
+                                            Intervenție manuală
+                                        </label>
+                                    </div>
+                                </div>
+                                @if ($entryOldMatchesEditing && $errors->has('tip'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('tip') }}</div>
+                                @endif
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-lg-6" data-entry="piesa">
+                                    <label for="gestiune_piesa_id_edit" class="form-label small text-muted mb-1">Piesă
+                                        <span class="text-danger">*</span>
+                                        <small class="text-muted">(pentru alocări din gestiune)</small>
+                                    </label>
+                                    <select name="gestiune_piesa_id" id="gestiune_piesa_id_edit"
+                                        class="form-select rounded-3">
+                                        <option value="">Selectează piesa</option>
+                                        @foreach ($availablePieces as $piesa)
+                                            <option value="{{ $piesa->id }}" @selected($editEntrySelectedPiece === $piesa->id)>
+                                                {{ $piesa->denumire }} ({{ $piesa->cod }}) -
+                                                {{ number_format((float) $piesa->nr_bucati, 2) }} buc
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @if ($entryOldMatchesEditing && $errors->has('gestiune_piesa_id'))
+                                        <div class="text-danger small mt-1">{{ $errors->first('gestiune_piesa_id') }}</div>
+                                    @endif
+                                </div>
+
+                                <div class="col-lg-6" data-entry="piesa">
+                                    <label for="cantitate_edit" class="form-label small text-muted mb-1">Cantitate
+                                        <span class="text-danger">*</span>
+                                        <small class="text-muted">(pentru alocări din gestiune)</small>
+                                    </label>
+                                    <input type="number" step="0.01" min="0" class="form-control rounded-3"
+                                        id="cantitate_edit" name="cantitate" value="{{ $editEntryCantitate }}">
+                                    @if ($entryOldMatchesEditing && $errors->has('cantitate'))
+                                        <div class="text-danger small mt-1">{{ $errors->first('cantitate') }}</div>
+                                    @endif
+                                </div>
+
+                                <div class="col-lg-6" data-entry="manual">
+                                    <label for="denumire_interventie_edit" class="form-label small text-muted mb-1">Denumire
+                                        intervenție <span class="text-danger">*</span>
+                                        <small class="text-muted">(pentru intervenții manuale)</small>
+                                    </label>
+                                    <input type="text" class="form-control rounded-3" id="denumire_interventie_edit"
+                                        name="denumire_interventie" value="{{ $editEntryDenumire }}">
+                                    @if ($entryOldMatchesEditing && $errors->has('denumire_interventie'))
+                                        <div class="text-danger small mt-1">{{ $errors->first('denumire_interventie') }}</div>
+                                    @endif
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <label for="data_montaj_edit" class="form-label small text-muted mb-1">Data intervenției
+                                        <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control rounded-3" id="data_montaj_edit" name="data_montaj"
+                                        value="{{ $editEntryDate }}">
+                                    @if ($entryOldMatchesEditing && $errors->has('data_montaj'))
+                                        <div class="text-danger small mt-1">{{ $errors->first('data_montaj') }}</div>
+                                    @endif
+                                </div>
+
+                                <div class="col-lg-6">
+                                    <label for="nume_mecanic_edit" class="form-label small text-muted mb-1">Nume mecanic
+                                        <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control rounded-3" id="nume_mecanic_edit" name="nume_mecanic"
+                                        value="{{ $editEntryMechanic }}">
+                                    @if ($entryOldMatchesEditing && $errors->has('nume_mecanic'))
+                                        <div class="text-danger small mt-1">{{ $errors->first('nume_mecanic') }}</div>
+                                    @endif
+                                </div>
+
+                                <div class="col-12">
+                                    <label for="observatii_edit_entry" class="form-label small text-muted mb-1">Observații</label>
+                                    <textarea name="observatii" id="observatii_edit_entry" rows="3" class="form-control rounded-3">{{ $editEntryObservatii }}</textarea>
+                                    @if ($entryOldMatchesEditing && $errors->has('observatii'))
+                                        <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer flex-wrap gap-2">
+                            <a class="btn btn-outline-secondary rounded-3"
+                                href="{{ route('service-masini.index', $queryParams + ['masina_id' => $selectedMasina->id]) }}">
+                                Renunță
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-3">
+                                <i class="fa-solid fa-rotate me-1"></i>Actualizează intervenția
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        @endif
+    @endif
+
+    <div class="modal fade" id="createMasinaModal" tabindex="-1" aria-labelledby="createMasinaModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <form method="POST" action="{{ route('service-masini.store-masina') }}" class="modal-content">
+                @csrf
+                <input type="hidden" name="form_context" value="create_masina">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createMasinaModalLabel">
+                        <i class="fa-solid fa-plus-circle me-1"></i>Adaugă mașină
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="denumire_create" class="form-label small text-muted mb-1">Denumire mașină
+                            <span class="text-danger">*</span></label>
+                        <input type="text" name="denumire" id="denumire_create" class="form-control rounded-3"
+                            value="{{ $createMasinaOld ? old('denumire') : '' }}" required>
+                        @if ($createMasinaOld && $errors->has('denumire'))
+                            <div class="text-danger small mt-1">{{ $errors->first('denumire') }}</div>
+                        @endif
+                    </div>
+                    <div class="mb-3">
+                        <label for="numar_inmatriculare_create" class="form-label small text-muted mb-1">Nr.
+                            înmatriculare <span class="text-danger">*</span></label>
+                        <input type="text" name="numar_inmatriculare" id="numar_inmatriculare_create"
+                            class="form-control rounded-3"
+                            value="{{ $createMasinaOld ? old('numar_inmatriculare') : '' }}" required>
+                        @if ($createMasinaOld && $errors->has('numar_inmatriculare'))
+                            <div class="text-danger small mt-1">{{ $errors->first('numar_inmatriculare') }}</div>
+                        @endif
+                    </div>
+                    <div class="mb-3">
+                        <label for="serie_sasiu_create" class="form-label small text-muted mb-1">Serie șasiu</label>
+                        <input type="text" name="serie_sasiu" id="serie_sasiu_create" class="form-control rounded-3"
+                            value="{{ $createMasinaOld ? old('serie_sasiu') : '' }}">
+                        @if ($createMasinaOld && $errors->has('serie_sasiu'))
+                            <div class="text-danger small mt-1">{{ $errors->first('serie_sasiu') }}</div>
+                        @endif
+                    </div>
+                    <div class="mb-0">
+                        <label for="observatii_create" class="form-label small text-muted mb-1">Observații</label>
+                        <textarea name="observatii" id="observatii_create" rows="2" class="form-control rounded-3">{{ $createMasinaOld ? old('observatii') : '' }}</textarea>
+                        @if ($createMasinaOld && $errors->has('observatii'))
+                            <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
+                        @endif
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">Închide</button>
+                    <button type="submit" class="btn btn-success rounded-3">
+                        <i class="fa-solid fa-save me-1"></i>Salvează mașina
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if ($selectedMasina)
+        <div class="modal fade" id="editMasinaModal" tabindex="-1" aria-labelledby="editMasinaModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editMasinaModalLabel">
+                            <i class="fa-solid fa-pen-to-square me-1"></i>Editează mașina selectată
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <form id="updateMasinaForm" method="POST"
+                        action="{{ route('service-masini.update-masina', $selectedMasina) }}">
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="form_context" value="update_masina">
+                        <input type="hidden" name="masina_id" value="{{ $selectedMasinaId }}">
+                        @foreach ($filters as $key => $value)
+                            @if ($value !== null && $value !== '')
+                                <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                            @endif
+                        @endforeach
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label for="denumire_edit" class="form-label small text-muted mb-1">Denumire mașină
+                                    <span class="text-danger">*</span></label>
+                                <input type="text" name="denumire" id="denumire_edit" class="form-control rounded-3"
+                                    value="{{ $updateMasinaOld ? old('denumire') : $selectedMasina->denumire }}" required>
+                                @if ($updateMasinaOld && $errors->has('denumire'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('denumire') }}</div>
+                                @endif
+                            </div>
+                            <div class="mb-3">
+                                <label for="numar_inmatriculare_edit" class="form-label small text-muted mb-1">Nr.
+                                    înmatriculare <span class="text-danger">*</span></label>
+                                <input type="text" name="numar_inmatriculare" id="numar_inmatriculare_edit"
+                                    class="form-control rounded-3"
+                                    value="{{ $updateMasinaOld ? old('numar_inmatriculare') : $selectedMasina->numar_inmatriculare }}"
+                                    required>
+                                @if ($updateMasinaOld && $errors->has('numar_inmatriculare'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('numar_inmatriculare') }}</div>
+                                @endif
+                            </div>
+                            <div class="mb-3">
+                                <label for="serie_sasiu_edit" class="form-label small text-muted mb-1">Serie șasiu</label>
+                                <input type="text" name="serie_sasiu" id="serie_sasiu_edit" class="form-control rounded-3"
+                                    value="{{ $updateMasinaOld ? old('serie_sasiu') : $selectedMasina->serie_sasiu }}">
+                                @if ($updateMasinaOld && $errors->has('serie_sasiu'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('serie_sasiu') }}</div>
+                                @endif
+                            </div>
+                            <div class="mb-0">
+                                <label for="observatii_edit" class="form-label small text-muted mb-1">Observații</label>
+                                <textarea name="observatii" id="observatii_edit" rows="2" class="form-control rounded-3">{{ $updateMasinaOld ? old('observatii') : $selectedMasina->observatii }}</textarea>
+                                @if ($updateMasinaOld && $errors->has('observatii'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('observatii') }}</div>
+                                @endif
+                            </div>
+                        </div>
+                    </form>
+                    <div class="modal-footer flex-wrap gap-2">
+                        <form method="POST" action="{{ route('service-masini.destroy-masina', $selectedMasina) }}"
+                            class="me-auto"
+                            onsubmit="return confirm('Ești sigur că vrei să ștergi această mașină și intervențiile asociate?');">
+                            @csrf
+                            @method('DELETE')
+                            @foreach ($filters as $key => $value)
+                                @if ($value !== null && $value !== '')
+                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                @endif
+                            @endforeach
+                            <button type="submit" class="btn btn-outline-danger btn-sm rounded-3">
+                                <i class="fa-solid fa-trash-can me-1"></i>Șterge mașina
+                            </button>
+                        </form>
+                        <div class="ms-auto d-flex gap-2">
+                            <button type="button" class="btn btn-outline-secondary rounded-3" data-bs-dismiss="modal">
+                                Renunță
+                            </button>
+                            <button type="submit" class="btn btn-primary rounded-3" form="updateMasinaForm">
+                                <i class="fa-solid fa-rotate me-1"></i>Actualizează mașina
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
 @endsection
 
 @push('page-scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            function toggleEntryFields() {
-                const selectedType = document.querySelector('input[name="tip"]:checked')?.value || 'piesa';
+            function setupEntryForm(formId) {
+                var form = document.getElementById(formId);
+                if (!form) {
+                    return;
+                }
 
-                document.querySelectorAll('#service-entry-form [data-entry="piesa"]').forEach(function (element) {
-                    element.classList.toggle('d-none', selectedType !== 'piesa');
+                function toggleFields() {
+                    var selectedType = form.querySelector('input[name="tip"]:checked')?.value || 'piesa';
+
+                    form.querySelectorAll('[data-entry="piesa"]').forEach(function (element) {
+                        element.classList.toggle('d-none', selectedType !== 'piesa');
+                    });
+
+                    form.querySelectorAll('[data-entry="manual"]').forEach(function (element) {
+                        element.classList.toggle('d-none', selectedType !== 'manual');
+                    });
+                }
+
+                form.querySelectorAll('input[name="tip"]').forEach(function (radio) {
+                    radio.addEventListener('change', toggleFields);
                 });
 
-                document.querySelectorAll('#service-entry-form [data-entry="manual"]').forEach(function (element) {
-                    element.classList.toggle('d-none', selectedType !== 'manual');
-                });
+                toggleFields();
             }
 
-            document.querySelectorAll('input[name="tip"]').forEach(function (radio) {
-                radio.addEventListener('change', toggleEntryFields);
-            });
+            setupEntryForm('create-entry-form');
+            setupEntryForm('edit-entry-form');
 
-            toggleEntryFields();
+            if (typeof bootstrap !== 'undefined') {
+                document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (element) {
+                    new bootstrap.Tooltip(element);
+                });
+
+                @if ($shouldShowCreateModal)
+                    var createMasinaModalEl = document.getElementById('createMasinaModal');
+                    if (createMasinaModalEl) {
+                        var createMasinaModal = new bootstrap.Modal(createMasinaModalEl);
+                        createMasinaModal.show();
+                    }
+                @endif
+
+                @if ($shouldShowEditModal)
+                    var editMasinaModalEl = document.getElementById('editMasinaModal');
+                    if (editMasinaModalEl) {
+                        var editMasinaModal = new bootstrap.Modal(editMasinaModalEl);
+                        editMasinaModal.show();
+                    }
+                @endif
+
+                @if ($shouldShowCreateEntryModal)
+                    var createEntryModalEl = document.getElementById('createEntryModal');
+                    if (createEntryModalEl) {
+                        var createEntryModal = new bootstrap.Modal(createEntryModalEl);
+                        createEntryModal.show();
+                    }
+                @endif
+
+                @if ($shouldShowEditEntryModal)
+                    var editEntryModalEl = document.getElementById('editEntryModal');
+                    if (editEntryModalEl) {
+                        var editEntryModal = new bootstrap.Modal(editEntryModalEl);
+                        editEntryModal.show();
+                    }
+                @endif
+            }
         });
     </script>
 @endpush
