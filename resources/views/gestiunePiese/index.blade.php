@@ -3,7 +3,6 @@
 @php
     use Carbon\Carbon;
     use Illuminate\Support\Str;
-    use Throwable;
 
     $currentSort = request('sort');
     $currentDirection = strtolower(request('direction', 'desc')) === 'asc' ? 'asc' : 'desc';
@@ -127,7 +126,7 @@
                                             if ($column === 'factura_data_factura' && $value) {
                                                 try {
                                                     $value = Carbon::parse($value)->format('d.m.Y');
-                                                } catch (Throwable $exception) {
+                                                } catch (\Throwable $exception) {
                                                     // Leave the raw value if parsing fails
                                                 }
                                             }
