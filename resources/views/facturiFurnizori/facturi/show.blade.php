@@ -78,6 +78,39 @@
                 @endif
             </div>
 
+            <div class="border border-dark rounded-3 p-3 bg-white mb-3" id="factura-fisiere">
+                <h6 class="text-uppercase text-muted mb-3">Fișiere atașate</h6>
+                @if ($factura->fisiere->isEmpty())
+                    <p class="text-muted mb-0">Factura nu are fișiere atașate.</p>
+                @else
+                    <ul class="list-group list-group-flush">
+                        @foreach ($factura->fisiere as $fisier)
+                            <li class="list-group-item px-0 d-flex justify-content-between align-items-center">
+                                <div class="me-2">
+                                    <i class="fa-solid fa-file-pdf text-danger me-2"></i>
+                                    {{ $fisier->nume_original ?: basename($fisier->cale) }}
+                                </div>
+                                <div class="d-flex align-items-center gap-2">
+                                    <a
+                                        class="btn btn-sm btn-outline-primary"
+                                        href="{{ route('facturi-furnizori.facturi.fisiere.vizualizeaza', [$factura, $fisier]) }}"
+                                        target="_blank"
+                                    >
+                                        <i class="fa-solid fa-eye me-1"></i>Vezi
+                                    </a>
+                                    <a
+                                        class="btn btn-sm btn-outline-secondary"
+                                        href="{{ route('facturi-furnizori.facturi.fisiere.descarca', [$factura, $fisier]) }}"
+                                    >
+                                        <i class="fa-solid fa-download me-1"></i>Descarcă
+                                    </a>
+                                </div>
+                            </li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+
             <div class="border border-dark rounded-3 p-3 bg-white">
                 <h6 class="text-uppercase text-muted mb-3">Calupuri asociate</h6>
                 @if ($factura->calupuri->isEmpty())

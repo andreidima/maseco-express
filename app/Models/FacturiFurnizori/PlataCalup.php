@@ -11,7 +11,7 @@ class PlataCalup extends Model
 {
     use HasFactory;
 
-    protected $table = 'ff_plati_calupuri';
+    protected $table = 'service_ff_plati_calupuri';
 
     protected $fillable = [
         'denumire_calup',
@@ -28,7 +28,7 @@ class PlataCalup extends Model
      */
     public function facturi(): BelongsToMany
     {
-        return $this->belongsToMany(FacturaFurnizor::class, 'ff_facturi_plati', 'calup_id', 'factura_id')->withTimestamps();
+        return $this->belongsToMany(FacturaFurnizor::class, 'service_ff_facturi_plati', 'calup_id', 'factura_id')->withTimestamps();
     }
 
     public function fisiere(): HasMany

@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Feature\Service;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -18,6 +18,6 @@ class GestiunePieseTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Gestiune piese');
-        $response->assertSee('gestiune_piese nu sunt disponibile');
+        $response->assertSee('service_gestiune_piese nu sunt disponibile');
     }
 }
