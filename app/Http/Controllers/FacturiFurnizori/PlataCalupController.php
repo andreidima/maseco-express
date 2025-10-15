@@ -148,7 +148,7 @@ class PlataCalupController extends Controller
         }
 
         if (is_array($facturi)) {
-            $idsCurente = $plataCalup->facturi()->pluck('ff_facturi.id')->toArray();
+            $idsCurente = $plataCalup->facturi()->pluck('service_ff_facturi.id')->toArray();
             $deLegat = array_diff($facturi, $idsCurente);
             $deDezlegat = array_diff($idsCurente, $facturi);
 

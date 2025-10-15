@@ -259,6 +259,11 @@
                                         <i class="fa-solid fa-boxes-stacked me-1"></i>Gestiune piese
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('service-masini.index') }}">
+                                        <i class="fa-solid fa-screwdriver-wrench me-1"></i>Service mașini
+                                    </a>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('mesaje-trimise-sms.index') }}">

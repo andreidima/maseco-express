@@ -31,8 +31,10 @@ use App\Http\Controllers\DocumentWordController;
 use App\Http\Controllers\KeyPerformanceIndicatorController;
 use App\Http\Controllers\OfertaCursaController;
 use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorController;
+use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorFisierController;
 use App\Http\Controllers\FacturiFurnizori\PlataCalupController;
-use App\Http\Controllers\GestiunePieseController;
+use App\Http\Controllers\Service\GestiunePieseController;
+use App\Http\Controllers\Service\ServiceMasiniController;
 use App\Http\Controllers\Tech\ImpersonationController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\SeederCenterController;
@@ -169,6 +171,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/gestiune-piese', [GestiunePieseController::class, 'index'])
         ->name('gestiune-piese.index');
 
+    Route::get('/service-masini', [ServiceMasiniController::class, 'index'])
+        ->name('service-masini.index');
+    Route::post('/service-masini', [ServiceMasiniController::class, 'storeMasina'])
+        ->name('service-masini.store-masina');
+    Route::post('/service-masini/{masina}/entries', [ServiceMasiniController::class, 'storeEntry'])
+        ->name('service-masini.entries.store');
+    Route::get('/service-masini/export/pdf', [ServiceMasiniController::class, 'export'])
+        ->name('service-masini.export');
+
 
     Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);
     Route::get('/rapoarte/documente-transportatori', [RaportController::class, 'documenteTransportatori']);
@@ -213,6 +224,15 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::resource('facturi', FacturaFurnizorController::class)
                 ->parameters(['facturi' => 'factura']);
+
+            Route::get('facturi/{factura}/fisiere/{fisier}/vizualizeaza', [FacturaFurnizorFisierController::class, 'vizualizeaza'])
+                ->name('facturi.fisiere.vizualizeaza');
+
+            Route::get('facturi/{factura}/fisiere/{fisier}/descarca', [FacturaFurnizorFisierController::class, 'descarca'])
+                ->name('facturi.fisiere.descarca');
+
+            Route::delete('facturi/{factura}/fisiere/{fisier}', [FacturaFurnizorFisierController::class, 'destroy'])
+                ->name('facturi.fisiere.destroy');
 
             Route::resource('plati-calupuri', PlataCalupController::class)
                 ->parameters(['plati-calupuri' => 'plataCalup']);
