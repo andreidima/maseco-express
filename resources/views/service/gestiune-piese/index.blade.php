@@ -67,7 +67,7 @@
 
             @if (! $hasTable)
                 <div class="alert alert-warning mx-3" role="alert">
-                    Datele din <code>gestiune_piese</code> nu sunt disponibile în acest mediu.
+                    Datele din <code>service_gestiune_piese</code> nu sunt disponibile în acest mediu.
                 </div>
             @endif
 
