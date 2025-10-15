@@ -48,6 +48,36 @@
                 </div>
             </div>
 
+            <div class="border border-dark rounded-3 p-3 bg-white mb-3">
+                <h6 class="text-uppercase text-muted mb-3">Produse</h6>
+                @if ($factura->piese->isEmpty())
+                    <p class="text-muted mb-0">Factura nu are produse asociate.</p>
+                @else
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover table-bordered border-dark align-middle mb-0">
+                            <thead class="text-white rounded culoare2">
+                                <tr>
+                                    <th>Denumire</th>
+                                    <th>Cod</th>
+                                    <th class="text-end">Cantitate</th>
+                                    <th class="text-end">Preț</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($factura->piese as $piesa)
+                                    <tr>
+                                        <td>{{ $piesa->denumire }}</td>
+                                        <td>{{ $piesa->cod ?: '-' }}</td>
+                                        <td class="text-end">{{ $piesa->nr_bucati !== null ? number_format($piesa->nr_bucati, 2) : '-' }}</td>
+                                        <td class="text-end">{{ $piesa->pret !== null ? number_format($piesa->pret, 2) : '-' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+
             <div class="border border-dark rounded-3 p-3 bg-white">
                 <h6 class="text-uppercase text-muted mb-3">Calupuri asociate</h6>
                 @if ($factura->calupuri->isEmpty())

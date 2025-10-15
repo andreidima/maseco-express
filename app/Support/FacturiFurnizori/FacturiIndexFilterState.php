@@ -15,7 +15,9 @@ class FacturiIndexFilterState
 
     public static function extractQuery(Request $request): array
     {
-        return $request->query();
+        return collect($request->query())
+            ->except(['page', 'cursor'])
+            ->toArray();
     }
 
     public static function get(): array

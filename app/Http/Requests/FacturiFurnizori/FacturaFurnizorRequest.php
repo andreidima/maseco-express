@@ -3,6 +3,7 @@
 namespace App\Http\Requests\FacturiFurnizori;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Validator;
 
 class FacturaFurnizorRequest extends FormRequest
 {
@@ -31,7 +32,65 @@ class FacturaFurnizorRequest extends FormRequest
             'cont_iban' => ['nullable', 'string', 'max:255'],
             'departament_vehicul' => ['nullable', 'string', 'max:150'],
             'observatii' => ['nullable', 'string'],
+            'produse' => ['nullable', 'array'],
+            'produse.*.denumire' => ['nullable', 'string', 'max:255'],
+            'produse.*.cod' => ['nullable', 'string', 'max:100'],
+            'produse.*.nr_bucati' => ['nullable', 'numeric'],
+            'produse.*.pret' => ['nullable', 'numeric'],
         ];
+    }
+
+    protected function prepareForValidation(): void
+    {
+        if (!$this->has('produse')) {
+            return;
+        }
+
+        $produse = collect($this->input('produse', []))
+            ->map(function ($row) {
+                $denumire = isset($row['denumire']) ? trim((string) $row['denumire']) : null;
+                $cod = isset($row['cod']) ? trim((string) $row['cod']) : null;
+                $nrBucati = array_key_exists('nr_bucati', $row) && $row['nr_bucati'] !== ''
+                    ? $row['nr_bucati']
+                    : null;
+                $pret = array_key_exists('pret', $row) && $row['pret'] !== ''
+                    ? $row['pret']
+                    : null;
+
+                return [
+                    'denumire' => $denumire,
+                    'cod' => $cod,
+                    'nr_bucati' => $nrBucati,
+                    'pret' => $pret,
+                ];
+            })
+            ->toArray();
+
+        $this->merge([
+            'produse' => $produse,
+        ]);
+    }
+
+    public function withValidator(Validator $validator): void
+    {
+        $validator->after(function ($innerValidator) {
+            $produse = $this->input('produse', []);
+
+            foreach ($produse as $index => $produs) {
+                $denumire = trim((string) ($produs['denumire'] ?? ''));
+                $cod = trim((string) ($produs['cod'] ?? ''));
+                $nrBucati = $produs['nr_bucati'] ?? null;
+                $pret = $produs['pret'] ?? null;
+
+                $hasOtherData = $cod !== ''
+                    || ($nrBucati !== null && $nrBucati !== '')
+                    || ($pret !== null && $pret !== '');
+
+                if ($hasOtherData && $denumire === '') {
+                    $innerValidator->errors()->add("produse.$index.denumire", 'Denumirea produsului este obligatorie.');
+                }
+            }
+        });
     }
 
     /**
@@ -47,6 +106,9 @@ class FacturaFurnizorRequest extends FormRequest
             'suma.required' => 'Suma este obligatorie.',
             'suma.numeric' => 'Suma trebuie sa fie un numar.',
             'moneda.size' => 'Moneda trebuie sa contina exact 3 caractere.',
+            'produse.array' => 'Lista de produse trebuie sa fie un format valid.',
+            'produse.*.nr_bucati.numeric' => 'Cantitatea produsului trebuie sa fie un numar.',
+            'produse.*.pret.numeric' => 'Pretul produsului trebuie sa fie un numar.',
         ];
     }
 
@@ -65,6 +127,11 @@ class FacturaFurnizorRequest extends FormRequest
             'cont_iban' => 'cont IBAN',
             'departament_vehicul' => 'departament / numar auto',
             'observatii' => 'observatii',
+            'produse' => 'produse',
+            'produse.*.denumire' => 'denumire produs',
+            'produse.*.cod' => 'cod produs',
+            'produse.*.nr_bucati' => 'cantitate produs',
+            'produse.*.pret' => 'pret produs',
         ];
     }
 }

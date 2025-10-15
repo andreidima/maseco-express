@@ -9,6 +9,7 @@ use App\Support\FacturiFurnizori\FacturiIndexFilterState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 
 class FacturaFurnizorController extends Controller
 {
@@ -148,7 +149,18 @@ class FacturaFurnizorController extends Controller
         $payload['moneda'] = strtoupper($payload['moneda']);
         $payload['cont_iban'] = $this->normalizeContIban($payload['cont_iban'] ?? null);
 
-        $factura = FacturaFurnizor::create($payload);
+        $produse = $this->prepareProduse($payload);
+        unset($payload['produse']);
+
+        $factura = DB::transaction(function () use ($payload, $produse) {
+            $factura = FacturaFurnizor::create($payload);
+
+            if (!empty($produse)) {
+                $factura->piese()->createMany($produse);
+            }
+
+            return $factura;
+        });
 
         return $this->redirectToIndexWithFilters()
             ->with('status', 'Factura a fost adaugata cu succes.');
@@ -159,7 +171,7 @@ class FacturaFurnizorController extends Controller
      */
     public function show(FacturaFurnizor $factura)
     {
-        $factura->load('calupuri');
+        $factura->load(['calupuri', 'piese']);
 
         return view('facturiFurnizori.facturi.show', [
             'factura' => $factura,
@@ -171,7 +183,7 @@ class FacturaFurnizorController extends Controller
      */
     public function edit(FacturaFurnizor $factura)
     {
-        $factura->loadMissing('calupuri:id,denumire_calup');
+        $factura->loadMissing(['calupuri:id,denumire_calup', 'piese']);
 
         return view('facturiFurnizori.facturi.save', [
             'factura' => $factura,
@@ -187,7 +199,18 @@ class FacturaFurnizorController extends Controller
         $payload['moneda'] = strtoupper($payload['moneda']);
         $payload['cont_iban'] = $this->normalizeContIban($payload['cont_iban'] ?? null);
 
-        $factura->update($payload);
+        $produse = $this->prepareProduse($payload);
+        unset($payload['produse']);
+
+        DB::transaction(function () use ($factura, $payload, $produse) {
+            $factura->update($payload);
+
+            $factura->piese()->delete();
+
+            if (!empty($produse)) {
+                $factura->piese()->createMany($produse);
+            }
+        });
 
         return $this->redirectToIndexWithFilters()
             ->with('status', 'Factura a fost actualizata cu succes.');
@@ -213,6 +236,41 @@ class FacturaFurnizorController extends Controller
         $filters = FacturiIndexFilterState::get();
 
         return redirect()->route('facturi-furnizori.facturi.index', $filters);
+    }
+
+    protected function prepareProduse(array $payload): array
+    {
+        $produse = collect($payload['produse'] ?? [])
+            ->map(function ($row) {
+                $denumire = isset($row['denumire']) ? trim((string) $row['denumire']) : '';
+                $cod = isset($row['cod']) ? trim((string) $row['cod']) : '';
+                $nrBucati = isset($row['nr_bucati']) && $row['nr_bucati'] !== ''
+                    ? round((float) $row['nr_bucati'], 2)
+                    : null;
+                $pret = isset($row['pret']) && $row['pret'] !== ''
+                    ? round((float) $row['pret'], 2)
+                    : null;
+
+                if ($denumire === '' && $cod === '' && $nrBucati === null && $pret === null) {
+                    return null;
+                }
+
+                if ($denumire === '') {
+                    return null;
+                }
+
+                return [
+                    'denumire' => $denumire,
+                    'cod' => $cod !== '' ? $cod : null,
+                    'nr_bucati' => $nrBucati,
+                    'pret' => $pret,
+                ];
+            })
+            ->filter()
+            ->values()
+            ->all();
+
+        return $produse;
     }
 
     /**

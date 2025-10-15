@@ -3,6 +3,23 @@
     $buttonText ??= __('Salvează factura');
     $buttonClass ??= 'btn-primary';
     $cancelUrl ??= \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
+    $produseColectie = collect(old('produse', $factura?->piese?->map(function ($piesa) {
+        return [
+            'denumire' => $piesa->denumire,
+            'cod' => $piesa->cod,
+            'nr_bucati' => $piesa->nr_bucati,
+            'pret' => $piesa->pret,
+        ];
+    })->toArray() ?? []));
+    if ($produseColectie->isEmpty()) {
+        $produseColectie = collect([[
+            'denumire' => '',
+            'cod' => '',
+            'nr_bucati' => '',
+            'pret' => '',
+        ]]);
+    }
+    $produse = $produseColectie->values()->toArray();
 @endphp
 
 <div class="row">
@@ -157,6 +174,144 @@
     </div>
 </div>
 
+<div class="row mb-4">
+    <div class="col-lg-12">
+        <div class="border border-dark rounded-3 p-3 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="text-uppercase text-muted mb-0">Produse</h6>
+                <button type="button" class="btn btn-sm btn-success text-white" data-add-produs>
+                    <i class="fa-solid fa-plus me-1"></i>Adaugă produs
+                </button>
+            </div>
+
+            @error('produse')
+                <div class="alert alert-danger py-2">{{ $message }}</div>
+            @enderror
+
+            <div class="table-responsive">
+                <table class="table table-sm table-bordered align-middle mb-0" id="produse-table">
+                    <thead class="text-white rounded culoare2">
+                        <tr>
+                            <th style="min-width: 220px;">Denumire</th>
+                            <th style="min-width: 140px;">Cod</th>
+                            <th style="min-width: 120px;">Cantitate</th>
+                            <th style="min-width: 120px;">Preț</th>
+                            <th style="width: 70px;" class="text-center">Acțiuni</th>
+                        </tr>
+                    </thead>
+                    <tbody id="produse-table-body">
+                        @foreach ($produse as $index => $produs)
+                            <tr data-index="{{ $index }}">
+                                <td>
+                                    <input
+                                        type="text"
+                                        name="produse[{{ $index }}][denumire]"
+                                        class="form-control form-control-sm {{ $errors->has('produse.' . $index . '.denumire') ? 'is-invalid' : '' }}"
+                                        value="{{ $produs['denumire'] }}"
+                                        placeholder="Ex: Filtru ulei"
+                                    >
+                                    @error('produse.' . $index . '.denumire')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <input
+                                        type="text"
+                                        name="produse[{{ $index }}][cod]"
+                                        class="form-control form-control-sm {{ $errors->has('produse.' . $index . '.cod') ? 'is-invalid' : '' }}"
+                                        value="{{ $produs['cod'] }}"
+                                        placeholder="Ex: COD123"
+                                    >
+                                    @error('produse.' . $index . '.cod')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        name="produse[{{ $index }}][nr_bucati]"
+                                        class="form-control form-control-sm {{ $errors->has('produse.' . $index . '.nr_bucati') ? 'is-invalid' : '' }}"
+                                        value="{{ $produs['nr_bucati'] }}"
+                                        placeholder="0"
+                                    >
+                                    @error('produse.' . $index . '.nr_bucati')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        name="produse[{{ $index }}][pret]"
+                                        class="form-control form-control-sm {{ $errors->has('produse.' . $index . '.pret') ? 'is-invalid' : '' }}"
+                                        value="{{ $produs['pret'] }}"
+                                        placeholder="0.00"
+                                    >
+                                    @error('produse.' . $index . '.pret')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </td>
+                                <td class="text-center">
+                                    <button type="button" class="btn btn-outline-danger btn-sm" data-remove-produs>
+                                        <i class="fa-solid fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+
+            <template id="template-produs-row">
+                <tr data-index="__INDEX__">
+                    <td>
+                        <input
+                            type="text"
+                            name="produse[__INDEX__][denumire]"
+                            class="form-control form-control-sm"
+                            placeholder="Ex: Filtru ulei"
+                        >
+                    </td>
+                    <td>
+                        <input
+                            type="text"
+                            name="produse[__INDEX__][cod]"
+                            class="form-control form-control-sm"
+                            placeholder="Ex: COD123"
+                        >
+                    </td>
+                    <td>
+                        <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            name="produse[__INDEX__][nr_bucati]"
+                            class="form-control form-control-sm"
+                            placeholder="0"
+                        >
+                    </td>
+                    <td>
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="produse[__INDEX__][pret]"
+                            class="form-control form-control-sm"
+                            placeholder="0.00"
+                        >
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-outline-danger btn-sm" data-remove-produs>
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            </template>
+        </div>
+    </div>
+</div>
+
 <div class="row mb-0 px-3">
     <div class="col-lg-12 mb-2 d-flex justify-content-center">
         <button type="submit" class="btn btn-lg {{ $buttonClass }} text-white me-3 rounded-3">
@@ -167,3 +322,48 @@
         </a>
     </div>
 </div>
+
+@push('page-scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const produseTableBody = document.getElementById('produse-table-body');
+            const addButton = document.querySelector('[data-add-produs]');
+            const template = document.getElementById('template-produs-row');
+
+            if (!produseTableBody || !addButton || !template) {
+                return;
+            }
+
+            const getNextIndex = () => {
+                const indexes = Array.from(produseTableBody.querySelectorAll('tr[data-index]'))
+                    .map((row) => Number.parseInt(row.getAttribute('data-index') ?? '0', 10));
+
+                if (indexes.length === 0) {
+                    return 0;
+                }
+
+                return Math.max(...indexes) + 1;
+            };
+
+            addButton.addEventListener('click', () => {
+                const newIndex = getNextIndex();
+                const html = template.innerHTML.replace(/__INDEX__/g, String(newIndex));
+                produseTableBody.insertAdjacentHTML('beforeend', html);
+            });
+
+            produseTableBody.addEventListener('click', (event) => {
+                const trigger = event.target.closest('[data-remove-produs]');
+
+                if (!trigger) {
+                    return;
+                }
+
+                const row = trigger.closest('tr');
+
+                if (row) {
+                    row.remove();
+                }
+            });
+        });
+    </script>
+@endpush
