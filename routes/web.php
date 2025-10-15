@@ -175,8 +175,16 @@ Route::group(['middleware' => 'auth'], function () {
         ->name('service-masini.index');
     Route::post('/service-masini', [ServiceMasiniController::class, 'storeMasina'])
         ->name('service-masini.store-masina');
+    Route::put('/service-masini/{masina}', [ServiceMasiniController::class, 'updateMasina'])
+        ->name('service-masini.update-masina');
+    Route::delete('/service-masini/{masina}', [ServiceMasiniController::class, 'destroyMasina'])
+        ->name('service-masini.destroy-masina');
     Route::post('/service-masini/{masina}/entries', [ServiceMasiniController::class, 'storeEntry'])
         ->name('service-masini.entries.store');
+    Route::put('/service-masini/{masina}/entries/{entry}', [ServiceMasiniController::class, 'updateEntry'])
+        ->name('service-masini.entries.update');
+    Route::delete('/service-masini/{masina}/entries/{entry}', [ServiceMasiniController::class, 'destroyEntry'])
+        ->name('service-masini.entries.destroy');
     Route::get('/service-masini/export/pdf', [ServiceMasiniController::class, 'export'])
         ->name('service-masini.export');
 

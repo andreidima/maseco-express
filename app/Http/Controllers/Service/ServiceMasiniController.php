@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Service;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Service\StoreMasinaRequest;
 use App\Http\Requests\Service\StoreMasinaServiceEntryRequest;
+use App\Http\Requests\Service\UpdateMasinaRequest;
+use App\Http\Requests\Service\UpdateMasinaServiceEntryRequest;
 use App\Models\Service\GestiunePiesa;
 use App\Models\Service\Masina;
 use App\Models\Service\MasinaServiceEntry;
@@ -34,6 +36,7 @@ class ServiceMasiniController extends Controller
 
         $masini = $this->getMasiniList($filters['numar_inmatriculare']);
         $selectedMasina = $this->resolveSelectedMasina($masini, $filters['masina_id']);
+        $editingEntry = $this->resolveEditingEntry($selectedMasina, (int) $request->query('entry_id'));
 
         $entries = $selectedMasina
             ? $this->getServiceEntries($selectedMasina->id, $filters)
@@ -44,7 +47,8 @@ class ServiceMasiniController extends Controller
             'selectedMasina' => $selectedMasina,
             'entries' => $entries,
             'filters' => $filters,
-            'availablePieces' => $this->getAvailablePieces(),
+            'availablePieces' => $this->getAvailablePieces($editingEntry),
+            'editingEntry' => $editingEntry,
         ]);
     }
 
@@ -117,6 +121,160 @@ class ServiceMasiniController extends Controller
         return redirect()
             ->route('service-masini.index', ['masina_id' => $masina->id] + $filters)
             ->with('status', 'Intervenția a fost salvată.');
+    }
+
+    public function updateMasina(UpdateMasinaRequest $request, Masina $masina): RedirectResponse
+    {
+        $masina->update($request->validated());
+
+        return redirect()
+            ->route('service-masini.index', ['masina_id' => $masina->id])
+            ->with('status', 'Mașina a fost actualizată.');
+    }
+
+    public function destroyMasina(Request $request, Masina $masina): RedirectResponse
+    {
+        $filters = $this->extractFilterState($request);
+
+        try {
+            DB::transaction(function () use ($masina): void {
+                $masina->serviceEntries()
+                    ->where('tip', 'piesa')
+                    ->chunkById(100, function ($entries): void {
+                        foreach ($entries as $entry) {
+                            if ($entry->gestiune_piesa_id && $entry->cantitate) {
+                                GestiunePiesa::query()
+                                    ->whereKey($entry->gestiune_piesa_id)
+                                    ->increment('nr_bucati', (float) $entry->cantitate);
+                            }
+                        }
+                    });
+
+                $masina->delete();
+            });
+        } catch (Throwable $exception) {
+            Log::error('Unable to delete masina', [
+                'exception' => $exception,
+                'masina_id' => $masina->id,
+            ]);
+
+            return redirect()
+                ->route('service-masini.index', ['masina_id' => $masina->id] + $filters)
+                ->withErrors(['general' => 'Nu am putut șterge mașina. Încearcă din nou.']);
+        }
+
+        return redirect()
+            ->route('service-masini.index', $filters)
+            ->with('status', 'Mașina a fost ștearsă.');
+    }
+
+    public function updateEntry(UpdateMasinaServiceEntryRequest $request, Masina $masina, MasinaServiceEntry $entry): RedirectResponse
+    {
+        $filters = $this->extractFilterState($request);
+
+        if ($entry->masina_id !== $masina->id) {
+            abort(404);
+        }
+
+        try {
+            DB::transaction(function () use ($request, $entry): void {
+                if ($entry->tip === 'piesa' && $entry->gestiune_piesa_id && $entry->cantitate) {
+                    GestiunePiesa::query()
+                        ->whereKey($entry->gestiune_piesa_id)
+                        ->increment('nr_bucati', (float) $entry->cantitate);
+                }
+
+                $data = $request->validated();
+
+                $entry->tip = $data['tip'];
+                $entry->data_montaj = $data['data_montaj'];
+                $entry->nume_mecanic = $data['nume_mecanic'];
+                $entry->observatii = $data['observatii'] ?? null;
+
+                if ($data['tip'] === 'piesa') {
+                    $piesa = $request->piece() ?: GestiunePiesa::query()->find($data['gestiune_piesa_id']);
+
+                    if (! $piesa) {
+                        throw new \RuntimeException('Piesa selectată nu a fost găsită.');
+                    }
+
+                    $cantitate = (float) $data['cantitate'];
+
+                    $entry->gestiune_piesa_id = $piesa->id;
+                    $entry->denumire_piesa = $piesa->denumire;
+                    $entry->cod_piesa = $piesa->cod;
+                    $entry->denumire_interventie = null;
+                    $entry->cantitate = $cantitate;
+
+                    $updated = GestiunePiesa::query()
+                        ->whereKey($piesa->id)
+                        ->where('nr_bucati', '>=', $cantitate)
+                        ->decrement('nr_bucati', $cantitate);
+
+                    if ($updated === 0) {
+                        throw new \RuntimeException('Stocul piesei s-a modificat între timp.');
+                    }
+                } else {
+                    $entry->gestiune_piesa_id = null;
+                    $entry->denumire_piesa = null;
+                    $entry->cod_piesa = null;
+                    $entry->cantitate = null;
+                    $entry->denumire_interventie = $data['denumire_interventie'];
+                }
+
+                $entry->save();
+            });
+        } catch (Throwable $exception) {
+            Log::error('Unable to update service entry', [
+                'exception' => $exception,
+                'entry_id' => $entry->id,
+                'masina_id' => $masina->id,
+            ]);
+
+            return redirect()
+                ->route('service-masini.index', ['masina_id' => $masina->id] + $filters + ['entry_id' => $entry->id])
+                ->withErrors(['general' => 'Nu am putut actualiza intervenția. Încearcă din nou.'])
+                ->withInput();
+        }
+
+        return redirect()
+            ->route('service-masini.index', ['masina_id' => $masina->id] + $filters)
+            ->with('status', 'Intervenția a fost actualizată.');
+    }
+
+    public function destroyEntry(Request $request, Masina $masina, MasinaServiceEntry $entry): RedirectResponse
+    {
+        $filters = $this->extractFilterState($request);
+
+        if ($entry->masina_id !== $masina->id) {
+            abort(404);
+        }
+
+        try {
+            DB::transaction(function () use ($entry): void {
+                if ($entry->tip === 'piesa' && $entry->gestiune_piesa_id && $entry->cantitate) {
+                    GestiunePiesa::query()
+                        ->whereKey($entry->gestiune_piesa_id)
+                        ->increment('nr_bucati', (float) $entry->cantitate);
+                }
+
+                $entry->delete();
+            });
+        } catch (Throwable $exception) {
+            Log::error('Unable to delete service entry', [
+                'exception' => $exception,
+                'entry_id' => $entry->id,
+                'masina_id' => $masina->id,
+            ]);
+
+            return redirect()
+                ->route('service-masini.index', ['masina_id' => $masina->id] + $filters)
+                ->withErrors(['general' => 'Nu am putut șterge intervenția. Încearcă din nou.']);
+        }
+
+        return redirect()
+            ->route('service-masini.index', ['masina_id' => $masina->id] + $filters)
+            ->with('status', 'Intervenția a fost ștearsă.');
     }
 
     public function export(Request $request)
@@ -234,18 +392,43 @@ class ServiceMasiniController extends Controller
         return $query;
     }
 
-    protected function getAvailablePieces(): Collection
+    protected function getAvailablePieces(?MasinaServiceEntry $editingEntry = null): Collection
     {
         try {
-            return GestiunePiesa::query()
+            $pieces = GestiunePiesa::query()
                 ->where('nr_bucati', '>', 0)
                 ->orderBy('denumire')
                 ->get(['id', 'denumire', 'cod', 'nr_bucati']);
+
+            if ($editingEntry && $editingEntry->tip === 'piesa' && $editingEntry->gestiune_piesa_id) {
+                if (! $pieces->firstWhere('id', $editingEntry->gestiune_piesa_id)) {
+                    $editingPiece = GestiunePiesa::query()
+                        ->find($editingEntry->gestiune_piesa_id, ['id', 'denumire', 'cod', 'nr_bucati']);
+
+                    if ($editingPiece) {
+                        $pieces = $pieces
+                            ->push($editingPiece)
+                            ->sortBy('denumire')
+                            ->values();
+                    }
+                }
+            }
+
+            return $pieces;
         } catch (Throwable $exception) {
             Log::warning('Unable to load available pieces', ['exception' => $exception]);
 
             return collect();
         }
+    }
+
+    protected function resolveEditingEntry(?Masina $masina, int $entryId): ?MasinaServiceEntry
+    {
+        if (! $masina || $entryId <= 0) {
+            return null;
+        }
+
+        return $masina->serviceEntries()->whereKey($entryId)->first();
     }
 
     protected function extractFilterState(Request $request): array
