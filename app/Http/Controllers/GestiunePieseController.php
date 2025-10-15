@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -11,26 +12,20 @@ class GestiunePieseController extends Controller
 {
     public function index(Request $request)
     {
-        $search = trim((string) $request->query('search'));
-        $filters = collect($request->input('filters', []))
-            ->map(function ($value) {
-                if (is_string($value)) {
-                    return trim($value);
-                }
+        $denumireSearch = trim((string) $request->query('denumire'));
+        $codSearch = trim((string) $request->query('cod'));
+        $invoiceDateSearch = trim((string) $request->query('data_factura'));
+        $invoiceDateFilter = null;
+        $useExactInvoiceDate = false;
 
-                if (is_array($value)) {
-                    return array_filter(array_map(static fn ($item) => is_string($item) ? trim($item) : $item, $value), static fn ($item) => $item !== '' && $item !== null);
-                }
-
-                return $value;
-            })
-            ->filter(function ($value) {
-                if (is_array($value)) {
-                    return ! empty($value);
-                }
-
-                return $value !== '' && $value !== null;
-            });
+        if ($invoiceDateSearch !== '') {
+            try {
+                $invoiceDateFilter = Carbon::parse($invoiceDateSearch)->toDateString();
+                $useExactInvoiceDate = true;
+            } catch (\Throwable $exception) {
+                $invoiceDateFilter = $invoiceDateSearch;
+            }
+        }
 
         $columns = [];
         $hasTable = false;
@@ -76,42 +71,19 @@ class GestiunePieseController extends Controller
                     $query->addSelect('ff.data_factura as '.$invoiceDateAlias);
                 }
 
-                if ($search !== '') {
-                    $searchableColumns = collect($columns)
-                        ->reject(static fn ($column) => in_array($column, ['id'], true));
-
-                    if ($invoiceDateAlias) {
-                        $searchableColumns = $searchableColumns->push($invoiceDateAlias);
-                    }
-
-                    if ($searchableColumns->isNotEmpty()) {
-                        $query->where(function ($innerQuery) use ($searchableColumns, $search) {
-                            foreach ($searchableColumns as $column) {
-                                $innerQuery->orWhere($column === 'factura_data_factura' ? 'ff.data_factura' : "gp.$column", 'like', "%$search%");
-                            }
-                        });
-                    }
+                if ($denumireSearch !== '' && in_array('denumire', $columns, true)) {
+                    $query->where('gp.denumire', 'like', "%$denumireSearch%");
                 }
 
-                foreach ($filters as $column => $value) {
-                    if ($column === 'factura_data_factura' && $invoiceDateAlias) {
-                        if (is_array($value)) {
-                            $query->whereIn('ff.data_factura', $value);
-                        } else {
-                            $query->where('ff.data_factura', $value);
-                        }
+                if ($codSearch !== '' && in_array('cod', $columns, true)) {
+                    $query->where('gp.cod', 'like', "%$codSearch%");
+                }
 
-                        continue;
-                    }
-
-                    if (! in_array($column, $columns, true)) {
-                        continue;
-                    }
-
-                    if (is_array($value)) {
-                        $query->whereIn("gp.$column", $value);
+                if ($invoiceDateAlias && $invoiceDateFilter !== null) {
+                    if ($useExactInvoiceDate) {
+                        $query->whereDate('ff.data_factura', $invoiceDateFilter);
                     } else {
-                        $query->where("gp.$column", 'like', "%$value%");
+                        $query->where('ff.data_factura', 'like', "%$invoiceDateFilter%");
                     }
                 }
 
@@ -139,18 +111,23 @@ class GestiunePieseController extends Controller
             }
         }
 
-        $displayColumns = $columns;
+        $displayColumns = array_values(array_filter(
+            $columns,
+            static fn ($column) => ! in_array($column, ['factura_id', 'created_at', 'updated_at'], true)
+        ));
         if ($invoiceDateAlias && ! in_array($invoiceDateAlias, $displayColumns, true)) {
             $displayColumns[] = $invoiceDateAlias;
         }
 
         return view('gestiunePiese.index', [
-            'search' => $search,
-            'filters' => $filters->toArray(),
+            'denumire' => $denumireSearch,
+            'cod' => $codSearch,
+            'dataFactura' => $invoiceDateSearch,
             'columns' => $displayColumns,
             'items' => $items,
             'hasTable' => $hasTable,
             'loadError' => $loadError,
+            'invoiceColumn' => $invoiceJoinColumn,
         ]);
     }
 }
