@@ -508,10 +508,10 @@ CREATE TABLE `failed_jobs` (
   UNIQUE KEY `failed_jobs_uuid_unique` (`uuid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `ff_facturi`;
+DROP TABLE IF EXISTS `service_ff_facturi`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ff_facturi` (
+CREATE TABLE `service_ff_facturi` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `denumire_furnizor` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
   `cont_iban` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -525,31 +525,31 @@ CREATE TABLE `ff_facturi` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `ff_facturi_status_data_scadenta_index` (`data_scadenta`),
-  KEY `ff_facturi_denumire_furnizor_index` (`denumire_furnizor`),
-  KEY `ff_facturi_departament_vehicul_index` (`departament_vehicul`)
+  KEY `service_ff_facturi_status_data_scadenta_index` (`data_scadenta`),
+  KEY `service_ff_facturi_denumire_furnizor_index` (`denumire_furnizor`),
+  KEY `service_ff_facturi_departament_vehicul_index` (`departament_vehicul`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `ff_facturi_plati`;
+DROP TABLE IF EXISTS `service_ff_facturi_plati`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ff_facturi_plati` (
+CREATE TABLE `service_ff_facturi_plati` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `factura_id` bigint unsigned NOT NULL,
   `calup_id` bigint unsigned NOT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `ff_facturi_plati_factura_id_unique` (`factura_id`),
-  KEY `ff_facturi_plati_calup_id_foreign` (`calup_id`),
-  CONSTRAINT `ff_facturi_plati_calup_id_foreign` FOREIGN KEY (`calup_id`) REFERENCES `ff_plati_calupuri` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `ff_facturi_plati_factura_id_foreign` FOREIGN KEY (`factura_id`) REFERENCES `ff_facturi` (`id`) ON DELETE CASCADE
+  UNIQUE KEY `service_ff_facturi_plati_factura_id_unique` (`factura_id`),
+  KEY `service_ff_facturi_plati_calup_id_foreign` (`calup_id`),
+  CONSTRAINT `service_ff_facturi_plati_calup_id_foreign` FOREIGN KEY (`calup_id`) REFERENCES `service_ff_plati_calupuri` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `service_ff_facturi_plati_factura_id_foreign` FOREIGN KEY (`factura_id`) REFERENCES `service_ff_facturi` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `ff_plati_calupuri`;
+DROP TABLE IF EXISTS `service_ff_plati_calupuri`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ff_plati_calupuri` (
+CREATE TABLE `service_ff_plati_calupuri` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `denumire_calup` varchar(150) COLLATE utf8mb4_unicode_ci NOT NULL,
   `data_plata` date DEFAULT NULL,
@@ -557,13 +557,13 @@ CREATE TABLE `ff_plati_calupuri` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `ff_plati_calupuri_status_data_plata_index` (`data_plata`)
+  KEY `service_ff_plati_calupuri_status_data_plata_index` (`data_plata`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-DROP TABLE IF EXISTS `ff_plati_calupuri_fisiere`;
+DROP TABLE IF EXISTS `service_ff_plati_calupuri_fisiere`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ff_plati_calupuri_fisiere` (
+CREATE TABLE `service_ff_plati_calupuri_fisiere` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
   `plata_calup_id` bigint unsigned NOT NULL,
   `cale` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -571,8 +571,8 @@ CREATE TABLE `ff_plati_calupuri_fisiere` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `ff_plati_calupuri_fisiere_plata_calup_id_index` (`plata_calup_id`),
-  CONSTRAINT `ff_plati_calupuri_fisiere_plata_calup_id_foreign` FOREIGN KEY (`plata_calup_id`) REFERENCES `ff_plati_calupuri` (`id`) ON DELETE CASCADE
+  KEY `service_ff_plati_calupuri_fisiere_plata_calup_id_index` (`plata_calup_id`),
+  CONSTRAINT `service_ff_plati_calupuri_fisiere_plata_calup_id_foreign` FOREIGN KEY (`plata_calup_id`) REFERENCES `service_ff_plati_calupuri` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 DROP TABLE IF EXISTS `firme`;

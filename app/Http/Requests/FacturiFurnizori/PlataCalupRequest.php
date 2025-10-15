@@ -28,7 +28,7 @@ class PlataCalupRequest extends FormRequest
             'fisiere_pdf' => ['nullable', 'array'],
             'fisiere_pdf.*' => ['file', 'mimetypes:application/pdf', 'max:10240'],
             'facturi' => ['nullable', 'array'],
-            'facturi.*' => ['integer', 'exists:ff_facturi,id'],
+            'facturi.*' => ['integer', 'exists:service_ff_facturi,id'],
         ];
     }
 

@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Models\FacturiFurnizori;
+namespace App\Models\Service;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\FacturiFurnizori\FacturaFurnizor;
 
 class GestiunePiesa extends Model
 {
     use HasFactory;
 
-    protected $table = 'gestiune_piese';
+    protected $table = 'service_gestiune_piese';
 
     protected $fillable = [
         'factura_id',
@@ -24,6 +25,11 @@ class GestiunePiesa extends Model
         'nr_bucati' => 'decimal:2',
         'pret' => 'decimal:2',
     ];
+
+    protected static function newFactory()
+    {
+        return \Database\Factories\Service\GestiunePiesaFactory::new();
+    }
 
     public function factura(): BelongsTo
     {

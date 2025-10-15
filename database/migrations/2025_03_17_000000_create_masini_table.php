@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('masini', function (Blueprint $table) {
+        Schema::create('service_masini', function (Blueprint $table) {
             $table->id();
             $table->string('denumire');
             $table->string('numar_inmatriculare')->unique();
@@ -20,6 +20,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('masini');
+        Schema::dropIfExists('service_masini');
     }
 };
