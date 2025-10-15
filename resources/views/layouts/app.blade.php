@@ -254,6 +254,11 @@
                                         <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('gestiune-piese.index') }}">
+                                        <i class="fa-solid fa-boxes-stacked me-1"></i>Gestiune piese
+                                    </a>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{{ route('mesaje-trimise-sms.index') }}">

@@ -32,6 +32,7 @@ use App\Http\Controllers\KeyPerformanceIndicatorController;
 use App\Http\Controllers\OfertaCursaController;
 use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorController;
 use App\Http\Controllers\FacturiFurnizori\PlataCalupController;
+use App\Http\Controllers\GestiunePieseController;
 use App\Http\Controllers\Tech\ImpersonationController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\SeederCenterController;
@@ -164,6 +165,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('/facturi-memento/salveaza/comanda/{comanda}', [FacturaController::class, 'storeOrUpdateMementoFactura']);
 
     Route::get('/facturi-scadente', [FacturaScadentaController::class, 'index']);
+
+    Route::get('/gestiune-piese', [GestiunePieseController::class, 'index'])
+        ->name('gestiune-piese.index');
 
 
     Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);
