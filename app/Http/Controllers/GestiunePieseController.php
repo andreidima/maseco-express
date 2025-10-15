@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
-use Throwable;
 
 class GestiunePieseController extends Controller
 {
@@ -46,7 +45,7 @@ class GestiunePieseController extends Controller
             if ($hasTable) {
                 $columns = Schema::getColumnListing('gestiune_piese');
             }
-        } catch (Throwable $exception) {
+        } catch (\Throwable $exception) {
             $hasTable = false;
             $columns = [];
             Log::warning('Unable to inspect gestiune_piese structure', ['exception' => $exception]);
@@ -134,7 +133,7 @@ class GestiunePieseController extends Controller
                 }
 
                 $items = $query->simplePaginate(100)->withQueryString();
-            } catch (Throwable $exception) {
+            } catch (\Throwable $exception) {
                 $loadError = 'Nu am putut încărca datele din gestiune_piese.';
                 Log::error('Failed to load gestiune_piese data', ['exception' => $exception]);
             }
