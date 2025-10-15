@@ -123,7 +123,7 @@
                             <form method="POST" action="{{ route('service-masini.store-masina') }}" class="row g-2">
                                 @csrf
                                 <div class="col-12">
-                                    <label for="denumire" class="form-label small text-muted mb-1">Denumire mașină</label>
+                                    <label for="denumire" class="form-label small text-muted mb-1">Denumire mașină <span class="text-danger">*</span></label>
                                     <input type="text" name="denumire" id="denumire" class="form-control rounded-3"
                                         value="{{ old('denumire') }}" required>
                                     @error('denumire')
@@ -132,7 +132,7 @@
                                 </div>
                                 <div class="col-12">
                                     <label for="numar_inmatriculare_form" class="form-label small text-muted mb-1">Nr.
-                                        înmatriculare</label>
+                                        înmatriculare <span class="text-danger">*</span></label>
                                     <input type="text" name="numar_inmatriculare" id="numar_inmatriculare_form"
                                         class="form-control rounded-3" value="{{ old('numar_inmatriculare') }}" required>
                                     @error('numar_inmatriculare')
@@ -158,6 +158,9 @@
                                     <button type="submit" class="btn btn-sm btn-success rounded-3">
                                         <i class="fa-solid fa-save me-1"></i>Salvează mașina
                                     </button>
+                                </div>
+                                <div class="col-12">
+                                    <small class="text-muted"><span class="text-danger">*</span> Câmp obligatoriu</small>
                                 </div>
                             </form>
                         </div>
@@ -189,7 +192,7 @@
                                     @endforeach
 
                                     <div class="col-12">
-                                        <label class="form-label small text-muted mb-1">Tip intervenție</label>
+                                        <label class="form-label small text-muted mb-1">Tip intervenție <span class="text-danger">*</span></label>
                                         <div class="d-flex gap-3">
                                             <div class="form-check">
                                                 <input class="form-check-input" type="radio" name="tip" id="tip_piesa"
@@ -212,7 +215,9 @@
                                     </div>
 
                                     <div class="col-md-6" data-entry="piesa">
-                                        <label for="gestiune_piesa_id" class="form-label small text-muted mb-1">Piesă</label>
+                                        <label for="gestiune_piesa_id" class="form-label small text-muted mb-1">Piesă <span class="text-danger">*</span>
+                                            <small class="text-muted">(pentru alocări din gestiune)</small>
+                                        </label>
                                         <select name="gestiune_piesa_id" id="gestiune_piesa_id"
                                             class="form-select rounded-3">
                                             <option value="">Selectează piesa</option>
@@ -229,7 +234,9 @@
                                     </div>
 
                                     <div class="col-md-3" data-entry="piesa">
-                                        <label for="cantitate" class="form-label small text-muted mb-1">Cantitate</label>
+                                        <label for="cantitate" class="form-label small text-muted mb-1">Cantitate <span class="text-danger">*</span>
+                                            <small class="text-muted">(pentru alocări din gestiune)</small>
+                                        </label>
                                         <input type="number" step="0.01" min="0" class="form-control rounded-3"
                                             id="cantitate" name="cantitate" value="{{ old('cantitate', '1') }}">
                                         @error('cantitate')
@@ -239,7 +246,9 @@
 
                                     <div class="col-md-6" data-entry="manual">
                                         <label for="denumire_interventie" class="form-label small text-muted mb-1">Denumire
-                                            intervenție</label>
+                                            intervenție <span class="text-danger">*</span>
+                                            <small class="text-muted">(pentru intervenții manuale)</small>
+                                        </label>
                                         <input type="text" class="form-control rounded-3" id="denumire_interventie"
                                             name="denumire_interventie" value="{{ old('denumire_interventie') }}">
                                         @error('denumire_interventie')
@@ -248,7 +257,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label for="data_montaj" class="form-label small text-muted mb-1">Data intervenției</label>
+                                        <label for="data_montaj" class="form-label small text-muted mb-1">Data intervenției <span class="text-danger">*</span></label>
                                         <input type="date" class="form-control rounded-3" id="data_montaj" name="data_montaj"
                                             value="{{ old('data_montaj', now()->toDateString()) }}" required>
                                         @error('data_montaj')
@@ -257,7 +266,7 @@
                                     </div>
 
                                     <div class="col-md-6">
-                                        <label for="nume_mecanic" class="form-label small text-muted mb-1">Nume mecanic</label>
+                                        <label for="nume_mecanic" class="form-label small text-muted mb-1">Nume mecanic <span class="text-danger">*</span></label>
                                         <input type="text" class="form-control rounded-3" id="nume_mecanic" name="nume_mecanic"
                                             value="{{ old('nume_mecanic') }}" required>
                                         @error('nume_mecanic')
@@ -277,6 +286,9 @@
                                         <button type="submit" class="btn btn-primary rounded-3">
                                             <i class="fa-solid fa-paper-plane me-1"></i>Salvează intervenția
                                         </button>
+                                    </div>
+                                    <div class="col-12">
+                                        <small class="text-muted"><span class="text-danger">*</span> Câmp obligatoriu (în funcție de tipul selectat)</small>
                                     </div>
                                 </form>
                             </div>

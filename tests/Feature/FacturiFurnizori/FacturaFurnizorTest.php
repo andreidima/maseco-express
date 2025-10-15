@@ -4,6 +4,8 @@ namespace Tests\Feature\FacturiFurnizori;
 
 use App\Models\FacturiFurnizori\FacturaFurnizor;
 use App\Models\User;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -164,6 +166,84 @@ class FacturaFurnizorTest extends TestCase
         $this->assertDatabaseMissing('service_gestiune_piese', [
             'factura_id' => $factura->id,
             'denumire' => 'Produs vechi',
+        ]);
+    }
+
+    public function test_it_allows_uploading_pdfs_for_an_invoice(): void
+    {
+        Storage::fake('local');
+
+        $user = User::factory()->create();
+
+        $pdfOne = UploadedFile::fake()->create('factura_initiala.pdf', 120, 'application/pdf');
+        $pdfTwo = UploadedFile::fake()->create('anexa.pdf', 80, 'application/pdf');
+
+        $payload = [
+            'denumire_furnizor' => 'Furnizor PDF SRL',
+            'numar_factura' => 'PDF-001',
+            'data_factura' => '2025-03-01',
+            'data_scadenta' => '2025-03-15',
+            'suma' => 250.75,
+            'moneda' => 'RON',
+            'cont_iban' => '',
+            'departament_vehicul' => '',
+            'observatii' => 'Factura cu atașamente',
+            'fisiere_pdf' => [$pdfOne, $pdfTwo],
+        ];
+
+        $response = $this->actingAs($user)
+            ->post(route('facturi-furnizori.facturi.store'), $payload);
+
+        $response->assertRedirect(route('facturi-furnizori.facturi.index'));
+
+        $factura = FacturaFurnizor::query()
+            ->where('numar_factura', 'PDF-001')
+            ->with('fisiere')
+            ->firstOrFail();
+
+        $this->assertCount(2, $factura->fisiere);
+
+        foreach ($factura->fisiere as $fisier) {
+            Storage::disk('local')->assertExists($fisier->cale);
+        }
+    }
+
+    public function test_it_removes_attachments_when_deleting_an_invoice(): void
+    {
+        Storage::fake('local');
+
+        $user = User::factory()->create();
+
+        $payload = [
+            'denumire_furnizor' => 'Furnizor Delete SRL',
+            'numar_factura' => 'DEL-001',
+            'data_factura' => '2025-02-01',
+            'data_scadenta' => '2025-02-10',
+            'suma' => 100.00,
+            'moneda' => 'RON',
+            'cont_iban' => '',
+            'departament_vehicul' => '',
+            'observatii' => '',
+            'fisiere_pdf' => [UploadedFile::fake()->create('sterge.pdf', 50, 'application/pdf')],
+        ];
+
+        $this->actingAs($user)
+            ->post(route('facturi-furnizori.facturi.store'), $payload);
+
+        $factura = FacturaFurnizor::query()
+            ->where('numar_factura', 'DEL-001')
+            ->with('fisiere')
+            ->firstOrFail();
+
+        $this->assertCount(1, $factura->fisiere);
+        $caleFisier = $factura->fisiere->first()->cale;
+
+        $this->actingAs($user)
+            ->delete(route('facturi-furnizori.facturi.destroy', $factura));
+
+        Storage::disk('local')->assertMissing($caleFisier);
+        $this->assertDatabaseMissing('service_ff_facturi_fisiere', [
+            'factura_id' => $factura->id,
         ]);
     }
 }

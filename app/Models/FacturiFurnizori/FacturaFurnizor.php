@@ -2,6 +2,7 @@
 
 namespace App\Models\FacturiFurnizori;
 
+use App\Models\FacturiFurnizori\FacturaFurnizorFisier;
 use App\Models\Service\GestiunePiesa;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -42,5 +43,10 @@ class FacturaFurnizor extends Model
     public function piese(): HasMany
     {
         return $this->hasMany(GestiunePiesa::class, 'factura_id');
+    }
+
+    public function fisiere(): HasMany
+    {
+        return $this->hasMany(FacturaFurnizorFisier::class, 'factura_id');
     }
 }

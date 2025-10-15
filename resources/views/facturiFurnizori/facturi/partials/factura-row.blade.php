@@ -31,6 +31,11 @@
     <td class="text-muted">{{ \Illuminate\Support\Str::limit($factura->observatii, 60) }}</td>
     <td class="text-end">
         <div class="text-end">
+            @if ($factura->fisiere_count ?? 0)
+                <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}#factura-fisiere" class="badge bg-info text-dark me-1">
+                    <i class="fa-solid fa-file-pdf me-1"></i>{{ $factura->fisiere_count }} PDF-uri
+                </a>
+            @endif
             <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="flex me-1">
                 <span class="badge bg-success">Vezi</span></a>
             <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="flex me-1">
