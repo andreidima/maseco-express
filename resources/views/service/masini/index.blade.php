@@ -338,7 +338,7 @@
                                 @endif
                             </div>
 
-                            <div class="col-lg-3" data-entry="piesa">
+                            <div class="col-lg-6" data-entry="piesa">
                                 <label for="cantitate_create" class="form-label small text-muted mb-1">Cantitate
                                     <span class="text-danger">*</span>
                                     <small class="text-muted">(pentru alocări din gestiune)</small>
@@ -485,7 +485,7 @@
                                     @endif
                                 </div>
 
-                                <div class="col-lg-3" data-entry="piesa">
+                                <div class="col-lg-6" data-entry="piesa">
                                     <label for="cantitate_edit" class="form-label small text-muted mb-1">Cantitate
                                         <span class="text-danger">*</span>
                                         <small class="text-muted">(pentru alocări din gestiune)</small>
