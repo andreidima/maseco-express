@@ -23,7 +23,7 @@ class AttachFacturiRequest extends FormRequest
     {
         return [
             'facturi' => ['required', 'array', 'min:1'],
-            'facturi.*' => ['integer', 'exists:ff_facturi,id'],
+            'facturi.*' => ['integer', 'exists:service_ff_facturi,id'],
         ];
     }
 

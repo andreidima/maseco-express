@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Service;
 
+use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -35,20 +36,20 @@ class GestiunePieseController extends Controller
         $invoiceDateAlias = null;
 
         try {
-            $hasTable = Schema::hasTable('gestiune_piese');
+            $hasTable = Schema::hasTable('service_gestiune_piese');
 
             if ($hasTable) {
-                $columns = Schema::getColumnListing('gestiune_piese');
+                $columns = Schema::getColumnListing('service_gestiune_piese');
             }
         } catch (\Throwable $exception) {
             $hasTable = false;
             $columns = [];
-            Log::warning('Unable to inspect gestiune_piese structure', ['exception' => $exception]);
+            Log::warning('Unable to inspect service_gestiune_piese structure', ['exception' => $exception]);
         }
 
         if ($hasTable) {
             try {
-                $query = DB::table('gestiune_piese as gp');
+                $query = DB::table('service_gestiune_piese as gp');
 
                 if (! empty($columns)) {
                     foreach ($columns as $column) {
@@ -63,11 +64,13 @@ class GestiunePieseController extends Controller
                     'facturi_furnizori_id',
                     'ff_factura_id',
                     'ff_facturi_id',
+                    'service_ff_factura_id',
+                    'service_ff_facturi_id',
                 ])->first(static fn ($column) => in_array($column, $columns, true));
 
                 if ($invoiceJoinColumn) {
                     $invoiceDateAlias = 'factura_data_factura';
-                    $query->leftJoin('ff_facturi as ff', "ff.id", '=', "gp.$invoiceJoinColumn");
+                    $query->leftJoin('service_ff_facturi as ff', "ff.id", '=', "gp.$invoiceJoinColumn");
                     $query->addSelect('ff.data_factura as '.$invoiceDateAlias);
                 }
 
@@ -106,8 +109,8 @@ class GestiunePieseController extends Controller
 
                 $items = $query->simplePaginate(100)->withQueryString();
             } catch (\Throwable $exception) {
-                $loadError = 'Nu am putut încărca datele din gestiune_piese.';
-                Log::error('Failed to load gestiune_piese data', ['exception' => $exception]);
+                $loadError = 'Nu am putut încărca datele din service_gestiune_piese.';
+                Log::error('Failed to load service_gestiune_piese data', ['exception' => $exception]);
             }
         }
 
@@ -119,7 +122,7 @@ class GestiunePieseController extends Controller
             $displayColumns[] = $invoiceDateAlias;
         }
 
-        return view('gestiunePiese.index', [
+        return view('service.gestiune-piese.index', [
             'denumire' => $denumireSearch,
             'cod' => $codSearch,
             'dataFactura' => $useExactInvoiceDate ? $invoiceDateFilter : $invoiceDateSearch,

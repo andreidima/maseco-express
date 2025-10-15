@@ -8,10 +8,10 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('masina_service_entries', function (Blueprint $table) {
+        Schema::create('service_masina_service_entries', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('masina_id')->constrained('masini')->cascadeOnDelete();
-            $table->foreignId('gestiune_piesa_id')->nullable()->constrained('gestiune_piese')->nullOnDelete();
+            $table->foreignId('masina_id')->constrained('service_masini')->cascadeOnDelete();
+            $table->foreignId('gestiune_piesa_id')->nullable()->constrained('service_gestiune_piese')->nullOnDelete();
             $table->foreignId('user_id')->nullable()->constrained()->nullOnDelete();
             $table->string('tip');
             $table->string('denumire_interventie')->nullable();
@@ -30,6 +30,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('masina_service_entries');
+        Schema::dropIfExists('service_masina_service_entries');
     }
 };

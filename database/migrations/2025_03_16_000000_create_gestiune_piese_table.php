@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('gestiune_piese', function (Blueprint $table) {
+        Schema::create('service_gestiune_piese', function (Blueprint $table) {
             $table->id();
             $table->foreignId('factura_id')
-                ->constrained('ff_facturi')
+                ->constrained('service_ff_facturi')
                 ->cascadeOnDelete();
             $table->string('denumire');
             $table->string('cod')->nullable();
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('gestiune_piese');
+        Schema::dropIfExists('service_gestiune_piese');
     }
 };
