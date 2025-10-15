@@ -10,7 +10,7 @@ class PlataCalupFisier extends Model
 {
     use HasFactory;
 
-    protected $table = 'ff_plati_calupuri_fisiere';
+    protected $table = 'service_ff_plati_calupuri_fisiere';
 
     protected $fillable = [
         'plata_calup_id',

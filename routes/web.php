@@ -32,7 +32,8 @@ use App\Http\Controllers\KeyPerformanceIndicatorController;
 use App\Http\Controllers\OfertaCursaController;
 use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorController;
 use App\Http\Controllers\FacturiFurnizori\PlataCalupController;
-use App\Http\Controllers\GestiunePieseController;
+use App\Http\Controllers\Service\GestiunePieseController;
+use App\Http\Controllers\Service\ServiceMasiniController;
 use App\Http\Controllers\Tech\ImpersonationController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\SeederCenterController;
@@ -168,6 +169,15 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/gestiune-piese', [GestiunePieseController::class, 'index'])
         ->name('gestiune-piese.index');
+
+    Route::get('/service-masini', [ServiceMasiniController::class, 'index'])
+        ->name('service-masini.index');
+    Route::post('/service-masini', [ServiceMasiniController::class, 'storeMasina'])
+        ->name('service-masini.store-masina');
+    Route::post('/service-masini/{masina}/entries', [ServiceMasiniController::class, 'storeEntry'])
+        ->name('service-masini.entries.store');
+    Route::get('/service-masini/export/pdf', [ServiceMasiniController::class, 'export'])
+        ->name('service-masini.export');
 
 
     Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);

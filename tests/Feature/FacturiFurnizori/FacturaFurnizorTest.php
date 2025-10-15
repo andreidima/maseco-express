@@ -32,7 +32,7 @@ class FacturaFurnizorTest extends TestCase
 
         $response->assertRedirect(route('facturi-furnizori.facturi.index'));
 
-        $this->assertDatabaseHas('ff_facturi', [
+        $this->assertDatabaseHas('service_ff_facturi', [
             'numar_factura' => 'NEG-001',
             'suma' => -150.25,
         ]);
@@ -63,7 +63,7 @@ class FacturaFurnizorTest extends TestCase
 
         $response->assertRedirect(route('facturi-furnizori.facturi.index'));
 
-        $this->assertDatabaseHas('ff_facturi', [
+        $this->assertDatabaseHas('service_ff_facturi', [
             'id' => $factura->id,
             'suma' => -99.99,
         ]);
@@ -161,7 +161,7 @@ class FacturaFurnizorTest extends TestCase
         $this->assertCount(1, $factura->piese);
         $this->assertEquals('Plăcuțe frână', $factura->piese[0]->denumire);
         $this->assertSame('120.00', $factura->piese[0]->pret);
-        $this->assertDatabaseMissing('gestiune_piese', [
+        $this->assertDatabaseMissing('service_gestiune_piese', [
             'factura_id' => $factura->id,
             'denumire' => 'Produs vechi',
         ]);
