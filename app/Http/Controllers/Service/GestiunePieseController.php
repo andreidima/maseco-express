@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Service\MasinaServiceEntry;
 
 class GestiunePieseController extends Controller
 {
@@ -168,79 +169,55 @@ class GestiunePieseController extends Controller
             return [];
         }
 
-        $entriesTable = null;
-        $machinesTable = null;
-
-        if (Schema::hasTable('service_masina_service_entries')) {
-            $entriesTable = 'service_masina_service_entries';
-        } elseif (Schema::hasTable('masina_service_entries')) {
-            $entriesTable = 'masina_service_entries';
-        }
-
-        if (Schema::hasTable('service_masini')) {
-            $machinesTable = 'service_masini';
-        } elseif (Schema::hasTable('masini')) {
-            $machinesTable = 'masini';
-        }
-
-        if ($entriesTable === null) {
-            $usageRows = collect();
-        } else {
-            $usageQuery = DB::table("$entriesTable as mse")
-                ->select('mse.gestiune_piesa_id', DB::raw('SUM(mse.cantitate) as total_cantitate'))
-                ->whereIn('mse.gestiune_piesa_id', $pieceIds)
-                ->where('mse.tip', 'piesa')
-                ->whereNotNull('mse.cantitate');
-
-            $groupBy = ['mse.gestiune_piesa_id'];
-
-            if ($machinesTable !== null) {
-                $usageQuery->leftJoin("$machinesTable as m", 'm.id', '=', 'mse.masina_id');
-
-                if (Schema::hasColumn($machinesTable, 'id')) {
-                    $usageQuery->addSelect('m.id as masina_id');
-                    $groupBy[] = 'm.id';
-                }
-
-                $numberColumn = null;
-                if (Schema::hasColumn($machinesTable, 'numar_inmatriculare')) {
-                    $numberColumn = 'numar_inmatriculare';
-                } elseif (Schema::hasColumn($machinesTable, 'numar')) {
-                    $numberColumn = 'numar';
-                }
-
-                if ($numberColumn !== null) {
-                    $usageQuery->addSelect("m.$numberColumn as numar_inmatriculare");
-                    $groupBy[] = "m.$numberColumn";
-                }
-
-                $nameColumn = null;
-                if (Schema::hasColumn($machinesTable, 'denumire')) {
-                    $nameColumn = 'denumire';
-                } elseif (Schema::hasColumn($machinesTable, 'descriere')) {
-                    $nameColumn = 'descriere';
-                }
-
-                if ($nameColumn !== null) {
-                    $usageQuery->addSelect("m.$nameColumn as denumire");
-                    $groupBy[] = "m.$nameColumn";
-                }
-            }
-
-            $usageRows = $usageQuery->groupBy($groupBy)->get();
-        }
-
         $usageByPiece = [];
 
-        foreach ($usageRows as $usage) {
-            $pieceId = (int) $usage->gestiune_piesa_id;
-            $usageByPiece[$pieceId]['used'] = ($usageByPiece[$pieceId]['used'] ?? 0.0) + (float) $usage->total_cantitate;
-            $usageByPiece[$pieceId]['machines'][] = [
-                'masina_id' => (int) $usage->masina_id,
-                'numar_inmatriculare' => $usage->numar_inmatriculare,
-                'denumire' => $usage->denumire,
-                'cantitate' => (float) $usage->total_cantitate,
-            ];
+        $entries = MasinaServiceEntry::query()
+            ->select(['id', 'gestiune_piesa_id', 'masina_id', 'cantitate'])
+            ->with(['masina:id,numar_inmatriculare,denumire'])
+            ->whereIn('gestiune_piesa_id', $pieceIds)
+            ->whereNotNull('cantitate')
+            ->get();
+
+        foreach ($entries as $entry) {
+            $pieceId = (int) $entry->gestiune_piesa_id;
+
+            if ($pieceId <= 0) {
+                continue;
+            }
+
+            $quantity = (float) $entry->cantitate;
+
+            if (! isset($usageByPiece[$pieceId])) {
+                $usageByPiece[$pieceId] = [
+                    'used' => 0.0,
+                    'machines' => [],
+                ];
+            }
+
+            $usageByPiece[$pieceId]['used'] += $quantity;
+
+            $machine = $entry->masina;
+
+            if (! $machine) {
+                continue;
+            }
+
+            $machineId = (int) $machine->getKey();
+
+            if ($machineId <= 0) {
+                continue;
+            }
+
+            if (! isset($usageByPiece[$pieceId]['machines'][$machineId])) {
+                $usageByPiece[$pieceId]['machines'][$machineId] = [
+                    'masina_id' => $machineId,
+                    'numar_inmatriculare' => $machine->numar_inmatriculare,
+                    'denumire' => $machine->denumire,
+                    'cantitate' => 0.0,
+                ];
+            }
+
+            $usageByPiece[$pieceId]['machines'][$machineId]['cantitate'] += $quantity;
         }
 
         $details = [];
