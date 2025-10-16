@@ -121,6 +121,8 @@ class GestiunePieseController extends Controller
             }
         }
 
+        $stockDetails = $items ? $this->buildStockDetails($items) : [];
+
         $displayColumns = array_values(array_filter(
             $columns,
             static fn ($column) => ! in_array($column, ['id', 'factura_id', 'created_at', 'updated_at'], true)
@@ -138,6 +140,106 @@ class GestiunePieseController extends Controller
             'hasTable' => $hasTable,
             'loadError' => $loadError,
             'invoiceColumn' => $invoiceJoinColumn,
+            'stockDetails' => $stockDetails,
         ]);
+    }
+
+    private function buildStockDetails($items): array
+    {
+        if (! $items) {
+            return [];
+        }
+
+        $rows = collect($items->items());
+
+        if ($rows->isEmpty()) {
+            return [];
+        }
+
+        $pieceIds = $rows
+            ->pluck('id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->values()
+            ->all();
+
+        if (empty($pieceIds)) {
+            return [];
+        }
+
+        $usageRows = DB::table('service_masina_service_entries as mse')
+            ->join('service_masini as m', 'm.id', '=', 'mse.masina_id')
+            ->select(
+                'mse.gestiune_piesa_id',
+                'm.id as masina_id',
+                'm.numar_inmatriculare',
+                'm.denumire',
+                DB::raw('SUM(mse.cantitate) as total_cantitate')
+            )
+            ->whereIn('mse.gestiune_piesa_id', $pieceIds)
+            ->where('mse.tip', 'piesa')
+            ->whereNotNull('mse.cantitate')
+            ->groupBy('mse.gestiune_piesa_id', 'm.id', 'm.numar_inmatriculare', 'm.denumire')
+            ->get();
+
+        $usageByPiece = [];
+
+        foreach ($usageRows as $usage) {
+            $pieceId = (int) $usage->gestiune_piesa_id;
+            $usageByPiece[$pieceId]['used'] = ($usageByPiece[$pieceId]['used'] ?? 0.0) + (float) $usage->total_cantitate;
+            $usageByPiece[$pieceId]['machines'][] = [
+                'masina_id' => (int) $usage->masina_id,
+                'numar_inmatriculare' => $usage->numar_inmatriculare,
+                'denumire' => $usage->denumire,
+                'cantitate' => (float) $usage->total_cantitate,
+            ];
+        }
+
+        $details = [];
+
+        foreach ($rows as $row) {
+            $id = (int) ($row->id ?? 0);
+
+            if ($id <= 0) {
+                continue;
+            }
+
+            $remaining = isset($row->nr_bucati) ? (float) $row->nr_bucati : null;
+            $initial = isset($row->cantitate_initiala) ? (float) $row->cantitate_initiala : null;
+            $used = $usageByPiece[$id]['used'] ?? null;
+
+            if ($used === null) {
+                if ($initial !== null && $remaining !== null) {
+                    $used = max($initial - $remaining, 0);
+                } else {
+                    $used = 0.0;
+                }
+            }
+
+            if ($initial === null && $remaining !== null) {
+                $initial = $remaining + $used;
+            } elseif ($initial !== null && $remaining === null) {
+                $remaining = max($initial - $used, 0);
+            }
+
+            $machines = array_map(static function ($machine) {
+                return [
+                    'masina_id' => $machine['masina_id'],
+                    'numar_inmatriculare' => $machine['numar_inmatriculare'],
+                    'denumire' => $machine['denumire'],
+                    'cantitate' => round((float) $machine['cantitate'], 2),
+                ];
+            }, $usageByPiece[$id]['machines'] ?? []);
+
+            $details[$id] = [
+                'initial' => $initial !== null ? round($initial, 2) : null,
+                'remaining' => $remaining !== null ? round($remaining, 2) : null,
+                'used' => round($used, 2),
+                'machines' => $machines,
+            ];
+        }
+
+        return $details;
     }
 }

@@ -34,8 +34,10 @@ class FacturaFurnizorRequest extends FormRequest
             'departament_vehicul' => ['nullable', 'string', 'max:150'],
             'observatii' => ['nullable', 'string'],
             'produse' => ['nullable', 'array'],
+            'produse.*.id' => ['nullable', 'integer', 'exists:service_gestiune_piese,id'],
             'produse.*.denumire' => ['nullable', 'string', 'max:255'],
             'produse.*.cod' => ['nullable', 'string', 'max:100'],
+            'produse.*.cantitate_initiala' => ['nullable', 'numeric'],
             'produse.*.nr_bucati' => ['nullable', 'numeric'],
             'produse.*.pret' => ['nullable', 'numeric'],
             'produse.*.tva_cota' => ['nullable', 'numeric', Rule::in([11, 21])],
@@ -52,9 +54,15 @@ class FacturaFurnizorRequest extends FormRequest
         }
 
         $produse = collect($this->input('produse', []))
-            ->map(function ($row) {
+            ->map(function ($row, $index) {
+                $id = isset($row['id']) && $row['id'] !== ''
+                    ? (int) $row['id']
+                    : null;
                 $denumire = isset($row['denumire']) ? trim((string) $row['denumire']) : null;
                 $cod = isset($row['cod']) ? trim((string) $row['cod']) : null;
+                $cantitateInitiala = array_key_exists('cantitate_initiala', $row) && $row['cantitate_initiala'] !== ''
+                    ? $row['cantitate_initiala']
+                    : null;
                 $nrBucati = array_key_exists('nr_bucati', $row) && $row['nr_bucati'] !== ''
                     ? $row['nr_bucati']
                     : null;
@@ -69,12 +77,15 @@ class FacturaFurnizorRequest extends FormRequest
                     : null;
 
                 return [
+                    'id' => $id,
                     'denumire' => $denumire,
                     'cod' => $cod,
+                    'cantitate_initiala' => $cantitateInitiala,
                     'nr_bucati' => $nrBucati,
                     'pret' => $pret,
                     'tva_cota' => $tvaCota,
                     'pret_brut' => $pretBrut,
+                    'form_index' => $index,
                 ];
             })
             ->toArray();
@@ -93,11 +104,13 @@ class FacturaFurnizorRequest extends FormRequest
                 $denumire = trim((string) ($produs['denumire'] ?? ''));
                 $cod = trim((string) ($produs['cod'] ?? ''));
                 $nrBucati = $produs['nr_bucati'] ?? null;
+                $cantitateInitiala = $produs['cantitate_initiala'] ?? null;
                 $pret = $produs['pret'] ?? null;
                 $tvaCota = $produs['tva_cota'] ?? null;
                 $pretBrut = $produs['pret_brut'] ?? null;
 
                 $hasOtherData = $cod !== ''
+                    || ($cantitateInitiala !== null && $cantitateInitiala !== '')
                     || ($nrBucati !== null && $nrBucati !== '')
                     || ($pret !== null && $pret !== '')
                     || ($tvaCota !== null && $tvaCota !== '')
@@ -126,6 +139,7 @@ class FacturaFurnizorRequest extends FormRequest
             'produse.array' => 'Lista de produse trebuie sa fie un format valid.',
             'produse.*.nr_bucati.numeric' => 'Cantitatea produsului trebuie sa fie un numar.',
             'produse.*.pret.numeric' => 'Pretul produsului trebuie sa fie un numar.',
+            'produse.*.cantitate_initiala.numeric' => 'Cantitatea inițială trebuie să fie un număr.',
         ];
     }
 
@@ -145,6 +159,7 @@ class FacturaFurnizorRequest extends FormRequest
             'departament_vehicul' => 'departament / numar auto',
             'observatii' => 'observatii',
             'produse' => 'produse',
+            'produse.*.cantitate_initiala' => 'cantitate inițială',
             'produse.*.denumire' => 'denumire produs',
             'produse.*.cod' => 'cod produs',
             'produse.*.nr_bucati' => 'cantitate produs',

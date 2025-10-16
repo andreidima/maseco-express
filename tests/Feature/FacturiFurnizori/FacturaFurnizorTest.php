@@ -3,6 +3,9 @@
 namespace Tests\Feature\FacturiFurnizori;
 
 use App\Models\FacturiFurnizori\FacturaFurnizor;
+use App\Models\Service\GestiunePiesa;
+use App\Models\Service\Masina;
+use App\Models\Service\MasinaServiceEntry;
 use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -115,10 +118,14 @@ class FacturaFurnizorTest extends TestCase
 
         $this->assertCount(2, $factura->piese);
         $this->assertEquals('Filtru ulei', $factura->piese[0]->denumire);
+        $this->assertSame('2.00', $factura->piese[0]->cantitate_initiala);
+        $this->assertSame('2.00', $factura->piese[0]->nr_bucati);
         $this->assertSame('35.50', $factura->piese[0]->pret);
         $this->assertSame('11.00', $factura->piese[0]->tva_cota);
         $this->assertSame('39.41', $factura->piese[0]->pret_brut);
         $this->assertEquals('Ulei motor', $factura->piese[1]->denumire);
+        $this->assertSame('1.00', $factura->piese[1]->cantitate_initiala);
+        $this->assertSame('1.00', $factura->piese[1]->nr_bucati);
         $this->assertSame('250.00', $factura->piese[1]->pret);
         $this->assertSame('21.00', $factura->piese[1]->tva_cota);
         $this->assertSame('302.50', $factura->piese[1]->pret_brut);
@@ -135,6 +142,7 @@ class FacturaFurnizorTest extends TestCase
         $factura->piese()->create([
             'denumire' => 'Produs vechi',
             'cod' => 'OLD-1',
+            'cantitate_initiala' => 5,
             'nr_bucati' => 5,
             'pret' => 75,
         ]);
@@ -169,6 +177,8 @@ class FacturaFurnizorTest extends TestCase
 
         $this->assertCount(1, $factura->piese);
         $this->assertEquals('Plăcuțe frână', $factura->piese[0]->denumire);
+        $this->assertSame('4.00', $factura->piese[0]->cantitate_initiala);
+        $this->assertSame('4.00', $factura->piese[0]->nr_bucati);
         $this->assertSame('120.00', $factura->piese[0]->pret);
         $this->assertSame('21.00', $factura->piese[0]->tva_cota);
         $this->assertSame('145.20', $factura->piese[0]->pret_brut);
@@ -176,6 +186,151 @@ class FacturaFurnizorTest extends TestCase
             'factura_id' => $factura->id,
             'denumire' => 'Produs vechi',
         ]);
+    }
+
+    public function test_it_updates_initial_quantity_without_affecting_allocations(): void
+    {
+        $user = User::factory()->create();
+        $factura = FacturaFurnizor::factory()->create([
+            'suma' => 250,
+            'moneda' => 'RON',
+        ]);
+
+        $piece = $factura->piese()->create([
+            'denumire' => 'Filtru aer',
+            'cod' => 'FA-1',
+            'cantitate_initiala' => 5,
+            'nr_bucati' => 5,
+            'pret' => 50,
+            'tva_cota' => 21,
+            'pret_brut' => 60.5,
+        ]);
+
+        $masina = Masina::factory()->create();
+
+        $entry = MasinaServiceEntry::create([
+            'masina_id' => $masina->id,
+            'gestiune_piesa_id' => $piece->id,
+            'tip' => 'piesa',
+            'denumire_piesa' => $piece->denumire,
+            'cod_piesa' => $piece->cod,
+            'cantitate' => 2,
+            'data_montaj' => '2025-01-05',
+            'nume_mecanic' => 'Ion Mecanic',
+            'nume_utilizator' => 'Maria Utilizator',
+        ]);
+
+        $piece->decrement('nr_bucati', 2);
+        $piece->refresh();
+
+        $payload = [
+            'denumire_furnizor' => $factura->denumire_furnizor,
+            'numar_factura' => $factura->numar_factura,
+            'data_factura' => $factura->data_factura->format('Y-m-d'),
+            'data_scadenta' => $factura->data_scadenta->format('Y-m-d'),
+            'suma' => $factura->suma,
+            'moneda' => $factura->moneda,
+            'cont_iban' => $factura->cont_iban ?? '',
+            'departament_vehicul' => $factura->departament_vehicul ?? '',
+            'observatii' => $factura->observatii ?? '',
+            'produse' => [
+                [
+                    'id' => $piece->id,
+                    'denumire' => $piece->denumire,
+                    'cod' => $piece->cod,
+                    'cantitate_initiala' => '8',
+                    'nr_bucati' => '6',
+                    'pret' => '50',
+                    'tva_cota' => '21',
+                    'pret_brut' => '60.5',
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($user)
+            ->put(route('facturi-furnizori.facturi.update', $factura), $payload);
+
+        $response->assertRedirect(route('facturi-furnizori.facturi.index'));
+
+        $piece->refresh();
+
+        $this->assertSame('8.00', $piece->cantitate_initiala);
+        $this->assertSame('6.00', $piece->nr_bucati);
+        $this->assertDatabaseHas('service_masina_service_entries', [
+            'id' => $entry->id,
+            'gestiune_piesa_id' => $piece->id,
+        ]);
+    }
+
+    public function test_it_validates_initial_quantity_against_allocations(): void
+    {
+        $user = User::factory()->create();
+        $factura = FacturaFurnizor::factory()->create([
+            'suma' => 300,
+            'moneda' => 'RON',
+        ]);
+
+        $piece = $factura->piese()->create([
+            'denumire' => 'Set plăcuțe',
+            'cod' => 'SP-9',
+            'cantitate_initiala' => 4,
+            'nr_bucati' => 4,
+            'pret' => 40,
+            'tva_cota' => 21,
+            'pret_brut' => 48.4,
+        ]);
+
+        $masina = Masina::factory()->create();
+
+        MasinaServiceEntry::create([
+            'masina_id' => $masina->id,
+            'gestiune_piesa_id' => $piece->id,
+            'tip' => 'piesa',
+            'denumire_piesa' => $piece->denumire,
+            'cod_piesa' => $piece->cod,
+            'cantitate' => 3,
+            'data_montaj' => '2025-02-10',
+            'nume_mecanic' => 'Vasile Mecanic',
+            'nume_utilizator' => 'Andrei Utilizator',
+        ]);
+
+        $piece->decrement('nr_bucati', 3);
+        $piece->refresh();
+
+        $payload = [
+            'denumire_furnizor' => $factura->denumire_furnizor,
+            'numar_factura' => $factura->numar_factura,
+            'data_factura' => $factura->data_factura->format('Y-m-d'),
+            'data_scadenta' => $factura->data_scadenta->format('Y-m-d'),
+            'suma' => $factura->suma,
+            'moneda' => $factura->moneda,
+            'cont_iban' => $factura->cont_iban ?? '',
+            'departament_vehicul' => $factura->departament_vehicul ?? '',
+            'observatii' => $factura->observatii ?? '',
+            'produse' => [
+                [
+                    'id' => $piece->id,
+                    'denumire' => $piece->denumire,
+                    'cod' => $piece->cod,
+                    'cantitate_initiala' => '2',
+                    'nr_bucati' => '0',
+                    'pret' => '40',
+                    'tva_cota' => '21',
+                    'pret_brut' => '48.4',
+                ],
+            ],
+        ];
+
+        $response = $this->actingAs($user)
+            ->from(route('facturi-furnizori.facturi.edit', $factura))
+            ->put(route('facturi-furnizori.facturi.update', $factura), $payload);
+
+        $response->assertRedirect(route('facturi-furnizori.facturi.edit', $factura));
+        $response->assertSessionHasErrors(['produse.0.cantitate_initiala']);
+
+        $piece->refresh();
+        $this->assertSame('4.00', $piece->cantitate_initiala);
+        $this->assertSame('1.00', $piece->nr_bucati);
     }
 
     public function test_it_allows_uploading_pdfs_for_an_invoice(): void
