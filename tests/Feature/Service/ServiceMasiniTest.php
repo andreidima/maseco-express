@@ -111,5 +111,7 @@ class ServiceMasiniTest extends TestCase
 
         $response->assertOk();
         $this->assertStringContainsString('application/pdf', $response->headers->get('content-type'));
+        $response->assertSee('table-layout: fixed', false);
+        $response->assertSee('word-break: break-word', false);
     }
 }

@@ -410,4 +410,53 @@ class FacturaFurnizorTest extends TestCase
             'factura_id' => $factura->id,
         ]);
     }
+
+    public function test_show_displays_products_with_stock_details_modal_trigger(): void
+    {
+        $user = User::factory()->create();
+        $factura = FacturaFurnizor::factory()->create();
+
+        $piece = GestiunePiesa::factory()
+            ->for($factura, 'factura')
+            ->create([
+                'denumire' => 'Filtru cabină',
+                'cod' => 'FC-01',
+                'cantitate_initiala' => 5,
+                'nr_bucati' => 3,
+                'pret' => 75.5,
+                'tva_cota' => 21,
+                'pret_brut' => 91.36,
+            ]);
+
+        $masina = Masina::factory()->create([
+            'denumire' => 'Camion Test',
+            'numar_inmatriculare' => 'B-99-XYZ',
+        ]);
+
+        MasinaServiceEntry::factory()->create([
+            'masina_id' => $masina->id,
+            'gestiune_piesa_id' => $piece->id,
+            'tip' => 'piesa',
+            'denumire_piesa' => $piece->denumire,
+            'cod_piesa' => $piece->cod,
+            'cantitate' => 2,
+            'data_montaj' => '2024-05-10',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('facturi-furnizori.facturi.show', $factura));
+
+        $response->assertOk();
+        $response->assertSee('Cantitate inițială');
+        $response->assertSee('Preț NET/buc');
+        $response->assertSee('Cotă TVA');
+        $response->assertSee('Preț BRUT/buc');
+        $response->assertSee('Filtru cabină', false);
+        $response->assertSee('75.50');
+        $response->assertSee('91.36');
+        $response->assertSee('data-piece-initial="5.00"', false);
+        $response->assertSee('data-piece-remaining="3.00"', false);
+        $response->assertSee('data-piece-used="2.00"', false);
+        $response->assertSee("data-piece-machines='[", false);
+        $response->assertSee('"masina_id":' . $masina->id, false);
+    }
 }
