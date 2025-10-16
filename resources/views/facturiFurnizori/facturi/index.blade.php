@@ -16,12 +16,12 @@
 @endphp
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-        <div class="col-lg-2 mb-2">
+        <div class="col-lg-1 mb-2">
             <span class="badge culoare1 fs-5">
-                <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
+                <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi<br>furnizori
             </span>
         </div>
-        <div class="col-lg-7 mb-0" id="formularFacturi">
+        <div class="col-lg-8 mb-0" id="formularFacturi">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
                 <div class="row gy-1 gx-4 mb-2 custom-search-form d-flex justify-content-center align-items-end">
                     <div class="col-lg-2 col-md-6">
@@ -89,16 +89,16 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-sm-6 col-lg-3 col-xl-3">
-                        <label for="filter-scadenta-de-la" class="form-label small text-muted mb-1">Scadență de la</label>
+                    <div class="col-12 col-sm-6 col-lg-2">
+                        <label for="filter-scadenta-de-la" class="form-label ps-2 small text-muted mb-0">Scadență de la</label>
                         <input type="date" class="form-control rounded-3" id="filter-scadenta-de-la" name="scadenta_de_la" value="{{ $filters['scadenta_de_la'] }}">
                     </div>
-                    <div class="col-12 col-sm-6 col-lg-3 col-xl-3">
-                        <label for="filter-scadenta-pana" class="form-label small text-muted mb-1">Scadență până la</label>
+                    <div class="col-12 col-sm-6 col-lg-2">
+                        <label for="filter-scadenta-pana" class="form-label ps-2 small text-muted mb-0">Scadență până la</label>
                         <input type="date" class="form-control rounded-3" id="filter-scadenta-pana" name="scadenta_pana" value="{{ $filters['scadenta_pana'] }}">
                     </div>
-                    <div class="col-12 col-sm-6 col-lg-3 col-xl-3">
-                        <label for="filter-calup-data" class="form-label small text-muted mb-1">Data plată calup</label>
+                    <div class="col-12 col-sm-6 col-lg-2">
+                        <label for="filter-calup-data" class="form-label ps-2 small text-muted mb-0">Data plată calup</label>
                         <input type="date" class="form-control rounded-3" id="filter-calup-data" name="calup_data_plata" value="{{ $filters['calup_data_plata'] }}">
                     </div>
                     <div class="col-lg-3 col-md-6">
