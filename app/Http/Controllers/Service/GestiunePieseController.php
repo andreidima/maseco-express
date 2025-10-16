@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Service\MasinaServiceEntry;
 
 class GestiunePieseController extends Controller
 {
@@ -121,6 +122,8 @@ class GestiunePieseController extends Controller
             }
         }
 
+        $stockDetails = $items ? $this->buildStockDetails($items) : [];
+
         $displayColumns = array_values(array_filter(
             $columns,
             static fn ($column) => ! in_array($column, ['id', 'factura_id', 'created_at', 'updated_at'], true)
@@ -138,6 +141,129 @@ class GestiunePieseController extends Controller
             'hasTable' => $hasTable,
             'loadError' => $loadError,
             'invoiceColumn' => $invoiceJoinColumn,
+            'stockDetails' => $stockDetails,
         ]);
+    }
+
+    private function buildStockDetails($items): array
+    {
+        if (! $items) {
+            return [];
+        }
+
+        $rows = collect($items->items());
+
+        if ($rows->isEmpty()) {
+            return [];
+        }
+
+        $pieceIds = $rows
+            ->pluck('id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->values()
+            ->all();
+
+        if (empty($pieceIds)) {
+            return [];
+        }
+
+        $usageByPiece = [];
+
+        $entries = MasinaServiceEntry::query()
+            ->select(['id', 'gestiune_piesa_id', 'masina_id', 'cantitate'])
+            ->with(['masina:id,numar_inmatriculare,denumire'])
+            ->whereIn('gestiune_piesa_id', $pieceIds)
+            ->whereNotNull('cantitate')
+            ->get();
+
+        foreach ($entries as $entry) {
+            $pieceId = (int) $entry->gestiune_piesa_id;
+
+            if ($pieceId <= 0) {
+                continue;
+            }
+
+            $quantity = (float) $entry->cantitate;
+
+            if (! isset($usageByPiece[$pieceId])) {
+                $usageByPiece[$pieceId] = [
+                    'used' => 0.0,
+                    'machines' => [],
+                ];
+            }
+
+            $usageByPiece[$pieceId]['used'] += $quantity;
+
+            $machine = $entry->masina;
+
+            if (! $machine) {
+                continue;
+            }
+
+            $machineId = (int) $machine->getKey();
+
+            if ($machineId <= 0) {
+                continue;
+            }
+
+            if (! isset($usageByPiece[$pieceId]['machines'][$machineId])) {
+                $usageByPiece[$pieceId]['machines'][$machineId] = [
+                    'masina_id' => $machineId,
+                    'numar_inmatriculare' => $machine->numar_inmatriculare,
+                    'denumire' => $machine->denumire,
+                    'cantitate' => 0.0,
+                ];
+            }
+
+            $usageByPiece[$pieceId]['machines'][$machineId]['cantitate'] += $quantity;
+        }
+
+        $details = [];
+
+        foreach ($rows as $row) {
+            $id = (int) ($row->id ?? 0);
+
+            if ($id <= 0) {
+                continue;
+            }
+
+            $remaining = isset($row->nr_bucati) ? (float) $row->nr_bucati : null;
+            $initial = isset($row->cantitate_initiala) ? (float) $row->cantitate_initiala : null;
+            $used = $usageByPiece[$id]['used'] ?? null;
+
+            if ($used === null) {
+                if ($initial !== null && $remaining !== null) {
+                    $used = max($initial - $remaining, 0);
+                } else {
+                    $used = 0.0;
+                }
+            }
+
+            if ($initial === null && $remaining !== null) {
+                $initial = $remaining + $used;
+            } elseif ($initial !== null && $remaining === null) {
+                $remaining = max($initial - $used, 0);
+            }
+
+            $machines = array_map(static function ($machine) {
+                return [
+                    'masina_id' => $machine['masina_id'],
+                    'numar_inmatriculare' => $machine['numar_inmatriculare'],
+                    'denumire' => $machine['denumire'],
+                    'cantitate' => round((float) $machine['cantitate'], 2),
+                ];
+            }, $usageByPiece[$id]['machines'] ?? []);
+
+            $details[$id] = [
+                'initial' => $initial !== null ? round($initial, 2) : null,
+                'remaining' => $remaining !== null ? round($remaining, 2) : null,
+                'used' => round($used, 2),
+                'machines' => $machines,
+            ];
+        }
+
+        return $details;
     }
 }

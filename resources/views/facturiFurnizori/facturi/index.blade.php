@@ -18,7 +18,10 @@
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
         <div class="col-lg-1 mb-2">
             <span class="badge culoare1 fs-5">
-                <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi<br>furnizori
+                <span class="d-inline-flex flex-column align-items-start gap-1 lh-1">
+                    <span><i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi</span>
+                    <span class="ms-4">furnizori</span>
+                </span>
             </span>
         </div>
         <div class="col-lg-8 mb-0" id="formularFacturi">

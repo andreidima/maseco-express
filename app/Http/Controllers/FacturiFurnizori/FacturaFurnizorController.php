@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FacturiFurnizori\FacturaFurnizorRequest;
 use App\Models\FacturiFurnizori\FacturaFurnizor;
 use App\Models\FacturiFurnizori\FacturaFurnizorFisier;
+use App\Models\Service\GestiunePiesa;
 use App\Support\FacturiFurnizori\FacturiIndexFilterState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class FacturaFurnizorController extends Controller
 {
@@ -168,8 +170,15 @@ class FacturaFurnizorController extends Controller
         $factura = DB::transaction(function () use ($payload, $produse) {
             $factura = FacturaFurnizor::create($payload);
 
-            if (!empty($produse)) {
-                $factura->piese()->createMany($produse);
+            if (! empty($produse)) {
+                $pieces = collect($produse)
+                    ->map(fn ($produs) => $this->formatPieceForPersistence($produs))
+                    ->map(fn ($produs) => collect($produs)->except(['id', 'form_index'])->all())
+                    ->all();
+
+                if (! empty($pieces)) {
+                    $factura->piese()->createMany($pieces);
+                }
             }
 
             return $factura;
@@ -225,10 +234,43 @@ class FacturaFurnizorController extends Controller
         DB::transaction(function () use ($factura, $payload, $produse) {
             $factura->update($payload);
 
-            $factura->piese()->delete();
+            $existingPieces = $factura->piese()->get()->keyBy('id');
+            $usageTotals = $this->fetchPieceUsageTotals($existingPieces->keys()->all());
 
-            if (!empty($produse)) {
-                $factura->piese()->createMany($produse);
+            foreach ($produse as $produs) {
+                $pieceId = $produs['id'] ?? null;
+                $formIndex = $produs['form_index'] ?? null;
+
+                if ($pieceId && $existingPieces->has($pieceId)) {
+                    /** @var GestiunePiesa $existing */
+                    $existing = $existingPieces->get($pieceId);
+                    $used = $usageTotals[$pieceId] ?? 0.0;
+
+                    $data = $this->formatPieceForPersistence($produs, $used, $existing);
+                    $this->assertInitialQuantityIsValid($data, $used, $formIndex);
+
+                    $existing->update(collect($data)->except(['id', 'form_index'])->all());
+                    $existingPieces->forget($pieceId);
+                } else {
+                    $data = $this->formatPieceForPersistence($produs);
+                    $this->assertInitialQuantityIsValid($data, 0.0, $formIndex);
+
+                    $factura->piese()->create(collect($data)->except(['id', 'form_index'])->all());
+                }
+            }
+
+            if ($existingPieces->isNotEmpty()) {
+                foreach ($existingPieces as $piece) {
+                    $used = $usageTotals[$piece->id] ?? 0.0;
+
+                    if ($used > 0) {
+                        throw ValidationException::withMessages([
+                            'produse' => 'Nu poți elimina piesa „' . $piece->denumire . '” deoarece este deja alocată către mașini.',
+                        ]);
+                    }
+
+                    $piece->delete();
+                }
             }
         });
 
@@ -277,8 +319,13 @@ class FacturaFurnizorController extends Controller
             ->map(function ($row) {
                 $denumire = isset($row['denumire']) ? trim((string) $row['denumire']) : '';
                 $cod = isset($row['cod']) ? trim((string) $row['cod']) : '';
+                $id = isset($row['id']) ? (int) $row['id'] : null;
+                $formIndex = $row['form_index'] ?? null;
                 $nrBucati = isset($row['nr_bucati']) && $row['nr_bucati'] !== ''
                     ? round((float) $row['nr_bucati'], 2)
+                    : null;
+                $cantitateInitiala = isset($row['cantitate_initiala']) && $row['cantitate_initiala'] !== ''
+                    ? round((float) $row['cantitate_initiala'], 2)
                     : null;
                 $pret = isset($row['pret']) && $row['pret'] !== ''
                     ? round((float) $row['pret'], 2)
@@ -306,12 +353,15 @@ class FacturaFurnizorController extends Controller
                 }
 
                 return [
+                    'id' => $id,
                     'denumire' => $denumire,
                     'cod' => $cod !== '' ? $cod : null,
+                    'cantitate_initiala' => $cantitateInitiala,
                     'nr_bucati' => $nrBucati,
                     'pret' => $pret,
                     'tva_cota' => $tvaCota,
                     'pret_brut' => $pretBrut,
+                    'form_index' => $formIndex,
                 ];
             })
             ->filter()
@@ -319,6 +369,103 @@ class FacturaFurnizorController extends Controller
             ->all();
 
         return $produse;
+    }
+
+    private function formatPieceForPersistence(array $produs, float $used = 0.0, ?GestiunePiesa $existing = null): array
+    {
+        $denumire = $produs['denumire'] ?? null;
+        $cod = $produs['cod'] ?? null;
+
+        $cantitateInitiala = $this->toNullableFloat($produs['cantitate_initiala'] ?? null);
+        $nrBucati = $this->toNullableFloat($produs['nr_bucati'] ?? null);
+        $pret = $this->toNullableFloat($produs['pret'] ?? null);
+        $tvaCota = $this->toNullableFloat($produs['tva_cota'] ?? null);
+        $pretBrut = $this->toNullableFloat($produs['pret_brut'] ?? null);
+
+        if ($existing) {
+            if ($cantitateInitiala === null && $existing->cantitate_initiala !== null) {
+                $cantitateInitiala = (float) $existing->cantitate_initiala;
+            }
+
+            if ($nrBucati === null && $existing->nr_bucati !== null) {
+                $nrBucati = (float) $existing->nr_bucati;
+            }
+
+            if ($pret === null && $existing->pret !== null) {
+                $pret = (float) $existing->pret;
+            }
+
+            if ($tvaCota === null && $existing->tva_cota !== null) {
+                $tvaCota = (float) $existing->tva_cota;
+            }
+
+            if ($pretBrut === null && $existing->pret_brut !== null) {
+                $pretBrut = (float) $existing->pret_brut;
+            }
+        }
+
+        if ($cantitateInitiala === null && $nrBucati !== null) {
+            $cantitateInitiala = round($nrBucati + $used, 2);
+        }
+
+        if ($cantitateInitiala !== null && $nrBucati === null) {
+            $nrBucati = round(max($cantitateInitiala - $used, 0), 2);
+        }
+
+        return [
+            'denumire' => $denumire,
+            'cod' => $cod !== null && $cod !== '' ? $cod : null,
+            'cantitate_initiala' => $cantitateInitiala,
+            'nr_bucati' => $nrBucati,
+            'pret' => $pret,
+            'tva_cota' => $tvaCota,
+            'pret_brut' => $pretBrut,
+        ];
+    }
+
+    private function fetchPieceUsageTotals(array $pieceIds): array
+    {
+        if (empty($pieceIds)) {
+            return [];
+        }
+
+        return DB::table('service_masina_service_entries')
+            ->select('gestiune_piesa_id', DB::raw('SUM(cantitate) as total'))
+            ->whereIn('gestiune_piesa_id', $pieceIds)
+            ->where('tip', 'piesa')
+            ->whereNotNull('cantitate')
+            ->groupBy('gestiune_piesa_id')
+            ->pluck('total', 'gestiune_piesa_id')
+            ->map(fn ($value) => round((float) $value, 2))
+            ->all();
+    }
+
+    private function assertInitialQuantityIsValid(array $data, float $used, $formIndex): void
+    {
+        $initial = $data['cantitate_initiala'] ?? null;
+
+        if ($used > 0 && $initial === null) {
+            $message = 'Cantitatea inițială este obligatorie deoarece există deja alocări (' . number_format($used, 2) . ').';
+            $key = is_numeric($formIndex) ? 'produse.' . $formIndex . '.cantitate_initiala' : 'produse';
+
+            throw ValidationException::withMessages([$key => $message]);
+        }
+
+        if ($initial !== null && $initial + 1e-6 < $used) {
+            $message = 'Cantitatea inițială nu poate fi mai mică decât cantitatea deja alocată (' . number_format($used, 2) . ').';
+            $key = is_numeric($formIndex) ? 'produse.' . $formIndex . '.cantitate_initiala' : 'produse';
+
+            throw ValidationException::withMessages([$key => $message]);
+        }
+    }
+
+    private function toNullableFloat($value): ?float
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return round((float) $value, 2);
     }
 
     /**

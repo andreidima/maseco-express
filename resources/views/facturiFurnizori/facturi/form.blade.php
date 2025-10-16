@@ -4,10 +4,17 @@
     $buttonClass ??= 'btn-primary';
     $cancelUrl ??= \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
     $produseColectie = collect(old('produse', $factura?->piese?->map(function ($piesa) {
+        $initial = $piesa->cantitate_initiala ?? $piesa->nr_bucati;
+        $remaining = $piesa->nr_bucati;
+        $consumed = max(($initial ?? 0) - ($remaining ?? 0), 0);
+
         return [
+            'id' => $piesa->id,
             'denumire' => $piesa->denumire,
             'cod' => $piesa->cod,
+            'cantitate_initiala' => $initial,
             'nr_bucati' => $piesa->nr_bucati,
+            'cantitate_consumata' => $consumed,
             'pret' => $piesa->pret,
             'tva_cota' => $piesa->tva_cota,
             'pret_brut' => $piesa->pret_brut,
@@ -15,9 +22,12 @@
     })->toArray() ?? []));
     if ($produseColectie->isEmpty()) {
         $produseColectie = collect([[
+            'id' => null,
             'denumire' => '',
             'cod' => '',
+            'cantitate_initiala' => '',
             'nr_bucati' => '',
+            'cantitate_consumata' => 0,
             'pret' => '',
             'tva_cota' => '',
             'pret_brut' => '',
@@ -224,6 +234,7 @@
                         <tr>
                             <th style="min-width: 200px;">Denumire</th>
                             <th style="min-width: 140px;">Cod</th>
+                            <th style="min-width: 140px;">Cantitate inițială</th>
                             <th style="min-width: 120px;">Cantitate</th>
                             <th style="min-width: 120px;">Preț NET/buc</th>
                             <th style="min-width: 110px;">Cotă TVA</th>
@@ -233,8 +244,18 @@
                     </thead>
                     <tbody id="produse-table-body">
                         @foreach ($produse as $index => $produs)
-                            <tr data-index="{{ $index }}">
+                            @php
+                                $initialRaw = $produs['cantitate_initiala'] ?? '';
+                                $remainingRaw = $produs['nr_bucati'] ?? '';
+                                $consumedRaw = $produs['cantitate_consumata'] ?? null;
+                                $initialValue = $initialRaw === '' || $initialRaw === null ? '' : number_format((float) $initialRaw, 2, '.', '');
+                                $remainingValue = $remainingRaw === '' || $remainingRaw === null ? '' : number_format((float) $remainingRaw, 2, '.', '');
+                                $consumedValue = $consumedRaw === null ? max(((float) ($initialRaw ?? 0)) - ((float) ($remainingRaw ?? 0)), 0) : (float) $consumedRaw;
+                                $consumedValue = max($consumedValue, 0);
+                            @endphp
+                            <tr data-index="{{ $index }}" data-piece-used="{{ number_format($consumedValue, 2, '.', '') }}">
                                 <td>
+                                    <input type="hidden" name="produse[{{ $index }}][id]" value="{{ $produs['id'] ?? '' }}">
                                     <input
                                         type="text"
                                         name="produse[{{ $index }}][denumire]"
@@ -263,11 +284,28 @@
                                         type="number"
                                         step="0.01"
                                         min="0"
-                                        name="produse[{{ $index }}][nr_bucati]"
-                                        class="form-control form-control-sm {{ $errors->has('produse.' . $index . '.nr_bucati') ? 'is-invalid' : '' }}"
+                                        name="produse[{{ $index }}][cantitate_initiala]"
+                                        class="form-control form-control-sm {{ $errors->has('produse.' . $index . '.cantitate_initiala') ? 'is-invalid' : '' }}"
+                                        data-piece-field="initial"
                                         data-produs-field="quantity"
-                                        value="{{ $produs['nr_bucati'] }}"
+                                        value="{{ $initialValue }}"
                                         placeholder="0"
+                                    >
+                                    @error('produse.' . $index . '.cantitate_initiala')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </td>
+                                <td>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        name="produse[{{ $index }}][nr_bucati]"
+                                        class="form-control form-control-sm bg-light {{ $errors->has('produse.' . $index . '.nr_bucati') ? 'is-invalid' : '' }}"
+                                        data-piece-field="remaining"
+                                        value="{{ $remainingValue }}"
+                                        placeholder="0"
+                                        readonly
                                     >
                                     @error('produse.' . $index . '.nr_bucati')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -329,8 +367,9 @@
             </div>
 
             <template id="template-produs-row">
-                <tr data-index="__INDEX__">
+                <tr data-index="__INDEX__" data-piece-used="0">
                     <td>
+                        <input type="hidden" name="produse[__INDEX__][id]" value="">
                         <input
                             type="text"
                             name="produse[__INDEX__][denumire]"
@@ -351,10 +390,23 @@
                             type="number"
                             step="0.01"
                             min="0"
-                            name="produse[__INDEX__][nr_bucati]"
+                            name="produse[__INDEX__][cantitate_initiala]"
                             class="form-control form-control-sm"
+                            data-piece-field="initial"
                             data-produs-field="quantity"
                             placeholder="0"
+                        >
+                    </td>
+                    <td>
+                        <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            name="produse[__INDEX__][nr_bucati]"
+                            class="form-control form-control-sm bg-light"
+                            data-piece-field="remaining"
+                            placeholder="0"
+                            readonly
                         >
                     </td>
                     <td>
@@ -433,6 +485,27 @@
                 return value.toFixed(2);
             };
 
+            const updateRemaining = (row) => {
+                const initialInput = row.querySelector('[data-piece-field="initial"]');
+                const remainingInput = row.querySelector('[data-piece-field="remaining"]');
+
+                if (!remainingInput) {
+                    return;
+                }
+
+                const used = Number.parseFloat(row.getAttribute('data-piece-used') ?? '0');
+                const initial = initialInput ? Number.parseFloat(initialInput.value) : NaN;
+
+                if (Number.isFinite(initial)) {
+                    const remaining = Math.max(initial - (Number.isFinite(used) ? used : 0), 0);
+                    remainingInput.value = formatNumber(remaining);
+                } else if (Number.isFinite(used) && used > 0) {
+                    remainingInput.value = formatNumber(0);
+                } else {
+                    remainingInput.value = '';
+                }
+            };
+
             const recalculateRow = (row) => {
                 const quantityInput = row.querySelector('[data-produs-field="quantity"]');
                 const netPriceInput = row.querySelector('[data-produs-field="net-price"]');
@@ -462,12 +535,19 @@
 
             const attachRowListeners = (row) => {
                 const inputs = row.querySelectorAll('[data-produs-field="quantity"], [data-produs-field="net-price"], [data-produs-field="tva-rate"]');
+                const initialInput = row.querySelector('[data-piece-field="initial"]');
 
                 inputs.forEach((input) => {
                     input.addEventListener('input', () => recalculateRow(row));
                     input.addEventListener('change', () => recalculateRow(row));
                 });
 
+                if (initialInput) {
+                    initialInput.addEventListener('input', () => updateRemaining(row));
+                    initialInput.addEventListener('change', () => updateRemaining(row));
+                }
+
+                updateRemaining(row);
                 recalculateRow(row);
             };
 
