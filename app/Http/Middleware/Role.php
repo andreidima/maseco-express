@@ -22,6 +22,6 @@ class Role
             }
         }
 
-        return redirect('login');
+        abort(403);
     }
 }

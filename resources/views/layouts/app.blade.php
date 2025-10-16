@@ -41,6 +41,7 @@
         $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
         $impersonationActive = session()->has('impersonated_by');
         $impersonatorName = session('impersonated_by_name');
+        $isMechanic = auth()->user()->hasRole('mecanic');
     @endphp
     {{-- <div id="app"> --}}
     <header>
@@ -57,7 +58,21 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    @if ($isMechanic)
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item me-3">
+                                <a class="nav-link active" href="{{ route('gestiune-piese.index') }}">
+                                    <i class="fa-solid fa-boxes-stacked me-1"></i>Gestiune piese
+                                </a>
+                            </li>
+                            <li class="nav-item me-3">
+                                <a class="nav-link active" href="{{ route('service-masini.index') }}">
+                                    <i class="fa-solid fa-screwdriver-wrench me-1"></i>Service mașini
+                                </a>
+                            </li>
+                        </ul>
+                    @else
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         {{-- <li class="nav-item me-3 dropdown">
                             <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fa-solid fa-folder"></i>&nbsp;
@@ -305,7 +320,8 @@
                                 </ul>
                             </li>
                         @endcan
-                    </ul>
+                        </ul>
+                    @endif
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
