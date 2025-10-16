@@ -254,7 +254,7 @@ class GestiunePieseController extends Controller
                     'denumire' => $machine['denumire'],
                     'cantitate' => round((float) $machine['cantitate'], 2),
                 ];
-            }, $usageByPiece[$id]['machines'] ?? []);
+            }, array_values($usageByPiece[$id]['machines'] ?? []));
 
             $details[$id] = [
                 'initial' => $initial !== null ? round($initial, 2) : null,
