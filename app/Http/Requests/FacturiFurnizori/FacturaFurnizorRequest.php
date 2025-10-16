@@ -3,6 +3,7 @@
 namespace App\Http\Requests\FacturiFurnizori;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
 
 class FacturaFurnizorRequest extends FormRequest
@@ -37,6 +38,8 @@ class FacturaFurnizorRequest extends FormRequest
             'produse.*.cod' => ['nullable', 'string', 'max:100'],
             'produse.*.nr_bucati' => ['nullable', 'numeric'],
             'produse.*.pret' => ['nullable', 'numeric'],
+            'produse.*.tva_cota' => ['nullable', 'numeric', Rule::in([11, 21])],
+            'produse.*.pret_brut' => ['nullable', 'numeric'],
             'fisiere_pdf' => ['nullable', 'array'],
             'fisiere_pdf.*' => ['file', 'mimes:pdf', 'max:10240'],
         ];
@@ -58,12 +61,20 @@ class FacturaFurnizorRequest extends FormRequest
                 $pret = array_key_exists('pret', $row) && $row['pret'] !== ''
                     ? $row['pret']
                     : null;
+                $tvaCota = array_key_exists('tva_cota', $row) && $row['tva_cota'] !== ''
+                    ? $row['tva_cota']
+                    : null;
+                $pretBrut = array_key_exists('pret_brut', $row) && $row['pret_brut'] !== ''
+                    ? $row['pret_brut']
+                    : null;
 
                 return [
                     'denumire' => $denumire,
                     'cod' => $cod,
                     'nr_bucati' => $nrBucati,
                     'pret' => $pret,
+                    'tva_cota' => $tvaCota,
+                    'pret_brut' => $pretBrut,
                 ];
             })
             ->toArray();
@@ -83,10 +94,14 @@ class FacturaFurnizorRequest extends FormRequest
                 $cod = trim((string) ($produs['cod'] ?? ''));
                 $nrBucati = $produs['nr_bucati'] ?? null;
                 $pret = $produs['pret'] ?? null;
+                $tvaCota = $produs['tva_cota'] ?? null;
+                $pretBrut = $produs['pret_brut'] ?? null;
 
                 $hasOtherData = $cod !== ''
                     || ($nrBucati !== null && $nrBucati !== '')
-                    || ($pret !== null && $pret !== '');
+                    || ($pret !== null && $pret !== '')
+                    || ($tvaCota !== null && $tvaCota !== '')
+                    || ($pretBrut !== null && $pretBrut !== '');
 
                 if ($hasOtherData && $denumire === '') {
                     $innerValidator->errors()->add("produse.$index.denumire", 'Denumirea produsului este obligatorie.');
