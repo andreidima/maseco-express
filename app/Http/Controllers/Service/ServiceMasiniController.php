@@ -301,7 +301,7 @@ class ServiceMasiniController extends Controller
             'masina' => $selectedMasina,
             'entries' => $entries,
             'filters' => $filters,
-        ]);
+        ])->setPaper('a4', 'landscape');
 
         $filename = 'service-masini-' . Str::slug($selectedMasina->numar_inmatriculare ?: $selectedMasina->denumire) . '.pdf';
 

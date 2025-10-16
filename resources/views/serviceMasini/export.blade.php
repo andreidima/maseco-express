@@ -6,14 +6,17 @@
     <title>Service mașini - {{ $masina->denumire }}</title>
     <style>
         @page {
+            size: A4 landscape;
             margin: 20px;
         }
 
+        html,
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
             color: #1a1a1a;
             margin: 0;
+            width: 100%;
         }
 
         h1 {
@@ -23,6 +26,7 @@
 
         table {
             width: 100%;
+            max-width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
             table-layout: fixed;
@@ -36,6 +40,7 @@
             vertical-align: top;
             word-break: break-word;
             overflow-wrap: anywhere;
+            max-width: 0;
         }
 
         th {
