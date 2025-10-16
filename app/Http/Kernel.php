@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
 
         // Andrei
         'role' => \App\Http\Middleware\Role::class,
+        'restrict-mechanic-access' => \App\Http\Middleware\RestrictMechanicAccess::class,
     ];
 }
