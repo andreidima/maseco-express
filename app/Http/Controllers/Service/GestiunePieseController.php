@@ -121,6 +121,8 @@ class GestiunePieseController extends Controller
             }
         }
 
+        $stockDetails = $items ? $this->buildStockDetails($items) : [];
+
         $displayColumns = array_values(array_filter(
             $columns,
             static fn ($column) => ! in_array($column, ['id', 'factura_id', 'created_at', 'updated_at'], true)
@@ -138,6 +140,153 @@ class GestiunePieseController extends Controller
             'hasTable' => $hasTable,
             'loadError' => $loadError,
             'invoiceColumn' => $invoiceJoinColumn,
+            'stockDetails' => $stockDetails,
         ]);
+    }
+
+    private function buildStockDetails($items): array
+    {
+        if (! $items) {
+            return [];
+        }
+
+        $rows = collect($items->items());
+
+        if ($rows->isEmpty()) {
+            return [];
+        }
+
+        $pieceIds = $rows
+            ->pluck('id')
+            ->filter()
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->values()
+            ->all();
+
+        if (empty($pieceIds)) {
+            return [];
+        }
+
+        $entriesTable = null;
+        $machinesTable = null;
+
+        if (Schema::hasTable('service_masina_service_entries')) {
+            $entriesTable = 'service_masina_service_entries';
+        } elseif (Schema::hasTable('masina_service_entries')) {
+            $entriesTable = 'masina_service_entries';
+        }
+
+        if (Schema::hasTable('service_masini')) {
+            $machinesTable = 'service_masini';
+        } elseif (Schema::hasTable('masini')) {
+            $machinesTable = 'masini';
+        }
+
+        if ($entriesTable === null) {
+            $usageRows = collect();
+        } else {
+            $usageQuery = DB::table("$entriesTable as mse")
+                ->select('mse.gestiune_piesa_id', DB::raw('SUM(mse.cantitate) as total_cantitate'))
+                ->whereIn('mse.gestiune_piesa_id', $pieceIds)
+                ->where('mse.tip', 'piesa')
+                ->whereNotNull('mse.cantitate');
+
+            $groupBy = ['mse.gestiune_piesa_id'];
+
+            if ($machinesTable !== null) {
+                $usageQuery->leftJoin("$machinesTable as m", 'm.id', '=', 'mse.masina_id');
+
+                if (Schema::hasColumn($machinesTable, 'id')) {
+                    $usageQuery->addSelect('m.id as masina_id');
+                    $groupBy[] = 'm.id';
+                }
+
+                $numberColumn = null;
+                if (Schema::hasColumn($machinesTable, 'numar_inmatriculare')) {
+                    $numberColumn = 'numar_inmatriculare';
+                } elseif (Schema::hasColumn($machinesTable, 'numar')) {
+                    $numberColumn = 'numar';
+                }
+
+                if ($numberColumn !== null) {
+                    $usageQuery->addSelect("m.$numberColumn as numar_inmatriculare");
+                    $groupBy[] = "m.$numberColumn";
+                }
+
+                $nameColumn = null;
+                if (Schema::hasColumn($machinesTable, 'denumire')) {
+                    $nameColumn = 'denumire';
+                } elseif (Schema::hasColumn($machinesTable, 'descriere')) {
+                    $nameColumn = 'descriere';
+                }
+
+                if ($nameColumn !== null) {
+                    $usageQuery->addSelect("m.$nameColumn as denumire");
+                    $groupBy[] = "m.$nameColumn";
+                }
+            }
+
+            $usageRows = $usageQuery->groupBy($groupBy)->get();
+        }
+
+        $usageByPiece = [];
+
+        foreach ($usageRows as $usage) {
+            $pieceId = (int) $usage->gestiune_piesa_id;
+            $usageByPiece[$pieceId]['used'] = ($usageByPiece[$pieceId]['used'] ?? 0.0) + (float) $usage->total_cantitate;
+            $usageByPiece[$pieceId]['machines'][] = [
+                'masina_id' => (int) $usage->masina_id,
+                'numar_inmatriculare' => $usage->numar_inmatriculare,
+                'denumire' => $usage->denumire,
+                'cantitate' => (float) $usage->total_cantitate,
+            ];
+        }
+
+        $details = [];
+
+        foreach ($rows as $row) {
+            $id = (int) ($row->id ?? 0);
+
+            if ($id <= 0) {
+                continue;
+            }
+
+            $remaining = isset($row->nr_bucati) ? (float) $row->nr_bucati : null;
+            $initial = isset($row->cantitate_initiala) ? (float) $row->cantitate_initiala : null;
+            $used = $usageByPiece[$id]['used'] ?? null;
+
+            if ($used === null) {
+                if ($initial !== null && $remaining !== null) {
+                    $used = max($initial - $remaining, 0);
+                } else {
+                    $used = 0.0;
+                }
+            }
+
+            if ($initial === null && $remaining !== null) {
+                $initial = $remaining + $used;
+            } elseif ($initial !== null && $remaining === null) {
+                $remaining = max($initial - $used, 0);
+            }
+
+            $machines = array_map(static function ($machine) {
+                return [
+                    'masina_id' => $machine['masina_id'],
+                    'numar_inmatriculare' => $machine['numar_inmatriculare'],
+                    'denumire' => $machine['denumire'],
+                    'cantitate' => round((float) $machine['cantitate'], 2),
+                ];
+            }, $usageByPiece[$id]['machines'] ?? []);
+
+            $details[$id] = [
+                'initial' => $initial !== null ? round($initial, 2) : null,
+                'remaining' => $remaining !== null ? round($remaining, 2) : null,
+                'used' => round($used, 2),
+                'machines' => $machines,
+            ];
+        }
+
+        return $details;
     }
 }

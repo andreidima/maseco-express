@@ -19,11 +19,14 @@ class GestiunePiesaFactory extends Factory
         $tvaCota = $this->faker->randomElement([11.00, 21.00]);
         $pretBrut = round($pret * (1 + ($tvaCota / 100)), 2);
 
+        $cantitateInitiala = $this->faker->randomFloat(2, 1, 20);
+
         return [
             'factura_id' => FacturaFurnizor::factory(),
             'denumire' => $this->faker->words(3, true),
             'cod' => strtoupper($this->faker->bothify('PIE###')),
-            'nr_bucati' => $this->faker->randomFloat(2, 1, 20),
+            'cantitate_initiala' => $cantitateInitiala,
+            'nr_bucati' => $cantitateInitiala,
             'pret' => $pret,
             'tva_cota' => $tvaCota,
             'pret_brut' => $pretBrut,
