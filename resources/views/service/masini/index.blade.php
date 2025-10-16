@@ -114,9 +114,9 @@
                                         style="padding-top: 0.35rem; padding-bottom: 0.35rem;">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <div class="fw-semibold">{{ $masina->denumire }}</div>
+                                                <div class="fw-semibold">{{ $masina->numar_inmatriculare }}</div>
                                                 <small class="text-muted {{ $selectedMasinaId === $masina->id ? 'text-white-50' : '' }}">
-                                                    {{ $masina->numar_inmatriculare }}
+                                                    {{ $masina->denumire }}
                                                 </small>
                                             </div>
                                             <i class="fa-solid fa-chevron-right small"></i>
