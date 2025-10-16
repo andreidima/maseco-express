@@ -92,19 +92,26 @@ class GestiunePieseController extends Controller
 
                 $sort = $request->query('sort');
                 $direction = strtolower($request->query('direction', 'desc')) === 'asc' ? 'asc' : 'desc';
+                $customSortApplied = false;
 
                 if ($sort === 'factura_data_factura' && $invoiceDateAlias) {
                     $query->orderBy('ff.data_factura', $direction);
+                    $customSortApplied = true;
                 } elseif ($sort && in_array($sort, $columns, true)) {
                     $query->orderBy("gp.$sort", $direction);
-                } elseif ($invoiceDateAlias) {
-                    $query->orderBy('ff.data_factura', 'desc');
-                } elseif (in_array('updated_at', $columns, true)) {
-                    $query->orderBy('gp.updated_at', 'desc');
-                } elseif (in_array('created_at', $columns, true)) {
-                    $query->orderBy('gp.created_at', 'desc');
-                } elseif (in_array('id', $columns, true)) {
-                    $query->orderBy('gp.id', 'desc');
+                    $customSortApplied = true;
+                }
+
+                if (! $customSortApplied) {
+                    if (in_array('nr_bucati', $columns, true)) {
+                        $query->orderByRaw('CASE WHEN gp.nr_bucati IS NULL OR gp.nr_bucati = 0 THEN 1 ELSE 0 END');
+                    }
+
+                    if (in_array('created_at', $columns, true)) {
+                        $query->orderBy('gp.created_at', 'desc');
+                    } elseif (in_array('id', $columns, true)) {
+                        $query->orderBy('gp.id', 'desc');
+                    }
                 }
 
                 $items = $query->simplePaginate(100)->withQueryString();

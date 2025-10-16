@@ -21,7 +21,7 @@
                 <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
             </span>
         </div>
-        <div class="col-lg-8 mb-0" id="formularFacturi">
+        <div class="col-lg-7 mb-0" id="formularFacturi">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
                 <div class="row gy-1 gx-4 mb-2 custom-search-form d-flex justify-content-center">
                     <div class="col-lg-2 col-md-6">
@@ -68,6 +68,20 @@
                         <datalist id="filter-departament-suggestions"></datalist>
                     </div>
                     <div class="col-lg-2 col-md-6">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-hashtag text-muted" title="Caută după număr factură"></i>
+                            <input
+                                type="text"
+                                class="form-control rounded-3 flex-grow-1"
+                                id="filter-numar-factura"
+                                name="numar_factura"
+                                placeholder="Număr factură"
+                                value="{{ $filters['numar_factura'] }}"
+                                autocomplete="off"
+                            >
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
                         <select name="moneda" id="filter-moneda" class="form-select bg-white rounded-3">
                             <option value="">Monedă</option>
                             @foreach ($monede as $moneda)
@@ -75,23 +89,17 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="d-flex align-items-center gap-2">
-                            <label for="filter-scadenta-de-la" class="form-label small text-muted mb-0 flex-shrink-0 text-nowrap">Scadență de la</label>
-                            <input type="date" class="form-control rounded-3" id="filter-scadenta-de-la" name="scadenta_de_la" value="{{ $filters['scadenta_de_la'] }}">
-                        </div>
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                        <label for="filter-scadenta-de-la" class="form-label small text-muted mb-1">Scadență de la</label>
+                        <input type="date" class="form-control rounded-3" id="filter-scadenta-de-la" name="scadenta_de_la" value="{{ $filters['scadenta_de_la'] }}">
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="d-flex align-items-center gap-2">
-                            <label for="filter-scadenta-pana" class="form-label small text-muted mb-0 flex-shrink-0 text-nowrap">Scadență până la</label>
-                            <input type="date" class="form-control rounded-3" id="filter-scadenta-pana" name="scadenta_pana" value="{{ $filters['scadenta_pana'] }}">
-                        </div>
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                        <label for="filter-scadenta-pana" class="form-label small text-muted mb-1">Scadență până la</label>
+                        <input type="date" class="form-control rounded-3" id="filter-scadenta-pana" name="scadenta_pana" value="{{ $filters['scadenta_pana'] }}">
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="d-flex align-items-center gap-2">
-                            <label for="filter-calup-data" class="form-label small text-muted mb-0 flex-shrink-0 text-nowrap">Data plată calup</label>
-                            <input type="date" class="form-control rounded-3" id="filter-calup-data" name="calup_data_plata" value="{{ $filters['calup_data_plata'] }}">
-                        </div>
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                        <label for="filter-calup-data" class="form-label small text-muted mb-1">Data plată calup</label>
+                        <input type="date" class="form-control rounded-3" id="filter-calup-data" name="calup_data_plata" value="{{ $filters['calup_data_plata'] }}">
                     </div>
                     <div class="col-lg-3 col-md-6">
                         <input
@@ -115,8 +123,9 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-2 text-lg-end mt-3 mt-lg-0">
+        <div class="col-lg-3 text-lg-end mt-3 mt-lg-0">
             <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
+                @include('partials.operations-navigation')
                 <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.create') }}" role="button">
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă factură
                 </a>
