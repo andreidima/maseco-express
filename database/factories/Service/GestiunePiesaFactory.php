@@ -15,12 +15,20 @@ class GestiunePiesaFactory extends Factory
 
     public function definition(): array
     {
+        $pret = $this->faker->randomFloat(2, 10, 500);
+        $tvaCota = $this->faker->randomElement([11.00, 21.00]);
+        $valoareTva = round($pret * ($tvaCota / 100), 2);
+        $pretBrut = round($pret + $valoareTva, 2);
+
         return [
             'factura_id' => FacturaFurnizor::factory(),
             'denumire' => $this->faker->words(3, true),
             'cod' => strtoupper($this->faker->bothify('PIE###')),
             'nr_bucati' => $this->faker->randomFloat(2, 1, 20),
-            'pret' => $this->faker->randomFloat(2, 10, 500),
+            'pret' => $pret,
+            'tva_cota' => $tvaCota,
+            'valoare_tva' => $valoareTva,
+            'pret_brut' => $pretBrut,
         ];
     }
 }
