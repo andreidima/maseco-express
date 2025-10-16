@@ -168,20 +168,67 @@ class GestiunePieseController extends Controller
             return [];
         }
 
-        $usageRows = DB::table('service_masina_service_entries as mse')
-            ->join('service_masini as m', 'm.id', '=', 'mse.masina_id')
-            ->select(
-                'mse.gestiune_piesa_id',
-                'm.id as masina_id',
-                'm.numar_inmatriculare',
-                'm.denumire',
-                DB::raw('SUM(mse.cantitate) as total_cantitate')
-            )
-            ->whereIn('mse.gestiune_piesa_id', $pieceIds)
-            ->where('mse.tip', 'piesa')
-            ->whereNotNull('mse.cantitate')
-            ->groupBy('mse.gestiune_piesa_id', 'm.id', 'm.numar_inmatriculare', 'm.denumire')
-            ->get();
+        $entriesTable = null;
+        $machinesTable = null;
+
+        if (Schema::hasTable('service_masina_service_entries')) {
+            $entriesTable = 'service_masina_service_entries';
+        } elseif (Schema::hasTable('masina_service_entries')) {
+            $entriesTable = 'masina_service_entries';
+        }
+
+        if (Schema::hasTable('service_masini')) {
+            $machinesTable = 'service_masini';
+        } elseif (Schema::hasTable('masini')) {
+            $machinesTable = 'masini';
+        }
+
+        if ($entriesTable === null) {
+            $usageRows = collect();
+        } else {
+            $usageQuery = DB::table("$entriesTable as mse")
+                ->select('mse.gestiune_piesa_id', DB::raw('SUM(mse.cantitate) as total_cantitate'))
+                ->whereIn('mse.gestiune_piesa_id', $pieceIds)
+                ->where('mse.tip', 'piesa')
+                ->whereNotNull('mse.cantitate');
+
+            $groupBy = ['mse.gestiune_piesa_id'];
+
+            if ($machinesTable !== null) {
+                $usageQuery->leftJoin("$machinesTable as m", 'm.id', '=', 'mse.masina_id');
+
+                if (Schema::hasColumn($machinesTable, 'id')) {
+                    $usageQuery->addSelect('m.id as masina_id');
+                    $groupBy[] = 'm.id';
+                }
+
+                $numberColumn = null;
+                if (Schema::hasColumn($machinesTable, 'numar_inmatriculare')) {
+                    $numberColumn = 'numar_inmatriculare';
+                } elseif (Schema::hasColumn($machinesTable, 'numar')) {
+                    $numberColumn = 'numar';
+                }
+
+                if ($numberColumn !== null) {
+                    $usageQuery->addSelect("m.$numberColumn as numar_inmatriculare");
+                    $groupBy[] = "m.$numberColumn";
+                }
+
+                $nameColumn = null;
+                if (Schema::hasColumn($machinesTable, 'denumire')) {
+                    $nameColumn = 'denumire';
+                } elseif (Schema::hasColumn($machinesTable, 'descriere')) {
+                    $nameColumn = 'descriere';
+                }
+
+                if ($nameColumn !== null) {
+                    $usageQuery->addSelect("m.$nameColumn as denumire");
+                    $groupBy[] = "m.$nameColumn";
+                }
+            }
+
+            $usageRows = $usageQuery->groupBy($groupBy)->get();
+        }
 
         $usageByPiece = [];
 
