@@ -101,7 +101,7 @@
                             <input type="date" class="form-control rounded-3" id="filter-scadenta-pana" name="scadenta_pana" value="{{ $filters['scadenta_pana'] }}">
                         </div>
                     </div>
-                    <div class="col-lg-3 col-md-6">
+                    <div class="col-lg-4 col-md-6">
                         <div class="d-flex align-items-center gap-2">
                             <label for="filter-calup-data" class="form-label small text-muted mb-0 flex-shrink-0 text-nowrap">Data plată calup</label>
                             <input type="date" class="form-control rounded-3" id="filter-calup-data" name="calup_data_plata" value="{{ $filters['calup_data_plata'] }}">

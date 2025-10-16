@@ -295,16 +295,14 @@ class FacturaFurnizorController extends Controller
                     return null;
                 }
 
-                $valoareTva = null;
                 $pretBrut = null;
 
                 if ($pret !== null && $tvaCota !== null) {
                     $rate = $tvaCota / 100;
                     $quantityForCalc = $nrBucati !== null && $nrBucati > 0 ? $nrBucati : 1;
                     $totalNet = round($pret * $quantityForCalc, 2);
-                    $totalTva = round($totalNet * $rate, 2);
-                    $valoareTva = round($quantityForCalc > 0 ? $totalTva / $quantityForCalc : 0, 2);
-                    $pretBrut = round($pret + $valoareTva, 2);
+                    $totalGross = round($totalNet * (1 + $rate), 2);
+                    $pretBrut = round($quantityForCalc > 0 ? $totalGross / $quantityForCalc : 0, 2);
                 }
 
                 return [
@@ -313,7 +311,6 @@ class FacturaFurnizorController extends Controller
                     'nr_bucati' => $nrBucati,
                     'pret' => $pret,
                     'tva_cota' => $tvaCota,
-                    'valoare_tva' => $valoareTva,
                     'pret_brut' => $pretBrut,
                 ];
             })

@@ -20,7 +20,6 @@ class GestiunePiesa extends Model
         'nr_bucati',
         'pret',
         'tva_cota',
-        'valoare_tva',
         'pret_brut',
     ];
 
@@ -28,7 +27,6 @@ class GestiunePiesa extends Model
         'nr_bucati' => 'decimal:2',
         'pret' => 'decimal:2',
         'tva_cota' => 'decimal:2',
-        'valoare_tva' => 'decimal:2',
         'pret_brut' => 'decimal:2',
     ];
 

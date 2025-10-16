@@ -17,8 +17,7 @@ class GestiunePiesaFactory extends Factory
     {
         $pret = $this->faker->randomFloat(2, 10, 500);
         $tvaCota = $this->faker->randomElement([11.00, 21.00]);
-        $valoareTva = round($pret * ($tvaCota / 100), 2);
-        $pretBrut = round($pret + $valoareTva, 2);
+        $pretBrut = round($pret * (1 + ($tvaCota / 100)), 2);
 
         return [
             'factura_id' => FacturaFurnizor::factory(),
@@ -27,7 +26,6 @@ class GestiunePiesaFactory extends Factory
             'nr_bucati' => $this->faker->randomFloat(2, 1, 20),
             'pret' => $pret,
             'tva_cota' => $tvaCota,
-            'valoare_tva' => $valoareTva,
             'pret_brut' => $pretBrut,
         ];
     }

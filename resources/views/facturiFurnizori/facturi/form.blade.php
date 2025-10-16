@@ -10,7 +10,6 @@
             'nr_bucati' => $piesa->nr_bucati,
             'pret' => $piesa->pret,
             'tva_cota' => $piesa->tva_cota,
-            'valoare_tva' => $piesa->valoare_tva,
             'pret_brut' => $piesa->pret_brut,
         ];
     })->toArray() ?? []));
@@ -21,7 +20,6 @@
             'nr_bucati' => '',
             'pret' => '',
             'tva_cota' => '',
-            'valoare_tva' => '',
             'pret_brut' => '',
         ]]);
     }
@@ -229,7 +227,6 @@
                             <th style="min-width: 120px;">Cantitate</th>
                             <th style="min-width: 120px;">Preț NET/buc</th>
                             <th style="min-width: 110px;">Cotă TVA</th>
-                            <th style="min-width: 120px;">TVA/buc</th>
                             <th style="min-width: 140px;">Preț BRUT/buc</th>
                             <th style="width: 70px;" class="text-center">Acțiuni</th>
                         </tr>
@@ -301,22 +298,6 @@
                                         <option value="21" @selected((float) ($produs['tva_cota'] ?? 0) === 21.0)>21%</option>
                                     </select>
                                     @error('produse.' . $index . '.tva_cota')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </td>
-                                <td>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        name="produse[{{ $index }}][valoare_tva]"
-                                        class="form-control form-control-sm bg-light {{ $errors->has('produse.' . $index . '.valoare_tva') ? 'is-invalid' : '' }}"
-                                        data-produs-field="tva-value"
-                                        value="{{ $produs['valoare_tva'] }}"
-                                        placeholder="0.00"
-                                        readonly
-                                        tabindex="-1"
-                                    >
-                                    @error('produse.' . $index . '.valoare_tva')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
                                 </td>
@@ -401,6 +382,29 @@
                         <input
                             type="number"
                             step="0.01"
+                            name="produse[__INDEX__][pret_brut]"
+                            class="form-control form-control-sm bg-light"
+                            data-produs-field="gross-price"
+                            placeholder="0.00"
+                            readonly
+                            tabindex="-1"
+                        >
+                    </td>
+                    <td>
+                        <select
+                            name="produse[__INDEX__][tva_cota]"
+                            class="form-select form-select-sm"
+                            data-produs-field="tva-rate"
+                        >
+                            <option value="">Cotă TVA</option>
+                            <option value="11">11%</option>
+                            <option value="21">21%</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input
+                            type="number"
+                            step="0.01"
                             name="produse[__INDEX__][valoare_tva]"
                             class="form-control form-control-sm bg-light"
                             data-produs-field="tva-value"
@@ -468,10 +472,9 @@
                 const quantityInput = row.querySelector('[data-produs-field="quantity"]');
                 const netPriceInput = row.querySelector('[data-produs-field="net-price"]');
                 const tvaRateSelect = row.querySelector('[data-produs-field="tva-rate"]');
-                const tvaValueInput = row.querySelector('[data-produs-field="tva-value"]');
                 const grossPriceInput = row.querySelector('[data-produs-field="gross-price"]');
 
-                if (!netPriceInput || !tvaRateSelect || !tvaValueInput || !grossPriceInput) {
+                if (!netPriceInput || !tvaRateSelect || !grossPriceInput) {
                     return;
                 }
 
@@ -480,18 +483,15 @@
                 const quantity = quantityInput ? Number.parseFloat(quantityInput.value) : NaN;
 
                 if (!Number.isFinite(netPrice) || !Number.isFinite(tvaRate)) {
-                    tvaValueInput.value = '';
                     grossPriceInput.value = '';
                     return;
                 }
 
                 const qtyForCalc = Number.isFinite(quantity) && quantity > 0 ? quantity : 1;
                 const totalNet = roundTwo(netPrice * qtyForCalc);
-                const totalTva = roundTwo(totalNet * (tvaRate / 100));
-                const tvaPerUnit = roundTwo(qtyForCalc > 0 ? totalTva / qtyForCalc : 0);
-                const grossPerUnit = roundTwo(netPrice + tvaPerUnit);
+                const totalGross = roundTwo(totalNet * (1 + tvaRate / 100));
+                const grossPerUnit = roundTwo(qtyForCalc > 0 ? totalGross / qtyForCalc : 0);
 
-                tvaValueInput.value = formatNumber(tvaPerUnit);
                 grossPriceInput.value = formatNumber(grossPerUnit);
             };
 

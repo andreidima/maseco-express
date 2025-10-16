@@ -39,7 +39,6 @@ class FacturaFurnizorRequest extends FormRequest
             'produse.*.nr_bucati' => ['nullable', 'numeric'],
             'produse.*.pret' => ['nullable', 'numeric'],
             'produse.*.tva_cota' => ['nullable', 'numeric', Rule::in([11, 21])],
-            'produse.*.valoare_tva' => ['nullable', 'numeric'],
             'produse.*.pret_brut' => ['nullable', 'numeric'],
             'fisiere_pdf' => ['nullable', 'array'],
             'fisiere_pdf.*' => ['file', 'mimes:pdf', 'max:10240'],
@@ -65,9 +64,6 @@ class FacturaFurnizorRequest extends FormRequest
                 $tvaCota = array_key_exists('tva_cota', $row) && $row['tva_cota'] !== ''
                     ? $row['tva_cota']
                     : null;
-                $valoareTva = array_key_exists('valoare_tva', $row) && $row['valoare_tva'] !== ''
-                    ? $row['valoare_tva']
-                    : null;
                 $pretBrut = array_key_exists('pret_brut', $row) && $row['pret_brut'] !== ''
                     ? $row['pret_brut']
                     : null;
@@ -78,7 +74,6 @@ class FacturaFurnizorRequest extends FormRequest
                     'nr_bucati' => $nrBucati,
                     'pret' => $pret,
                     'tva_cota' => $tvaCota,
-                    'valoare_tva' => $valoareTva,
                     'pret_brut' => $pretBrut,
                 ];
             })
@@ -100,14 +95,12 @@ class FacturaFurnizorRequest extends FormRequest
                 $nrBucati = $produs['nr_bucati'] ?? null;
                 $pret = $produs['pret'] ?? null;
                 $tvaCota = $produs['tva_cota'] ?? null;
-                $valoareTva = $produs['valoare_tva'] ?? null;
                 $pretBrut = $produs['pret_brut'] ?? null;
 
                 $hasOtherData = $cod !== ''
                     || ($nrBucati !== null && $nrBucati !== '')
                     || ($pret !== null && $pret !== '')
                     || ($tvaCota !== null && $tvaCota !== '')
-                    || ($valoareTva !== null && $valoareTva !== '')
                     || ($pretBrut !== null && $pretBrut !== '');
 
                 if ($hasOtherData && $denumire === '') {

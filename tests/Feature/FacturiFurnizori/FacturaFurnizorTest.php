@@ -117,12 +117,10 @@ class FacturaFurnizorTest extends TestCase
         $this->assertEquals('Filtru ulei', $factura->piese[0]->denumire);
         $this->assertSame('35.50', $factura->piese[0]->pret);
         $this->assertSame('11.00', $factura->piese[0]->tva_cota);
-        $this->assertSame('3.91', $factura->piese[0]->valoare_tva);
         $this->assertSame('39.41', $factura->piese[0]->pret_brut);
         $this->assertEquals('Ulei motor', $factura->piese[1]->denumire);
         $this->assertSame('250.00', $factura->piese[1]->pret);
         $this->assertSame('21.00', $factura->piese[1]->tva_cota);
-        $this->assertSame('52.50', $factura->piese[1]->valoare_tva);
         $this->assertSame('302.50', $factura->piese[1]->pret_brut);
     }
 
@@ -173,7 +171,6 @@ class FacturaFurnizorTest extends TestCase
         $this->assertEquals('Plăcuțe frână', $factura->piese[0]->denumire);
         $this->assertSame('120.00', $factura->piese[0]->pret);
         $this->assertSame('21.00', $factura->piese[0]->tva_cota);
-        $this->assertSame('25.20', $factura->piese[0]->valoare_tva);
         $this->assertSame('145.20', $factura->piese[0]->pret_brut);
         $this->assertDatabaseMissing('service_gestiune_piese', [
             'factura_id' => $factura->id,
