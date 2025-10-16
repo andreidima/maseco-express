@@ -390,6 +390,41 @@
                             tabindex="-1"
                         >
                     </td>
+                    <td>
+                        <select
+                            name="produse[__INDEX__][tva_cota]"
+                            class="form-select form-select-sm"
+                            data-produs-field="tva-rate"
+                        >
+                            <option value="">Cotă TVA</option>
+                            <option value="11">11%</option>
+                            <option value="21">21%</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="produse[__INDEX__][valoare_tva]"
+                            class="form-control form-control-sm bg-light"
+                            data-produs-field="tva-value"
+                            placeholder="0.00"
+                            readonly
+                            tabindex="-1"
+                        >
+                    </td>
+                    <td>
+                        <input
+                            type="number"
+                            step="0.01"
+                            name="produse[__INDEX__][pret_brut]"
+                            class="form-control form-control-sm bg-light"
+                            data-produs-field="gross-price"
+                            placeholder="0.00"
+                            readonly
+                            tabindex="-1"
+                        >
+                    </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-outline-danger btn-sm" data-remove-produs>
                             <i class="fa-solid fa-trash"></i>
