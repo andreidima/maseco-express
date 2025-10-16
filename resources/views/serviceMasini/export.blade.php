@@ -5,10 +5,15 @@
     <meta charset="UTF-8">
     <title>Service mașini - {{ $masina->denumire }}</title>
     <style>
+        @page {
+            margin: 20px;
+        }
+
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
             color: #1a1a1a;
+            margin: 0;
         }
 
         h1 {
@@ -20,6 +25,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 15px;
+            table-layout: fixed;
         }
 
         th,
@@ -27,10 +33,49 @@
             border: 1px solid #ccc;
             padding: 6px 8px;
             text-align: left;
+            vertical-align: top;
+            word-break: break-word;
+            overflow-wrap: anywhere;
         }
 
         th {
             background-color: #f0f0f0;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .col-date {
+            width: 10%;
+        }
+
+        .col-tip {
+            width: 8%;
+        }
+
+        .col-denumire {
+            width: 20%;
+        }
+
+        .col-cod {
+            width: 12%;
+        }
+
+        .col-cantitate {
+            width: 10%;
+        }
+
+        .col-mecanic {
+            width: 15%;
+        }
+
+        .col-utilizator {
+            width: 15%;
+        }
+
+        .col-observatii {
+            width: 10%;
         }
 
         .meta {
@@ -74,39 +119,39 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 80px;">Data</th>
-                <th style="width: 80px;">Tip</th>
-                <th>Denumire</th>
-                <th style="width: 100px;">Cod</th>
-                <th style="width: 80px;">Cantitate</th>
-                <th style="width: 130px;">Mecanic</th>
-                <th style="width: 130px;">Utilizator</th>
-                <th>Observații</th>
+                <th class="col-date">Data</th>
+                <th class="col-tip">Tip</th>
+                <th class="col-denumire">Denumire</th>
+                <th class="col-cod">Cod</th>
+                <th class="col-cantitate text-end">Cantitate</th>
+                <th class="col-mecanic">Mecanic</th>
+                <th class="col-utilizator">Utilizator</th>
+                <th class="col-observatii">Observații</th>
             </tr>
         </thead>
         <tbody>
             @forelse ($entries as $entry)
                 <tr>
-                    <td>{{ optional($entry->data_montaj)->format('d.m.Y') ?? '—' }}</td>
-                    <td>{{ $entry->tip === 'piesa' ? 'Piesă' : 'Manual' }}</td>
-                    <td>
+                    <td class="col-date">{{ optional($entry->data_montaj)->format('d.m.Y') ?? '—' }}</td>
+                    <td class="col-tip">{{ $entry->tip === 'piesa' ? 'Piesă' : 'Manual' }}</td>
+                    <td class="col-denumire">
                         @if ($entry->tip === 'piesa')
                             {{ $entry->denumire_piesa ?? '—' }}
                         @else
                             {{ $entry->denumire_interventie ?? '—' }}
                         @endif
                     </td>
-                    <td>{{ $entry->tip === 'piesa' ? ($entry->cod_piesa ?? '—') : '—' }}</td>
-                    <td>
+                    <td class="col-cod">{{ $entry->tip === 'piesa' ? ($entry->cod_piesa ?? '—') : '—' }}</td>
+                    <td class="col-cantitate text-end">
                         @if ($entry->tip === 'piesa')
                             {{ $entry->cantitate !== null ? number_format((float) $entry->cantitate, 2) : '—' }}
                         @else
                             —
                         @endif
                     </td>
-                    <td>{{ $entry->nume_mecanic ?? '—' }}</td>
-                    <td>{{ $entry->nume_utilizator ?? optional($entry->user)->name ?? '—' }}</td>
-                    <td>{{ $entry->observatii ?? '—' }}</td>
+                    <td class="col-mecanic">{{ $entry->nume_mecanic ?? '—' }}</td>
+                    <td class="col-utilizator">{{ $entry->nume_utilizator ?? optional($entry->user)->name ?? '—' }}</td>
+                    <td class="col-observatii">{{ $entry->observatii ?? '—' }}</td>
                 </tr>
             @empty
                 <tr>
