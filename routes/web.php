@@ -79,7 +79,7 @@ Route::get('oferte-curse', [OfertaCursaController::class, 'index'])->name('ofert
 
 Route::redirect('/', '/acasa');
 
-Route::group(['middleware' => 'auth'], function () {
+Route::group(['middleware' => ['auth', 'restrict-mechanic-access']], function () {
     Route::view('acasa', 'acasa');
     Route::view('various-tests', 'variousTests');
 
@@ -192,7 +192,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);
     Route::get('/rapoarte/documente-transportatori', [RaportController::class, 'documenteTransportatori']);
 
-    Route::group(['middleware' => 'role:1'], function () {
+    Route::group(['middleware' => 'role:super-admin,admin'], function () {
         Route::resource('/utilizatori', UserController::class)->parameters(['utilizatori' => 'user']);
     });
 

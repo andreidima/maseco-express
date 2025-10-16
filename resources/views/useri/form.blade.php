@@ -10,10 +10,22 @@
         <input type="hidden" name="id" value="{{ $user->id }}">
 
         @php
+            $allowSuperAdminSelection = $user && $user->exists && $user->hasRole('super-admin');
             $availableRoles = $roles ?? collect();
-            if ($availableRoles instanceof \Illuminate\Support\Collection && $availableRoles->isEmpty()) {
-                $availableRoles = \App\Models\Role::orderBy('id')->get();
+
+            if ($availableRoles instanceof \Illuminate\Support\Collection) {
+                if (! $allowSuperAdminSelection) {
+                    $availableRoles = $availableRoles->reject(fn ($roleOption) => $roleOption->slug === 'super-admin');
+                }
+
+                if ($availableRoles->isEmpty()) {
+                    $availableRoles = \App\Models\Role::query()
+                        ->when(! $allowSuperAdminSelection, fn ($query) => $query->where('slug', '!=', 'super-admin'))
+                        ->orderBy('id')
+                        ->get();
+                }
             }
+
             $selectedRole = old('role', $user->primary_role_id);
         @endphp
 

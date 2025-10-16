@@ -7,7 +7,6 @@ use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests\LoginRequest;
 use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
@@ -31,6 +30,17 @@ class LoginController extends Controller
      * @var string
      */
     protected $redirectTo = RouteServiceProvider::HOME;
+
+    protected function redirectTo()
+    {
+        $user = Auth::user();
+
+        if ($user && $user->hasRole('mecanic')) {
+            return '/gestiune-piese';
+        }
+
+        return $this->redirectTo;
+    }
 
     /**
      * Create a new controller instance.

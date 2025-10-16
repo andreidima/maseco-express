@@ -53,6 +53,8 @@ class User extends Authenticatable
     public const LEGACY_ROLE_LABELS = [
         1 => 'Admin',
         2 => 'Dispecer',
+        3 => 'Super Admin',
+        4 => 'Mecanic',
     ];
 
     public function roles()
@@ -78,14 +80,30 @@ class User extends Authenticatable
 
         $roles = $this->roles instanceof Collection ? $this->roles : $this->roles()->get();
 
-        return $roles->contains(function ($assignedRole) use ($role) {
+        if ($roles->contains(function ($assignedRole) use ($role) {
             return $assignedRole->slug === $role || $assignedRole->name === $role;
-        });
+        })) {
+            return true;
+        }
+
+        $legacyRoleId = $this->role ? (int) $this->role : null;
+
+        if ($legacyRoleId === null) {
+            return false;
+        }
+
+        static $slugToId = [];
+
+        if (! array_key_exists($role, $slugToId)) {
+            $slugToId[$role] = Role::where('slug', $role)->value('id');
+        }
+
+        return $slugToId[$role] !== null && (int) $slugToId[$role] === $legacyRoleId;
     }
 
     public function isAdministrator(): bool
     {
-        return $this->hasRole('admin') || $this->hasRole(1);
+        return $this->hasRole('admin') || $this->hasRole(1) || $this->hasRole('super-admin');
     }
 
     public function assignRole(Role $role): void
@@ -107,6 +125,10 @@ class User extends Authenticatable
             $this->cachedPrimaryRole = $this->roles->first();
         } else {
             $this->cachedPrimaryRole = $this->roles()->first();
+        }
+
+        if (! $this->cachedPrimaryRole && $this->role) {
+            $this->cachedPrimaryRole = Role::find($this->role);
         }
 
         return $this->cachedPrimaryRole;
