@@ -2,6 +2,7 @@
 
 @php
     $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
+    $stockDetails = $stockDetails ?? [];
 @endphp
 
 @section('content')
@@ -57,19 +58,66 @@
                         <table class="table table-sm table-hover table-bordered border-dark align-middle mb-0">
                             <thead class="text-white rounded culoare2">
                                 <tr>
-                                    <th>Denumire</th>
-                                    <th>Cod</th>
-                                    <th class="text-end">Cantitate</th>
-                                    <th class="text-end">Preț</th>
+                                    <th style="min-width: 200px;">Denumire</th>
+                                    <th style="min-width: 140px;">Cod</th>
+                                    <th class="text-end" style="min-width: 140px;">Cantitate inițială</th>
+                                    <th class="text-end" style="min-width: 120px;">Cantitate</th>
+                                    <th class="text-end" style="min-width: 120px;">Preț NET/buc</th>
+                                    <th class="text-end" style="min-width: 110px;">Cotă TVA</th>
+                                    <th class="text-end" style="min-width: 140px;">Preț BRUT/buc</th>
+                                    <th class="text-center" style="min-width: 150px;">Detalii stoc</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($factura->piese as $piesa)
+                                    @php
+                                        $pieceId = (int) $piesa->getKey();
+                                        $details = $stockDetails[$pieceId] ?? null;
+                                        $initialValue = $details['initial'] ?? ($piesa->cantitate_initiala !== null ? (float) $piesa->cantitate_initiala : null);
+                                        $remainingValue = $details['remaining'] ?? ($piesa->nr_bucati !== null ? (float) $piesa->nr_bucati : null);
+                                        $usedValue = $details['used'] ?? null;
+
+                                        if ($usedValue === null) {
+                                            if ($initialValue !== null && $remainingValue !== null) {
+                                                $usedValue = max($initialValue - $remainingValue, 0);
+                                            } else {
+                                                $usedValue = 0.0;
+                                            }
+                                        }
+
+                                        $initialDisplay = $initialValue !== null ? number_format((float) $initialValue, 2, '.', '') : '';
+                                        $remainingDisplay = $remainingValue !== null ? number_format((float) $remainingValue, 2, '.', '') : '';
+                                        $usedDisplay = number_format((float) $usedValue, 2, '.', '');
+                                        $machinesData = $details['machines'] ?? [];
+                                    @endphp
                                     <tr>
                                         <td>{{ $piesa->denumire }}</td>
                                         <td>{{ $piesa->cod ?: '-' }}</td>
+                                        <td class="text-end">{{ $piesa->cantitate_initiala !== null ? number_format($piesa->cantitate_initiala, 2) : '-' }}</td>
                                         <td class="text-end">{{ $piesa->nr_bucati !== null ? number_format($piesa->nr_bucati, 2) : '-' }}</td>
                                         <td class="text-end">{{ $piesa->pret !== null ? number_format($piesa->pret, 2) : '-' }}</td>
+                                        <td class="text-end">{{ $piesa->tva_cota !== null ? number_format($piesa->tva_cota, 2) . '%' : '-' }}</td>
+                                        <td class="text-end">{{ $piesa->pret_brut !== null ? number_format($piesa->pret_brut, 2) : '-' }}</td>
+                                        <td class="text-center">
+                                            @if ($pieceId > 0)
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#stockDetailsModal"
+                                                    data-piece-name="{{ $piesa->denumire }}"
+                                                    data-piece-code="{{ $piesa->cod ?? '' }}"
+                                                    data-piece-initial="{{ $initialDisplay }}"
+                                                    data-piece-remaining="{{ $remainingDisplay }}"
+                                                    data-piece-used="{{ $usedDisplay }}"
+                                                    data-piece-machines='@json($machinesData)'
+                                                >
+                                                    <i class="fa-solid fa-circle-info me-1"></i>Detalii
+                                                </button>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
@@ -144,3 +192,5 @@
     </div>
 </div>
 @endsection
+
+@include('partials.stock-details-modal')

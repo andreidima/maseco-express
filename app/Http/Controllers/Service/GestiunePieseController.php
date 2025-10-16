@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use App\Models\Service\MasinaServiceEntry;
+use Carbon\CarbonInterface;
 
 class GestiunePieseController extends Controller
 {
@@ -172,10 +173,12 @@ class GestiunePieseController extends Controller
         $usageByPiece = [];
 
         $entries = MasinaServiceEntry::query()
-            ->select(['id', 'gestiune_piesa_id', 'masina_id', 'cantitate'])
+            ->select(['id', 'gestiune_piesa_id', 'masina_id', 'cantitate', 'data_montaj', 'created_at'])
             ->with(['masina:id,numar_inmatriculare,denumire'])
             ->whereIn('gestiune_piesa_id', $pieceIds)
             ->whereNotNull('cantitate')
+            ->orderByDesc(DB::raw('COALESCE(data_montaj, created_at)'))
+            ->orderByDesc('id')
             ->get();
 
         foreach ($entries as $entry) {
@@ -208,16 +211,17 @@ class GestiunePieseController extends Controller
                 continue;
             }
 
-            if (! isset($usageByPiece[$pieceId]['machines'][$machineId])) {
-                $usageByPiece[$pieceId]['machines'][$machineId] = [
-                    'masina_id' => $machineId,
-                    'numar_inmatriculare' => $machine->numar_inmatriculare,
-                    'denumire' => $machine->denumire,
-                    'cantitate' => 0.0,
-                ];
-            }
+            $date = $entry->data_montaj instanceof CarbonInterface
+                ? $entry->data_montaj
+                : ($entry->created_at instanceof CarbonInterface ? $entry->created_at : null);
 
-            $usageByPiece[$pieceId]['machines'][$machineId]['cantitate'] += $quantity;
+            $usageByPiece[$pieceId]['machines'][] = [
+                'masina_id' => $machineId,
+                'numar_inmatriculare' => $machine->numar_inmatriculare,
+                'denumire' => $machine->denumire,
+                'cantitate' => $quantity,
+                'data' => $date ? $date->format('d.m.Y') : null,
+            ];
         }
 
         $details = [];
@@ -253,8 +257,9 @@ class GestiunePieseController extends Controller
                     'numar_inmatriculare' => $machine['numar_inmatriculare'],
                     'denumire' => $machine['denumire'],
                     'cantitate' => round((float) $machine['cantitate'], 2),
+                    'data' => $machine['data'] ?? null,
                 ];
-            }, $usageByPiece[$id]['machines'] ?? []);
+            }, array_values($usageByPiece[$id]['machines'] ?? []));
 
             $details[$id] = [
                 'initial' => $initial !== null ? round($initial, 2) : null,
