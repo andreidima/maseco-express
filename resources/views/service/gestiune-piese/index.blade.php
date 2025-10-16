@@ -232,6 +232,7 @@
                         <thead>
                             <tr>
                                 <th>Mașină</th>
+                                <th>Data</th>
                                 <th class="text-end">Cantitate</th>
                             </tr>
                         </thead>
@@ -321,12 +322,16 @@
                             : number
                         : label || '—';
 
+                    const dateCell = document.createElement('td');
+                    dateCell.textContent = machine.data || '—';
+
                     const qtyCell = document.createElement('td');
                     qtyCell.className = 'text-end';
                     const qty = Number.parseFloat(machine.cantitate ?? 0);
                     qtyCell.textContent = Number.isFinite(qty) ? qty.toFixed(2) : '0.00';
 
                     row.appendChild(masinaCell);
+                    row.appendChild(dateCell);
                     row.appendChild(qtyCell);
                     machinesBody.appendChild(row);
                 });

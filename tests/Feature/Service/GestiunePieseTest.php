@@ -34,28 +34,25 @@ class GestiunePieseTest extends TestCase
             'nr_bucati' => 4,
         ]);
 
-        $machineA = Masina::factory()->create([
+        $machine = Masina::factory()->create([
             'numar_inmatriculare' => 'CJ01AAA',
             'denumire' => 'Masina A',
         ]);
 
-        $machineB = Masina::factory()->create([
-            'numar_inmatriculare' => 'B55BBB',
-            'denumire' => 'Masina B',
-        ]);
-
         MasinaServiceEntry::factory()->create([
             'gestiune_piesa_id' => $piece->id,
-            'masina_id' => $machineA->id,
+            'masina_id' => $machine->id,
             'tip' => 'piesa',
             'cantitate' => 3.5,
+            'data_montaj' => '2024-01-05',
         ]);
 
         MasinaServiceEntry::factory()->create([
             'gestiune_piesa_id' => $piece->id,
-            'masina_id' => $machineB->id,
+            'masina_id' => $machine->id,
             'tip' => 'piesa',
             'cantitate' => 2.0,
+            'data_montaj' => '2024-02-15',
         ]);
 
         $response = $this->actingAs($user)->get(route('gestiune-piese.index'));
@@ -71,8 +68,10 @@ class GestiunePieseTest extends TestCase
 
         $this->assertIsArray($machines);
         $this->assertCount(2, $machines);
-        $this->assertSame([$machineA->id, $machineB->id], array_column($machines, 'masina_id'));
-        $this->assertSame('CJ01AAA', $machines[0]['numar_inmatriculare']);
-        $this->assertSame('B55BBB', $machines[1]['numar_inmatriculare']);
+        $this->assertSame([$machine->id, $machine->id], array_column($machines, 'masina_id'));
+        $this->assertSame(['CJ01AAA', 'CJ01AAA'], array_column($machines, 'numar_inmatriculare'));
+        $this->assertSame(['Masina A', 'Masina A'], array_column($machines, 'denumire'));
+        $this->assertEquals([2.0, 3.5], array_column($machines, 'cantitate'));
+        $this->assertSame(['15.02.2024', '05.01.2024'], array_column($machines, 'data'));
     }
 }
