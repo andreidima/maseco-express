@@ -64,10 +64,6 @@ class User extends Authenticatable
 
     public function hasRole(int|string $role): bool
     {
-        if ($this->id === 1) {
-            return true;
-        }
-
         if (is_numeric($role)) {
             $roleId = (int) $role;
 

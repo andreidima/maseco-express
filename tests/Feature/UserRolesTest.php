@@ -92,6 +92,26 @@ class UserRolesTest extends TestCase
         $this->actingAs($mechanic)->get('/acasa')->assertForbidden();
     }
 
+    public function test_primary_admin_user_is_not_mistaken_for_mechanic_when_role_is_missing(): void
+    {
+        $adminRole = Role::firstOrCreate(
+            ['slug' => 'admin'],
+            [
+                'name' => 'Administrator',
+                'description' => 'Administrator access.',
+            ]
+        );
+
+        $admin = User::factory()->create([
+            'id' => 1,
+            'role' => $adminRole->id,
+        ]);
+
+        $admin->assignRole($adminRole);
+
+        $this->actingAs($admin)->get('/acasa')->assertOk();
+    }
+
     /**
      * @return array{0: Role, 1: Role, 2: Role}
      */
