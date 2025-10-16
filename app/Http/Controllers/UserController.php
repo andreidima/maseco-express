@@ -46,7 +46,7 @@ class UserController extends Controller
         $request->session()->get('userReturnUrl') ?? $request->session()->put('userReturnUrl', url()->previous());
 
         $user = new User();
-        $roles = Role::orderBy('id')->get();
+        $roles = $this->availableRolesForUser();
 
         return view('useri.create', compact('user', 'roles'));
     }
@@ -99,7 +99,7 @@ class UserController extends Controller
         $request->session()->get('userReturnUrl') ?? $request->session()->put('userReturnUrl', url()->previous());
 
         $user->load('roles');
-        $roles = Role::orderBy('id')->get();
+        $roles = $this->availableRolesForUser($user);
 
         return view('useri.edit', compact('user', 'roles'));
     }
@@ -113,7 +113,7 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $data = $this->validateRequest($request);
+        $data = $this->validateRequest($request, $user);
         $roleId = (int) $data['role'];
         if (is_null($data['password'])){
             unset($data['password']);
@@ -146,8 +146,10 @@ class UserController extends Controller
      *
      * @return array
      */
-    protected function validateRequest(Request $request)
+    protected function validateRequest(Request $request, ?User $targetUser = null)
     {
+        $allowSuperAdmin = $targetUser && $targetUser->hasRole('super-admin');
+
         // Se adauga userul doar la adaugare, iar la modificare nu se schimba
         // if ($request->isMethod('post')) {
         //     $request->request->add(['user_id' => $request->user()->id]);
@@ -159,7 +161,15 @@ class UserController extends Controller
 // dd($request, $request->isMethod('post'));
         return $request->validate(
             [
-                'role' => ['required', 'integer', Rule::exists('roles', 'id')],
+                'role' => [
+                    'required',
+                    'integer',
+                    Rule::exists('roles', 'id')->where(function ($query) use ($allowSuperAdmin) {
+                        if (! $allowSuperAdmin) {
+                            $query->where('slug', '!=', 'super-admin');
+                        }
+                    }),
+                ],
                 'name' => 'required|max:255',
                 'telefon' => 'nullable|max:50',
                 'email' => 'required|max:255|email:rfc,dns|unique:users,email,' . $request->id,
@@ -171,5 +181,16 @@ class UserController extends Controller
                 'password.max' => 'Câmpul parola nu poate conține mai mult de 255 de caractere.',
             ]
         );
+    }
+
+    protected function availableRolesForUser(?User $user = null)
+    {
+        $query = Role::query()->orderBy('id');
+
+        if ($user && $user->hasRole('super-admin')) {
+            return $query->get();
+        }
+
+        return $query->where('slug', '!=', 'super-admin')->get();
     }
 }

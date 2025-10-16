@@ -25,7 +25,23 @@ class RolesTableSeeder extends Seeder
             ['slug' => 'admin'],
             [
                 'name' => 'Administrator',
-                'description' => 'Legacy administrator role.',
+                'description' => 'Legacy administrator role mapped from users.role = 1.',
+            ]
+        );
+
+        Role::firstOrCreate(
+            ['slug' => 'dispecer'],
+            [
+                'name' => 'Dispecer',
+                'description' => 'Legacy dispatcher role mapped from users.role = 2.',
+            ]
+        );
+
+        Role::firstOrCreate(
+            ['slug' => 'mecanic'],
+            [
+                'name' => 'Mecanic',
+                'description' => 'Acces limitat la gestiunea pieselor și service-ul mașinilor.',
             ]
         );
 
