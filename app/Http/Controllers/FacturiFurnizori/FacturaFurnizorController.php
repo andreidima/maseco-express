@@ -48,6 +48,7 @@ class FacturaFurnizorController extends Controller
             'furnizor' => $request->string('furnizor')->toString() ?: null,
             'departament' => $request->string('departament')->toString() ?: null,
             'moneda' => $request->string('moneda')->toString() ?: null,
+            'numar_factura' => $request->string('numar_factura')->toString() ?: null,
             'scadenta_de_la' => $request->string('scadenta_de_la')->toString() ?: null,
             'scadenta_pana' => $request->string('scadenta_pana')->toString() ?: null,
             'calup' => $request->string('calup')->toString() ?: null,
@@ -67,6 +68,10 @@ class FacturaFurnizorController extends Controller
 
         if ($filters['moneda']) {
             $query->where('moneda', strtoupper($filters['moneda']));
+        }
+
+        if ($filters['numar_factura']) {
+            $query->where('numar_factura', $filters['numar_factura']);
         }
 
         if ($filters['scadenta_de_la']) {
@@ -278,8 +283,11 @@ class FacturaFurnizorController extends Controller
                 $pret = isset($row['pret']) && $row['pret'] !== ''
                     ? round((float) $row['pret'], 2)
                     : null;
+                $tvaCota = isset($row['tva_cota']) && $row['tva_cota'] !== ''
+                    ? round((float) $row['tva_cota'], 2)
+                    : null;
 
-                if ($denumire === '' && $cod === '' && $nrBucati === null && $pret === null) {
+                if ($denumire === '' && $cod === '' && $nrBucati === null && $pret === null && $tvaCota === null) {
                     return null;
                 }
 
@@ -287,11 +295,23 @@ class FacturaFurnizorController extends Controller
                     return null;
                 }
 
+                $pretBrut = null;
+
+                if ($pret !== null && $tvaCota !== null) {
+                    $rate = $tvaCota / 100;
+                    $quantityForCalc = $nrBucati !== null && $nrBucati > 0 ? $nrBucati : 1;
+                    $totalNet = round($pret * $quantityForCalc, 2);
+                    $totalGross = round($totalNet * (1 + $rate), 2);
+                    $pretBrut = round($quantityForCalc > 0 ? $totalGross / $quantityForCalc : 0, 2);
+                }
+
                 return [
                     'denumire' => $denumire,
                     'cod' => $cod !== '' ? $cod : null,
                     'nr_bucati' => $nrBucati,
                     'pret' => $pret,
+                    'tva_cota' => $tvaCota,
+                    'pret_brut' => $pretBrut,
                 ];
             })
             ->filter()

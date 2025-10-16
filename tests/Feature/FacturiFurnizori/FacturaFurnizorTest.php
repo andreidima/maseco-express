@@ -91,12 +91,14 @@ class FacturaFurnizorTest extends TestCase
                     'cod' => 'FU-01',
                     'nr_bucati' => '2',
                     'pret' => '35.50',
+                    'tva_cota' => '11',
                 ],
                 [
                     'denumire' => 'Ulei motor',
                     'cod' => null,
                     'nr_bucati' => '1',
                     'pret' => '250',
+                    'tva_cota' => '21',
                 ],
             ],
         ];
@@ -114,8 +116,12 @@ class FacturaFurnizorTest extends TestCase
         $this->assertCount(2, $factura->piese);
         $this->assertEquals('Filtru ulei', $factura->piese[0]->denumire);
         $this->assertSame('35.50', $factura->piese[0]->pret);
+        $this->assertSame('11.00', $factura->piese[0]->tva_cota);
+        $this->assertSame('39.41', $factura->piese[0]->pret_brut);
         $this->assertEquals('Ulei motor', $factura->piese[1]->denumire);
         $this->assertSame('250.00', $factura->piese[1]->pret);
+        $this->assertSame('21.00', $factura->piese[1]->tva_cota);
+        $this->assertSame('302.50', $factura->piese[1]->pret_brut);
     }
 
     public function test_it_replaces_products_when_updating_an_invoice(): void
@@ -149,6 +155,7 @@ class FacturaFurnizorTest extends TestCase
                     'cod' => 'PF-02',
                     'nr_bucati' => 4,
                     'pret' => 120,
+                    'tva_cota' => 21,
                 ],
             ],
         ];
@@ -163,6 +170,8 @@ class FacturaFurnizorTest extends TestCase
         $this->assertCount(1, $factura->piese);
         $this->assertEquals('Plăcuțe frână', $factura->piese[0]->denumire);
         $this->assertSame('120.00', $factura->piese[0]->pret);
+        $this->assertSame('21.00', $factura->piese[0]->tva_cota);
+        $this->assertSame('145.20', $factura->piese[0]->pret_brut);
         $this->assertDatabaseMissing('service_gestiune_piese', [
             'factura_id' => $factura->id,
             'denumire' => 'Produs vechi',

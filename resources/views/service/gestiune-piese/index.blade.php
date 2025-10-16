@@ -15,12 +15,12 @@
 @section('content')
     <div class="mx-3 px-3 card mx-auto" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-            <div class="col-lg-3">
+            <div class="col-lg-3 mb-2 mb-lg-0">
                 <span class="badge culoare1 fs-5">
                     <i class="fa-solid fa-warehouse me-1"></i>Gestiune piese
                 </span>
             </div>
-            <div class="col-lg-9 mb-2" id="formularGestiunePiese">
+            <div class="col-lg-6 mb-2" id="formularGestiunePiese">
                 <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ route('gestiune-piese.index') }}">
                     <div class="row gy-1 gx-4 mb-2 custom-search-form d-flex justify-content-center">
                         <div class="col-lg-4 col-md-6">
@@ -59,6 +59,9 @@
                         </a>
                     </div>
                 </form>
+            </div>
+            <div class="col-lg-3 mt-2 mt-lg-0">
+                @include('partials.operations-navigation')
             </div>
         </div>
 

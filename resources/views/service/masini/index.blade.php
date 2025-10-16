@@ -24,12 +24,12 @@
 @section('content')
     <div class="mx-3 px-3 card mx-auto" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-            <div class="col-lg-3">
+            <div class="col-lg-3 mb-2 mb-lg-0">
                 <span class="badge culoare1 fs-5">
                     <i class="fa-solid fa-screwdriver-wrench me-1"></i>Service mașini
                 </span>
             </div>
-            <div class="col-lg-9 mb-2">
+            <div class="col-lg-6 mb-2">
                 <form class="needs-validation" novalidate method="GET" action="{{ route('service-masini.index') }}">
                     <div class="row gy-2 gx-3 align-items-end">
                         <div class="col-lg-4 col-md-6">
@@ -82,6 +82,9 @@
                     </div>
                 </form>
             </div>
+            <div class="col-lg-3 mt-2 mt-lg-0">
+                @include('partials.operations-navigation')
+            </div>
         </div>
 
         <div class="card-body">
@@ -111,9 +114,9 @@
                                         style="padding-top: 0.35rem; padding-bottom: 0.35rem;">
                                         <div class="d-flex justify-content-between align-items-center">
                                             <div>
-                                                <div class="fw-semibold">{{ $masina->denumire }}</div>
+                                                <div class="fw-semibold">{{ $masina->numar_inmatriculare }}</div>
                                                 <small class="text-muted {{ $selectedMasinaId === $masina->id ? 'text-white-50' : '' }}">
-                                                    {{ $masina->numar_inmatriculare }}
+                                                    {{ $masina->denumire }}
                                                 </small>
                                             </div>
                                             <i class="fa-solid fa-chevron-right small"></i>
