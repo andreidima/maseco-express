@@ -164,7 +164,6 @@
                                         $initialDisplay = $initialValue !== null ? number_format((float) $initialValue, 2, '.', '') : '';
                                         $remainingDisplay = $remainingValue !== null ? number_format((float) $remainingValue, 2, '.', '') : '';
                                         $usedDisplay = number_format((float) $usedValue, 2, '.', '');
-                                        $machinesJson = e(json_encode($machinesData, JSON_UNESCAPED_UNICODE));
                                     @endphp
                                     <td class="text-center">
                                         @if ($pieceId > 0)
@@ -178,7 +177,7 @@
                                                 data-piece-initial="{{ $initialDisplay }}"
                                                 data-piece-remaining="{{ $remainingDisplay }}"
                                                 data-piece-used="{{ $usedDisplay }}"
-                                                data-piece-machines="{{ $machinesJson }}"
+                                                data-piece-machines='@json($machinesData ?? [])'
                                             >
                                                 <i class="fa-solid fa-circle-info me-1"></i>Detalii
                                             </button>
