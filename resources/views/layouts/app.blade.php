@@ -42,6 +42,7 @@
         $impersonationActive = session()->has('impersonated_by');
         $impersonatorName = session('impersonated_by_name');
         $isMechanic = auth()->user()->hasRole('mecanic');
+        $brandHref = $isMechanic ? route('gestiune-piese.index') : url('/');
     @endphp
     {{-- <div id="app"> --}}
     <header>
@@ -49,7 +50,7 @@
             {{-- style="background-color: #2f5c8f" --}}
         >
             <div class="container">
-                <a class="navbar-brand me-5" href="{{ url('/') }}">
+                <a class="navbar-brand me-5" href="{{ $brandHref }}">
                     {{ config('app.name', 'Laravel') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">

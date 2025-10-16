@@ -99,5 +99,9 @@ class LoginController extends Controller
         // Andrei - se sterge cod_email pentru ca utilizatorul sa fie fortat sa emita unul nou tura viitoare
         $user->cod_email = null;
         $user->save();
+
+        if ($user->hasRole('mecanic')) {
+            return redirect()->route('gestiune-piese.index');
+        }
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Service;
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -36,6 +37,10 @@ class GestiunePieseController extends Controller
         $loadError = null;
         $displayColumns = [];
         $invoiceDateAlias = null;
+        $invoiceJoinColumn = null;
+
+        $user = Auth::user();
+        $isMechanic = $user && $user->hasRole('mecanic');
 
         try {
             $hasTable = Schema::hasTable('service_gestiune_piese');
@@ -61,19 +66,21 @@ class GestiunePieseController extends Controller
                     $query->select('gp.*');
                 }
 
-                $invoiceJoinColumn = collect([
-                    'factura_id',
-                    'facturi_furnizori_id',
-                    'ff_factura_id',
-                    'ff_facturi_id',
-                    'service_ff_factura_id',
-                    'service_ff_facturi_id',
-                ])->first(static fn ($column) => in_array($column, $columns, true));
+                if (! $isMechanic) {
+                    $invoiceJoinColumn = collect([
+                        'factura_id',
+                        'facturi_furnizori_id',
+                        'ff_factura_id',
+                        'ff_facturi_id',
+                        'service_ff_factura_id',
+                        'service_ff_facturi_id',
+                    ])->first(static fn ($column) => in_array($column, $columns, true));
 
-                if ($invoiceJoinColumn) {
-                    $invoiceDateAlias = 'factura_data_factura';
-                    $query->leftJoin('service_ff_facturi as ff', "ff.id", '=', "gp.$invoiceJoinColumn");
-                    $query->addSelect('ff.data_factura as '.$invoiceDateAlias);
+                    if ($invoiceJoinColumn) {
+                        $invoiceDateAlias = 'factura_data_factura';
+                        $query->leftJoin('service_ff_facturi as ff', "ff.id", '=', "gp.$invoiceJoinColumn");
+                        $query->addSelect('ff.data_factura as '.$invoiceDateAlias);
+                    }
                 }
 
                 if ($denumireSearch !== '' && in_array('denumire', $columns, true)) {
