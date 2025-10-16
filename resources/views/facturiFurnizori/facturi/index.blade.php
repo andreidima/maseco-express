@@ -23,7 +23,7 @@
         </div>
         <div class="col-lg-7 mb-0" id="formularFacturi">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
-                <div class="row gy-1 gx-4 mb-2 custom-search-form d-flex justify-content-center">
+                <div class="row gy-1 gx-4 mb-2 custom-search-form d-flex justify-content-center align-items-end">
                     <div class="col-lg-2 col-md-6">
                         <select name="status" id="filter-status" class="form-select bg-white rounded-3">
                             <option value="toate" @selected($filters['status'] === 'toate')>Toate</option>
@@ -89,15 +89,15 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                    <div class="col-12 col-sm-6 col-lg-3 col-xl-3">
                         <label for="filter-scadenta-de-la" class="form-label small text-muted mb-1">Scadență de la</label>
                         <input type="date" class="form-control rounded-3" id="filter-scadenta-de-la" name="scadenta_de_la" value="{{ $filters['scadenta_de_la'] }}">
                     </div>
-                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                    <div class="col-12 col-sm-6 col-lg-3 col-xl-3">
                         <label for="filter-scadenta-pana" class="form-label small text-muted mb-1">Scadență până la</label>
                         <input type="date" class="form-control rounded-3" id="filter-scadenta-pana" name="scadenta_pana" value="{{ $filters['scadenta_pana'] }}">
                     </div>
-                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3">
+                    <div class="col-12 col-sm-6 col-lg-3 col-xl-3">
                         <label for="filter-calup-data" class="form-label small text-muted mb-1">Data plată calup</label>
                         <input type="date" class="form-control rounded-3" id="filter-calup-data" name="calup_data_plata" value="{{ $filters['calup_data_plata'] }}">
                     </div>
