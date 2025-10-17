@@ -35,6 +35,7 @@ use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorFisierController;
 use App\Http\Controllers\FacturiFurnizori\PlataCalupController;
 use App\Http\Controllers\Service\GestiunePieseController;
 use App\Http\Controllers\Service\ServiceMasiniController;
+use App\Http\Controllers\Service\ServiceSheetController;
 use App\Http\Controllers\Tech\ImpersonationController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\SeederCenterController;
@@ -187,6 +188,18 @@ Route::group(['middleware' => ['auth', 'restrict-mechanic-access']], function ()
         ->name('service-masini.entries.destroy');
     Route::get('/service-masini/export/pdf', [ServiceMasiniController::class, 'export'])
         ->name('service-masini.export');
+    Route::get('/service-masini/{masina}/foaie-service', [ServiceSheetController::class, 'create'])
+        ->name('service-masini.sheet.create');
+    Route::post('/service-masini/{masina}/foaie-service', [ServiceSheetController::class, 'store'])
+        ->name('service-masini.sheet.store');
+    Route::get('/service-masini/{masina}/foaie-service/{sheet}/edit', [ServiceSheetController::class, 'edit'])
+        ->name('service-masini.sheet.edit');
+    Route::put('/service-masini/{masina}/foaie-service/{sheet}', [ServiceSheetController::class, 'update'])
+        ->name('service-masini.sheet.update');
+    Route::delete('/service-masini/{masina}/foaie-service/{sheet}', [ServiceSheetController::class, 'destroy'])
+        ->name('service-masini.sheet.destroy');
+    Route::get('/service-masini/{masina}/foaie-service/{sheet}/pdf', [ServiceSheetController::class, 'download'])
+        ->name('service-masini.sheet.download');
 
 
     Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);
