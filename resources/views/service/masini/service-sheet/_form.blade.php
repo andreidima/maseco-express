@@ -4,8 +4,8 @@
     $formAction = $formAction ?? ($isEdit ? route('service-masini.sheet.update', [$masina, $sheet]) : route('service-masini.sheet.store', $masina));
     $httpMethod = $httpMethod ?? ($isEdit ? 'PUT' : 'POST');
     $formTitle = $formTitle ?? ($isEdit ? 'Editează foaia de service' : 'Foaie service');
-    $submitLabel = $submitLabel ?? ($isEdit ? 'Salvează modificările' : 'Generează PDF');
-    $submitIcon = $submitIcon ?? ($isEdit ? 'fa-floppy-disk' : 'fa-file-arrow-down');
+    $submitLabel = $submitLabel ?? ($isEdit ? 'Salvează modificările' : 'Salvează foaia');
+    $submitIcon = $submitIcon ?? 'fa-floppy-disk';
     $downloadUrl = $downloadUrl ?? ($isEdit ? route('service-masini.sheet.download', [$masina, $sheet]) : null);
 
     $rawItems = old('items');
@@ -99,27 +99,23 @@
                     </button>
                 </div>
 
-                <div id="service-items" class="d-flex flex-column gap-3">
+                <div id="service-items" class="d-flex flex-column gap-2">
                     @foreach ($items as $index => $item)
-                        <div class="card border-0 shadow-sm service-item-row">
-                            <div class="card-body">
-                                <div class="row g-3 align-items-end">
-                                    <div class="col-12">
-                                        <label for="items_{{ $index }}_descriere" class="form-label small text-muted mb-1" data-for="descriere">Descriere intervenție</label>
-                                        <input type="text" class="form-control rounded-3" data-name="descriere"
-                                            id="items_{{ $index }}_descriere"
-                                            name="items[{{ $index }}][descriere]"
-                                            value="{{ $item['descriere'] ?? '' }}" placeholder="Ex: Schimb ulei" required>
-                                        @error('items.' . $index . '.descriere')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-12 text-end">
-                                        <button type="button" class="btn btn-link text-danger text-decoration-none px-0" data-remove-item>
-                                            <i class="fa-solid fa-trash-can me-1"></i>Elimină rândul
-                                        </button>
-                                    </div>
+                        <div class="service-item-row border rounded-3 p-3 bg-light">
+                            <div class="d-flex align-items-start gap-2">
+                                <div class="flex-grow-1">
+                                    <label for="items_{{ $index }}_descriere" class="form-label small text-muted mb-1" data-for="descriere">Descriere intervenție</label>
+                                    <input type="text" class="form-control form-control-sm rounded-3" data-name="descriere"
+                                        id="items_{{ $index }}_descriere"
+                                        name="items[{{ $index }}][descriere]"
+                                        value="{{ $item['descriere'] ?? '' }}" placeholder="Ex: Schimb ulei" required>
+                                    @error('items.' . $index . '.descriere')
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
+                                    @enderror
                                 </div>
+                                <button type="button" class="btn btn-link text-danger p-0 align-self-center" data-remove-item aria-label="Șterge rândul">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
                             </div>
                         </div>
                     @endforeach
@@ -138,20 +134,16 @@
 </div>
 
 <template id="service-item-template">
-    <div class="card border-0 shadow-sm service-item-row">
-        <div class="card-body">
-            <div class="row g-3 align-items-end">
-                <div class="col-12">
-                    <label class="form-label small text-muted mb-1" data-for="descriere">Descriere intervenție</label>
-                    <input type="text" class="form-control rounded-3" data-name="descriere"
-                        placeholder="Ex: Schimb ulei" required>
-                </div>
-                <div class="col-12 text-end">
-                    <button type="button" class="btn btn-link text-danger text-decoration-none px-0" data-remove-item>
-                        <i class="fa-solid fa-trash-can me-1"></i>Elimină rândul
-                    </button>
-                </div>
+    <div class="service-item-row border rounded-3 p-3 bg-light">
+        <div class="d-flex align-items-start gap-2">
+            <div class="flex-grow-1">
+                <label class="form-label small text-muted mb-1" data-for="descriere">Descriere intervenție</label>
+                <input type="text" class="form-control form-control-sm rounded-3" data-name="descriere"
+                    placeholder="Ex: Schimb ulei" required>
             </div>
+            <button type="button" class="btn btn-link text-danger p-0 align-self-center" data-remove-item aria-label="Șterge rândul">
+                <i class="fa-solid fa-trash-can"></i>
+            </button>
         </div>
     </div>
 </template>

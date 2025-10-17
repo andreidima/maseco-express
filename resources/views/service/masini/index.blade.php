@@ -157,23 +157,42 @@
                 <div class="col-lg-10">
                     @if ($selectedMasina)
                         <div class="card shadow-sm border-0 mb-4">
-                            <div class="card-header d-flex flex-wrap align-items-center gap-3">
-                                <div class="d-flex flex-column me-auto">
+                            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                                <div class="d-flex flex-column">
                                     <div class="fw-semibold">{{ $selectedMasina->numar_inmatriculare }}</div>
                                     <small class="text-muted">{{ $selectedMasina->denumire }}</small>
                                 </div>
                                 @php
                                     $tabQuery = array_merge($queryParams, ['masina_id' => $selectedMasina->id]);
                                 @endphp
-                                <div class="d-flex flex-wrap align-items-center justify-content-center gap-2 mx-auto">
-                                    <a class="btn btn-sm {{ $isServiceSheetView ? 'btn-outline-primary' : 'btn-primary' }}"
-                                        href="{{ route('service-masini.index', array_merge($tabQuery, ['view' => 'interventii'])) }}">
-                                        <i class="fa-solid fa-list me-1"></i>Interventii
-                                    </a>
-                                    <a class="btn btn-sm {{ $isServiceSheetView ? 'btn-primary' : 'btn-outline-primary' }}"
-                                        href="{{ route('service-masini.index', array_merge($tabQuery, ['view' => 'service-sheets'])) }}">
-                                        <i class="fa-solid fa-file-lines me-1"></i>Foi service
-                                    </a>
+                                <div class="flex-grow-1 d-flex justify-content-center">
+                                    <div class="d-flex flex-wrap align-items-center justify-content-center gap-2">
+                                        <a class="btn btn-sm {{ $isServiceSheetView ? 'btn-outline-primary' : 'btn-primary' }}"
+                                            href="{{ route('service-masini.index', array_merge($tabQuery, ['view' => 'interventii'])) }}">
+                                            <i class="fa-solid fa-list me-1"></i>Interventii
+                                        </a>
+                                        <a class="btn btn-sm {{ $isServiceSheetView ? 'btn-primary' : 'btn-outline-primary' }}"
+                                            href="{{ route('service-masini.index', array_merge($tabQuery, ['view' => 'service-sheets'])) }}">
+                                            <i class="fa-solid fa-file-lines me-1"></i>Foi service
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 align-items-center justify-content-end ms-lg-auto">
+                                    @if ($isServiceSheetView)
+                                        <a class="btn btn-success btn-sm rounded-3"
+                                            href="{{ route('service-masini.sheet.create', $selectedMasina) }}">
+                                            <i class="fa-solid fa-plus-circle me-1"></i>Adaugă foaie service
+                                        </a>
+                                    @else
+                                        <button type="button" class="btn btn-success btn-sm rounded-3"
+                                            data-bs-toggle="modal" data-bs-target="#createEntryModal">
+                                            <i class="fa-solid fa-plus-circle me-1"></i>Adaugă intervenție
+                                        </button>
+                                        <a class="btn btn-outline-primary btn-sm rounded-3"
+                                            href="{{ route('service-masini.export', $queryParams + ['masina_id' => $selectedMasina->id]) }}">
+                                            <i class="fa-solid fa-file-pdf me-1"></i>Descarcă PDF
+                                        </a>
+                                    @endif
                                 </div>
                                 <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
                                     @if ($isServiceSheetView)

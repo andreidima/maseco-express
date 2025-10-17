@@ -9,9 +9,9 @@ use App\Models\Service\Masina;
 use App\Models\Service\ServiceSheet;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class ServiceSheetController extends Controller
@@ -23,7 +23,7 @@ class ServiceSheetController extends Controller
         ]);
     }
 
-    public function store(StoreServiceSheetRequest $request, Masina $masina): BinaryFileResponse
+    public function store(StoreServiceSheetRequest $request, Masina $masina): Response
     {
         $sheet = DB::transaction(function () use ($request, $masina) {
             $data = $request->validated();
@@ -110,14 +110,14 @@ class ServiceSheetController extends Controller
             ->with('status', 'Foaia de service a fost ștearsă.');
     }
 
-    public function download(Masina $masina, ServiceSheet $sheet): BinaryFileResponse
+    public function download(Masina $masina, ServiceSheet $sheet): Response
     {
         $this->ensureSheetBelongsToMasina($masina, $sheet);
 
         return $this->downloadSheet($sheet->loadMissing('masina', 'items'));
     }
 
-    protected function downloadSheet(ServiceSheet $sheet): BinaryFileResponse
+    protected function downloadSheet(ServiceSheet $sheet): Response
     {
         $sheet->loadMissing('masina', 'items');
 
