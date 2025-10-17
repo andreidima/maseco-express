@@ -83,7 +83,7 @@
                         <div class="row">
                             <div class="col-md-12 mb-3">
                                 <div class="d-flex flex-column align-items-center text-center gap-2">
-                                    <button type="button" class="btn btn-sm py-0 px-1 btn-primary text-white shadow-sm rounded-3"
+                                    <button v-if="!hasSentRequest" type="button" class="btn btn-sm py-0 px-1 btn-primary text-white shadow-sm rounded-3"
                                         {{-- style="background-color:#56af71" --}}
                                         @click="trimiteEmail();"
                                         :disabled="isSending"

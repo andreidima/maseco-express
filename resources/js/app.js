@@ -812,6 +812,7 @@ const trimitereCodAutentificarePrinEmail = createApp({
             showStatusMessage: false,
             isSending: false,
             flashObserver: null,
+            hasSentRequest: false,
         }
     },
     mounted() {
@@ -833,6 +834,7 @@ const trimitereCodAutentificarePrinEmail = createApp({
 
             if (this.email) {
                 this.isSending = true;
+                this.hasSentRequest = true;
                 this.statusMessage = 'Se trimite codul de autentificare…';
                 this.showStatusMessage = true;
 
@@ -846,17 +848,18 @@ const trimitereCodAutentificarePrinEmail = createApp({
                     )
                     .catch(() => {
                         this.mesajDeAfisat = "<span class='text-danger' style='font-size:80%'>A apărut o eroare neașteptată. Încearcă din nou.</span>";
+                        this.showStatusMessage = false;
+                        this.statusMessage = '';
                     })
                     .finally(() => {
                         this.isSending = false;
-                        this.showStatusMessage = false;
-                        this.statusMessage = '';
                     });
             } else {
                 this.mesajDeAfisat = "<span class='text-danger' style='font-size:80%'>Introdu emailul.</span>";
                 this.showStatusMessage = false;
                 this.statusMessage = '';
                 this.isSending = false;
+                this.hasSentRequest = false;
             }
         },
         observeFlashMessages() {
