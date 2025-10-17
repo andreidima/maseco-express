@@ -81,17 +81,21 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-12 mb-0 text-center">
-                                <button type="button" class="btn btn-sm py-0 px-1 btn-primary text-white shadow-sm rounded-3"
-                                    {{-- style="background-color:#56af71" --}}
-                                    @click="trimiteEmail();"
-                                >
-                                    Trimite cod pe email
-                                </button>
-                            </div>
-                            <div class="col-md-12 mb-0 text-center">
-                                <div v-if="mesajDeAfisat" v-html="mesajDeAfisat">
-                                    {{-- @{{ mesajDeAfisat }} --}}
+                            <div class="col-md-12 mb-3">
+                                <div class="d-flex flex-column align-items-center text-center gap-2">
+                                    <button v-if="!hasSentRequest" type="button" class="btn btn-sm py-0 px-1 btn-primary text-white shadow-sm rounded-3"
+                                        {{-- style="background-color:#56af71" --}}
+                                        @click="trimiteEmail();"
+                                        :disabled="isSending"
+                                        :class="{ 'disabled': isSending }"
+                                        :aria-busy="isSending"
+                                    >
+                                        Trimite cod pe email
+                                    </button>
+                                    <div v-if="showStatusMessage" class="text-muted small" role="status" aria-live="polite" v-text="statusMessage"></div>
+                                    <div v-if="mesajDeAfisat" v-html="mesajDeAfisat">
+                                        {{-- @{{ mesajDeAfisat }} --}}
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-12 mb-3">
