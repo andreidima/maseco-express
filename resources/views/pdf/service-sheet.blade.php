@@ -7,7 +7,7 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 18mm 15mm 18mm 15mm;
+            margin: 20mm 20mm 20mm 20mm;
         }
 
         * {
@@ -17,171 +17,103 @@
         html,
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 11px;
-            color: #111827;
+            font-size: 12px;
+            color: #0f172a;
             margin: 0;
             padding: 0;
-            line-height: 1.35;
+            line-height: 1.4;
             background: #ffffff;
         }
 
         h1,
         h2,
-        h3,
-        h4,
-        h5,
-        h6 {
+        h3 {
             margin: 0;
-            padding: 0;
-            font-weight: 600;
-            color: #0f172a;
-            letter-spacing: 0.02em;
+            font-weight: 700;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
-        .sheet {
-            width: 100%;
+        .page {
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            gap: 18px;
         }
 
-        .sheet-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 10px;
+        .page-header {
+            text-align: center;
         }
 
-        .sheet-header .logo {
-            height: 58px;
-            width: auto;
+        .page-header img {
+            width: 180px;
+            height: auto;
         }
 
-        .sheet-header .title-block {
-            text-align: right;
+        .page-title {
+            font-size: 28px;
+            margin-top: 6px;
         }
 
-        .sheet-header .title-block h1 {
-            font-size: 22px;
-            margin-bottom: 4px;
-        }
-
-        .sheet-header .title-block span {
-            display: block;
-            font-size: 12px;
-            letter-spacing: 0.12em;
-            color: #475569;
-        }
-
-        .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .meta-card {
-            border: 1px solid #cbd5f5;
-            border-radius: 8px;
-            padding: 10px 12px;
-            background: #f8fafc;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .meta-card span.label {
-            font-size: 10px;
-            color: #475569;
-            letter-spacing: 0.08em;
-        }
-
-        .meta-card span.value {
-            font-size: 15px;
-            font-weight: 600;
-            color: #0f172a;
-            text-transform: uppercase;
-        }
-
-        .section-title {
+        .section-heading {
+            text-align: center;
             font-size: 16px;
             letter-spacing: 0.08em;
-            padding-bottom: 6px;
-            border-bottom: 1px solid #cbd5f5;
         }
 
-        .entry-table,
+        .info-table,
         .parts-table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 8px;
         }
 
-        .entry-table th,
-        .entry-table td,
+        .info-table th,
+        .info-table td,
         .parts-table th,
         .parts-table td {
-            border: 1px solid #d0d7e2;
-            padding: 7px 8px;
-            vertical-align: top;
+            border: 1px solid #0f172a;
+            padding: 8px 10px;
+            text-align: left;
         }
 
-        .entry-table thead th,
-        .parts-table thead th {
-            background: #e9effa;
-            font-size: 11px;
-            color: #1e293b;
-            letter-spacing: 0.04em;
+        .info-table th {
+            width: 33.33%;
+            background: #f1f5f9;
+            font-size: 12px;
         }
 
-        .entry-table tbody td.number,
-        .parts-table tbody td.number {
-            width: 46px;
-            text-align: center;
+        .info-table td {
+            font-size: 14px;
             font-weight: 600;
         }
 
-        .notes-area {
-            margin-top: 12px;
-            border: 1px dashed #94a3b8;
-            border-radius: 6px;
-            min-height: 80px;
-            padding: 10px 12px;
-            background: #f8fafc;
-        }
-
-        .notes-area span {
-            display: block;
-            font-size: 10px;
-            text-transform: uppercase;
-            color: #64748b;
-            letter-spacing: 0.08em;
-        }
-
-        .signature-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            margin-top: 40px;
-        }
-
-        .signature-block {
+        .interventions-list {
+            margin: 0;
+            padding-left: 22px;
             display: flex;
             flex-direction: column;
-            gap: 6px;
-            min-width: 220px;
+            gap: 8px;
         }
 
-        .signature-block span.label {
-            font-size: 10px;
-            color: #475569;
-            letter-spacing: 0.06em;
+        .mechanic-label {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 6px;
         }
 
-        .signature-line {
-            border-bottom: 1px solid #1e293b;
-            height: 18px;
+        .mechanic-line {
+            border-bottom: 1px solid #0f172a;
+            height: 22px;
+            margin-bottom: 18px;
+        }
+
+        .parts-table th {
+            background: #f1f5f9;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .parts-table td {
+            height: 26px;
         }
 
         .page-break {
