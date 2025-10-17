@@ -21,10 +21,10 @@
             ->toArray();
     } else {
         $defaultDescriptions = [
-            'schimb ulei + filtre',
-            'verificare lumini',
-            'verificare placute frana si gresat culisoare',
-            'verificare jocuri roti',
+            'Schimb ulei + filtre',
+            'Verificare lumini',
+            'Verificare placute frana si gresat culisoare',
+            'Verificare jocuri roti',
         ];
 
         $items = collect($defaultDescriptions)
