@@ -15,7 +15,7 @@
             font-family: DejaVu Sans, sans-serif;
             font-size: 14px;
             color: #0f172a;
-            margin: 2mm 5mm;
+            margin: 1mm 3mm;
             padding: 0;
             line-height: 1.4;
             background: #ffffff;
@@ -74,7 +74,7 @@
         .info-table th {
             width: 40%;
             font-size: 14px;
-        }
+    1}
 
         .info-table td {
             font-size: 14px;
@@ -99,7 +99,7 @@
         .mechanic-label {
             font-size: 14px;
             font-weight: 600;
-        }
+    1 }
 
         .mechanic-line {
             border-bottom: 1px solid #0f172a;
@@ -110,10 +110,10 @@
         .parts-table th {
             text-transform: uppercase;
             font-size: 14px;
-        }
+    1}
 
         .parts-table td {
-            height: 26px;
+            height: 70px;
         }
 
         .page-break {
