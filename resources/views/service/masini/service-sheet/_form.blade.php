@@ -101,14 +101,13 @@
 
                 <div id="service-items" class="d-flex flex-column gap-2">
                     @foreach ($items as $index => $item)
-                        <div class="service-item-row border rounded-3 p-3 bg-light">
+                        <div class="service-item-row border rounded-3 p-2 bg-light">
                             <div class="d-flex align-items-start gap-2">
                                 <div class="flex-grow-1">
-                                    <label for="items_{{ $index }}_descriere" class="form-label small text-muted mb-1" data-for="descriere">Descriere intervenție</label>
-                                    <input type="text" class="form-control form-control-sm rounded-3" data-name="descriere"
+                                    <input type="text" class="form-control rounded-3" data-name="descriere"
                                         id="items_{{ $index }}_descriere"
                                         name="items[{{ $index }}][descriere]"
-                                        value="{{ $item['descriere'] ?? '' }}" placeholder="Ex: Schimb ulei" required>
+                                        value="{{ $item['descriere'] ?? '' }}" placeholder="Descriere intervenție" required>
                                     @error('items.' . $index . '.descriere')
                                         <div class="text-danger small mt-1">{{ $message }}</div>
                                     @enderror
@@ -134,12 +133,11 @@
 </div>
 
 <template id="service-item-template">
-    <div class="service-item-row border rounded-3 p-3 bg-light">
+    <div class="service-item-row border rounded-3 p-2 bg-light">
         <div class="d-flex align-items-start gap-2">
             <div class="flex-grow-1">
-                <label class="form-label small text-muted mb-1" data-for="descriere">Descriere intervenție</label>
-                <input type="text" class="form-control form-control-sm rounded-3" data-name="descriere"
-                    placeholder="Ex: Schimb ulei" required>
+                <input type="text" class="form-control rounded-3" data-name="descriere"
+                    placeholder="Descriere intervenție" required>
             </div>
             <button type="button" class="btn btn-link text-danger p-0 align-self-center" data-remove-item aria-label="Șterge rândul">
                 <i class="fa-solid fa-trash-can"></i>
@@ -165,11 +163,6 @@
 
                         input.name = `items[${index}][${field}]`;
                         input.id = id;
-                    });
-
-                    row.querySelectorAll('[data-for]').forEach((label) => {
-                        const field = label.dataset.for;
-                        label.setAttribute('for', `items_${index}_${field}`);
                     });
                 });
             }

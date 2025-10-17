@@ -13,7 +13,7 @@ class ServiceSheetTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_service_sheet_store_persists_and_downloads_pdf(): void
+    public function test_service_sheet_store_persists_and_redirects_to_index(): void
     {
         $user = User::factory()->create();
         $masina = Masina::factory()->create([
@@ -34,9 +34,10 @@ class ServiceSheetTest extends TestCase
             ],
         ]);
 
-        $response->assertOk();
-        $this->assertSame('application/pdf', $response->headers->get('content-type'));
-        $this->assertStringContainsString('foaie-service-b12xyz', strtolower($response->headers->get('content-disposition')));
+        $response->assertRedirect(route('service-masini.index', [
+            'masina_id' => $masina->id,
+            'view' => 'service-sheets',
+        ]));
 
         $this->assertDatabaseHas('service_sheets', [
             'masina_id' => $masina->id,
@@ -57,6 +58,12 @@ class ServiceSheetTest extends TestCase
             'position' => 2,
             'descriere' => 'Filtru aer',
         ]);
+
+        $downloadResponse = $this->actingAs($user)->get(route('service-masini.sheet.download', [$masina, $sheet]));
+
+        $downloadResponse->assertOk();
+        $this->assertSame('application/pdf', $downloadResponse->headers->get('content-type'));
+        $this->assertStringContainsString('foaie-service-b12xyz', strtolower($downloadResponse->headers->get('content-disposition')));
     }
 
     public function test_service_sheet_index_view_lists_records(): void

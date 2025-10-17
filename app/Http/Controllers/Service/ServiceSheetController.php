@@ -9,10 +9,10 @@ use App\Models\Service\Masina;
 use App\Models\Service\ServiceSheet;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ServiceSheetController extends Controller
 {
@@ -23,7 +23,7 @@ class ServiceSheetController extends Controller
         ]);
     }
 
-    public function store(StoreServiceSheetRequest $request, Masina $masina): Response
+    public function store(StoreServiceSheetRequest $request, Masina $masina): RedirectResponse
     {
         $sheet = DB::transaction(function () use ($request, $masina) {
             $data = $request->validated();
@@ -48,9 +48,12 @@ class ServiceSheetController extends Controller
             return $sheet->fresh(['masina', 'items']);
         });
 
-        session()->flash('status', 'Foaia de service a fost salvată.');
-
-        return $this->downloadSheet($sheet);
+        return redirect()
+            ->route('service-masini.index', [
+                'masina_id' => $masina->id,
+                'view' => 'service-sheets',
+            ])
+            ->with('status', 'Foaia de service a fost salvată.');
     }
 
     public function edit(Masina $masina, ServiceSheet $sheet): View
@@ -110,14 +113,14 @@ class ServiceSheetController extends Controller
             ->with('status', 'Foaia de service a fost ștearsă.');
     }
 
-    public function download(Masina $masina, ServiceSheet $sheet): Response
+    public function download(Masina $masina, ServiceSheet $sheet): BinaryFileResponse
     {
         $this->ensureSheetBelongsToMasina($masina, $sheet);
 
         return $this->downloadSheet($sheet->loadMissing('masina', 'items'));
     }
 
-    protected function downloadSheet(ServiceSheet $sheet): Response
+    protected function downloadSheet(ServiceSheet $sheet): BinaryFileResponse
     {
         $sheet->loadMissing('masina', 'items');
 
