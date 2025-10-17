@@ -10,6 +10,7 @@ use App\Models\Service\ServiceSheet;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -144,7 +145,12 @@ class ServiceSheetController extends Controller
         $identifier = $sheet->masina->numar_inmatriculare ?: $sheet->masina->denumire ?: 'masina';
         $filename = 'foaie-service-' . Str::slug($identifier) . '-' . $sheet->id . '.pdf';
 
-        return $pdf->download($filename);
+        $storagePath = 'service-sheets/' . Str::uuid() . '.pdf';
+        Storage::disk('local')->put($storagePath, $pdf->output());
+
+        return response()
+            ->download(storage_path('app/' . $storagePath), $filename, ['Content-Type' => 'application/pdf'])
+            ->deleteFileAfterSend(true);
     }
 
     protected function ensureSheetBelongsToMasina(Masina $masina, ServiceSheet $sheet): void

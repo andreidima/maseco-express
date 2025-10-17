@@ -205,7 +205,7 @@
                                                 <th style="min-width: 140px;">Data service</th>
                                                 <th style="min-width: 120px;">Km bord</th>
                                                 <th style="min-width: 150px;">Număr poziții</th>
-                                                <th style="min-width: 160px;">Creată la</th>
+                                                <th style="min-width: 160px;">Data service</th>
                                                 <th class="text-end" style="min-width: 200px;">Acțiuni</th>
                                             </tr>
                                         </thead>
@@ -215,7 +215,7 @@
                                                     <td>{{ optional($sheet->data_service)->format('d.m.Y') ?? '—' }}</td>
                                                     <td>{{ number_format((int) $sheet->km_bord) }}</td>
                                                     <td>{{ $sheet->items_count }}</td>
-                                                    <td>{{ optional($sheet->created_at)->format('d.m.Y H:i') ?? '—' }}</td>
+                                                    <td>{{ optional($sheet->data_service)->format('d.m.Y') ?? '—' }}</td>
                                                     <td class="text-end">
                                                         <div class="d-flex justify-content-end gap-2">
                                                             <a class="btn btn-outline-primary btn-sm"
