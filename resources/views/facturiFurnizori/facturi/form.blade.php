@@ -3,6 +3,7 @@
     $buttonText ??= __('Salvează factura');
     $buttonClass ??= 'btn-primary';
     $cancelUrl ??= \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
+    $facturaPiese = $factura?->piese?->keyBy('id');
     $produseColectie = collect(old('produse', $factura?->piese?->map(function ($piesa) {
         $initial = $piesa->cantitate_initiala ?? $piesa->nr_bucati;
         $remaining = $piesa->nr_bucati;
@@ -20,6 +21,28 @@
             'pret_brut' => $piesa->pret_brut,
         ];
     })->toArray() ?? []));
+
+    if (old('produse') && $produseColectie->isNotEmpty()) {
+        $produseColectie = $produseColectie->map(function ($produs) use ($facturaPiese) {
+            $id = isset($produs['id']) ? (int) $produs['id'] : null;
+
+            if ($id && $facturaPiese && $facturaPiese->has($id)) {
+                $piesa = $facturaPiese->get($id);
+                $initialFromDb = $piesa->cantitate_initiala ?? $piesa->nr_bucati ?? 0;
+                $remainingFromDb = $piesa->nr_bucati ?? 0;
+                $consumed = max((float) $initialFromDb - (float) $remainingFromDb, 0);
+
+                $produs['cantitate_consumata'] = $consumed;
+
+                if (array_key_exists('cantitate_initiala', $produs) && $produs['cantitate_initiala'] !== '') {
+                    $initialInput = (float) $produs['cantitate_initiala'];
+                    $produs['nr_bucati'] = max($initialInput - $consumed, 0);
+                }
+            }
+
+            return $produs;
+        });
+    }
     if ($produseColectie->isEmpty()) {
         $produseColectie = collect([[
             'id' => null,
@@ -235,7 +258,6 @@
                             <th style="min-width: 200px;">Denumire</th>
                             <th style="min-width: 140px;">Cod</th>
                             <th style="min-width: 140px;">Cantitate inițială</th>
-                            <th style="min-width: 120px;">Cantitate</th>
                             <th style="min-width: 120px;">Preț NET/buc</th>
                             <th style="min-width: 110px;">Cotă TVA</th>
                             <th style="min-width: 140px;">Preț BRUT/buc</th>
@@ -291,24 +313,17 @@
                                         value="{{ $initialValue }}"
                                         placeholder="0"
                                     >
+                                    <input
+                                        type="hidden"
+                                        name="produse[{{ $index }}][nr_bucati]"
+                                        data-piece-field="remaining"
+                                        value="{{ $remainingValue }}"
+                                    >
                                     @error('produse.' . $index . '.cantitate_initiala')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                </td>
-                                <td>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        name="produse[{{ $index }}][nr_bucati]"
-                                        class="form-control form-control-sm bg-light {{ $errors->has('produse.' . $index . '.nr_bucati') ? 'is-invalid' : '' }}"
-                                        data-piece-field="remaining"
-                                        value="{{ $remainingValue }}"
-                                        placeholder="0"
-                                        readonly
-                                    >
                                     @error('produse.' . $index . '.nr_bucati')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="text-danger small mt-1">{{ $message }}</div>
                                     @enderror
                                 </td>
                                 <td>
@@ -396,17 +411,10 @@
                             data-produs-field="quantity"
                             placeholder="0"
                         >
-                    </td>
-                    <td>
                         <input
-                            type="number"
-                            step="0.01"
-                            min="0"
+                            type="hidden"
                             name="produse[__INDEX__][nr_bucati]"
-                            class="form-control form-control-sm bg-light"
                             data-piece-field="remaining"
-                            placeholder="0"
-                            readonly
                         >
                     </td>
                     <td>
