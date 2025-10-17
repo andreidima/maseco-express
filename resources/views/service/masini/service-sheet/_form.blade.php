@@ -52,7 +52,8 @@
         </div>
         <div class="d-flex flex-wrap gap-2">
             @if ($downloadUrl)
-                <a href="{{ $downloadUrl }}" class="btn btn-outline-primary btn-sm rounded-3">
+                <a href="{{ $downloadUrl }}" class="btn btn-outline-primary btn-sm rounded-3" target="_blank"
+                    rel="noopener noreferrer">
                     <i class="fa-solid fa-file-arrow-down me-1"></i>Descarcă PDF
                 </a>
             @endif

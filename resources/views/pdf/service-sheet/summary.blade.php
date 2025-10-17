@@ -1,36 +1,29 @@
-<div class="meta-section">
-    <h1 class="section-title">Foaie service</h1>
-    <table class="meta-grid">
-        <tbody>
-            <tr>
-                <td><strong>Mașină:</strong> {{ $masina->denumire }}</td>
-                <td><strong>Nr. înmatriculare:</strong> {{ $masina->numar_inmatriculare }}</td>
-            </tr>
-            <tr>
-                <td><strong>Serie șasiu:</strong> {{ $masina->serie_sasiu ?? '—' }}</td>
-                <td><strong>Km bord:</strong> {{ number_format($km_bord, 0, ',', '.') }}</td>
-            </tr>
-            <tr>
-                <td><strong>Data service:</strong> {{ $data_service->format('d.m.Y') }}</td>
-                <td><strong>Generat la:</strong> {{ now()->format('d.m.Y H:i') }}</td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+<div class="page">
+    <div class="page-header">
+        <img src="{{ public_path('images/logo3.jpg') }}" alt="Logo">
+        <h1 class="page-title">Foaie Service</h1>
+    </div>
 
-<table class="summary-table">
-    <thead>
+    <table class="info-table">
         <tr>
-            <th class="col-index">Nr. crt.</th>
-            <th class="col-descriere">Descriere intervenție</th>
+            <th>Nr. auto</th>
+            <th>Km bord</th>
+            <th>Data service</th>
         </tr>
-    </thead>
-    <tbody>
-        @foreach ($items as $item)
-            <tr>
-                <td class="col-index">{{ $item['index'] }}</td>
-                <td class="col-descriere">{{ $item['descriere'] }}</td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
+        <tr>
+            <td>{{ $masina->numar_inmatriculare }}</td>
+            <td>{{ number_format($km_bord, 0, ',', '.') }}</td>
+            <td>{{ $data_service->format('d.m.Y') }}</td>
+        </tr>
+    </table>
+
+    <h2 class="section-heading">Fisa intrare service</h2>
+
+    <ol class="interventions-list">
+        @forelse ($items as $item)
+            <li>{{ $item['descriere'] }}</li>
+        @empty
+            <li>&nbsp;</li>
+        @endforelse
+    </ol>
+</div>

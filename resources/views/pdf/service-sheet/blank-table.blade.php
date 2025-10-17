@@ -1,26 +1,32 @@
-<div class="meta-section">
-    <h2 class="blank-table-caption">Tabel completare intervenții</h2>
-    <p style="margin-bottom: 12px; color: #4b5563;">Spațiu dedicat completării manuale pentru intervenții suplimentare.</p>
-</div>
+<div class="page">
+    <div class="page-header">
+        <img src="{{ public_path('images/logo3.jpg') }}" alt="Logo">
+        <h1 class="page-title">Foaie Service</h1>
+    </div>
 
-<table class="blank-table">
-    <thead>
-        <tr>
-            <th class="col-index">Nr. crt.</th>
-            <th class="col-descriere">Descriere intervenție</th>
-        </tr>
-    </thead>
-    <tbody>
-        @for ($i = 1; $i <= 14; $i++)
+    <h2 class="section-heading">Fisa iesire service auto</h2>
+
+    <div>
+        <div class="mechanic-label">Nume mecanic auto</div>
+        <div class="mechanic-line"></div>
+    </div>
+
+    <table class="parts-table">
+        <thead>
             <tr>
-                <td class="col-index">{{ $i }}</td>
-                <td class="col-descriere">&nbsp;</td>
+                <th style="width: 50%;">Denumire piesa</th>
+                <th style="width: 30%;">Cod piesa</th>
+                <th style="width: 20%;">Cantitate</th>
             </tr>
-        @endfor
-    </tbody>
-</table>
-
-<div style="margin-top: 28px; font-size: 13px;">
-    <strong>NUME MECANIC AUTO:</strong>
-    <span style="display: inline-block; min-width: 280px; border-bottom: 1px solid #cfd2d6; height: 18px; margin-left: 8px;"></span>
+        </thead>
+        <tbody>
+            @for ($i = 0; $i < 22; $i++)
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+            @endfor
+        </tbody>
+    </table>
 </div>
