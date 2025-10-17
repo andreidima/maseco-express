@@ -125,7 +125,6 @@ class ServiceSheetController extends Controller
         $sheet->loadMissing('masina', 'items');
 
         $items = $sheet->items
-            ->sortBy(fn ($item) => Str::lower($item->descriere ?? ''))
             ->values()
             ->map(function ($item, int $index) {
                 return [
