@@ -10,10 +10,8 @@ use App\Models\Service\ServiceSheet;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class ServiceSheetController extends Controller
 {
@@ -121,12 +119,12 @@ class ServiceSheetController extends Controller
         return $this->downloadSheet($sheet->loadMissing('masina', 'items'));
     }
 
-    protected function downloadSheet(ServiceSheet $sheet): BinaryFileResponse
+    protected function downloadSheet(ServiceSheet $sheet)
     {
         $sheet->loadMissing('masina', 'items');
 
         $items = $sheet->items
-            ->sortBy('position')
+            ->sortBy(fn ($item) => Str::lower($item->descriere ?? ''))
             ->values()
             ->map(function ($item, int $index) {
                 return [
@@ -145,12 +143,7 @@ class ServiceSheetController extends Controller
         $identifier = $sheet->masina->numar_inmatriculare ?: $sheet->masina->denumire ?: 'masina';
         $filename = 'foaie-service-' . Str::slug($identifier) . '-' . $sheet->id . '.pdf';
 
-        $storagePath = 'service-sheets/' . Str::uuid() . '.pdf';
-        Storage::disk('local')->put($storagePath, $pdf->output());
-
-        return response()
-            ->download(storage_path('app/' . $storagePath), $filename, ['Content-Type' => 'application/pdf'])
-            ->deleteFileAfterSend(true);
+        return $pdf->stream($filename, ['Content-Type' => 'application/pdf']);
     }
 
     protected function ensureSheetBelongsToMasina(Masina $masina, ServiceSheet $sheet): void
