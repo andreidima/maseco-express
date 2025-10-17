@@ -2,8 +2,11 @@
 
 @php
     $filters = $filters ?? [];
+    $viewMode = $viewMode ?? 'interventii';
+    $isServiceSheetView = $viewMode === 'service-sheets';
     $selectedMasinaId = optional($selectedMasina)->id;
     $queryParams = collect($filters)
+        ->merge(['view' => $viewMode])
         ->reject(fn ($value) => $value === null || $value === '')
         ->toArray();
     $editingEntry = $editingEntry ?? null;
@@ -32,6 +35,7 @@
             <div class="col-lg-6 mb-2">
                 <form class="needs-validation" novalidate method="GET" action="{{ route('service-masini.index') }}">
                     <div class="row gy-2 gx-3 align-items-end">
+                        <input type="hidden" name="view" value="{{ $viewMode }}">
                         <div class="col-lg-4 col-md-6">
                             <label for="numar_inmatriculare" class="form-label small text-muted mb-1">
                                 <i class="fa-solid fa-car me-1"></i>Nr. înmatriculare / Denumire mașină
@@ -40,21 +44,23 @@
                                 name="numar_inmatriculare" placeholder="Ex: B00ABC"
                                 value="{{ $filters['numar_inmatriculare'] ?? '' }}" autocomplete="off">
                         </div>
-                        <div class="col-lg-4 col-md-6">
-                            <label for="piesa" class="form-label small text-muted mb-1">
-                                <i class="fa-solid fa-puzzle-piece me-1"></i>Denumire piesă / intervenție
-                            </label>
-                            <input type="text" class="form-control rounded-3" id="piesa" name="piesa"
-                                placeholder="Ex: Filtru ulei"
-                                value="{{ $filters['piesa'] ?? '' }}" autocomplete="off">
-                        </div>
-                        <div class="col-lg-4 col-md-6">
-                            <label for="cod" class="form-label small text-muted mb-1">
-                                <i class="fa-solid fa-barcode me-1"></i>Cod piesă
-                            </label>
-                            <input type="text" class="form-control rounded-3" id="cod" name="cod"
-                                placeholder="Cod piesă" value="{{ $filters['cod'] ?? '' }}" autocomplete="off">
-                        </div>
+                        @unless ($isServiceSheetView)
+                            <div class="col-lg-4 col-md-6">
+                                <label for="piesa" class="form-label small text-muted mb-1">
+                                    <i class="fa-solid fa-puzzle-piece me-1"></i>Denumire piesă / intervenție
+                                </label>
+                                <input type="text" class="form-control rounded-3" id="piesa" name="piesa"
+                                    placeholder="Ex: Filtru ulei"
+                                    value="{{ $filters['piesa'] ?? '' }}" autocomplete="off">
+                            </div>
+                            <div class="col-lg-4 col-md-6">
+                                <label for="cod" class="form-label small text-muted mb-1">
+                                    <i class="fa-solid fa-barcode me-1"></i>Cod piesă
+                                </label>
+                                <input type="text" class="form-control rounded-3" id="cod" name="cod"
+                                    placeholder="Cod piesă" value="{{ $filters['cod'] ?? '' }}" autocomplete="off">
+                            </div>
+                        @endunless
                         <div class="col-lg-4 col-md-6">
                             <label for="data_start" class="form-label small text-muted mb-1">
                                 <i class="fa-solid fa-calendar-day me-1"></i>De la data
@@ -75,7 +81,7 @@
                                 <i class="fas fa-search text-white me-1"></i>Caută
                             </button>
                             <a class="btn btn-sm btn-secondary text-white flex-grow-1 border border-dark rounded-3"
-                                href="{{ route('service-masini.index') }}">
+                                href="{{ route('service-masini.index', ['view' => $viewMode]) }}">
                                 <i class="far fa-trash-alt text-white me-1"></i>Resetează
                             </a>
                         </div>
@@ -150,113 +156,184 @@
 
                 <div class="col-lg-10">
                     @if ($selectedMasina)
-                        <div class="card shadow-sm border-0 mb-4">
+                        <div class="card shadow-sm border-0">
                             <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
-                                <div>
-                                    <h5 class="mb-0">{{ $selectedMasina->denumire }}</h5>
-                                    <small class="text-muted">Nr. înmatriculare: {{ $selectedMasina->numar_inmatriculare }}</small>
+                                <div class="d-flex flex-column">
+                                    <div class="fw-semibold">{{ $selectedMasina->numar_inmatriculare }}</div>
+                                    <small class="text-muted">{{ $selectedMasina->denumire }}</small>
                                 </div>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <button type="button" class="btn btn-success btn-sm rounded-3"
-                                        data-bs-toggle="modal" data-bs-target="#createEntryModal">
-                                        <i class="fa-solid fa-plus-circle me-1"></i>Adaugă intervenție
-                                    </button>
-                                    <a class="btn btn-outline-primary btn-sm rounded-3"
-                                        href="{{ route('service-masini.export', $queryParams + ['masina_id' => $selectedMasina->id]) }}">
-                                        <i class="fa-solid fa-file-pdf me-1"></i>Descarcă PDF
-                                    </a>
+                                @php
+                                    $tabQuery = array_merge($queryParams, ['masina_id' => $selectedMasina->id]);
+                                @endphp
+                                <div class="flex-grow-1 d-flex justify-content-center">
+                                    <div class="d-flex flex-wrap align-items-center justify-content-center gap-2">
+                                        <a class="btn btn-sm {{ $isServiceSheetView ? 'btn-outline-primary' : 'btn-primary' }}"
+                                            href="{{ route('service-masini.index', array_merge($tabQuery, ['view' => 'interventii'])) }}">
+                                            <i class="fa-solid fa-list me-1"></i>Intervenții
+                                        </a>
+                                        <a class="btn btn-sm {{ $isServiceSheetView ? 'btn-primary' : 'btn-outline-primary' }}"
+                                            href="{{ route('service-masini.index', array_merge($tabQuery, ['view' => 'service-sheets'])) }}">
+                                            <i class="fa-solid fa-file-lines me-1"></i>Foi service
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="d-flex flex-wrap gap-2 align-items-center justify-content-end ms-lg-auto">
+                                    @if ($isServiceSheetView)
+                                        <a class="btn btn-success btn-sm rounded-3"
+                                            href="{{ route('service-masini.sheet.create', $selectedMasina) }}">
+                                            <i class="fa-solid fa-plus-circle me-1"></i>Adaugă foaie service
+                                        </a>
+                                    @else
+                                        <button type="button" class="btn btn-success btn-sm rounded-3"
+                                            data-bs-toggle="modal" data-bs-target="#createEntryModal">
+                                            <i class="fa-solid fa-plus-circle me-1"></i>Adaugă intervenție
+                                        </button>
+                                        <a class="btn btn-outline-primary btn-sm rounded-3"
+                                            href="{{ route('service-masini.export', $queryParams + ['masina_id' => $selectedMasina->id]) }}">
+                                            <i class="fa-solid fa-file-pdf me-1"></i>Descarcă PDF
+                                        </a>
+                                    @endif
                                 </div>
                             </div>
-                        </div>
 
-                        <div class="card shadow-sm border-0">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-hover mb-0">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th style="min-width: 110px;">Data</th>
-                                            <th style="min-width: 120px;">Tip</th>
-                                            <th style="min-width: 180px;">Denumire</th>
-                                            <th style="min-width: 120px;">Cod</th>
-                                            <th style="min-width: 90px;">Cantitate</th>
-                                            <th style="min-width: 150px;">Mecanic</th>
-                                            <th style="min-width: 150px;">Utilizator</th>
-                                            <th>Obs</th>
-                                            <th class="text-end" style="min-width: 140px;">Acțiuni</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($entries as $entry)
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    @if ($isServiceSheetView)
+                                    <table class="table table-striped table-hover mb-0">
+                                        <thead class="table-light">
                                             <tr>
-                                                <td>{{ optional($entry->data_montaj)->format('d.m.Y') ?? '—' }}</td>
-                                                <td>
-                                                    @if ($entry->tip === 'piesa')
-                                                        <span class="badge bg-primary">Piesă</span>
-                                                    @else
-                                                        <span class="badge bg-secondary">Manual</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if ($entry->tip === 'piesa')
-                                                        {{ $entry->denumire_piesa ?? '—' }}
-                                                    @else
-                                                        {{ $entry->denumire_interventie ?? '—' }}
-                                                    @endif
-                                                </td>
-                                                <td>{{ $entry->tip === 'piesa' ? ($entry->cod_piesa ?? '—') : '—' }}</td>
-                                                <td>
-                                                    @if ($entry->tip === 'piesa')
-                                                        {{ $entry->cantitate !== null ? number_format((float) $entry->cantitate, 2) : '—' }}
-                                                    @else
-                                                        —
-                                                    @endif
-                                                </td>
-                                                <td>{{ $entry->nume_mecanic ?? '—' }}</td>
-                                                <td>{{ $entry->nume_utilizator ?? optional($entry->user)->name ?? '—' }}</td>
-                                                <td class="text-center">
-                                                    @if ($entry->observatii)
-                                                        <button type="button" class="btn btn-link p-0 text-decoration-none"
-                                                            data-bs-toggle="tooltip" data-bs-trigger="hover focus"
-                                                            title="{{ $entry->observatii }}" aria-label="Vizualizează observațiile">
-                                                            <i class="fa-solid fa-circle-info"></i>
-                                                        </button>
-                                                    @else
-                                                        —
-                                                    @endif
-                                                </td>
-                                                <td class="text-end">
-                                                    <div class="d-flex justify-content-end gap-2">
-                                                        <a class="btn btn-outline-primary btn-sm"
-                                                            href="{{ route('service-masini.index', $queryParams + ['masina_id' => $selectedMasina->id, 'entry_id' => $entry->id]) }}">
-                                                            Editează
-                                                        </a>
-                                                        <form method="POST" class="d-inline"
-                                                            action="{{ route('service-masini.entries.destroy', [$selectedMasina, $entry]) }}"
-                                                            onsubmit="return confirm('Sigur dorești să ștergi această intervenție?');">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            @foreach ($filters as $key => $value)
-                                                                @if ($value !== null && $value !== '')
-                                                                    <input type="hidden" name="{{ $key }}" value="{{ $value }}">
-                                                                @endif
-                                                            @endforeach
-                                                            <button type="submit" class="btn btn-outline-danger btn-sm">Șterge</button>
-                                                        </form>
-                                                    </div>
-                                                </td>
+                                                <th style="min-width: 140px;">Data service</th>
+                                                <th style="min-width: 120px;">Km bord</th>
+                                                <th style="min-width: 150px;">Număr poziții</th>
+                                                <th style="min-width: 160px;">Data service</th>
+                                                <th class="text-end" style="min-width: 200px;">Acțiuni</th>
                                             </tr>
-                                        @empty
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($serviceSheets as $sheet)
+                                                <tr>
+                                                    <td>{{ optional($sheet->data_service)->format('d.m.Y') ?? '—' }}</td>
+                                                    <td>{{ number_format((int) $sheet->km_bord) }}</td>
+                                                    <td>{{ $sheet->items_count }}</td>
+                                                    <td>{{ optional($sheet->data_service)->format('d.m.Y') ?? '—' }}</td>
+                                                    <td class="text-end">
+                                                        <div class="d-flex justify-content-end gap-2">
+                                                            <a class="btn btn-outline-primary btn-sm"
+                                                                href="{{ route('service-masini.sheet.download', [$selectedMasina, $sheet]) }}">
+                                                                <i class="fa-solid fa-file-arrow-down me-1"></i>PDF
+                                                            </a>
+                                                            <a class="btn btn-outline-secondary btn-sm"
+                                                                href="{{ route('service-masini.sheet.edit', [$selectedMasina, $sheet]) }}">
+                                                                Editează
+                                                            </a>
+                                                            <form method="POST" class="d-inline"
+                                                                action="{{ route('service-masini.sheet.destroy', [$selectedMasina, $sheet]) }}"
+                                                                onsubmit="return confirm('Sigur dorești să ștergi această foaie de service?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">Șterge</button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5" class="text-center text-muted py-4">
+                                                        Nu există foi de service pentru această mașină.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <table class="table table-striped table-hover mb-0">
+                                        <thead class="table-light">
                                             <tr>
-                                                <td colspan="9" class="text-center text-muted py-4">
-                                                    Nu există intervenții pentru această mașină.
-                                                </td>
+                                                <th style="min-width: 110px;">Data</th>
+                                                <th style="min-width: 120px;">Tip</th>
+                                                <th style="min-width: 180px;">Denumire</th>
+                                                <th style="min-width: 120px;">Cod</th>
+                                                <th style="min-width: 90px;">Cantitate</th>
+                                                <th style="min-width: 150px;">Mecanic</th>
+                                                <th style="min-width: 150px;">Utilizator</th>
+                                                <th>Obs</th>
+                                                <th class="text-end" style="min-width: 140px;">Acțiuni</th>
                                             </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($entries as $entry)
+                                                <tr>
+                                                    <td>{{ optional($entry->data_montaj)->format('d.m.Y') ?? '—' }}</td>
+                                                    <td>
+                                                        @if ($entry->tip === 'piesa')
+                                                            <span class="badge bg-primary">Piesă</span>
+                                                        @else
+                                                            <span class="badge bg-secondary">Manual</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
+                                                        @if ($entry->tip === 'piesa')
+                                                            {{ $entry->denumire_piesa ?? '—' }}
+                                                        @else
+                                                            {{ $entry->denumire_interventie ?? '—' }}
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $entry->tip === 'piesa' ? ($entry->cod_piesa ?? '—') : '—' }}</td>
+                                                    <td>
+                                                        @if ($entry->tip === 'piesa')
+                                                            {{ $entry->cantitate !== null ? number_format((float) $entry->cantitate, 2) : '—' }}
+                                                        @else
+                                                            —
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $entry->nume_mecanic ?? '—' }}</td>
+                                                    <td>{{ $entry->nume_utilizator ?? optional($entry->user)->name ?? '—' }}</td>
+                                                    <td class="text-center">
+                                                        @if ($entry->observatii)
+                                                            <button type="button" class="btn btn-link p-0 text-decoration-none"
+                                                                data-bs-toggle="tooltip" data-bs-trigger="hover focus"
+                                                                title="{{ $entry->observatii }}" aria-label="Vizualizează observațiile">
+                                                                <i class="fa-solid fa-circle-info"></i>
+                                                            </button>
+                                                        @else
+                                                            —
+                                                        @endif
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <div class="d-flex justify-content-end gap-2">
+                                                            <a class="btn btn-outline-primary btn-sm"
+                                                                href="{{ route('service-masini.index', $queryParams + ['masina_id' => $selectedMasina->id, 'entry_id' => $entry->id]) }}">
+                                                                Editează
+                                                            </a>
+                                                            <form method="POST" class="d-inline"
+                                                                action="{{ route('service-masini.entries.destroy', [$selectedMasina, $entry]) }}"
+                                                                onsubmit="return confirm('Sigur dorești să ștergi această intervenție?');">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                @foreach ($filters as $key => $value)
+                                                                    @if ($value !== null && $value !== '')
+                                                                        <input type="hidden" name="{{ $key }}" value="{{ $value }}">
+                                                                    @endif
+                                                                @endforeach
+                                                                <button type="submit" class="btn btn-outline-danger btn-sm">Șterge</button>
+                                                            </form>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="9" class="text-center text-muted py-4">
+                                                        Nu există intervenții pentru această mașină.
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                @endif
+                                </div>
                             </div>
                             <div class="card-footer">
-                                {{ $entries->links() }}
+                                {{ $isServiceSheetView ? $serviceSheets->links() : $entries->links() }}
                             </div>
                         </div>
                     @else
@@ -269,7 +346,8 @@
         </div>
     </div>
     @if ($selectedMasina)
-        @php
+        @if (! $isServiceSheetView)
+            @php
             $createEntryTip = $createEntryOld ? old('tip', 'piesa') : 'piesa';
             $createEntrySelectedPiece = $createEntryOld ? (int) old('gestiune_piesa_id') : null;
             $createEntryCantitate = $createEntryOld ? old('cantitate', '1') : '1';
@@ -277,7 +355,7 @@
             $createEntryMechanic = $createEntryOld ? old('nume_mecanic') : '';
             $createEntryObservatii = $createEntryOld ? old('observatii') : '';
             $createEntryDenumire = $createEntryOld ? old('denumire_interventie') : '';
-        @endphp
+            @endphp
         <div class="modal fade" id="createEntryModal" tabindex="-1" aria-labelledby="createEntryModalLabel"
             aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-scrollable">
@@ -404,7 +482,7 @@
             </div>
         </div>
 
-        @if ($isEditingEntry)
+        @if ($isEditingEntry && ! $isServiceSheetView)
             @php
                 $editEntryTip = $entryOldMatchesEditing ? old('tip', $editingEntry->tip ?? 'piesa') : ($editingEntry->tip ?? 'piesa');
                 $editEntrySelectedPiece = $entryOldMatchesEditing
@@ -554,10 +632,11 @@
                 </div>
             </div>
         @endif
+        @endif
     @endif
 
-    <div class="modal fade" id="createMasinaModal" tabindex="-1" aria-labelledby="createMasinaModalLabel"
-        aria-hidden="true">
+        <div class="modal fade" id="createMasinaModal" tabindex="-1" aria-labelledby="createMasinaModalLabel"
+            aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable">
             <form method="POST" action="{{ route('service-masini.store-masina') }}" class="modal-content">
                 @csrf
