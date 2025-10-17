@@ -843,6 +843,8 @@ const trimitereCodAutentificarePrinEmail = createApp({
                 })
                     .then(
                         response => {
+                            this.showStatusMessage = false;
+                            this.statusMessage = '';
                             this.mesajDeAfisat = response.data.raspuns;
                         }
                     )
@@ -852,6 +854,10 @@ const trimitereCodAutentificarePrinEmail = createApp({
                         this.statusMessage = '';
                     })
                     .finally(() => {
+                        if (this.showStatusMessage) {
+                            this.showStatusMessage = false;
+                            this.statusMessage = '';
+                        }
                         this.isSending = false;
                     });
             } else {
