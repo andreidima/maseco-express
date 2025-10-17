@@ -6,12 +6,21 @@ use App\Models\Service\Masina;
 use App\Models\Service\ServiceSheet;
 use App\Models\Service\ServiceSheetItem;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mockery;
 use Tests\TestCase;
 
 class ServiceSheetTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+
+        parent::tearDown();
+    }
 
     public function test_service_sheet_store_persists_and_redirects_to_index(): void
     {
@@ -58,6 +67,37 @@ class ServiceSheetTest extends TestCase
             'position' => 2,
             'descriere' => 'Filtru aer',
         ]);
+
+        $sheet->items()->delete();
+
+        $sheet->items()->createMany([
+            ['position' => 2, 'descriere' => 'Element poziția 2'],
+            ['position' => 3, 'descriere' => 'Element poziția 3'],
+            ['position' => 1, 'descriere' => 'Element poziția 1'],
+        ]);
+
+        $expectedDescriptions = $sheet->items()->orderBy('position')->pluck('descriere')->all();
+
+        $pdfMock = new class
+        {
+            public function stream(string $filename, array $options = [])
+            {
+                return response('pdf-content', 200, array_merge([
+                    'Content-Type' => 'application/pdf',
+                    'Content-Disposition' => 'inline; filename="' . $filename . '"',
+                ], $options));
+            }
+        };
+
+        Pdf::shouldReceive('loadView')
+            ->once()
+            ->with('pdf.service-sheet', Mockery::on(function (array $data) use ($expectedDescriptions) {
+                $items = collect($data['items']);
+
+                return $items->pluck('descriere')->all() === $expectedDescriptions
+                    && $items->pluck('index')->all() === range(1, count($expectedDescriptions));
+            }))
+            ->andReturn($pdfMock);
 
         $downloadResponse = $this->actingAs($user)->get(route('service-masini.sheet.download', [$masina, $sheet]));
 
