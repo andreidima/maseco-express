@@ -161,6 +161,9 @@
                                 <div class="d-flex flex-column">
                                     <div class="fw-semibold">{{ $selectedMasina->numar_inmatriculare }}</div>
                                     <small class="text-muted">{{ $selectedMasina->denumire }}</small>
+                                    @if ($selectedMasina->serie_sasiu)
+                                        <small class="text-muted">Serie șasiu: {{ $selectedMasina->serie_sasiu }}</small>
+                                    @endif
                                 </div>
                                 @php
                                     $tabQuery = array_merge($queryParams, ['masina_id' => $selectedMasina->id]);

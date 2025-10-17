@@ -171,6 +171,9 @@
                                 <div>
                                     <h5 class="mb-0">{{ $selectedMasina->denumire }}</h5>
                                     <small class="text-muted">Nr. înmatriculare: {{ $selectedMasina->numar_inmatriculare }}</small>
+                                    @if ($selectedMasina->serie_sasiu)
+                                        <div class="text-muted small">Serie șasiu: {{ $selectedMasina->serie_sasiu }}</div>
+                                    @endif
                                 </div>
                                 <a class="btn btn-outline-primary btn-sm rounded-3"
                                     href="{{ route('service-masini.export', $queryParams + ['masina_id' => $selectedMasina->id]) }}">
