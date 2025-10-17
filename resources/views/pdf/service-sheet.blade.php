@@ -7,7 +7,7 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 20mm 20mm 20mm 20mm;
+            margin: 15mm 15mm 15mm 15mm;
         }
 
         * {
@@ -45,12 +45,12 @@
         }
 
         .page-header img {
-            width: 180px;
+            width: 360px;
             height: auto;
         }
 
         .page-title {
-            font-size: 28px;
+            font-size: 40px;
             margin-top: 6px;
         }
 
@@ -76,8 +76,7 @@
         }
 
         .info-table th {
-            width: 33.33%;
-            background: #f1f5f9;
+            width: 40%;
             font-size: 12px;
         }
 
@@ -94,20 +93,25 @@
             gap: 8px;
         }
 
+        .mechanic-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
         .mechanic-label {
             font-size: 12px;
             font-weight: 600;
-            margin-bottom: 6px;
         }
 
         .mechanic-line {
             border-bottom: 1px solid #0f172a;
-            height: 22px;
-            margin-bottom: 18px;
+            flex: 1;
+            height: 0;
         }
 
         .parts-table th {
-            background: #f1f5f9;
             text-transform: uppercase;
             font-size: 12px;
         }

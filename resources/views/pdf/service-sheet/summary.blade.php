@@ -1,18 +1,20 @@
 <div class="page">
     <div class="page-header">
         <img src="{{ public_path('images/logo3.jpg') }}" alt="Logo">
-        <h1 class="page-title">Foaie Service</h1>
+        <h1 class="page-title">FOAIE SERVICE</h1>
     </div>
 
     <table class="info-table">
         <tr>
             <th>Nr. auto</th>
-            <th>Km bord</th>
-            <th>Data service</th>
+            <td>{{ $masina->numar_inmatriculare }}</td>
         </tr>
         <tr>
-            <td>{{ $masina->numar_inmatriculare }}</td>
+            <th>Km bord</th>
             <td>{{ number_format($km_bord, 0, ',', '.') }}</td>
+        </tr>
+        <tr>
+            <th>Data service</th>
             <td>{{ $data_service->format('d.m.Y') }}</td>
         </tr>
     </table>
