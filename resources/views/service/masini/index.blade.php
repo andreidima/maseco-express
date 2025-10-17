@@ -194,6 +194,23 @@
                                         </a>
                                     @endif
                                 </div>
+                                <div class="d-flex flex-wrap gap-2 align-items-center ms-auto">
+                                    @if ($isServiceSheetView)
+                                        <a class="btn btn-success btn-sm rounded-3"
+                                            href="{{ route('service-masini.sheet.create', $selectedMasina) }}">
+                                            <i class="fa-solid fa-plus-circle me-1"></i>Adaugă foaie service
+                                        </a>
+                                    @else
+                                        <button type="button" class="btn btn-success btn-sm rounded-3"
+                                            data-bs-toggle="modal" data-bs-target="#createEntryModal">
+                                            <i class="fa-solid fa-plus-circle me-1"></i>Adaugă intervenție
+                                        </button>
+                                        <a class="btn btn-outline-primary btn-sm rounded-3"
+                                            href="{{ route('service-masini.export', $queryParams + ['masina_id' => $selectedMasina->id]) }}">
+                                            <i class="fa-solid fa-file-pdf me-1"></i>Descarcă PDF
+                                        </a>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
