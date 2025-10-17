@@ -28,4 +28,9 @@ class Masina extends Model
     {
         return $this->hasMany(MasinaServiceEntry::class);
     }
+
+    public function serviceSheets(): HasMany
+    {
+        return $this->hasMany(ServiceSheet::class);
+    }
 }
