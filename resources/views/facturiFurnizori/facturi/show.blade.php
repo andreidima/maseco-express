@@ -61,7 +61,6 @@
                                     <th style="min-width: 200px;">Denumire</th>
                                     <th style="min-width: 140px;">Cod</th>
                                     <th class="text-end" style="min-width: 140px;">Cantitate inițială</th>
-                                    <th class="text-end" style="min-width: 120px;">Cantitate</th>
                                     <th class="text-end" style="min-width: 120px;">Preț NET/buc</th>
                                     <th class="text-end" style="min-width: 110px;">Cotă TVA</th>
                                     <th class="text-end" style="min-width: 140px;">Preț BRUT/buc</th>
@@ -86,7 +85,6 @@
                                         }
 
                                         $initialDisplay = $initialValue !== null ? number_format((float) $initialValue, 2, '.', '') : '';
-                                        $remainingDisplay = $remainingValue !== null ? number_format((float) $remainingValue, 2, '.', '') : '';
                                         $usedDisplay = number_format((float) $usedValue, 2, '.', '');
                                         $machinesData = $details['machines'] ?? [];
                                     @endphp
@@ -94,7 +92,6 @@
                                         <td>{{ $piesa->denumire }}</td>
                                         <td>{{ $piesa->cod ?: '-' }}</td>
                                         <td class="text-end">{{ $piesa->cantitate_initiala !== null ? number_format($piesa->cantitate_initiala, 2) : '-' }}</td>
-                                        <td class="text-end">{{ $piesa->nr_bucati !== null ? number_format($piesa->nr_bucati, 2) : '-' }}</td>
                                         <td class="text-end">{{ $piesa->pret !== null ? number_format($piesa->pret, 2) : '-' }}</td>
                                         <td class="text-end">{{ $piesa->tva_cota !== null ? number_format($piesa->tva_cota, 2) . '%' : '-' }}</td>
                                         <td class="text-end">{{ $piesa->pret_brut !== null ? number_format($piesa->pret_brut, 2) : '-' }}</td>
@@ -108,7 +105,7 @@
                                                     data-piece-name="{{ $piesa->denumire }}"
                                                     data-piece-code="{{ $piesa->cod ?? '' }}"
                                                     data-piece-initial="{{ $initialDisplay }}"
-                                                    data-piece-remaining="{{ $remainingDisplay }}"
+                                                    data-piece-remaining="{{ $remainingValue !== null ? number_format((float) $remainingValue, 2, '.', '') : '' }}"
                                                     data-piece-used="{{ $usedDisplay }}"
                                                     data-piece-machines='@json($machinesData)'
                                                 >
