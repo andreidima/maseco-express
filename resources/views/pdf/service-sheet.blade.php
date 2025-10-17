@@ -7,7 +7,7 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 25px;
+            margin: 18mm 15mm 18mm 15mm;
         }
 
         * {
@@ -17,10 +17,12 @@
         html,
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
-            color: #1a1a1a;
+            font-size: 11px;
+            color: #111827;
             margin: 0;
             padding: 0;
+            line-height: 1.35;
+            background: #ffffff;
         }
 
         h1,
@@ -32,85 +34,158 @@
             margin: 0;
             padding: 0;
             font-weight: 600;
+            color: #0f172a;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+        }
+
+        .sheet {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .sheet-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .sheet-header .logo {
+            height: 58px;
+            width: auto;
+        }
+
+        .sheet-header .title-block {
+            text-align: right;
+        }
+
+        .sheet-header .title-block h1 {
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .sheet-header .title-block span {
+            display: block;
+            font-size: 12px;
+            letter-spacing: 0.12em;
+            color: #475569;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .meta-card {
+            border: 1px solid #cbd5f5;
+            border-radius: 8px;
+            padding: 10px 12px;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .meta-card span.label {
+            font-size: 10px;
+            color: #475569;
+            letter-spacing: 0.08em;
+        }
+
+        .meta-card span.value {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0f172a;
+            text-transform: uppercase;
+        }
+
+        .section-title {
+            font-size: 16px;
+            letter-spacing: 0.08em;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #cbd5f5;
+        }
+
+        .entry-table,
+        .parts-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 8px;
+        }
+
+        .entry-table th,
+        .entry-table td,
+        .parts-table th,
+        .parts-table td {
+            border: 1px solid #d0d7e2;
+            padding: 7px 8px;
+            vertical-align: top;
+        }
+
+        .entry-table thead th,
+        .parts-table thead th {
+            background: #e9effa;
+            font-size: 11px;
+            color: #1e293b;
+            letter-spacing: 0.04em;
+        }
+
+        .entry-table tbody td.number,
+        .parts-table tbody td.number {
+            width: 46px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .notes-area {
+            margin-top: 12px;
+            border: 1px dashed #94a3b8;
+            border-radius: 6px;
+            min-height: 80px;
+            padding: 10px 12px;
+            background: #f8fafc;
+        }
+
+        .notes-area span {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 0.08em;
+        }
+
+        .signature-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .signature-block {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            min-width: 220px;
+        }
+
+        .signature-block span.label {
+            font-size: 10px;
+            color: #475569;
+            letter-spacing: 0.06em;
+        }
+
+        .signature-line {
+            border-bottom: 1px solid #1e293b;
+            height: 18px;
         }
 
         .page-break {
             page-break-before: always;
-        }
-
-        .meta-table,
-        .summary-table,
-        .blank-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        .meta-table td {
-            padding: 4px 6px;
-            vertical-align: top;
-        }
-
-        .summary-table th,
-        .summary-table td,
-        .blank-table th,
-        .blank-table td {
-            border: 1px solid #cfd2d6;
-            padding: 6px 8px;
-            vertical-align: top;
-            word-break: break-word;
-        }
-
-        .summary-table th,
-        .blank-table th {
-            background-color: #f3f4f6;
-            font-weight: 600;
-        }
-
-        .summary-table td,
-        .blank-table td {
-            min-height: 28px;
-        }
-
-        .summary-table .col-index,
-        .blank-table .col-index {
-            width: 8%;
-            text-align: center;
-        }
-
-        .summary-table .col-descriere,
-        .blank-table .col-descriere {
-            width: 92%;
-        }
-
-        .section-title {
-            font-size: 18px;
-            margin-bottom: 12px;
-        }
-
-        .meta-section {
-            margin-bottom: 16px;
-        }
-
-        .meta-grid {
-            width: 100%;
-            border: 1px solid #cfd2d6;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .meta-grid tr:nth-child(even) td {
-            background: #f9fafb;
-        }
-
-        .meta-grid strong {
-            display: inline-block;
-            min-width: 140px;
-        }
-
-        .blank-table-caption {
-            font-size: 16px;
-            margin-bottom: 10px;
         }
     </style>
 </head>
