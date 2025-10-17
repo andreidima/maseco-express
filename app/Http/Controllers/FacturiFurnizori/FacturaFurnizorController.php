@@ -297,6 +297,12 @@ class FacturaFurnizorController extends Controller
             return back()->with('error', 'Factura atasata unui calup nu poate fi stearsa.');
         }
 
+        $arePieseMontate = $factura->piese()->whereHas('serviceEntries')->exists();
+
+        if ($arePieseMontate) {
+            return back()->with('error', 'Factura nu poate fi stearsa deoarece are piese montate pe masini.');
+        }
+
         $factura->loadMissing('fisiere');
 
         foreach ($factura->fisiere as $fisier) {
