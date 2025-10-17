@@ -7,7 +7,7 @@
     <style>
         @page {
             size: A4 portrait;
-            margin: 25px;
+            margin: 15mm 15mm 15mm 15mm;
         }
 
         * {
@@ -18,99 +18,110 @@
         body {
             font-family: DejaVu Sans, sans-serif;
             font-size: 12px;
-            color: #1a1a1a;
+            color: #0f172a;
             margin: 0;
             padding: 0;
+            line-height: 1.4;
+            background: #ffffff;
         }
 
         h1,
         h2,
-        h3,
-        h4,
-        h5,
-        h6 {
+        h3 {
             margin: 0;
-            padding: 0;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .page {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .page-header {
+            text-align: center;
+        }
+
+        .page-header img {
+            width: 360px;
+            height: auto;
+        }
+
+        .page-title {
+            font-size: 40px;
+            margin-top: 6px;
+        }
+
+        .section-heading {
+            text-align: center;
+            font-size: 16px;
+            letter-spacing: 0.08em;
+        }
+
+        .info-table,
+        .parts-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .info-table th,
+        .info-table td,
+        .parts-table th,
+        .parts-table td {
+            border: 1px solid #0f172a;
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        .info-table th {
+            width: 40%;
+            font-size: 12px;
+        }
+
+        .info-table td {
+            font-size: 14px;
             font-weight: 600;
+        }
+
+        .interventions-list {
+            margin: 0;
+            padding-left: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .mechanic-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .mechanic-label {
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .mechanic-line {
+            border-bottom: 1px solid #0f172a;
+            flex: 1;
+            height: 0;
+        }
+
+        .parts-table th {
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .parts-table td {
+            height: 26px;
         }
 
         .page-break {
             page-break-before: always;
-        }
-
-        .meta-table,
-        .summary-table,
-        .blank-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
-
-        .meta-table td {
-            padding: 4px 6px;
-            vertical-align: top;
-        }
-
-        .summary-table th,
-        .summary-table td,
-        .blank-table th,
-        .blank-table td {
-            border: 1px solid #cfd2d6;
-            padding: 6px 8px;
-            vertical-align: top;
-            word-break: break-word;
-        }
-
-        .summary-table th,
-        .blank-table th {
-            background-color: #f3f4f6;
-            font-weight: 600;
-        }
-
-        .summary-table td,
-        .blank-table td {
-            min-height: 28px;
-        }
-
-        .summary-table .col-index,
-        .blank-table .col-index {
-            width: 8%;
-            text-align: center;
-        }
-
-        .summary-table .col-descriere,
-        .blank-table .col-descriere {
-            width: 92%;
-        }
-
-        .section-title {
-            font-size: 18px;
-            margin-bottom: 12px;
-        }
-
-        .meta-section {
-            margin-bottom: 16px;
-        }
-
-        .meta-grid {
-            width: 100%;
-            border: 1px solid #cfd2d6;
-            border-radius: 6px;
-            overflow: hidden;
-        }
-
-        .meta-grid tr:nth-child(even) td {
-            background: #f9fafb;
-        }
-
-        .meta-grid strong {
-            display: inline-block;
-            min-width: 140px;
-        }
-
-        .blank-table-caption {
-            font-size: 16px;
-            margin-bottom: 10px;
         }
     </style>
 </head>
