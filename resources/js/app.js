@@ -808,12 +808,34 @@ const trimitereCodAutentificarePrinEmail = createApp({
         return {
             email: email,
             mesajDeAfisat: '',
+            statusMessage: '',
+            showStatusMessage: false,
+            isSending: false,
+            flashObserver: null,
+        }
+    },
+    mounted() {
+        this.observeFlashMessages();
+        this.checkForAlerts();
+    },
+    beforeUnmount() {
+        if (this.flashObserver) {
+            this.flashObserver.disconnect();
         }
     },
     methods: {
         trimiteEmail() {
-            // console.log('da');
+            if (this.isSending) {
+                return;
+            }
+
+            this.mesajDeAfisat = '';
+
             if (this.email) {
+                this.isSending = true;
+                this.statusMessage = 'Se trimite codul de autentificare…';
+                this.showStatusMessage = true;
+
                 axios.get('/axios/trimitere-cod-autentificare-prin-email', {
                     params: { email: this.email }
                 })
@@ -821,9 +843,53 @@ const trimitereCodAutentificarePrinEmail = createApp({
                         response => {
                             this.mesajDeAfisat = response.data.raspuns;
                         }
-                    );
+                    )
+                    .catch(() => {
+                        this.mesajDeAfisat = "<span class='text-danger' style='font-size:80%'>A apărut o eroare neașteptată. Încearcă din nou.</span>";
+                    })
+                    .finally(() => {
+                        this.isSending = false;
+                        this.showStatusMessage = false;
+                        this.statusMessage = '';
+                    });
             } else {
                 this.mesajDeAfisat = "<span class='text-danger' style='font-size:80%'>Introdu emailul.</span>";
+                this.showStatusMessage = false;
+                this.statusMessage = '';
+                this.isSending = false;
+            }
+        },
+        observeFlashMessages() {
+            if (typeof MutationObserver === 'undefined') {
+                return;
+            }
+
+            if (this.flashObserver) {
+                this.flashObserver.disconnect();
+            }
+
+            this.flashObserver = new MutationObserver(() => {
+                this.checkForAlerts();
+            });
+
+            if (this.$el) {
+                this.flashObserver.observe(this.$el, {
+                    childList: true,
+                    subtree: true,
+                });
+            }
+        },
+        checkForAlerts() {
+            if (!this.$el) {
+                return;
+            }
+
+            const alertExists = this.$el.querySelector('.alert');
+
+            if (alertExists) {
+                this.isSending = false;
+                this.showStatusMessage = false;
+                this.statusMessage = '';
             }
         },
     }
