@@ -10,6 +10,7 @@ use App\Http\Requests\Service\UpdateMasinaServiceEntryRequest;
 use App\Models\Service\GestiunePiesa;
 use App\Models\Service\Masina;
 use App\Models\Service\MasinaServiceEntry;
+use App\Models\Service\ServiceSheet;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Http\RedirectResponse;
@@ -25,6 +26,11 @@ class ServiceMasiniController extends Controller
 {
     public function index(Request $request)
     {
+        $viewMode = $request->query('view');
+        if (! in_array($viewMode, ['interventii', 'service-sheets'], true)) {
+            $viewMode = 'interventii';
+        }
+
         $filters = [
             'masina_id' => $request->query('masina_id'),
             'numar_inmatriculare' => trim((string) $request->query('numar_inmatriculare', '')),
@@ -38,17 +44,23 @@ class ServiceMasiniController extends Controller
         $selectedMasina = $this->resolveSelectedMasina($masini, $filters['masina_id']);
         $editingEntry = $this->resolveEditingEntry($selectedMasina, (int) $request->query('entry_id'));
 
-        $entries = $selectedMasina
+        $entries = ($selectedMasina && $viewMode === 'interventii')
             ? $this->getServiceEntries($selectedMasina->id, $filters)
+            : $this->emptyPaginator();
+
+        $serviceSheets = ($selectedMasina && $viewMode === 'service-sheets')
+            ? $this->getServiceSheets($selectedMasina->id, $filters)
             : $this->emptyPaginator();
 
         return view('service.masini.index', [
             'masini' => $masini,
             'selectedMasina' => $selectedMasina,
             'entries' => $entries,
+            'serviceSheets' => $serviceSheets,
             'filters' => $filters,
             'availablePieces' => $this->getAvailablePieces($editingEntry),
             'editingEntry' => $editingEntry,
+            'viewMode' => $viewMode,
         ]);
     }
 
@@ -356,6 +368,39 @@ class ServiceMasiniController extends Controller
             ->orderBy('data_montaj')
             ->orderBy('id')
             ->get();
+    }
+
+    protected function getServiceSheets(int $masinaId, array $filters): LengthAwarePaginator
+    {
+        return $this->baseServiceSheetsQuery($masinaId, $filters)
+            ->withCount('items')
+            ->orderByDesc('data_service')
+            ->orderByDesc('id')
+            ->paginate(25)
+            ->withQueryString();
+    }
+
+    protected function baseServiceSheetsQuery(int $masinaId, array $filters)
+    {
+        $query = ServiceSheet::query()->where('masina_id', $masinaId);
+
+        if ($filters['data_start']) {
+            try {
+                $query->whereDate('data_service', '>=', $filters['data_start']);
+            } catch (Throwable $exception) {
+                Log::warning('Invalid start date filter for service sheets', ['exception' => $exception]);
+            }
+        }
+
+        if ($filters['data_end']) {
+            try {
+                $query->whereDate('data_service', '<=', $filters['data_end']);
+            } catch (Throwable $exception) {
+                Log::warning('Invalid end date filter for service sheets', ['exception' => $exception]);
+            }
+        }
+
+        return $query;
     }
 
     protected function baseEntriesQuery(int $masinaId, array $filters)
