@@ -219,7 +219,8 @@
                                                     <td class="text-end">
                                                         <div class="d-flex justify-content-end gap-2">
                                                             <a class="btn btn-outline-primary btn-sm"
-                                                                href="{{ route('service-masini.sheet.download', [$selectedMasina, $sheet]) }}">
+                                                                href="{{ route('service-masini.sheet.download', [$selectedMasina, $sheet]) }}"
+                                                                target="_blank" rel="noopener noreferrer">
                                                                 <i class="fa-solid fa-file-arrow-down me-1"></i>PDF
                                                             </a>
                                                             <a class="btn btn-outline-secondary btn-sm"

@@ -7,11 +7,12 @@ use App\Http\Requests\Service\StoreServiceSheetRequest;
 use App\Http\Requests\Service\UpdateServiceSheetRequest;
 use App\Models\Service\Masina;
 use App\Models\Service\ServiceSheet;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Barryvdh\DomPDF\Facade\Pdf;
 
 class ServiceSheetController extends Controller
 {
@@ -112,14 +113,14 @@ class ServiceSheetController extends Controller
             ->with('status', 'Foaia de service a fost ștearsă.');
     }
 
-    public function download(Masina $masina, ServiceSheet $sheet): BinaryFileResponse
+    public function download(Masina $masina, ServiceSheet $sheet): Response
     {
         $this->ensureSheetBelongsToMasina($masina, $sheet);
 
         return $this->downloadSheet($sheet->loadMissing('masina', 'items'));
     }
 
-    protected function downloadSheet(ServiceSheet $sheet)
+    protected function downloadSheet(ServiceSheet $sheet): Response
     {
         $sheet->loadMissing('masina', 'items');
 
