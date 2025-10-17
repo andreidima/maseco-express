@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
@@ -69,7 +70,7 @@ class LoginController extends Controller
         $request->validate([
             $this->username() => 'required|string',
             'password' => 'required|string',
-            'cod_email' => (($request->email == 'andrei.dima@usm.ro') || ($request->email == 'alextca54@gmail.com') || ($request->email == 'ionutsv_2003@yahoo.com') || ($request->email == 'razvanslusariuc0@gmail.com')) ? 'nullable|string' : 'required|string', // Andrei - adaugat sa fie obligatoriu - but not for the Andrei user
+            'cod_email' => $this->shouldRequireEmailCode($request) ? 'required|string' : 'nullable|string',
         ]);
     }
 
@@ -81,9 +82,10 @@ class LoginController extends Controller
      */
     protected function credentials(Request $request)
     {
-        if (($request->email !== 'andrei.dima@usm.ro') && ($request->email !== 'alextca54@gmail.com') && ($request->email !== 'ionutsv_2003@yahoo.com') && ($request->email !== 'razvanslusariuc0@gmail.com')) { // pentru ceilalti useri, este necesar si cod_email de verificat
+        if ($this->shouldRequireEmailCode($request)) {
             return $request->only($this->username(), 'password', 'cod_email'); // Andrei - adaugat si cod_email
         }
+
         return $request->only($this->username(), 'password'); // Andrei - adaugat si cod_email
     }
 
@@ -103,5 +105,33 @@ class LoginController extends Controller
         if ($user->hasRole('mecanic')) {
             return redirect()->route('gestiune-piese.index');
         }
+    }
+
+    private function shouldRequireEmailCode(Request $request): bool
+    {
+        $email = $request->input($this->username());
+
+        if (! $email) {
+            return true;
+        }
+
+        $exemptEmails = [
+            'andrei.dima@usm.ro',
+            'alextca54@gmail.com',
+            'ionutsv_2003@yahoo.com',
+            'razvanslusariuc0@gmail.com',
+        ];
+
+        if (in_array($email, $exemptEmails, true)) {
+            return false;
+        }
+
+        $user = User::where($this->username(), $email)->first();
+
+        if ($user && ($user->hasRole('mecanic') || $user->hasRole(4))) {
+            return false;
+        }
+
+        return true;
     }
 }

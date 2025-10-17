@@ -95,6 +95,27 @@ class UserRolesTest extends TestCase
         $this->actingAs($mechanic)->get('/acasa')->assertForbidden();
     }
 
+    public function test_regular_user_must_submit_email_code_to_login(): void
+    {
+        [$_superAdminRole, $adminRole, $_mechanicRole] = $this->createCoreRoles();
+
+        $user = User::factory()->create([
+            'role' => $adminRole->id,
+            'email' => 'user@example.com',
+            'cod_email' => 'login-code',
+        ]);
+        $user->assignRole($adminRole);
+
+        $response = $this->from('/login')->post('/login', [
+            'email' => 'user@example.com',
+            'password' => 'password',
+        ]);
+
+        $response->assertRedirect('/login');
+        $response->assertSessionHasErrors('cod_email');
+        $this->assertGuest();
+    }
+
     public function test_mechanic_is_redirected_to_parts_after_login(): void
     {
         [, , $mechanicRole] = $this->createCoreRoles();
@@ -112,7 +133,6 @@ class UserRolesTest extends TestCase
             ->post('/login', [
                 'email' => 'mechanic@example.com',
                 'password' => 'password',
-                'cod_email' => 'login-code',
             ]);
 
         $response->assertRedirect(route('gestiune-piese.index'));
