@@ -636,6 +636,7 @@
             </div>
         @endif
         @endif
+    @endif
 
         <div class="modal fade" id="createMasinaModal" tabindex="-1" aria-labelledby="createMasinaModalLabel"
             aria-hidden="true">
