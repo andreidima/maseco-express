@@ -5,9 +5,10 @@
 
     <h2 class="section-heading">Fisa iesire service auto</h2>
 
+    <br>
+    <br>
     <div class="mechanic-row">
-        <span class="mechanic-label">Nume mecanic auto</span>
-        <span class="mechanic-line"></span>
+        <span class="mechanic-label">Nume mecanic auto ____________________________________________________________________________</span>
     </div>
 
     <table class="parts-table">
@@ -19,7 +20,7 @@
             </tr>
         </thead>
         <tbody>
-            @for ($i = 0; $i < 22; $i++)
+            @for ($i = 0; $i < 19; $i++)
                 <tr>
                     <td>&nbsp;</td>
                     <td>&nbsp;</td>

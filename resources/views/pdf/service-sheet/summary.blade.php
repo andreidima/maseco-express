@@ -4,24 +4,25 @@
         <h1 class="page-title">FOAIE SERVICE</h1>
     </div>
 
-    <table class="info-table">
+    <table class="info-table w-50">
         <tr>
-            <th>Nr. auto</th>
+            <th>NR. AUTO</th>
             <td>{{ $masina->numar_inmatriculare }}</td>
         </tr>
         <tr>
-            <th>Km bord</th>
+            <th>KM BORD</th>
             <td>{{ number_format($km_bord, 0, ',', '.') }}</td>
         </tr>
         <tr>
-            <th>Data service</th>
+            <th>DATA SERVICE</th>
             <td>{{ $data_service->format('d.m.Y') }}</td>
         </tr>
     </table>
 
-    <h2 class="section-heading">Fisa intrare service</h2>
-
-    <ol class="interventions-list">
+    <br><br>
+    <h2 style="text-align: center;">Fisa intrare service</h2>
+    <br>
+    <ol class="interventions-list" style="margin:0 5mm">
         @forelse ($items as $item)
             <li>{{ $item['descriere'] }}</li>
         @empty

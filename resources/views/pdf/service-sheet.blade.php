@@ -5,10 +5,6 @@
     <meta charset="UTF-8">
     <title>Foaie service - {{ $masina->denumire }}</title>
     <style>
-        @page {
-            size: A4 portrait;
-            margin: 15mm 15mm 15mm 15mm;
-        }
 
         * {
             box-sizing: border-box;
@@ -17,9 +13,9 @@
         html,
         body {
             font-family: DejaVu Sans, sans-serif;
-            font-size: 12px;
+            font-size: 14px;
             color: #0f172a;
-            margin: 0;
+            margin: 2mm 5mm;
             padding: 0;
             line-height: 1.4;
             background: #ffffff;
@@ -77,7 +73,7 @@
 
         .info-table th {
             width: 40%;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         .info-table td {
@@ -101,7 +97,7 @@
         }
 
         .mechanic-label {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: 600;
         }
 
@@ -113,7 +109,7 @@
 
         .parts-table th {
             text-transform: uppercase;
-            font-size: 12px;
+            font-size: 14px;
         }
 
         .parts-table td {
