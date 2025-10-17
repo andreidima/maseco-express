@@ -15,9 +15,7 @@ class ServiceSheetItemFactory extends Factory
         return [
             'service_sheet_id' => ServiceSheet::factory(),
             'position' => $this->faker->numberBetween(1, 20),
-            'description' => $this->faker->sentence(3),
-            'quantity' => (string) $this->faker->numberBetween(1, 5),
-            'notes' => $this->faker->optional()->sentence(),
+            'descriere' => $this->faker->sentence(3),
         ];
     }
 }

@@ -7,18 +7,14 @@
     <thead>
         <tr>
             <th class="col-index">Nr. crt.</th>
-            <th class="col-description">Descriere intervenție</th>
-            <th class="col-quantity">Cantitate</th>
-            <th class="col-notes">Observații / manoperă</th>
+            <th class="col-descriere">Descriere intervenție</th>
         </tr>
     </thead>
     <tbody>
         @for ($i = 1; $i <= 14; $i++)
             <tr>
                 <td class="col-index">{{ $i }}</td>
-                <td class="col-description">&nbsp;</td>
-                <td class="col-quantity">&nbsp;</td>
-                <td class="col-notes">&nbsp;</td>
+                <td class="col-descriere">&nbsp;</td>
             </tr>
         @endfor
     </tbody>

@@ -26,14 +26,10 @@ class ServiceSheetTest extends TestCase
             'data_service' => '2024-05-01',
             'items' => [
                 [
-                    'description' => 'Schimb ulei motor',
-                    'quantity' => '1',
-                    'notes' => 'Manoperă 1h',
+                    'descriere' => 'Schimb ulei motor',
                 ],
                 [
-                    'description' => 'Filtru aer',
-                    'quantity' => '1',
-                    'notes' => '',
+                    'descriere' => 'Filtru aer',
                 ],
             ],
         ]);
@@ -53,17 +49,13 @@ class ServiceSheetTest extends TestCase
         $this->assertDatabaseHas('service_sheet_items', [
             'service_sheet_id' => $sheet->id,
             'position' => 1,
-            'description' => 'Schimb ulei motor',
-            'quantity' => '1',
-            'notes' => 'Manoperă 1h',
+            'descriere' => 'Schimb ulei motor',
         ]);
 
         $this->assertDatabaseHas('service_sheet_items', [
             'service_sheet_id' => $sheet->id,
             'position' => 2,
-            'description' => 'Filtru aer',
-            'quantity' => '1',
-            'notes' => null,
+            'descriere' => 'Filtru aer',
         ]);
     }
 
@@ -108,8 +100,8 @@ class ServiceSheetTest extends TestCase
             ]);
 
         ServiceSheetItem::factory()->count(2)->for($sheet)->sequence(
-            ['position' => 1, 'description' => 'Inițial 1'],
-            ['position' => 2, 'description' => 'Inițial 2'],
+            ['position' => 1, 'descriere' => 'Inițial 1'],
+            ['position' => 2, 'descriere' => 'Inițial 2'],
         )->create();
 
         $updateResponse = $this->actingAs($user)->put(route('service-masini.sheet.update', [$masina, $sheet]), [
@@ -117,9 +109,7 @@ class ServiceSheetTest extends TestCase
             'data_service' => '2024-02-20',
             'items' => [
                 [
-                    'description' => 'Revizie completă',
-                    'quantity' => '2',
-                    'notes' => 'Include filtre',
+                    'descriere' => 'Revizie completă',
                 ],
             ],
         ]);
@@ -137,15 +127,13 @@ class ServiceSheetTest extends TestCase
 
         $this->assertDatabaseMissing('service_sheet_items', [
             'service_sheet_id' => $sheet->id,
-            'description' => 'Inițial 1',
+            'descriere' => 'Inițial 1',
         ]);
 
         $this->assertDatabaseHas('service_sheet_items', [
             'service_sheet_id' => $sheet->id,
             'position' => 1,
-            'description' => 'Revizie completă',
-            'quantity' => '2',
-            'notes' => 'Include filtre',
+            'descriere' => 'Revizie completă',
         ]);
 
         $deleteResponse = $this->actingAs($user)->delete(route('service-masini.sheet.destroy', [$masina, $sheet]));

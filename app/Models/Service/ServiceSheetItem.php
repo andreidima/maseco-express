@@ -13,9 +13,7 @@ class ServiceSheetItem extends Model
     protected $fillable = [
         'service_sheet_id',
         'position',
-        'description',
-        'quantity',
-        'notes',
+        'descriere',
     ];
 
     protected static function newFactory()

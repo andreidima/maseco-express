@@ -18,15 +18,11 @@ abstract class ServiceSheetRequest extends FormRequest
                 $item = is_array($item) ? $item : [];
 
                 return [
-                    'description' => trim((string) ($item['description'] ?? '')),
-                    'quantity' => trim((string) ($item['quantity'] ?? '')),
-                    'notes' => trim((string) ($item['notes'] ?? '')),
+                    'descriere' => trim((string) ($item['descriere'] ?? '')),
                 ];
             })
             ->filter(function (array $item) {
-                return $item['description'] !== ''
-                    || $item['quantity'] !== ''
-                    || $item['notes'] !== '';
+                return $item['descriere'] !== '';
             })
             ->values()
             ->all();
@@ -42,9 +38,7 @@ abstract class ServiceSheetRequest extends FormRequest
             'km_bord' => ['required', 'integer', 'min:0', 'max:1000000'],
             'data_service' => ['required', 'date'],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.description' => ['required', 'string', 'max:255'],
-            'items.*.quantity' => ['nullable', 'string', 'max:50'],
-            'items.*.notes' => ['nullable', 'string', 'max:500'],
+            'items.*.descriere' => ['required', 'string', 'max:255'],
         ];
     }
 
@@ -53,9 +47,7 @@ abstract class ServiceSheetRequest extends FormRequest
         return [
             'km_bord' => 'km bord',
             'data_service' => 'data service',
-            'items.*.description' => 'descriere intervenție',
-            'items.*.quantity' => 'cantitate',
-            'items.*.notes' => 'observații / manoperă',
+            'items.*.descriere' => 'descriere intervenție',
         ];
     }
 }

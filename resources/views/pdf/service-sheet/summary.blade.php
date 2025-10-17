@@ -22,18 +22,14 @@
     <thead>
         <tr>
             <th class="col-index">Nr. crt.</th>
-            <th class="col-description">Descriere intervenție</th>
-            <th class="col-quantity">Cantitate</th>
-            <th class="col-notes">Observații / manoperă</th>
+            <th class="col-descriere">Descriere intervenție</th>
         </tr>
     </thead>
     <tbody>
         @foreach ($items as $item)
             <tr>
                 <td class="col-index">{{ $item['index'] }}</td>
-                <td class="col-description">{{ $item['description'] }}</td>
-                <td class="col-quantity">{{ $item['quantity'] !== '' ? $item['quantity'] : '—' }}</td>
-                <td class="col-notes">{{ $item['notes'] !== '' ? $item['notes'] : '—' }}</td>
+                <td class="col-descriere">{{ $item['descriere'] }}</td>
             </tr>
         @endforeach
     </tbody>

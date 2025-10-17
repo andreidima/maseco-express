@@ -15,9 +15,7 @@
         $items = $sheet->items
             ->sortBy('position')
             ->map(fn ($item) => [
-                'description' => $item->description,
-                'quantity' => $item->quantity,
-                'notes' => $item->notes,
+                'descriere' => $item->descriere,
             ])
             ->values()
             ->toArray();
@@ -31,9 +29,7 @@
 
         $items = collect($defaultDescriptions)
             ->map(fn ($description) => [
-                'description' => $description,
-                'quantity' => '',
-                'notes' => '',
+                'descriere' => $description,
             ])
             ->all();
     }
@@ -43,15 +39,15 @@
 @endphp
 
 <div class="mx-3 px-3 card mx-auto" style="border-radius: 40px; max-width: 1000px;">
-    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2"
+    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-3"
         style="border-radius: 40px 40px 0 0;">
-        <div>
-            <span class="badge culoare1 fs-5">
+        <div class="d-flex flex-column gap-2">
+            <span class="badge culoare1 fs-5 align-self-start">
                 <i class="fa-solid fa-file-lines me-1"></i>{{ $formTitle }}
             </span>
-            <div class="mt-2">
-                <h5 class="mb-0">{{ $masina->denumire }}</h5>
-                <small class="text-muted">Nr. înmatriculare: {{ $masina->numar_inmatriculare }}</small>
+            <div>
+                <div class="fw-semibold">{{ $masina->numar_inmatriculare }}</div>
+                <small class="text-muted">{{ $masina->denumire }}</small>
             </div>
         </div>
         <div class="d-flex flex-wrap gap-2">
@@ -108,33 +104,13 @@
                         <div class="card border-0 shadow-sm service-item-row">
                             <div class="card-body">
                                 <div class="row g-3 align-items-end">
-                                    <div class="col-lg-6">
-                                        <label for="items_{{ $index }}_description" class="form-label small text-muted mb-1">Descriere intervenție</label>
-                                        <input type="text" class="form-control rounded-3"
-                                            id="items_{{ $index }}_description"
-                                            name="items[{{ $index }}][description]"
-                                            value="{{ $item['description'] ?? '' }}" placeholder="Ex: Schimb ulei" required>
-                                        @error('items.' . $index . '.description')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <label for="items_{{ $index }}_quantity" class="form-label small text-muted mb-1">Cantitate</label>
-                                        <input type="text" class="form-control rounded-3"
-                                            id="items_{{ $index }}_quantity"
-                                            name="items[{{ $index }}][quantity]"
-                                            value="{{ $item['quantity'] ?? '' }}" placeholder="Ex: 2 buc">
-                                        @error('items.' . $index . '.quantity')
-                                            <div class="text-danger small mt-1">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                    <div class="col-lg-3">
-                                        <label for="items_{{ $index }}_notes" class="form-label small text-muted mb-1">Observații / manoperă</label>
-                                        <input type="text" class="form-control rounded-3"
-                                            id="items_{{ $index }}_notes"
-                                            name="items[{{ $index }}][notes]"
-                                            value="{{ $item['notes'] ?? '' }}" placeholder="Ex: Manoperă 1h">
-                                        @error('items.' . $index . '.notes')
+                                    <div class="col-12">
+                                        <label for="items_{{ $index }}_descriere" class="form-label small text-muted mb-1" data-for="descriere">Descriere intervenție</label>
+                                        <input type="text" class="form-control rounded-3" data-name="descriere"
+                                            id="items_{{ $index }}_descriere"
+                                            name="items[{{ $index }}][descriere]"
+                                            value="{{ $item['descriere'] ?? '' }}" placeholder="Ex: Schimb ulei" required>
+                                        @error('items.' . $index . '.descriere')
                                             <div class="text-danger small mt-1">{{ $message }}</div>
                                         @enderror
                                     </div>
@@ -165,18 +141,10 @@
     <div class="card border-0 shadow-sm service-item-row">
         <div class="card-body">
             <div class="row g-3 align-items-end">
-                <div class="col-lg-6">
-                    <label class="form-label small text-muted mb-1" data-for="description">Descriere intervenție</label>
-                    <input type="text" class="form-control rounded-3" data-name="description"
+                <div class="col-12">
+                    <label class="form-label small text-muted mb-1" data-for="descriere">Descriere intervenție</label>
+                    <input type="text" class="form-control rounded-3" data-name="descriere"
                         placeholder="Ex: Schimb ulei" required>
-                </div>
-                <div class="col-lg-3">
-                    <label class="form-label small text-muted mb-1" data-for="quantity">Cantitate</label>
-                    <input type="text" class="form-control rounded-3" data-name="quantity" placeholder="Ex: 2 buc">
-                </div>
-                <div class="col-lg-3">
-                    <label class="form-label small text-muted mb-1" data-for="notes">Observații / manoperă</label>
-                    <input type="text" class="form-control rounded-3" data-name="notes" placeholder="Ex: Manoperă 1h">
                 </div>
                 <div class="col-12 text-end">
                     <button type="button" class="btn btn-link text-danger text-decoration-none px-0" data-remove-item>

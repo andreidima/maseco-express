@@ -78,20 +78,9 @@
             text-align: center;
         }
 
-        .summary-table .col-description,
-        .blank-table .col-description {
-            width: 44%;
-        }
-
-        .summary-table .col-quantity,
-        .blank-table .col-quantity {
-            width: 18%;
-            text-align: center;
-        }
-
-        .summary-table .col-notes,
-        .blank-table .col-notes {
-            width: 30%;
+        .summary-table .col-descriere,
+        .blank-table .col-descriere {
+            width: 92%;
         }
 
         .section-title {

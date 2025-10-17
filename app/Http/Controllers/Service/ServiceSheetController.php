@@ -39,9 +39,7 @@ class ServiceSheetController extends Controller
                     ->map(function (array $item, int $index) {
                         return [
                             'position' => $index + 1,
-                            'description' => $item['description'],
-                            'quantity' => $item['quantity'] ?: null,
-                            'notes' => $item['notes'] ?: null,
+                            'descriere' => $item['descriere'],
                         ];
                     })
                     ->all()
@@ -83,9 +81,7 @@ class ServiceSheetController extends Controller
                     ->map(function (array $item, int $index) {
                         return [
                             'position' => $index + 1,
-                            'description' => $item['description'],
-                            'quantity' => $item['quantity'] ?: null,
-                            'notes' => $item['notes'] ?: null,
+                            'descriere' => $item['descriere'],
                         ];
                     })
                     ->all()
@@ -131,9 +127,7 @@ class ServiceSheetController extends Controller
             ->map(function ($item, int $index) {
                 return [
                     'index' => $index + 1,
-                    'description' => $item->description,
-                    'quantity' => $item->quantity ?? '',
-                    'notes' => $item->notes ?? '',
+                    'descriere' => $item->descriere,
                 ];
             });
 

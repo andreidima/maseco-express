@@ -12,9 +12,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('service_sheet_id')->constrained('service_sheets')->cascadeOnDelete();
             $table->unsignedInteger('position');
-            $table->string('description');
-            $table->string('quantity')->nullable();
-            $table->string('notes')->nullable();
+            $table->string('descriere');
             $table->timestamps();
         });
     }
