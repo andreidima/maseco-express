@@ -11,6 +11,8 @@
     $dataFactura = $dataFactura ?? '';
     $invoiceColumn = $invoiceColumn ?? null;
     $stockDetails = $stockDetails ?? [];
+    $authenticatedUser = auth()->user();
+    $canManagePieces = $authenticatedUser && ! $authenticatedUser->hasRole('mecanic');
 @endphp
 
 @section('content')
@@ -61,7 +63,13 @@
                     </div>
                 </form>
             </div>
-            <div class="col-lg-3 mt-2 mt-lg-0">
+            <div class="col-lg-3 mt-2 mt-lg-0 d-flex flex-column align-items-lg-end gap-2">
+                @if ($canManagePieces)
+                    <a class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                        href="{{ route('gestiune-piese.create') }}">
+                        <i class="fa-solid fa-plus me-1"></i>Adaugă piesă
+                    </a>
+                @endif
                 @include('partials.operations-navigation')
             </div>
         </div>
@@ -113,6 +121,9 @@
                                     <th class="culoare2 text-white" style="min-width: 130px;">Factură</th>
                                 @endif
                                 <th class="culoare2 text-white" style="min-width: 150px;">Detalii stoc</th>
+                                @if ($canManagePieces)
+                                    <th class="culoare2 text-white text-center" style="min-width: 180px;">Acțiuni</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -185,10 +196,33 @@
                                             —
                                         @endif
                                     </td>
+                                    @if ($canManagePieces)
+                                        <td>
+                                            @if ($pieceId > 0)
+                                                <div class="d-flex flex-column flex-lg-row gap-2 justify-content-center">
+                                                    <a class="btn btn-sm btn-outline-primary rounded-3"
+                                                        href="{{ route('gestiune-piese.edit', $pieceId) }}">
+                                                        <i class="fa-solid fa-pen-to-square me-1"></i>Editează
+                                                    </a>
+                                                    <form method="POST" class="d-inline"
+                                                        action="{{ route('gestiune-piese.destroy', $pieceId) }}"
+                                                        onsubmit="return confirm('Sigur vrei să ștergi această piesă?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
+                                                            <i class="fa-solid fa-trash-can me-1"></i>Șterge
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ count($columns) + 2 + ($invoiceColumn ? 1 : 0) }}"
+                                    <td colspan="{{ count($columns) + 2 + ($invoiceColumn ? 1 : 0) + ($canManagePieces ? 1 : 0) }}"
                                         class="text-center text-muted py-4">
                                         Nu există înregistrări care să corespundă filtrelor alese.
                                     </td>
