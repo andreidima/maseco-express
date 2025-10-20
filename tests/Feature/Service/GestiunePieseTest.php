@@ -268,8 +268,9 @@ class GestiunePieseTest extends TestCase
             ]
         );
 
-        $mechanic = User::factory()->create(['role' => $mechanicRole->id]);
+        $mechanic = User::factory()->create();
         $mechanic->assignRole($mechanicRole);
+        $mechanic->forceFill(['role' => $mechanicRole->id])->save();
 
         $piece = GestiunePiesa::factory()->create();
 

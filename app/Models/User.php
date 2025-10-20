@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -22,7 +23,6 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
-        'role',
         'telefon',
         'email',
         'password',
@@ -46,15 +46,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'role' => 'integer',
         'activ' => 'integer',
-    ];
-
-    public const LEGACY_ROLE_LABELS = [
-        1 => 'Admin',
-        2 => 'Dispecer',
-        3 => 'Super Admin',
-        4 => 'Mecanic',
     ];
 
     public function roles()
@@ -64,37 +56,25 @@ class User extends Authenticatable
 
     public function hasRole(int|string $role): bool
     {
-        if (is_numeric($role)) {
-            $roleId = (int) $role;
+        $roles = $this->relationLoaded('roles') && $this->roles instanceof Collection
+            ? $this->roles
+            : $this->roles()->get();
 
-            if ((int) $this->role === $roleId) {
-                return true;
-            }
-
-            return $this->roles->contains('id', $roleId);
-        }
-
-        $roles = $this->roles instanceof Collection ? $this->roles : $this->roles()->get();
-
-        if ($roles->contains(function ($assignedRole) use ($role) {
-            return $assignedRole->slug === $role || $assignedRole->name === $role;
-        })) {
-            return true;
-        }
-
-        $legacyRoleId = $this->role ? (int) $this->role : null;
-
-        if ($legacyRoleId === null) {
+        if (! $roles instanceof Collection) {
             return false;
         }
 
-        static $slugToId = [];
+        if (is_numeric($role)) {
+            $roleId = (int) $role;
 
-        if (! array_key_exists($role, $slugToId)) {
-            $slugToId[$role] = Role::where('slug', $role)->value('id');
+            return $roles->contains(fn (Role $assignedRole) => (int) $assignedRole->id === $roleId);
         }
 
-        return $slugToId[$role] !== null && (int) $slugToId[$role] === $legacyRoleId;
+        $needle = (string) $role;
+
+        return $roles->contains(function (Role $assignedRole) use ($needle) {
+            return $assignedRole->slug === $needle || $assignedRole->name === $needle;
+        });
     }
 
     public function isAdministrator(): bool
@@ -118,16 +98,24 @@ class User extends Authenticatable
         }
 
         if ($this->relationLoaded('roles') && $this->roles instanceof Collection) {
-            $this->cachedPrimaryRole = $this->roles->first();
+            $this->cachedPrimaryRole = $this->roles
+                ->sortBy(function (Role $role) {
+                    $pivot = $role->pivot;
+
+                    $timestamp = $pivot?->created_at?->getTimestamp() ?? PHP_INT_MAX;
+                    $roleId = $role->id ?? PHP_INT_MAX;
+
+                    return sprintf('%020d-%020d', $timestamp, $roleId);
+                })
+                ->first();
         } else {
-            $this->cachedPrimaryRole = $this->roles()->first();
+            $this->cachedPrimaryRole = $this->roles()
+                ->orderBy('role_user.created_at')
+                ->orderBy('role_user.id')
+                ->first();
         }
 
-        if (! $this->cachedPrimaryRole && $this->role) {
-            $this->cachedPrimaryRole = Role::find($this->role);
-        }
-
-        return $this->cachedPrimaryRole;
+        return $this->cachedPrimaryRole ?: null;
     }
 
     public function getPrimaryRoleIdAttribute(): ?int
@@ -138,7 +126,7 @@ class User extends Authenticatable
             return (int) $role->id;
         }
 
-        return $this->role ? (int) $this->role : null;
+        return null;
     }
 
     public function getDisplayRoleNameAttribute(): ?string
@@ -146,10 +134,18 @@ class User extends Authenticatable
         $role = $this->resolvePrimaryRole();
 
         if ($role) {
-            return $role->name;
+            if ($role->name) {
+                return $role->name;
+            }
+
+            if ($role->slug) {
+                return (string) Str::of($role->slug)
+                    ->replace(['-', '_'], ' ')
+                    ->title();
+            }
         }
 
-        return self::LEGACY_ROLE_LABELS[$this->role] ?? null;
+        return null;
     }
 
     public function path()

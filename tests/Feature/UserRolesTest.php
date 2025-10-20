@@ -18,14 +18,9 @@ class UserRolesTest extends TestCase
     {
         [$superAdminRole, $adminRole, $mechanicRole] = $this->createCoreRoles();
 
-        $admin = User::factory()->create(['role' => $adminRole->id]);
-        $admin->assignRole($adminRole);
-
-        $superAdmin = User::factory()->create(['role' => $superAdminRole->id]);
-        $superAdmin->assignRole($superAdminRole);
-
-        $mechanic = User::factory()->create(['role' => $mechanicRole->id]);
-        $mechanic->assignRole($mechanicRole);
+        $admin = $this->createUserWithRole($adminRole);
+        $superAdmin = $this->createUserWithRole($superAdminRole);
+        $mechanic = $this->createUserWithRole($mechanicRole);
 
         $this->actingAs($admin)->get('/utilizatori')->assertOk();
         $this->actingAs($superAdmin)->get('/utilizatori')->assertOk();
@@ -36,8 +31,7 @@ class UserRolesTest extends TestCase
     {
         [$superAdminRole, $adminRole] = $this->createCoreRoles();
 
-        $admin = User::factory()->create(['role' => $adminRole->id]);
-        $admin->assignRole($adminRole);
+        $admin = $this->createUserWithRole($adminRole);
 
         $response = $this->actingAs($admin)->post('/utilizatori', [
             'name' => 'Test User',
@@ -52,12 +46,10 @@ class UserRolesTest extends TestCase
         $response->assertSessionHasErrors('role');
         $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
 
-        $user = User::factory()->create([
+        $user = $this->createUserWithRole($adminRole, [
             'name' => 'Existing User',
             'email' => 'existing@example.com',
-            'role' => $adminRole->id,
         ]);
-        $user->assignRole($adminRole);
 
         $updateResponse = $this->actingAs($admin)->put("/utilizatori/{$user->id}", [
             'id' => $user->id,
@@ -72,23 +64,21 @@ class UserRolesTest extends TestCase
         $this->assertFalse($user->fresh()->hasRole('super-admin'));
     }
 
-    public function test_legacy_super_admin_without_pivot_role_can_access_user_management(): void
+    public function test_user_without_pivot_role_cannot_access_user_management(): void
     {
         [$superAdminRole, $adminRole] = $this->createCoreRoles();
 
-        $legacySuperAdmin = User::factory()->create([
-            'role' => $superAdminRole->id,
-        ]);
+        $legacySuperAdmin = User::factory()->create();
+        $legacySuperAdmin->forceFill(['role' => $superAdminRole->id])->save();
 
-        $this->actingAs($legacySuperAdmin)->get('/utilizatori')->assertOk();
+        $this->actingAs($legacySuperAdmin)->get('/utilizatori')->assertForbidden();
     }
 
     public function test_mechanics_are_restricted_to_service_sections(): void
     {
         [, , $mechanicRole] = $this->createCoreRoles();
 
-        $mechanic = User::factory()->create(['role' => $mechanicRole->id]);
-        $mechanic->assignRole($mechanicRole);
+        $mechanic = $this->createUserWithRole($mechanicRole);
 
         $this->actingAs($mechanic)->get('/gestiune-piese')->assertOk();
         $this->actingAs($mechanic)->get('/service-masini')->assertOk();
@@ -99,12 +89,10 @@ class UserRolesTest extends TestCase
     {
         [$_superAdminRole, $adminRole, $_mechanicRole] = $this->createCoreRoles();
 
-        $user = User::factory()->create([
-            'role' => $adminRole->id,
+        $user = $this->createUserWithRole($adminRole, [
             'email' => 'user@example.com',
             'cod_email' => 'login-code',
         ]);
-        $user->assignRole($adminRole);
 
         $response = $this->from('/login')->post('/login', [
             'email' => 'user@example.com',
@@ -120,12 +108,10 @@ class UserRolesTest extends TestCase
     {
         [, , $mechanicRole] = $this->createCoreRoles();
 
-        $mechanic = User::factory()->create([
-            'role' => $mechanicRole->id,
+        $mechanic = $this->createUserWithRole($mechanicRole, [
             'email' => 'mechanic@example.com',
             'cod_email' => 'login-code',
         ]);
-        $mechanic->assignRole($mechanicRole);
 
         $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
@@ -183,8 +169,7 @@ class UserRolesTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        $mechanic = User::factory()->create(['role' => $mechanicRole->id]);
-        $mechanic->assignRole($mechanicRole);
+        $mechanic = $this->createUserWithRole($mechanicRole);
 
         $mechanicResponse = $this->actingAs($mechanic)->get('/gestiune-piese');
         $mechanicResponse->assertOk();
@@ -192,8 +177,7 @@ class UserRolesTest extends TestCase
         $mechanicResponse->assertDontSee('Facturi furnizori', false);
         $mechanicResponse->assertSee('href="' . route('gestiune-piese.index') . '"', false);
 
-        $admin = User::factory()->create(['role' => $adminRole->id]);
-        $admin->assignRole($adminRole);
+        $admin = $this->createUserWithRole($adminRole);
 
         $adminResponse = $this->actingAs($admin)->get('/gestiune-piese');
         $adminResponse->assertOk();
@@ -211,12 +195,9 @@ class UserRolesTest extends TestCase
             ]
         );
 
-        $admin = User::factory()->create([
-            'id' => 1,
-            'role' => $adminRole->id,
-        ]);
-
+        $admin = User::factory()->create(['id' => 1]);
         $admin->assignRole($adminRole);
+        $admin->forceFill(['role' => null])->save();
 
         $this->actingAs($admin)->get('/acasa')->assertOk();
     }
@@ -251,5 +232,14 @@ class UserRolesTest extends TestCase
         );
 
         return [$superAdmin, $admin, $mechanic];
+    }
+
+    private function createUserWithRole(Role $role, array $attributes = []): User
+    {
+        $user = User::factory()->create($attributes);
+        $user->assignRole($role);
+        $user->forceFill(['role' => $role->id])->save();
+
+        return $user->fresh();
     }
 }
