@@ -186,13 +186,46 @@ class GestiunePieseTest extends TestCase
             ]);
 
         $response->assertRedirect(route('gestiune-piese.edit', $piece));
-        $response->assertSessionHasErrors('cantitate_initiala');
+        $response->assertSessionHasErrors([
+            'cantitate_initiala' => 'Cantitatea inițială nu poate fi mai mică decât totalul montat pe mașini (4.00).',
+        ]);
 
         $this->assertDatabaseHas('service_gestiune_piese', [
             'id' => $piece->id,
             'denumire' => 'Amortizor',
             'cantitate_initiala' => 8,
             'nr_bucati' => 4,
+        ]);
+    }
+
+    public function test_initial_quantity_equal_to_mounted_amount_sets_zero_remaining(): void
+    {
+        $user = User::factory()->create();
+        $piece = GestiunePiesa::factory()->create([
+            'denumire' => 'Filtru aer',
+            'cantitate_initiala' => 5,
+            'nr_bucati' => 2,
+        ]);
+
+        MasinaServiceEntry::factory()->create([
+            'gestiune_piesa_id' => $piece->id,
+            'tip' => 'piesa',
+            'cantitate' => 5,
+        ]);
+
+        $response = $this->actingAs($user)->put(route('gestiune-piese.update', $piece), [
+            'denumire' => 'Filtru aer sport',
+            'cantitate_initiala' => 5,
+            'nr_bucati' => 99,
+        ]);
+
+        $response->assertRedirect(route('gestiune-piese.index'));
+
+        $this->assertDatabaseHas('service_gestiune_piese', [
+            'id' => $piece->id,
+            'denumire' => 'Filtru aer sport',
+            'cantitate_initiala' => 5,
+            'nr_bucati' => 0,
         ]);
     }
 
