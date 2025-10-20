@@ -27,6 +27,7 @@ class GestiunePiesa extends Model
     ];
 
     protected $casts = [
+        'factura_id' => 'integer',
         'cantitate_initiala' => 'decimal:2',
         'nr_bucati' => 'decimal:2',
         'pret' => 'decimal:2',
