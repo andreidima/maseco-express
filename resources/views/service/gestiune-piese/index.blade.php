@@ -210,10 +210,33 @@
                                             —
                                         @endif
                                     </td>
+                                    @if ($canManagePieces)
+                                        <td>
+                                            @if ($pieceId > 0)
+                                                <div class="d-flex flex-column flex-lg-row gap-2 justify-content-center">
+                                                    <a class="btn btn-sm btn-outline-primary rounded-3"
+                                                        href="{{ route('gestiune-piese.edit', $pieceId) }}">
+                                                        <i class="fa-solid fa-pen-to-square me-1"></i>Editează
+                                                    </a>
+                                                    <form method="POST" class="d-inline"
+                                                        action="{{ route('gestiune-piese.destroy', $pieceId) }}"
+                                                        onsubmit="return confirm('Sigur vrei să ștergi această piesă?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
+                                                            <i class="fa-solid fa-trash-can me-1"></i>Șterge
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @else
+                                                —
+                                            @endif
+                                        </td>
+                                    @endif
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="{{ count($columns) + 2 + ($invoiceColumn ? 1 : 0) }}"
+                                    <td colspan="{{ count($columns) + 2 + ($invoiceColumn ? 1 : 0) + ($canManagePieces ? 1 : 0) }}"
                                         class="text-center text-muted py-4">
                                         Nu există înregistrări care să corespundă filtrelor alese.
                                     </td>
