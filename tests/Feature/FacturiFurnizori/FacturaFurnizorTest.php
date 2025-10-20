@@ -411,6 +411,61 @@ class FacturaFurnizorTest extends TestCase
         ]);
     }
 
+    public function test_piece_without_invoice_remains_available_for_service_entries(): void
+    {
+        $user = User::factory()->create(['name' => 'Service User']);
+        $factura = FacturaFurnizor::factory()->create();
+
+        $piece = $factura->piese()->create([
+            'denumire' => 'Filtru ulei',
+            'cod' => 'FU-001',
+            'cantitate_initiala' => 5,
+            'nr_bucati' => 5,
+            'pret' => 25,
+            'tva_cota' => 19,
+            'pret_brut' => 29.75,
+        ]);
+
+        $masina = Masina::factory()->create();
+
+        $this->actingAs($user)
+            ->delete(route('facturi-furnizori.facturi.destroy', $factura))
+            ->assertRedirect(route('facturi-furnizori.facturi.index'));
+
+        $this->assertDatabaseHas('service_gestiune_piese', [
+            'id' => $piece->id,
+            'factura_id' => null,
+            'denumire' => 'Filtru ulei',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('service-masini.index', ['masina_id' => $masina->id]))
+            ->assertOk()
+            ->assertSee('Filtru ulei', false)
+            ->assertSee('FU-001', false);
+
+        $this->actingAs($user)
+            ->post(route('service-masini.entries.store', $masina), [
+                'tip' => 'piesa',
+                'gestiune_piesa_id' => $piece->id,
+                'cantitate' => 1,
+                'data_montaj' => now()->toDateString(),
+                'nume_mecanic' => 'Mecanic Test',
+                'observatii' => 'Montaj după ștergere factură',
+            ])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('service_masina_service_entries', [
+            'gestiune_piesa_id' => $piece->id,
+            'masina_id' => $masina->id,
+            'tip' => 'piesa',
+        ]);
+
+        $piece->refresh();
+        $this->assertSame('4.00', $piece->nr_bucati);
+        $this->assertNull($piece->factura_id);
+    }
+
     public function test_show_displays_products_with_stock_details_modal_trigger(): void
     {
         $user = User::factory()->create();
