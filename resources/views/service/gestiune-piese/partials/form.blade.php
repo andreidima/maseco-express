@@ -48,7 +48,7 @@
     <div class="col-lg-4">
         <label for="pret" class="form-label small text-muted mb-1">Preț net</label>
         <input type="number" step="0.01" min="0" name="pret" id="pret" class="form-control rounded-3"
-            value="{{ old('pret', $editing ? $piesa->pret : '') }}">
+            value="{{ old('pret', $editing ? $piesa->pret : '') }}" data-piece-price="net">
         @error('pret')
             <div class="text-danger small mt-1">{{ $message }}</div>
         @enderror
@@ -56,7 +56,8 @@
     <div class="col-lg-4">
         <label for="tva_cota" class="form-label small text-muted mb-1">Cotă TVA (%)</label>
         <input type="number" step="0.01" min="0" max="100" name="tva_cota" id="tva_cota"
-            class="form-control rounded-3" value="{{ old('tva_cota', $editing ? $piesa->tva_cota : '') }}">
+            class="form-control rounded-3" value="{{ old('tva_cota', $editing ? $piesa->tva_cota : '') }}"
+            data-piece-price="vat">
         @error('tva_cota')
             <div class="text-danger small mt-1">{{ $message }}</div>
         @enderror
@@ -64,9 +65,62 @@
     <div class="col-lg-4">
         <label for="pret_brut" class="form-label small text-muted mb-1">Preț brut</label>
         <input type="number" step="0.01" min="0" name="pret_brut" id="pret_brut"
-            class="form-control rounded-3" value="{{ old('pret_brut', $editing ? $piesa->pret_brut : '') }}">
+            class="form-control rounded-3 bg-light" value="{{ old('pret_brut', $editing ? $piesa->pret_brut : '') }}"
+            readonly tabindex="-1" data-piece-price="gross">
         @error('pret_brut')
             <div class="text-danger small mt-1">{{ $message }}</div>
         @enderror
     </div>
 </div>
+
+@once
+    @push('page-scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const netInput = document.querySelector('[data-piece-price="net"]');
+                const vatInput = document.querySelector('[data-piece-price="vat"]');
+                const grossInput = document.querySelector('[data-piece-price="gross"]');
+
+                if (!netInput || !vatInput || !grossInput) {
+                    return;
+                }
+
+                const roundTwo = (value) => Math.round(value * 100) / 100;
+
+                const formatNumber = (value) => {
+                    if (!Number.isFinite(value)) {
+                        return '';
+                    }
+
+                    return value.toFixed(2);
+                };
+
+                const recalculateGross = () => {
+                    const netRaw = netInput.value;
+                    const vatRaw = vatInput.value;
+
+                    if (netRaw.trim() === '' || vatRaw.trim() === '') {
+                        grossInput.value = '';
+                        return;
+                    }
+
+                    const netValue = Number.parseFloat(netRaw);
+                    const vatValue = Number.parseFloat(vatRaw);
+
+                    if (!Number.isFinite(netValue) || !Number.isFinite(vatValue)) {
+                        grossInput.value = '';
+                        return;
+                    }
+
+                    const grossValue = roundTwo(netValue * (1 + vatValue / 100));
+                    grossInput.value = formatNumber(grossValue);
+                };
+
+                netInput.addEventListener('input', recalculateGross);
+                vatInput.addEventListener('input', recalculateGross);
+
+                recalculateGross();
+            });
+        </script>
+    @endpush
+@endonce
