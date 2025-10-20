@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -60,11 +61,13 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $data = $this->validateRequest($request);
-        $data['password'] = Hash::make($data['password']);
         $roleId = (int) $data['role'];
+        $userData = Arr::except($data, ['role']);
+        $userData['password'] = Hash::make($userData['password']);
 
-        $user = DB::transaction(function () use ($data, $roleId) {
-            $user = User::create($data);
+        $user = DB::transaction(function () use ($userData, $roleId) {
+            $user = User::create($userData);
+            $user->forceFill(['role' => $roleId])->save();
             $user->roles()->sync([$roleId]);
 
             return $user;
@@ -115,13 +118,16 @@ class UserController extends Controller
     {
         $data = $this->validateRequest($request, $user);
         $roleId = (int) $data['role'];
-        if (is_null($data['password'])){
-            unset($data['password']);
+        $userData = Arr::except($data, ['role']);
+
+        if (is_null($userData['password'])){
+            unset($userData['password']);
         } else {
-            $data['password'] = Hash::make($data['password']);
+            $userData['password'] = Hash::make($userData['password']);
         }
-        DB::transaction(function () use ($user, $data, $roleId) {
-            $user->update($data);
+        DB::transaction(function () use ($user, $userData, $roleId) {
+            $user->update($userData);
+            $user->forceFill(['role' => $roleId])->save();
             $user->roles()->sync([$roleId]);
         });
 
