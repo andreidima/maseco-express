@@ -84,6 +84,7 @@ class GestiunePieseTest extends TestCase
             'denumire' => 'Filtru ulei',
             'cod' => 'FU-001',
             'cantitate_initiala' => 6,
+            'nr_bucati' => 2,
             'pret' => 25.5,
             'tva_cota' => 19,
             'pret_brut' => 30.35,
@@ -125,6 +126,72 @@ class GestiunePieseTest extends TestCase
             'denumire' => 'Plăcuțe frână față',
             'cod' => 'PF-100',
             'cantitate_initiala' => 10,
+            'nr_bucati' => 10,
+        ]);
+    }
+
+    public function test_nr_bucati_is_calculated_based_on_usage_when_updating_piece(): void
+    {
+        $user = User::factory()->create();
+        $piece = GestiunePiesa::factory()->create([
+            'denumire' => 'Bucșe',
+            'cantitate_initiala' => 10,
+            'nr_bucati' => 7,
+        ]);
+
+        $machine = Masina::factory()->create();
+
+        MasinaServiceEntry::factory()->create([
+            'gestiune_piesa_id' => $piece->id,
+            'masina_id' => $machine->id,
+            'tip' => 'piesa',
+            'cantitate' => 3,
+        ]);
+
+        $response = $this->actingAs($user)->put(route('gestiune-piese.update', $piece), [
+            'denumire' => 'Bucșe față',
+            'cantitate_initiala' => 12,
+            'nr_bucati' => 1,
+        ]);
+
+        $response->assertRedirect(route('gestiune-piese.index'));
+
+        $this->assertDatabaseHas('service_gestiune_piese', [
+            'id' => $piece->id,
+            'denumire' => 'Bucșe față',
+            'cantitate_initiala' => 12,
+            'nr_bucati' => 9,
+        ]);
+    }
+
+    public function test_cannot_set_initial_quantity_below_used_amount(): void
+    {
+        $user = User::factory()->create();
+        $piece = GestiunePiesa::factory()->create([
+            'denumire' => 'Amortizor',
+            'cantitate_initiala' => 8,
+            'nr_bucati' => 4,
+        ]);
+
+        MasinaServiceEntry::factory()->count(2)->create([
+            'gestiune_piesa_id' => $piece->id,
+            'tip' => 'piesa',
+            'cantitate' => 2,
+        ]);
+
+        $response = $this->actingAs($user)->from(route('gestiune-piese.edit', $piece))
+            ->put(route('gestiune-piese.update', $piece), [
+                'denumire' => 'Amortizor spate',
+                'cantitate_initiala' => 3,
+            ]);
+
+        $response->assertRedirect(route('gestiune-piese.edit', $piece));
+        $response->assertSessionHasErrors('cantitate_initiala');
+
+        $this->assertDatabaseHas('service_gestiune_piese', [
+            'id' => $piece->id,
+            'denumire' => 'Amortizor',
+            'cantitate_initiala' => 8,
             'nr_bucati' => 4,
         ]);
     }
