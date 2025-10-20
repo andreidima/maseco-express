@@ -169,8 +169,9 @@ Route::group(['middleware' => ['auth', 'restrict-mechanic-access']], function ()
 
     Route::get('/facturi-scadente', [FacturaScadentaController::class, 'index']);
 
-    Route::get('/gestiune-piese', [GestiunePieseController::class, 'index'])
-        ->name('gestiune-piese.index');
+    Route::resource('gestiune-piese', GestiunePieseController::class)
+        ->except(['show'])
+        ->parameters(['gestiune-piese' => 'gestiune_piesa']);
 
     Route::get('/service-masini', [ServiceMasiniController::class, 'index'])
         ->name('service-masini.index');

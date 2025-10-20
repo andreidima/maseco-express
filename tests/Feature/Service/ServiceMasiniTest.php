@@ -97,6 +97,25 @@ class ServiceMasiniTest extends TestCase
         ]);
     }
 
+    public function test_service_entries_form_lists_newly_created_piece(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post(route('gestiune-piese.store'), [
+            'denumire' => 'Curea accesorii',
+            'cod' => 'CA-001',
+            'cantitate_initiala' => 3,
+        ])->assertRedirect();
+
+        $masina = Masina::factory()->create();
+
+        $response = $this->actingAs($user)->get(route('service-masini.index', ['masina_id' => $masina->id]));
+
+        $response->assertOk();
+        $response->assertSee('Curea accesorii', false);
+        $response->assertSee('(CA-001)', false);
+    }
+
     public function test_it_exports_pdf(): void
     {
         $user = User::factory()->create();

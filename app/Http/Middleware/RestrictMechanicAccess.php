@@ -36,12 +36,19 @@ class RestrictMechanicAccess
         $route = $request->route();
         $routeName = $route?->getName();
 
+        if ($routeName && str_starts_with($routeName, 'gestiune-piese.')) {
+            if ($routeName !== 'gestiune-piese.index') {
+                abort(403);
+            }
+
+            return $next($request);
+        }
+
         if ($routeName && in_array($routeName, $allowedRouteNames, true)) {
             return $next($request);
         }
 
         $allowedPrefixes = [
-            'gestiune-piese',
             'service-masini',
         ];
 
