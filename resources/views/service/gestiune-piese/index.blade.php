@@ -64,13 +64,13 @@
                 </form>
             </div>
             <div class="col-lg-3 mt-2 mt-lg-0 d-flex flex-column align-items-lg-end gap-2">
+                @include('partials.operations-navigation')
                 @if ($canManagePieces)
                     <a class="btn btn-sm btn-success text-white border border-dark rounded-3"
                         href="{{ route('gestiune-piese.create') }}">
                         <i class="fa-solid fa-plus me-1"></i>Adaugă piesă
                     </a>
                 @endif
-                @include('partials.operations-navigation')
             </div>
         </div>
 

@@ -19,11 +19,10 @@
             <div class="text-danger small mt-1">{{ $message }}</div>
         @enderror
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-6">
         <label for="cantitate_initiala" class="form-label small text-muted mb-1">Cantitate inițială</label>
         <input type="number" step="0.01" min="0" name="cantitate_initiala" id="cantitate_initiala"
             class="form-control rounded-3" value="{{ old('cantitate_initiala', $editing ? $piesa->cantitate_initiala : '') }}">
-        <small class="text-muted">Dacă lipsește, valoarea va fi completată din stocul curent.</small>
         @error('cantitate_initiala')
             <div class="text-danger small mt-1">{{ $message }}</div>
         @enderror
@@ -32,7 +31,7 @@
         $rawVatRate = old('tva_cota', $editing ? $piesa->tva_cota : null);
         $selectedVatRate = is_numeric($rawVatRate) ? (float) $rawVatRate : null;
     @endphp
-    <div class="col-lg-4">
+    <div class="col-lg-6">
         <label for="factura_id" class="form-label small text-muted mb-1">Factură furnizor (opțional)</label>
         <input type="number" min="1" name="factura_id" id="factura_id" class="form-control rounded-3"
             value="{{ old('factura_id', $editing ? $piesa->factura_id : '') }}">
