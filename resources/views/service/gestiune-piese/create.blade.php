@@ -1,0 +1,33 @@
+@extends('layouts.app')
+
+@section('content')
+    <div class="mx-3 px-3 card mx-auto" style="border-radius: 40px 40px 40px 40px; max-width: 900px;">
+        <div class="card-header d-flex justify-content-between align-items-center" style="border-radius: 40px 40px 0px 0px;">
+            <span class="badge culoare1 fs-5">
+                <i class="fa-solid fa-plus me-1"></i>Adaugă piesă în gestiune
+            </span>
+            <a href="{{ route('gestiune-piese.index') }}" class="btn btn-sm btn-outline-secondary rounded-3">
+                <i class="fa-solid fa-arrow-left me-1"></i>Înapoi la listă
+            </a>
+        </div>
+
+        <div class="card-body">
+            @include('errors')
+
+            <form method="POST" action="{{ route('gestiune-piese.store') }}" class="mt-3">
+                @csrf
+
+                @include('service.gestiune-piese.partials.form')
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ route('gestiune-piese.index') }}" class="btn btn-outline-secondary rounded-3">
+                        Renunță
+                    </a>
+                    <button type="submit" class="btn btn-primary rounded-3">
+                        <i class="fa-solid fa-save me-1"></i>Salvează piesa
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection

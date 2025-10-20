@@ -11,6 +11,8 @@
     $dataFactura = $dataFactura ?? '';
     $invoiceColumn = $invoiceColumn ?? null;
     $stockDetails = $stockDetails ?? [];
+    $authenticatedUser = auth()->user();
+    $canManagePieces = $authenticatedUser && ! $authenticatedUser->hasRole('mecanic');
 @endphp
 
 @section('content')
@@ -61,7 +63,13 @@
                     </div>
                 </form>
             </div>
-            <div class="col-lg-3 mt-2 mt-lg-0">
+            <div class="col-lg-3 mt-2 mt-lg-0 d-flex flex-column align-items-lg-end gap-2">
+                @if ($canManagePieces)
+                    <a class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                        href="{{ route('gestiune-piese.create') }}">
+                        <i class="fa-solid fa-plus me-1"></i>Adaugă piesă
+                    </a>
+                @endif
                 @include('partials.operations-navigation')
             </div>
         </div>
@@ -112,7 +120,7 @@
                                 @if ($invoiceColumn)
                                     <th class="culoare2 text-white" style="min-width: 130px;">Factură</th>
                                 @endif
-                                <th class="culoare2 text-white" style="min-width: 150px;">Detalii stoc</th>
+                                <th class="culoare2 text-white text-center" style="min-width: 200px;">Acțiuni</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -160,27 +168,44 @@
                                             @endif
                                         </td>
                                     @endif
-                                    @php
-                                        $initialDisplay = $initialValue !== null ? number_format((float) $initialValue, 2, '.', '') : '';
-                                        $remainingDisplay = $remainingValue !== null ? number_format((float) $remainingValue, 2, '.', '') : '';
-                                        $usedDisplay = number_format((float) $usedValue, 2, '.', '');
-                                    @endphp
-                                    <td class="text-center">
+                                    <td>
                                         @if ($pieceId > 0)
-                                            <button
-                                                type="button"
-                                                class="btn btn-sm btn-outline-secondary"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#stockDetailsModal"
-                                                data-piece-name="{{ $pieceName }}"
-                                                data-piece-code="{{ $pieceCode }}"
-                                                data-piece-initial="{{ $initialDisplay }}"
-                                                data-piece-remaining="{{ $remainingDisplay }}"
-                                                data-piece-used="{{ $usedDisplay }}"
-                                                data-piece-machines='@json($machinesData ?? [])'
-                                            >
-                                                <i class="fa-solid fa-circle-info me-1"></i>Detalii
-                                            </button>
+                                            @php
+                                                $initialDisplay = $initialValue !== null ? number_format((float) $initialValue, 2, '.', '') : '';
+                                                $remainingDisplay = $remainingValue !== null ? number_format((float) $remainingValue, 2, '.', '') : '';
+                                                $usedDisplay = number_format((float) $usedValue, 2, '.', '');
+                                            @endphp
+                                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-secondary"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#stockDetailsModal"
+                                                    data-piece-name="{{ $pieceName }}"
+                                                    data-piece-code="{{ $pieceCode }}"
+                                                    data-piece-initial="{{ $initialDisplay }}"
+                                                    data-piece-remaining="{{ $remainingDisplay }}"
+                                                    data-piece-used="{{ $usedDisplay }}"
+                                                    data-piece-machines='@json($machinesData ?? [])'
+                                                >
+                                                    <i class="fa-solid fa-circle-info me-1"></i>Detalii
+                                                </button>
+                                                @if ($canManagePieces)
+                                                    <a class="btn btn-sm btn-outline-primary rounded-3"
+                                                        href="{{ route('gestiune-piese.edit', $pieceId) }}">
+                                                        <i class="fa-solid fa-pen-to-square me-1"></i>Editează
+                                                    </a>
+                                                    <form method="POST" class="d-inline"
+                                                        action="{{ route('gestiune-piese.destroy', $pieceId) }}"
+                                                        onsubmit="return confirm('Sigur vrei să ștergi această piesă?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
+                                                            <i class="fa-solid fa-trash-can me-1"></i>Șterge
+                                                        </button>
+                                                    </form>
+                                                @endif
+                                            </div>
                                         @else
                                             —
                                         @endif

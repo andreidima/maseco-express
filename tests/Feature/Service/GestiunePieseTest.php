@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Service;
 
+use App\Models\Role;
 use App\Models\Service\GestiunePiesa;
 use App\Models\Service\Masina;
 use App\Models\Service\MasinaServiceEntry;
@@ -73,5 +74,113 @@ class GestiunePieseTest extends TestCase
         $this->assertSame(['Masina A', 'Masina A'], array_column($machines, 'denumire'));
         $this->assertEquals([2.0, 3.5], array_column($machines, 'cantitate'));
         $this->assertSame(['15.02.2024', '05.01.2024'], array_column($machines, 'data'));
+    }
+
+    public function test_non_mechanic_can_create_piece(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post(route('gestiune-piese.store'), [
+            'denumire' => 'Filtru ulei',
+            'cod' => 'FU-001',
+            'cantitate_initiala' => 6,
+            'pret' => 25.5,
+            'tva_cota' => 19,
+            'pret_brut' => 30.35,
+        ]);
+
+        $response->assertRedirect(route('gestiune-piese.index'));
+
+        $this->assertDatabaseHas('service_gestiune_piese', [
+            'denumire' => 'Filtru ulei',
+            'cod' => 'FU-001',
+            'cantitate_initiala' => 6,
+            'nr_bucati' => 6,
+        ]);
+    }
+
+    public function test_non_mechanic_can_update_piece(): void
+    {
+        $user = User::factory()->create();
+        $piece = GestiunePiesa::factory()->create([
+            'denumire' => 'Plăcuțe frână',
+            'nr_bucati' => 8,
+            'cantitate_initiala' => 8,
+        ]);
+
+        $response = $this->actingAs($user)->put(route('gestiune-piese.update', $piece), [
+            'denumire' => 'Plăcuțe frână față',
+            'cod' => 'PF-100',
+            'cantitate_initiala' => 10,
+            'nr_bucati' => 4,
+            'pret' => 120,
+            'tva_cota' => 19,
+            'pret_brut' => 142.8,
+        ]);
+
+        $response->assertRedirect(route('gestiune-piese.index'));
+
+        $this->assertDatabaseHas('service_gestiune_piese', [
+            'id' => $piece->id,
+            'denumire' => 'Plăcuțe frână față',
+            'cod' => 'PF-100',
+            'cantitate_initiala' => 10,
+            'nr_bucati' => 4,
+        ]);
+    }
+
+    public function test_non_mechanic_can_delete_piece_without_entries(): void
+    {
+        $user = User::factory()->create();
+        $piece = GestiunePiesa::factory()->create();
+
+        $response = $this->actingAs($user)->delete(route('gestiune-piese.destroy', $piece));
+
+        $response->assertRedirect(route('gestiune-piese.index'));
+        $this->assertDatabaseMissing('service_gestiune_piese', ['id' => $piece->id]);
+    }
+
+    public function test_cannot_delete_piece_with_entries(): void
+    {
+        $user = User::factory()->create();
+        $piece = GestiunePiesa::factory()->create(['nr_bucati' => 5]);
+
+        MasinaServiceEntry::factory()->create([
+            'gestiune_piesa_id' => $piece->id,
+            'tip' => 'piesa',
+            'cantitate' => 1,
+        ]);
+
+        $response = $this->actingAs($user)->delete(route('gestiune-piese.destroy', $piece));
+
+        $response->assertRedirect(route('gestiune-piese.edit', $piece));
+        $response->assertSessionHasErrors('general');
+        $this->assertDatabaseHas('service_gestiune_piese', ['id' => $piece->id]);
+    }
+
+    public function test_mechanic_cannot_access_mutating_routes(): void
+    {
+        $mechanicRole = Role::firstOrCreate(
+            ['slug' => 'mecanic'],
+            [
+                'name' => 'Mecanic',
+                'description' => 'Acces limitat la gestiune piese și service mașini.',
+            ]
+        );
+
+        $mechanic = User::factory()->create(['role' => $mechanicRole->id]);
+        $mechanic->assignRole($mechanicRole);
+
+        $piece = GestiunePiesa::factory()->create();
+
+        $this->actingAs($mechanic)->get(route('gestiune-piese.create'))->assertForbidden();
+        $this->actingAs($mechanic)->post(route('gestiune-piese.store'), [
+            'denumire' => 'Bec stop',
+        ])->assertForbidden();
+        $this->actingAs($mechanic)->get(route('gestiune-piese.edit', $piece))->assertForbidden();
+        $this->actingAs($mechanic)->put(route('gestiune-piese.update', $piece), [
+            'denumire' => 'Bec stop',
+        ])->assertForbidden();
+        $this->actingAs($mechanic)->delete(route('gestiune-piese.destroy', $piece))->assertForbidden();
     }
 }
