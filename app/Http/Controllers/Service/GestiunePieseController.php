@@ -3,14 +3,18 @@
 namespace App\Http\Controllers\Service;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Service\GestiunePiesaRequest;
+use App\Models\Service\GestiunePiesa;
+use App\Models\Service\MasinaServiceEntry;
 use Carbon\Carbon;
+use Carbon\CarbonInterface;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
-use App\Models\Service\MasinaServiceEntry;
-use Carbon\CarbonInterface;
+use Illuminate\View\View;
 
 class GestiunePieseController extends Controller
 {
@@ -42,16 +46,16 @@ class GestiunePieseController extends Controller
         $user = Auth::user();
         $isMechanic = $user && $user->hasRole('mecanic');
 
-        try {
-            $hasTable = Schema::hasTable('service_gestiune_piese');
+        $hasTable = $this->hasPiecesTable();
 
-            if ($hasTable) {
+        if ($hasTable) {
+            try {
                 $columns = Schema::getColumnListing('service_gestiune_piese');
+            } catch (\Throwable $exception) {
+                $hasTable = false;
+                $columns = [];
+                Log::warning('Unable to fetch service_gestiune_piese columns', ['exception' => $exception]);
             }
-        } catch (\Throwable $exception) {
-            $hasTable = false;
-            $columns = [];
-            Log::warning('Unable to inspect service_gestiune_piese structure', ['exception' => $exception]);
         }
 
         if ($hasTable) {
@@ -151,6 +155,103 @@ class GestiunePieseController extends Controller
             'invoiceColumn' => $invoiceJoinColumn,
             'stockDetails' => $stockDetails,
         ]);
+    }
+
+    public function create(): View
+    {
+        abort_unless($this->hasPiecesTable(), 404);
+
+        return view('service.gestiune-piese.create');
+    }
+
+    public function store(GestiunePiesaRequest $request): RedirectResponse
+    {
+        if (! $this->hasPiecesTable()) {
+            return redirect()
+                ->route('gestiune-piese.index')
+                ->withErrors(['general' => 'Gestiunea pieselor nu este disponibilă în acest mediu.']);
+        }
+
+        $data = $request->validated();
+
+        try {
+            GestiunePiesa::query()->create($data);
+        } catch (\Throwable $exception) {
+            Log::error('Failed to create gestiune piesa', ['exception' => $exception]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['general' => 'Nu am putut salva piesa. Încearcă din nou.']);
+        }
+
+        return redirect()
+            ->route('gestiune-piese.index')
+            ->with('status', 'Piesa a fost adăugată în gestiune.');
+    }
+
+    public function edit(GestiunePiesa $gestiunePiesa): View
+    {
+        abort_unless($this->hasPiecesTable(), 404);
+
+        return view('service.gestiune-piese.edit', [
+            'piesa' => $gestiunePiesa,
+        ]);
+    }
+
+    public function update(GestiunePiesaRequest $request, GestiunePiesa $gestiunePiesa): RedirectResponse
+    {
+        if (! $this->hasPiecesTable()) {
+            return redirect()
+                ->route('gestiune-piese.index')
+                ->withErrors(['general' => 'Gestiunea pieselor nu este disponibilă în acest mediu.']);
+        }
+
+        $data = $request->validated();
+
+        try {
+            $gestiunePiesa->update($data);
+        } catch (\Throwable $exception) {
+            Log::error('Failed to update gestiune piesa', [
+                'exception' => $exception,
+                'piesa_id' => $gestiunePiesa->getKey(),
+            ]);
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->withErrors(['general' => 'Nu am putut actualiza piesa. Încearcă din nou.']);
+        }
+
+        return redirect()
+            ->route('gestiune-piese.index')
+            ->with('status', 'Piesa a fost actualizată.');
+    }
+
+    public function destroy(GestiunePiesa $gestiunePiesa): RedirectResponse
+    {
+        if ($gestiunePiesa->serviceEntries()->exists()) {
+            return redirect()
+                ->route('gestiune-piese.edit', $gestiunePiesa)
+                ->withErrors(['general' => 'Nu poți șterge o piesă care are intervenții asociate.']);
+        }
+
+        try {
+            $gestiunePiesa->delete();
+        } catch (\Throwable $exception) {
+            Log::error('Failed to delete gestiune piesa', [
+                'exception' => $exception,
+                'piesa_id' => $gestiunePiesa->getKey(),
+            ]);
+
+            return redirect()
+                ->route('gestiune-piese.edit', $gestiunePiesa)
+                ->withErrors(['general' => 'Nu am putut șterge piesa. Încearcă din nou.']);
+        }
+
+        return redirect()
+            ->route('gestiune-piese.index')
+            ->with('status', 'Piesa a fost ștearsă.');
     }
 
     private function buildStockDetails($items): array
@@ -277,5 +378,16 @@ class GestiunePieseController extends Controller
         }
 
         return $details;
+    }
+
+    private function hasPiecesTable(): bool
+    {
+        try {
+            return Schema::hasTable('service_gestiune_piese');
+        } catch (\Throwable $exception) {
+            Log::warning('Unable to inspect service_gestiune_piese structure', ['exception' => $exception]);
+
+            return false;
+        }
     }
 }
