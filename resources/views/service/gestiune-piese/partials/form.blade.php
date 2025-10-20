@@ -88,10 +88,9 @@
             class="form-control rounded-3" value="{{ $initialFieldValue }}" data-piece-quantity="initial"
             data-piece-used="{{ $consumedBaselineValue }}" data-piece-initial-benchmark="{{ $initialBenchmarkValue }}"
             data-piece-remaining-benchmark="{{ $remainingBenchmarkValue }}">
-        <small class="text-muted">Dacă lipsește, valoarea va fi completată din stocul curent.</small>
         <input type="hidden" name="nr_bucati" id="nr_bucati" value="{{ $remainingFieldValue }}"
             data-piece-quantity="remaining">
-        <input type="hidden" data-piece-quantity="consumed" value="{{ $consumedBaselineValue }}">
+        <input type="hidden" data-piece-quantity="consumed" value="{{ $consumedBaselineValue }}"
             class="form-control rounded-3" value="{{ old('cantitate_initiala', $editing ? $piesa->cantitate_initiala : '') }}">
         @error('cantitate_initiala')
             <div class="text-danger small mt-1">{{ $message }}</div>
