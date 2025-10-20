@@ -11,6 +11,12 @@ class GestiunePiesaRequest extends FormRequest
 {
     private float $usedQuantity = 0.0;
 
+    private ?GestiunePiesa $resolvedPiece = null;
+
+    private bool $pieceResolved = false;
+
+    private bool $usedQuantityLoaded = false;
+
     public function authorize(): bool
     {
         return $this->user() !== null;
@@ -67,24 +73,9 @@ class GestiunePiesaRequest extends FormRequest
     {
         $validator->after(function (Validator $validator): void {
             $initial = $this->input('cantitate_initiala');
+            $piece = $this->resolvePiece();
 
-            $piece = $this->route('gestiune_piesa');
-
-            if ($piece && ! $piece instanceof GestiunePiesa) {
-                $piece = GestiunePiesa::query()->find($piece);
-            }
-
-            if ($piece instanceof GestiunePiesa) {
-                $this->usedQuantity = (float) DB::table('service_masina_service_entries')
-                    ->where('gestiune_piesa_id', $piece->getKey())
-                    ->where('tip', 'piesa')
-                    ->whereNotNull('cantitate')
-                    ->sum('cantitate');
-            } else {
-                $this->usedQuantity = 0.0;
-            }
-
-            $used = round($this->usedQuantity, 2);
+            $used = $this->ensureUsedQuantityIsLoaded();
 
             if ($piece instanceof GestiunePiesa && $initial === null) {
                 $initial = $piece->cantitate_initiala;
@@ -110,19 +101,14 @@ class GestiunePiesaRequest extends FormRequest
         $data = parent::validated($key, $default);
 
         $initial = $data['cantitate_initiala'] ?? null;
-
-        $piece = $this->route('gestiune_piesa');
-
-        if ($piece && ! $piece instanceof GestiunePiesa) {
-            $piece = GestiunePiesa::query()->find($piece);
-        }
+        $piece = $this->resolvePiece();
 
         if ($initial === null && $piece instanceof GestiunePiesa && $piece->cantitate_initiala !== null) {
             $initial = (float) $piece->cantitate_initiala;
             $data['cantitate_initiala'] = $initial;
         }
 
-        $used = round($this->usedQuantity, 2);
+        $used = $this->ensureUsedQuantityIsLoaded();
 
         if ($initial !== null) {
             $initial = round((float) $initial, 2);
@@ -137,6 +123,43 @@ class GestiunePiesaRequest extends FormRequest
 
     public function usedQuantity(): float
     {
+        return $this->ensureUsedQuantityIsLoaded();
+    }
+
+    private function resolvePiece(): ?GestiunePiesa
+    {
+        if (! $this->pieceResolved) {
+            $piece = $this->route('gestiune_piesa');
+
+            if ($piece && ! $piece instanceof GestiunePiesa) {
+                $piece = GestiunePiesa::query()->find($piece);
+            }
+
+            $this->resolvedPiece = $piece instanceof GestiunePiesa ? $piece : null;
+            $this->pieceResolved = true;
+        }
+
+        return $this->resolvedPiece;
+    }
+
+    private function ensureUsedQuantityIsLoaded(): float
+    {
+        if (! $this->usedQuantityLoaded) {
+            $piece = $this->resolvePiece();
+
+            if ($piece instanceof GestiunePiesa) {
+                $this->usedQuantity = (float) DB::table('service_masina_service_entries')
+                    ->where('gestiune_piesa_id', $piece->getKey())
+                    ->where('tip', 'piesa')
+                    ->whereNotNull('cantitate')
+                    ->sum('cantitate');
+            } else {
+                $this->usedQuantity = 0.0;
+            }
+
+            $this->usedQuantityLoaded = true;
+        }
+
         return round($this->usedQuantity, 2);
     }
 }
