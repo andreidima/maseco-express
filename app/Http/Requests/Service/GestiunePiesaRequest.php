@@ -2,11 +2,21 @@
 
 namespace App\Http\Requests\Service;
 
+use App\Models\Service\GestiunePiesa;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Validator;
 
 class GestiunePiesaRequest extends FormRequest
 {
+    private float $usedQuantity = 0.0;
+
+    private ?GestiunePiesa $resolvedPiece = null;
+
+    private bool $pieceResolved = false;
+
+    private bool $usedQuantityLoaded = false;
+
     public function authorize(): bool
     {
         return $this->user() !== null;
@@ -63,10 +73,25 @@ class GestiunePiesaRequest extends FormRequest
     {
         $validator->after(function (Validator $validator): void {
             $initial = $this->input('cantitate_initiala');
-            $remaining = $this->input('nr_bucati');
+            $piece = $this->resolvePiece();
 
-            if ($initial !== null && $remaining !== null && (float) $remaining > (float) $initial) {
-                $validator->errors()->add('nr_bucati', 'Stocul disponibil nu poate depăși cantitatea inițială.');
+            $used = $this->ensureUsedQuantityIsLoaded();
+
+            if ($piece instanceof GestiunePiesa && $initial === null) {
+                $initial = $piece->cantitate_initiala;
+            }
+
+            if ($initial !== null) {
+                $initial = round((float) $initial, 2);
+
+                if ($used > $initial) {
+                    $validator->errors()->add('cantitate_initiala', sprintf(
+                        'Cantitatea inițială nu poate fi mai mică decât totalul montat pe mașini (%.2f).',
+                        $used
+                    ));
+                }
+            } elseif ($used > 0) {
+                $validator->errors()->add('cantitate_initiala', 'Cantitatea inițială trebuie să fie cel puțin egală cu totalul montat pe mașini.');
             }
         });
     }
@@ -76,14 +101,65 @@ class GestiunePiesaRequest extends FormRequest
         $data = parent::validated($key, $default);
 
         $initial = $data['cantitate_initiala'] ?? null;
-        $remaining = $data['nr_bucati'] ?? null;
+        $piece = $this->resolvePiece();
 
-        if ($initial === null && $remaining !== null) {
-            $data['cantitate_initiala'] = $remaining;
-        } elseif ($initial !== null && $remaining === null) {
-            $data['nr_bucati'] = $initial;
+        if ($initial === null && $piece instanceof GestiunePiesa && $piece->cantitate_initiala !== null) {
+            $initial = (float) $piece->cantitate_initiala;
+            $data['cantitate_initiala'] = $initial;
+        }
+
+        $used = $this->ensureUsedQuantityIsLoaded();
+
+        if ($initial !== null) {
+            $initial = round((float) $initial, 2);
+            $data['cantitate_initiala'] = $initial;
+            $data['nr_bucati'] = round(max($initial - $used, 0), 2);
+        } else {
+            $data['nr_bucati'] = null;
         }
 
         return $data;
+    }
+
+    public function usedQuantity(): float
+    {
+        return $this->ensureUsedQuantityIsLoaded();
+    }
+
+    private function resolvePiece(): ?GestiunePiesa
+    {
+        if (! $this->pieceResolved) {
+            $piece = $this->route('gestiune_piesa');
+
+            if ($piece && ! $piece instanceof GestiunePiesa) {
+                $piece = GestiunePiesa::query()->find($piece);
+            }
+
+            $this->resolvedPiece = $piece instanceof GestiunePiesa ? $piece : null;
+            $this->pieceResolved = true;
+        }
+
+        return $this->resolvedPiece;
+    }
+
+    private function ensureUsedQuantityIsLoaded(): float
+    {
+        if (! $this->usedQuantityLoaded) {
+            $piece = $this->resolvePiece();
+
+            if ($piece instanceof GestiunePiesa) {
+                $this->usedQuantity = (float) DB::table('service_masina_service_entries')
+                    ->where('gestiune_piesa_id', $piece->getKey())
+                    ->where('tip', 'piesa')
+                    ->whereNotNull('cantitate')
+                    ->sum('cantitate');
+            } else {
+                $this->usedQuantity = 0.0;
+            }
+
+            $this->usedQuantityLoaded = true;
+        }
+
+        return round($this->usedQuantity, 2);
     }
 }
