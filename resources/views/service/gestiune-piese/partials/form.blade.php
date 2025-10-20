@@ -28,14 +28,10 @@
             <div class="text-danger small mt-1">{{ $message }}</div>
         @enderror
     </div>
-    <div class="col-lg-4">
-        <label for="nr_bucati" class="form-label small text-muted mb-1">Stoc curent</label>
-        <input type="number" step="0.01" min="0" name="nr_bucati" id="nr_bucati"
-            class="form-control rounded-3" value="{{ old('nr_bucati', $editing ? $piesa->nr_bucati : '') }}">
-        @error('nr_bucati')
-            <div class="text-danger small mt-1">{{ $message }}</div>
-        @enderror
-    </div>
+    @php
+        $rawVatRate = old('tva_cota', $editing ? $piesa->tva_cota : null);
+        $selectedVatRate = is_numeric($rawVatRate) ? (float) $rawVatRate : null;
+    @endphp
     <div class="col-lg-4">
         <label for="factura_id" class="form-label small text-muted mb-1">Factură furnizor (opțional)</label>
         <input type="number" min="1" name="factura_id" id="factura_id" class="form-control rounded-3"
@@ -46,7 +42,7 @@
         @enderror
     </div>
     <div class="col-lg-4">
-        <label for="pret" class="form-label small text-muted mb-1">Preț net</label>
+        <label for="pret" class="form-label small text-muted mb-1">Preț NET/buc</label>
         <input type="number" step="0.01" min="0" name="pret" id="pret" class="form-control rounded-3"
             value="{{ old('pret', $editing ? $piesa->pret : '') }}" data-piece-price="net">
         @error('pret')
@@ -54,16 +50,18 @@
         @enderror
     </div>
     <div class="col-lg-4">
-        <label for="tva_cota" class="form-label small text-muted mb-1">Cotă TVA (%)</label>
-        <input type="number" step="0.01" min="0" max="100" name="tva_cota" id="tva_cota"
-            class="form-control rounded-3" value="{{ old('tva_cota', $editing ? $piesa->tva_cota : '') }}"
-            data-piece-price="vat">
+        <label for="tva_cota" class="form-label small text-muted mb-1">Cotă TVA</label>
+        <select name="tva_cota" id="tva_cota" class="form-select rounded-3" data-piece-price="vat">
+            <option value="" @selected(!is_numeric($rawVatRate))>Cotă TVA</option>
+            <option value="11" @selected($selectedVatRate === 11.0)>11%</option>
+            <option value="21" @selected($selectedVatRate === 21.0)>21%</option>
+        </select>
         @error('tva_cota')
             <div class="text-danger small mt-1">{{ $message }}</div>
         @enderror
     </div>
     <div class="col-lg-4">
-        <label for="pret_brut" class="form-label small text-muted mb-1">Preț brut</label>
+        <label for="pret_brut" class="form-label small text-muted mb-1">Preț BRUT/buc</label>
         <input type="number" step="0.01" min="0" name="pret_brut" id="pret_brut"
             class="form-control rounded-3 bg-light" value="{{ old('pret_brut', $editing ? $piesa->pret_brut : '') }}"
             readonly tabindex="-1" data-piece-price="gross">
@@ -116,8 +114,14 @@
                     grossInput.value = formatNumber(grossValue);
                 };
 
-                netInput.addEventListener('input', recalculateGross);
-                vatInput.addEventListener('input', recalculateGross);
+                const bindRecalculation = (element) => {
+                    ['input', 'change'].forEach((eventName) => {
+                        element.addEventListener(eventName, recalculateGross);
+                    });
+                };
+
+                bindRecalculation(netInput);
+                bindRecalculation(vatInput);
 
                 recalculateGross();
             });
