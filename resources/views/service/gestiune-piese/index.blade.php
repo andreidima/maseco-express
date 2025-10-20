@@ -175,10 +175,10 @@
                                                 $remainingDisplay = $remainingValue !== null ? number_format((float) $remainingValue, 2, '.', '') : '';
                                                 $usedDisplay = number_format((float) $usedValue, 2, '.', '');
                                             @endphp
-                                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                            <div class="d-flex flex-wrap gap-2 justify-content-center align-content-center">
                                                 <button
                                                     type="button"
-                                                    class="btn btn-sm btn-outline-secondary"
+                                                    class="btn btn-sm btn-outline-secondary rounded-3"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#stockDetailsModal"
                                                     data-piece-name="{{ $pieceName }}"
@@ -195,7 +195,7 @@
                                                         href="{{ route('gestiune-piese.edit', $pieceId) }}">
                                                         <i class="fa-solid fa-pen-to-square me-1"></i>Editează
                                                     </a>
-                                                    <form method="POST" class="d-inline"
+                                                    <form method="POST" class="d-inline mb-0"
                                                         action="{{ route('gestiune-piese.destroy', $pieceId) }}"
                                                         onsubmit="return confirm('Sigur vrei să ștergi această piesă?');">
                                                         @csrf
@@ -210,29 +210,6 @@
                                             —
                                         @endif
                                     </td>
-                                    @if ($canManagePieces)
-                                        <td>
-                                            @if ($pieceId > 0)
-                                                <div class="d-flex flex-column flex-lg-row gap-2 justify-content-center">
-                                                    <a class="btn btn-sm btn-outline-primary rounded-3"
-                                                        href="{{ route('gestiune-piese.edit', $pieceId) }}">
-                                                        <i class="fa-solid fa-pen-to-square me-1"></i>Editează
-                                                    </a>
-                                                    <form method="POST" class="d-inline"
-                                                        action="{{ route('gestiune-piese.destroy', $pieceId) }}"
-                                                        onsubmit="return confirm('Sigur vrei să ștergi această piesă?');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
-                                                            <i class="fa-solid fa-trash-can me-1"></i>Șterge
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            @else
-                                                —
-                                            @endif
-                                        </td>
-                                    @endif
                                 </tr>
                             @empty
                                 <tr>
