@@ -9,6 +9,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class LoginController extends Controller
 {
@@ -36,7 +37,7 @@ class LoginController extends Controller
     {
         $user = Auth::user();
 
-        if ($user && $user->hasRole('mecanic')) {
+        if ($user && Gate::forUser($user)->allows('gestiune-piese')) {
             return '/gestiune-piese';
         }
 
@@ -102,7 +103,7 @@ class LoginController extends Controller
         $user->cod_email = null;
         $user->save();
 
-        if ($user->hasRole('mecanic')) {
+        if (Gate::forUser($user)->allows('gestiune-piese')) {
             return redirect()->route('gestiune-piese.index');
         }
     }

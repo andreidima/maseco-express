@@ -101,6 +101,7 @@ class UserRolesTest extends TestCase
                 'description' => 'Acces specific dispecerilor.',
             ]
         );
+        $this->syncRoleDefaults($dispatcherRole);
 
         $admin = $this->createUserWithRole($adminRole);
 
@@ -175,6 +176,7 @@ class UserRolesTest extends TestCase
                 'description' => 'Acces specific dispecerilor.',
             ]
         );
+        $this->syncRoleDefaults($dispatcherRole);
 
         $admin = $this->createUserWithRole($adminRole);
         $user = $this->createUserWithRole($mechanicRole, [
@@ -237,6 +239,8 @@ class UserRolesTest extends TestCase
         $this->actingAs($mechanic)->get('/gestiune-piese')->assertOk();
         $this->actingAs($mechanic)->get('/service-masini')->assertOk();
         $this->actingAs($mechanic)->get('/acasa')->assertForbidden();
+        $this->actingAs($mechanic)->get(route('facturi-furnizori.facturi.index'))->assertForbidden();
+        $this->actingAs($mechanic)->get('/comenzi')->assertForbidden();
     }
 
     public function test_regular_user_must_submit_email_code_to_login(): void
@@ -368,6 +372,7 @@ class UserRolesTest extends TestCase
                 'description' => 'Full access.',
             ]
         );
+        $this->syncRoleDefaults($superAdmin);
 
         $admin = Role::firstOrCreate(
             ['slug' => 'admin'],
@@ -376,6 +381,7 @@ class UserRolesTest extends TestCase
                 'description' => 'Administrator access.',
             ]
         );
+        $this->syncRoleDefaults($admin);
 
         $mechanic = Role::firstOrCreate(
             ['slug' => 'mecanic'],
@@ -384,6 +390,7 @@ class UserRolesTest extends TestCase
                 'description' => 'Acces limitat la gestiune piese și service mașini.',
             ]
         );
+        $this->syncRoleDefaults($mechanic);
 
         return [$superAdmin, $admin, $mechanic];
     }
@@ -394,5 +401,25 @@ class UserRolesTest extends TestCase
         $user->assignRole($role);
 
         return $user->fresh();
+    }
+
+    private function syncRoleDefaults(Role $role): void
+    {
+        $defaults = config('permissions.role_defaults', []);
+        $modules = $defaults[$role->slug] ?? [];
+
+        if (in_array('*', $modules, true)) {
+            $role->syncPermissions(Permission::all());
+
+            return;
+        }
+
+        if (empty($modules)) {
+            $role->syncPermissions([]);
+
+            return;
+        }
+
+        $role->syncPermissions(Permission::whereIn('module', $modules)->get());
     }
 }
