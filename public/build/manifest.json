@@ -1,15 +1,122 @@
 {
+  "__plugin-vue_export-helper-c27b6911.js": {
+    "file": "assets/_plugin-vue_export-helper-c27b6911.js"
+  },
   "resources/js/app.css": {
-    "file": "assets/app-ef190f01.css",
+    "file": "assets/app-1ebce542.css",
     "src": "resources/js/app.css"
   },
   "resources/js/app.js": {
     "css": [
-      "assets/app-ef190f01.css"
+      "assets/app-1ebce542.css"
     ],
-    "file": "assets/app-5f8bf168.js",
+    "dynamicImports": [
+      "resources/js/components/TiptapEditor.vue",
+      "resources/js/components/JspreadsheetComponent.vue",
+      "resources/js/components/fileManager/DirectoryTree.vue",
+      "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.vue",
+      "resources/js/components/intermedieri/TogglePredat.vue",
+      "resources/js/components/DatePicker.vue"
+    ],
+    "file": "assets/app-81a26e51.js",
     "isEntry": true,
     "src": "resources/js/app.js"
+  },
+  "resources/js/components/DatePicker.css": {
+    "file": "assets/DatePicker-3bf3781e.css",
+    "src": "resources/js/components/DatePicker.css"
+  },
+  "resources/js/components/DatePicker.vue": {
+    "css": [
+      "assets/DatePicker-3bf3781e.css"
+    ],
+    "file": "assets/DatePicker-020de8a3.js",
+    "imports": [
+      "resources/js/app.js",
+      "__plugin-vue_export-helper-c27b6911.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/components/DatePicker.vue"
+  },
+  "resources/js/components/JspreadsheetComponent.css": {
+    "file": "assets/JspreadsheetComponent-2623a89e.css",
+    "src": "resources/js/components/JspreadsheetComponent.css"
+  },
+  "resources/js/components/JspreadsheetComponent.vue": {
+    "css": [
+      "assets/JspreadsheetComponent-2623a89e.css"
+    ],
+    "file": "assets/JspreadsheetComponent-7c0b550a.js",
+    "imports": [
+      "resources/js/app.js",
+      "__plugin-vue_export-helper-c27b6911.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/components/JspreadsheetComponent.vue"
+  },
+  "resources/js/components/TiptapEditor.css": {
+    "file": "assets/TiptapEditor-c427340f.css",
+    "src": "resources/js/components/TiptapEditor.css"
+  },
+  "resources/js/components/TiptapEditor.vue": {
+    "css": [
+      "assets/TiptapEditor-c427340f.css"
+    ],
+    "file": "assets/TiptapEditor-efdc093a.js",
+    "imports": [
+      "resources/js/app.js",
+      "__plugin-vue_export-helper-c27b6911.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/components/TiptapEditor.vue"
+  },
+  "resources/js/components/fileManager/DirectoryTree.css": {
+    "file": "assets/DirectoryTree-8d647b14.css",
+    "src": "resources/js/components/fileManager/DirectoryTree.css"
+  },
+  "resources/js/components/fileManager/DirectoryTree.vue": {
+    "css": [
+      "assets/DirectoryTree-8d647b14.css"
+    ],
+    "file": "assets/DirectoryTree-41b6582f.js",
+    "imports": [
+      "resources/js/app.js",
+      "__plugin-vue_export-helper-c27b6911.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/components/fileManager/DirectoryTree.vue"
+  },
+  "resources/js/components/intermedieri/TogglePredat.css": {
+    "file": "assets/TogglePredat-65267045.css",
+    "src": "resources/js/components/intermedieri/TogglePredat.css"
+  },
+  "resources/js/components/intermedieri/TogglePredat.vue": {
+    "css": [
+      "assets/TogglePredat-65267045.css"
+    ],
+    "file": "assets/TogglePredat-fd42fd4d.js",
+    "imports": [
+      "resources/js/app.js",
+      "__plugin-vue_export-helper-c27b6911.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/components/intermedieri/TogglePredat.vue"
+  },
+  "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.css": {
+    "file": "assets/InlineObservatiiEditor-4365ca00.css",
+    "src": "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.css"
+  },
+  "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.vue": {
+    "css": [
+      "assets/InlineObservatiiEditor-4365ca00.css"
+    ],
+    "file": "assets/InlineObservatiiEditor-cf950fca.js",
+    "imports": [
+      "resources/js/app.js",
+      "__plugin-vue_export-helper-c27b6911.js"
+    ],
+    "isDynamicEntry": true,
+    "src": "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.vue"
   },
   "resources/sass/app.scss": {
     "file": "assets/app-67dcdfd2.css",
