@@ -145,6 +145,75 @@ class ImpersonationTest extends TestCase
         ]);
     }
 
+    public function test_impersonation_index_shows_only_active_accounts(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+
+        User::factory()->create([
+            'name' => 'Active Account',
+            'activ' => 1,
+        ]);
+
+        User::factory()->create([
+            'name' => 'Inactive Account',
+            'activ' => 0,
+        ]);
+
+        $response = $this->actingAs($superAdmin)->get(route('tech.impersonation.index'));
+
+        $response->assertOk();
+        $response->assertSee('Active Account');
+        $response->assertDontSee('Inactive Account');
+    }
+
+    public function test_user_four_can_access_impersonation_without_super_admin_role(): void
+    {
+        User::factory()->count(3)->create();
+
+        $userFour = User::factory()->create([
+            'name' => 'Trusted Operator',
+        ]);
+
+        $this->assertSame(4, $userFour->id);
+
+        $response = $this->actingAs($userFour)->get(route('tech.impersonation.index'));
+
+        $response->assertOk();
+        $response->assertSee('Impersonare utilizatori');
+
+        $restrictedResponse = $this->actingAs($userFour)->get(route('tech.migrations.index'));
+        $restrictedResponse->assertForbidden();
+    }
+
+    public function test_user_four_cannot_impersonate_super_account(): void
+    {
+        $superAccount = User::factory()->create([
+            'name' => 'Andrei Dima',
+        ]);
+
+        User::factory()->count(2)->create();
+
+        $userFour = User::factory()->create([
+            'name' => 'Trusted Operator',
+        ]);
+
+        $this->assertSame(1, $superAccount->id);
+        $this->assertSame(4, $userFour->id);
+
+        $response = $this->actingAs($userFour)->get(route('tech.impersonation.index'));
+
+        $response->assertOk();
+        $response->assertDontSee($superAccount->name);
+
+        $attemptResponse = $this->actingAs($userFour)->post(route('tech.impersonation.start'), [
+            'user_id' => $superAccount->id,
+        ]);
+
+        $attemptResponse->assertRedirect(route('tech.impersonation.index'));
+        $attemptResponse->assertSessionHas('impersonation_status', 'Nu poți impersona acest cont.');
+        $this->assertAuthenticatedAs($userFour);
+    }
+
     private function createSuperAdmin(): User
     {
         $role = Role::firstOrCreate(

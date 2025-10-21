@@ -15,8 +15,15 @@ class ImpersonationController extends Controller
     {
         $search = trim((string) $request->input('search', ''));
 
+        $currentUser = $request->user();
+        $restrictedTargetIds = $this->restrictedTargetIdsForUser($currentUser);
+
         $users = User::query()
             ->with('roles')
+            ->where('activ', 1)
+            ->when(! empty($restrictedTargetIds), function ($query) use ($restrictedTargetIds) {
+                $query->whereNotIn('id', $restrictedTargetIds);
+            })
             ->when($search !== '', function ($query) use ($search) {
                 $query->where(function ($subQuery) use ($search) {
                     $subQuery->where('name', 'like', '%' . $search . '%')
@@ -45,11 +52,18 @@ class ImpersonationController extends Controller
 
         $targetUser = User::query()->findOrFail($validated['user_id']);
         $currentUser = $request->user();
+        $restrictedTargetIds = $this->restrictedTargetIdsForUser($currentUser);
 
         if ($currentUser && $targetUser->is($currentUser)) {
             return redirect()
                 ->route('tech.impersonation.index')
                 ->with('impersonation_status', 'Ești deja autentificat ca acest utilizator.');
+        }
+
+        if (in_array($targetUser->id, $restrictedTargetIds, true)) {
+            return redirect()
+                ->route('tech.impersonation.index')
+                ->with('impersonation_status', 'Nu poți impersona acest cont.');
         }
 
         $request->session()->put('impersonated_by', $currentUser?->id);
@@ -83,5 +97,22 @@ class ImpersonationController extends Controller
         Auth::logout();
 
         return redirect('/');
+    }
+
+    /**
+     * Determine which target accounts are off-limits for the impersonating user.
+     *
+     * @return array<int>
+     */
+    private function restrictedTargetIdsForUser(?User $currentUser): array
+    {
+        if (! $currentUser) {
+            return [];
+        }
+
+        return match ((int) $currentUser->id) {
+            4 => [1],
+            default => [],
+        };
     }
 }
