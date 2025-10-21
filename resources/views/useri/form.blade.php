@@ -12,6 +12,7 @@
         @php
             $allowSuperAdminSelection = $user && $user->exists && $user->hasRole('super-admin');
             $availableRoles = $roles ?? collect();
+            $availablePermissions = $permissions ?? collect();
 
             if ($availableRoles instanceof \Illuminate\Support\Collection) {
                 if (! $allowSuperAdminSelection) {
@@ -21,12 +22,32 @@
                 if ($availableRoles->isEmpty()) {
                     $availableRoles = \App\Models\Role::query()
                         ->when(! $allowSuperAdminSelection, fn ($query) => $query->where('slug', '!=', 'super-admin'))
+                        ->with('permissions')
                         ->orderBy('id')
                         ->get();
                 }
             }
 
-            $selectedRole = old('role', $user->primary_role_id);
+            if (! $availablePermissions instanceof \Illuminate\Support\Collection) {
+                $availablePermissions = collect();
+            }
+
+            $selectedRoles = collect(old('roles', $user->roles->pluck('id')->all()))
+                ->map(fn ($value) => (int) $value)
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $selectedPermissions = collect(old('permissions', $user->permissions->pluck('id')->all()))
+                ->map(fn ($value) => (int) $value)
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $permissionGroups = $availablePermissions->groupBy('module');
+            $permissionDefinitions = collect(config('permissions.modules', []));
         @endphp
 
         <div class="row mb-0">
@@ -40,18 +61,7 @@
                     value="{{ old('name', $user->name) }}"
                     required>
             </div>
-            <div class="col-lg-3 mb-4">
-                <label for="role" class="mb-0 ps-3">Rol<span class="text-danger">*</span></label>
-                <select class="form-select bg-white rounded-3 {{ $errors->has('role') ? 'is-invalid' : '' }}" name="role" required>
-                    <option value="" {{ $selectedRole ? '' : 'selected' }}></option>
-                    @foreach ($availableRoles as $roleOption)
-                        <option value="{{ $roleOption->id }}" {{ (string) $selectedRole === (string) $roleOption->id ? 'selected' : '' }}>
-                            {{ $roleOption->name ?? \App\Models\User::LEGACY_ROLE_LABELS[$roleOption->id] ?? $roleOption->slug }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-6 mb-4">
                 <div class="text-center">
                     <label class="mb-0 ps-3">Cont activ<span class="text-danger">*</span></label>
                     <div class="d-flex py-1 justify-content-center">
@@ -88,6 +98,107 @@
                     value="{{ old('telefon', $user->telefon) }}"
                     required>
             </div>
+        </div>
+        <div class="row mb-0">
+            <div class="col-lg-6 mb-4">
+                <label class="mb-0 ps-3">Roluri<span class="text-danger">*</span></label>
+                <div class="border rounded-3 p-3 bg-white {{ $errors->has('roles') || $errors->has('roles.*') ? 'border-danger' : '' }}">
+                    @forelse ($availableRoles as $roleOption)
+                        @php
+                            $roleId = (int) ($roleOption->id ?? 0);
+                            $roleLabel = $roleOption->name ?? \App\Models\User::LEGACY_ROLE_LABELS[$roleId] ?? ($roleOption->slug ? ucwords(str_replace(['-', '_'], ' ', $roleOption->slug)) : '');
+                        @endphp
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="roles[]"
+                                    value="{{ $roleId }}"
+                                    id="role_{{ $roleId }}"
+                                    {{ in_array($roleId, $selectedRoles, true) ? 'checked' : '' }}
+                                >
+                                <label class="form-check-label fw-semibold" for="role_{{ $roleId }}">
+                                    {{ $roleLabel }}
+                                </label>
+                            </div>
+                            @if (! empty($roleOption->description))
+                                <div class="ms-4 text-muted small">{{ $roleOption->description }}</div>
+                            @endif
+                            @if ($roleOption->relationLoaded('permissions') && $roleOption->permissions && $roleOption->permissions->isNotEmpty())
+                                <div class="ms-4 mt-2">
+                                    <small class="text-muted">Permisiuni implicite:</small>
+                                    <div class="d-flex flex-wrap gap-1 mt-1">
+                                        @foreach ($roleOption->permissions as $rolePermission)
+                                            @php
+                                                $permissionLabel = $rolePermission->name ?? ($rolePermission->module ? ucwords(str_replace(['-', '_'], ' ', $rolePermission->module)) : $rolePermission->slug);
+                                            @endphp
+                                            <span class="badge bg-light text-dark border">{{ $permissionLabel }}</span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @empty
+                        <p class="text-muted mb-0">Nu există roluri disponibile.</p>
+                    @endforelse
+                </div>
+                @error('roles')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+                @error('roles.*')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-lg-6 mb-4">
+                <label class="mb-0 ps-3">Permisiuni suplimentare</label>
+                <div class="border rounded-3 p-3 bg-white {{ $errors->has('permissions') || $errors->has('permissions.*') ? 'border-danger' : '' }}">
+                    @forelse ($permissionGroups as $module => $modulePermissions)
+                        @php
+                            $moduleDetails = $permissionDefinitions->get($module, []);
+                            $moduleName = $moduleDetails['name'] ?? ucwords(str_replace(['-', '_'], ' ', (string) $module));
+                            $moduleDescription = $moduleDetails['description'] ?? null;
+                        @endphp
+                        <div class="mb-3">
+                            <div class="fw-semibold">{{ $moduleName }}</div>
+                            @if ($moduleDescription)
+                                <div class="small text-muted">{{ $moduleDescription }}</div>
+                            @endif
+                            <div class="mt-2">
+                                @foreach ($modulePermissions as $permission)
+                                    @php
+                                        $permissionId = (int) ($permission->id ?? 0);
+                                        $permissionLabel = $permission->name ?? ucwords(str_replace(['-', '_'], ' ', (string) $permission->slug));
+                                    @endphp
+                                    <div class="form-check form-switch">
+                                        <input
+                                            class="form-check-input"
+                                            type="checkbox"
+                                            name="permissions[]"
+                                            value="{{ $permissionId }}"
+                                            id="permission_{{ $permissionId }}"
+                                            {{ in_array($permissionId, $selectedPermissions, true) ? 'checked' : '' }}
+                                        >
+                                        <label class="form-check-label" for="permission_{{ $permissionId }}">
+                                            {{ $permissionLabel }}
+                                        </label>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-muted mb-0">Nu există permisiuni configurate.</p>
+                    @endforelse
+                </div>
+                @error('permissions')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+                @error('permissions.*')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                @enderror
+            </div>
+        </div>
+        <div class="row mb-0">
             <div class="col-lg-6 mb-4">
                 <label for="password" class="mb-0 ps-3">Parola</label>
                     <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" autocomplete="new-password"
