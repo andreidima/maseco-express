@@ -16,22 +16,21 @@ import '../css/andrei.css'
  * to use in your application's views. An example is included for you.
  */
 
-import { createApp } from 'vue';
+import { createApp, defineAsyncComponent } from 'vue';
 
-// Import other components
-import VueDatepickerNext from './components/DatePicker.vue';
-import TiptapEditor from './components/TiptapEditor.vue'; // Import your Tiptap component
-import TogglePredat from './components/intermedieri/TogglePredat.vue';
-import InlineObservatiiEditor from './components/keyPerformanceIndicators/InlineObservatiiEditor.vue';
-import DirectoryTree from './components/fileManager/DirectoryTree.vue';
-import JspreadsheetComponent from './components/JspreadsheetComponent.vue';
+const AsyncTiptapEditor = defineAsyncComponent(() => import('./components/TiptapEditor.vue'));
+const AsyncJspreadsheet = defineAsyncComponent(() => import('./components/JspreadsheetComponent.vue'));
+const AsyncDirectoryTree = defineAsyncComponent(() => import('./components/fileManager/DirectoryTree.vue'));
+const AsyncInlineObservatiiEditor = defineAsyncComponent(() => import('./components/keyPerformanceIndicators/InlineObservatiiEditor.vue'));
+const AsyncTogglePredat = defineAsyncComponent(() => import('./components/intermedieri/TogglePredat.vue'));
+const AsyncDatepicker = defineAsyncComponent(() => import('./components/DatePicker.vue'));
 
 // Create Vue app
 const app = createApp({});
 
 // Register components globally (optional but recommended for reuse)
-app.component('VueDatepickerNext', VueDatepickerNext);
-// app.component('TiptapEditor', TiptapEditor);
+app.component('VueDatepickerNext', AsyncDatepicker);
+// app.component('TiptapEditor', AsyncTiptapEditor);
 
 /**
  * The following block of code may be used to automatically register your
@@ -58,7 +57,7 @@ if (document.getElementById('app') != null) {
 
 // App pentru DatePicker
 const datePicker = createApp({});
-datePicker.component('vue-datepicker-next', VueDatepickerNext);
+datePicker.component('vue-datepicker-next', AsyncDatepicker);
 if (document.getElementById('datePicker') != null) {
     datePicker.mount('#datePicker');
 }
@@ -343,7 +342,7 @@ const clickOutside = {
 };
 
 formularComanda.directive("clickOut", clickOutside);
-formularComanda.component('vue-datepicker-next', VueDatepickerNext);
+formularComanda.component('vue-datepicker-next', AsyncDatepicker);
 
 if (document.getElementById('formularComanda') != null) {
     formularComanda.mount('#formularComanda');
@@ -463,7 +462,7 @@ const mementoAlerte = createApp({
         },
     }
 });
-mementoAlerte.component('vue-datepicker-next', VueDatepickerNext);
+mementoAlerte.component('vue-datepicker-next', AsyncDatepicker);
 if (document.getElementById('mementoAlerte') != null) {
     mementoAlerte.mount('#mementoAlerte');
 }
@@ -795,7 +794,7 @@ const creareFactura = createApp({
 });
 
 creareFactura.directive("clickOut", clickOutside);
-creareFactura.component('vue-datepicker-next', VueDatepickerNext);
+creareFactura.component('vue-datepicker-next', AsyncDatepicker);
 if (document.getElementById('creareFactura') != null) {
     creareFactura.mount('#creareFactura');
 }
@@ -968,7 +967,7 @@ const wysiwyg = createApp({
         }
     },
 });
-wysiwyg.component('TiptapEditor', TiptapEditor);
+wysiwyg.component('TiptapEditor', AsyncTiptapEditor);
 if (document.getElementById('wysiwyg') != null) {
     wysiwyg.mount('#wysiwyg');
 }
@@ -985,13 +984,13 @@ const facturaMemento = createApp({
     }
 });
 
-facturaMemento.component('vue-datepicker-next', VueDatepickerNext);
+facturaMemento.component('vue-datepicker-next', AsyncDatepicker);
 if (document.getElementById('facturaMemento') != null) {
     facturaMemento.mount('#facturaMemento');
 }
 
 const tabelIntermedieri = createApp({});
-tabelIntermedieri.component('toggle-predat', TogglePredat);
+tabelIntermedieri.component('toggle-predat', AsyncTogglePredat);
 if (document.getElementById('tabelIntermedieri') != null) {
     tabelIntermedieri.mount('#tabelIntermedieri');
 }
@@ -1011,19 +1010,19 @@ const keyPerformanceIndicatorsMainPage = createApp({
         },
     },
 });
-keyPerformanceIndicatorsMainPage.component('inline-observatii-editor', InlineObservatiiEditor);
+keyPerformanceIndicatorsMainPage.component('inline-observatii-editor', AsyncInlineObservatiiEditor);
 if (document.getElementById('keyPerformanceIndicatorsMainPage') != null) {
     keyPerformanceIndicatorsMainPage.mount('#keyPerformanceIndicatorsMainPage');
 }
 
 const directoryTree = createApp({});
-directoryTree.component('directory-tree', DirectoryTree);
+directoryTree.component('directory-tree', AsyncDirectoryTree);
 if (document.getElementById('directoryTree') != null) {
     directoryTree.mount('#directoryTree');
 }
 
 const excel = createApp({});
-excel.component('jspreadsheet-component', JspreadsheetComponent);
+excel.component('jspreadsheet-component', AsyncJspreadsheet);
 if (document.getElementById('excel') != null) {
     excel.mount('#excel');
 }
