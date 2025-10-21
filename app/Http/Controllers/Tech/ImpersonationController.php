@@ -57,6 +57,10 @@ class ImpersonationController extends Controller
 
         Auth::login($targetUser);
 
+        if ($targetUser->hasRole('mecanic')) {
+            return redirect()->route('service-masini.index');
+        }
+
         return redirect('/');
     }
 
