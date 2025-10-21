@@ -37,7 +37,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('access-tech-impersonation', function ($user) {
             // Allow specific trusted accounts to reach the impersonation tool even if they
             // are not full Super Admins.
-            if (in_array((int) $user->id, [1, 2], true)) {
+            if (in_array((int) $user->id, [1, 4], true)) {
                 return true;
             }
 

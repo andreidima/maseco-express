@@ -166,20 +166,20 @@ class ImpersonationTest extends TestCase
         $response->assertDontSee('Inactive Account');
     }
 
-    public function test_user_two_can_access_impersonation_without_super_admin_role(): void
+    public function test_user_four_can_access_impersonation_without_super_admin_role(): void
     {
-        $userTwo = User::factory()->create([
-            'id' => 2,
+        $userFour = User::factory()->create([
+            'id' => 4,
             'name' => 'Trusted Operator',
             'activ' => 1,
         ]);
 
-        $response = $this->actingAs($userTwo)->get(route('tech.impersonation.index'));
+        $response = $this->actingAs($userFour)->get(route('tech.impersonation.index'));
 
         $response->assertOk();
         $response->assertSee('Impersonare utilizatori');
 
-        $restrictedResponse = $this->actingAs($userTwo)->get(route('tech.migrations.index'));
+        $restrictedResponse = $this->actingAs($userFour)->get(route('tech.migrations.index'));
         $restrictedResponse->assertForbidden();
     }
 
