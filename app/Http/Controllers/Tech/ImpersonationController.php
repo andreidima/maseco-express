@@ -24,7 +24,7 @@ class ImpersonationController extends Controller
                 });
             })
             ->orderBy('activ', 'desc')
-            ->orderBy('role')
+            ->orderByPrimaryRole()
             ->orderBy('name')
             ->simplePaginate(100)
             ->appends(['search' => $search]);

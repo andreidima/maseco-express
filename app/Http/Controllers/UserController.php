@@ -30,7 +30,7 @@ class UserController extends Controller
             })
             ->where('id', '>', 1) // se sare pentru user 1, Andrei Dima
             ->orderBy('activ', 'desc')
-            ->orderBy('role')
+            ->orderByPrimaryRole()
             ->orderBy('name')
             ->simplePaginate(100);
 
@@ -61,13 +61,11 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $data = $this->validateRequest($request);
-        $roleId = (int) $data['role'];
-        $userData = Arr::except($data, ['role']);
-        $userData['password'] = Hash::make($userData['password']);
+        $roleId = (int) Arr::pull($data, 'role');
+        $data['password'] = Hash::make($data['password']);
 
-        $user = DB::transaction(function () use ($userData, $roleId) {
-            $user = User::create($userData);
-            $user->forceFill(['role' => $roleId])->save();
+        $user = DB::transaction(function () use ($data, $roleId) {
+            $user = User::create($data);
             $user->roles()->sync([$roleId]);
 
             return $user;
@@ -117,17 +115,18 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $data = $this->validateRequest($request, $user);
-        $roleId = (int) $data['role'];
-        $userData = Arr::except($data, ['role']);
+        $roleId = (int) Arr::pull($data, 'role');
 
-        if (is_null($userData['password'])){
-            unset($userData['password']);
-        } else {
-            $userData['password'] = Hash::make($userData['password']);
+        if (array_key_exists('password', $data)) {
+            if (is_null($data['password'])) {
+                unset($data['password']);
+            } else {
+                $data['password'] = Hash::make($data['password']);
+            }
         }
-        DB::transaction(function () use ($user, $userData, $roleId) {
-            $user->update($userData);
-            $user->forceFill(['role' => $roleId])->save();
+
+        DB::transaction(function () use ($user, $data, $roleId) {
+            $user->update($data);
             $user->roles()->sync([$roleId]);
         });
 

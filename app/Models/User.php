@@ -4,9 +4,11 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 
@@ -37,6 +39,12 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'role',
+    ];
+
+    protected $appends = [
+        'primary_role_id',
+        'display_role_name',
     ];
 
     /**
@@ -85,6 +93,22 @@ class User extends Authenticatable
     public function assignRole(Role $role): void
     {
         $this->roles()->syncWithoutDetaching([$role->id]);
+    }
+
+    public function scopeOrderByPrimaryRole(Builder $query, string $direction = 'asc'): Builder
+    {
+        $primaryRoleNameSubquery = DB::table('role_user')
+            ->selectRaw('COALESCE(roles.name, roles.slug, CAST(role_user.role_id AS CHAR))')
+            ->join('roles', 'roles.id', '=', 'role_user.role_id')
+            ->whereColumn('role_user.user_id', 'users.id')
+            ->orderBy('role_user.created_at')
+            ->orderBy('role_user.id')
+            ->limit(1);
+
+        return $query->orderByRaw(
+            'COALESCE((' . $primaryRoleNameSubquery->toSql() . '), ?) ' . $direction,
+            array_merge($primaryRoleNameSubquery->getBindings(), [''])
+        );
     }
 
     protected function resolvePrimaryRole(): ?Role
