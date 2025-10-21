@@ -39,7 +39,16 @@ class ImpersonationTest extends TestCase
     public function test_impersonated_user_can_stop_impersonation(): void
     {
         $superAdmin = $this->createSuperAdmin();
+        $mechanicRole = Role::firstOrCreate(
+            ['slug' => 'mecanic'],
+            [
+                'name' => 'Mecanic',
+                'description' => 'Acces limitat la gestiune piese și service mașini.',
+            ]
+        );
+
         $targetUser = User::factory()->create();
+        $targetUser->assignRole($mechanicRole);
 
         $this->actingAs($superAdmin)->post(route('tech.impersonation.start'), [
             'user_id' => $targetUser->id,
@@ -53,6 +62,30 @@ class ImpersonationTest extends TestCase
         $this->assertAuthenticatedAs($superAdmin);
         $this->assertNull(session('impersonated_by'));
         $this->assertNull(session('impersonated_by_name'));
+    }
+
+    public function test_impersonating_mechanic_redirects_to_service_module(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+        $mechanicRole = Role::firstOrCreate(
+            ['slug' => 'mecanic'],
+            [
+                'name' => 'Mecanic',
+                'description' => 'Acces limitat la gestiune piese și service mașini.',
+            ]
+        );
+
+        $mechanicUser = User::factory()->create();
+        $mechanicUser->assignRole($mechanicRole);
+
+        $response = $this->actingAs($superAdmin)->post(route('tech.impersonation.start'), [
+            'user_id' => $mechanicUser->id,
+        ]);
+
+        $response->assertRedirect(route('service-masini.index'));
+        $this->assertAuthenticatedAs($mechanicUser);
+        $this->assertSame($superAdmin->id, session('impersonated_by'));
+        $this->assertSame($superAdmin->name, session('impersonated_by_name'));
     }
 
     public function test_impersonation_index_orders_by_primary_role_then_name(): void

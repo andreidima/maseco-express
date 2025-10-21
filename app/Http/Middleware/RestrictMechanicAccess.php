@@ -30,6 +30,7 @@ class RestrictMechanicAccess
             'service-masini.entries.update',
             'service-masini.entries.destroy',
             'service-masini.export',
+            'impersonation.stop',
             'logout',
         ];
 
