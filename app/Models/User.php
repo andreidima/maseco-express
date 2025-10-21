@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
@@ -17,6 +18,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected ?Role $cachedPrimaryRole = null;
+    protected ?Collection $cachedPermissions = null;
 
     /**
      * The attributes that are mass assignable.
@@ -57,9 +59,14 @@ class User extends Authenticatable
         'activ' => 'integer',
     ];
 
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class)->withTimestamps();
+    }
+
+    public function permissions(): BelongsToMany
+    {
+        return $this->belongsToMany(Permission::class)->withTimestamps();
     }
 
     public function hasRole(int|string $role): bool
@@ -93,6 +100,39 @@ class User extends Authenticatable
     public function assignRole(Role $role): void
     {
         $this->roles()->syncWithoutDetaching([$role->id]);
+
+        $this->unsetRelation('roles');
+        $this->loadMissing('roles.permissions');
+
+        $this->forgetCachedPermissions();
+    }
+
+    public function syncPermissions($permissions): void
+    {
+        $ids = $this->resolvePermissionIds($permissions);
+
+        $this->permissions()->sync($ids);
+
+        $this->forgetCachedPermissions();
+    }
+
+    public function hasPermission(int|string|Permission $permission): bool
+    {
+        $permissions = $this->getCachedPermissions();
+
+        if (is_int($permission)) {
+            return $permissions->contains(fn (Permission $assigned) => (int) $assigned->id === $permission);
+        }
+
+        if ($permission instanceof Permission) {
+            return $permissions->contains(fn (Permission $assigned) => (int) $assigned->id === (int) $permission->id);
+        }
+
+        $needle = (string) $permission;
+
+        return $permissions->contains(function (Permission $assigned) use ($needle) {
+            return $assigned->slug === $needle || $assigned->module === $needle || $assigned->name === $needle;
+        });
     }
 
     public function scopeOrderByPrimaryRole(Builder $query, string $direction = 'asc'): Builder
@@ -109,6 +149,70 @@ class User extends Authenticatable
             'COALESCE((' . $primaryRoleNameSubquery->toSql() . '), ?) ' . $direction,
             array_merge($primaryRoleNameSubquery->getBindings(), [''])
         );
+    }
+
+    protected function resolvePermissionIds($permissions): array
+    {
+        $collection = collect($permissions instanceof Collection ? $permissions : (array) $permissions);
+
+        if ($collection->isEmpty()) {
+            return [];
+        }
+
+        return $collection
+            ->map(function ($permission) {
+                if ($permission instanceof Permission) {
+                    return (int) $permission->id;
+                }
+
+                if (is_numeric($permission)) {
+                    return (int) $permission;
+                }
+
+                return Permission::query()
+                    ->where('slug', (string) $permission)
+                    ->orWhere('module', (string) $permission)
+                    ->value('id');
+            })
+            ->filter()
+            ->map(fn ($value) => (int) $value)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    protected function getCachedPermissions(): Collection
+    {
+        if ($this->cachedPermissions instanceof Collection) {
+            return $this->cachedPermissions;
+        }
+
+        $this->loadMissing(['permissions', 'roles.permissions']);
+
+        $direct = $this->permissions instanceof Collection ? $this->permissions : collect();
+        $rolePermissions = $this->roles instanceof Collection
+            ? $this->roles
+                ->filter()
+                ->flatMap(function (Role $role) {
+                    $role->loadMissing('permissions');
+
+                    return $role->permissions instanceof Collection ? $role->permissions : collect();
+                })
+            : collect();
+
+        $this->cachedPermissions = $direct
+            ->merge($rolePermissions)
+            ->filter()
+            ->unique('id')
+            ->values();
+
+        return $this->cachedPermissions;
+    }
+
+    public function forgetCachedPermissions(): void
+    {
+        $this->cachedPermissions = null;
+        $this->unsetRelation('permissions');
     }
 
     protected function resolvePrimaryRole(): ?Role
