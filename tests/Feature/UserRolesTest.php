@@ -64,6 +64,61 @@ class UserRolesTest extends TestCase
         $this->assertFalse($user->fresh()->hasRole('super-admin'));
     }
 
+    public function test_user_creation_syncs_primary_role_and_hides_legacy_column(): void
+    {
+        [, $adminRole, $mechanicRole] = $this->createCoreRoles();
+
+        $admin = $this->createUserWithRole($adminRole);
+
+        $response = $this->actingAs($admin)->post('/utilizatori', [
+            'name' => 'Mechanic User',
+            'email' => 'mechanic@example.com',
+            'telefon' => '0123456789',
+            'role' => $mechanicRole->id,
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'activ' => 1,
+        ]);
+
+        $response->assertRedirect('/utilizatori');
+
+        $createdUser = User::where('email', 'mechanic@example.com')->firstOrFail();
+
+        $this->assertSame($mechanicRole->id, $createdUser->primary_role_id);
+        $this->assertTrue($createdUser->hasRole($mechanicRole->id));
+        $this->assertNull($createdUser->getRawOriginal('role'));
+    }
+
+    public function test_user_update_syncs_primary_role_and_hides_legacy_column(): void
+    {
+        [, $adminRole, $mechanicRole] = $this->createCoreRoles();
+
+        $admin = $this->createUserWithRole($adminRole);
+        $user = $this->createUserWithRole($mechanicRole, [
+            'name' => 'Legacy Mechanic',
+            'email' => 'legacy-mechanic@example.com',
+        ]);
+
+        $response = $this->actingAs($admin)->put("/utilizatori/{$user->id}", [
+            'id' => $user->id,
+            'name' => 'Legacy Mechanic',
+            'email' => 'legacy-mechanic@example.com',
+            'telefon' => '0123456789',
+            'role' => $adminRole->id,
+            'password' => null,
+            'password_confirmation' => null,
+            'activ' => 1,
+        ]);
+
+        $response->assertRedirect('/utilizatori');
+
+        $updatedUser = $user->fresh();
+
+        $this->assertSame($adminRole->id, $updatedUser->primary_role_id);
+        $this->assertTrue($updatedUser->hasRole($adminRole->id));
+        $this->assertNull($updatedUser->getRawOriginal('role'));
+    }
+
     public function test_user_without_pivot_role_cannot_access_user_management(): void
     {
         [$superAdminRole, $adminRole] = $this->createCoreRoles();
@@ -238,7 +293,6 @@ class UserRolesTest extends TestCase
     {
         $user = User::factory()->create($attributes);
         $user->assignRole($role);
-        $user->forceFill(['role' => $role->id])->save();
 
         return $user->fresh();
     }
