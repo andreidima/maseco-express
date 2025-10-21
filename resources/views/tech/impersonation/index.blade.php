@@ -50,7 +50,7 @@
                 <div class="alert alert-warning mx-3" role="alert">
                     <i class="fa-solid fa-triangle-exclamation me-1"></i>
                     Ești autentificat temporar ca <strong>{{ auth()->user()->name }}</strong>.
-                    Folosește butonul „Stop impersonating” din meniu pentru a reveni la contul tău.
+                    Folosește opțiunea „Oprește impersonarea” din meniul „Logout” pentru a reveni la contul tău.
                 </div>
             @endif
 

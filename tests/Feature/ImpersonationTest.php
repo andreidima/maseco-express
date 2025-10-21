@@ -145,6 +145,44 @@ class ImpersonationTest extends TestCase
         ]);
     }
 
+    public function test_impersonation_index_shows_only_active_accounts(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+
+        User::factory()->create([
+            'name' => 'Active Account',
+            'activ' => 1,
+        ]);
+
+        User::factory()->create([
+            'name' => 'Inactive Account',
+            'activ' => 0,
+        ]);
+
+        $response = $this->actingAs($superAdmin)->get(route('tech.impersonation.index'));
+
+        $response->assertOk();
+        $response->assertSee('Active Account');
+        $response->assertDontSee('Inactive Account');
+    }
+
+    public function test_user_two_can_access_impersonation_without_super_admin_role(): void
+    {
+        $userTwo = User::factory()->create([
+            'id' => 2,
+            'name' => 'Trusted Operator',
+            'activ' => 1,
+        ]);
+
+        $response = $this->actingAs($userTwo)->get(route('tech.impersonation.index'));
+
+        $response->assertOk();
+        $response->assertSee('Impersonare utilizatori');
+
+        $restrictedResponse = $this->actingAs($userTwo)->get(route('tech.migrations.index'));
+        $restrictedResponse->assertForbidden();
+    }
+
     private function createSuperAdmin(): User
     {
         $role = Role::firstOrCreate(
