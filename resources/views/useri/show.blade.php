@@ -30,10 +30,41 @@
                             </tr>
                             <tr>
                                 <td class="pe-4">
-                                    Rol
+                                    Roluri
                                 </td>
                                 <td>
-                                    {{ $user->display_role_name }}
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @forelse ($user->roles as $role)
+                                            @php
+                                                $roleLabel = $role->name ?? \App\Models\User::LEGACY_ROLE_LABELS[$role->id] ?? ($role->slug ? ucwords(str_replace(['-', '_'], ' ', $role->slug)) : '');
+                                            @endphp
+                                            <span class="badge bg-primary">{{ $roleLabel }}</span>
+                                        @empty
+                                            <span class="text-muted">-</span>
+                                        @endforelse
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="pe-4">
+                                    Permisiuni directe
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        @php
+                                            $uniquePermissions = $user->permissions?->unique('id');
+                                        @endphp
+                                        @if ($uniquePermissions && $uniquePermissions->isNotEmpty())
+                                            @foreach ($uniquePermissions as $permission)
+                                                @php
+                                                    $permissionLabel = $permission->name ?? ucwords(str_replace(['-', '_'], ' ', (string) $permission->module));
+                                                @endphp
+                                                <span class="badge bg-secondary">{{ $permissionLabel }}</span>
+                                            @endforeach
+                                        @else
+                                            <span class="text-muted">-</span>
+                                        @endif
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
