@@ -1157,7 +1157,6 @@ DROP TABLE IF EXISTS `users`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `users` (
   `id` bigint unsigned NOT NULL AUTO_INCREMENT,
-  `role` tinyint(1) DEFAULT NULL COMMENT '1-admin | 2-dispecer',
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `telefon` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
