@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Schema\Blueprint;
@@ -37,13 +38,13 @@ class UserRolesTest extends TestCase
             'name' => 'Test User',
             'email' => 'test@example.com',
             'telefon' => '0123456789',
-            'role' => $superAdminRole->id,
+            'roles' => [$superAdminRole->id],
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'activ' => 1,
         ]);
 
-        $response->assertSessionHasErrors('role');
+        $response->assertSessionHasErrors('roles.0');
         $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
 
         $user = $this->createUserWithRole($adminRole, [
@@ -56,11 +57,11 @@ class UserRolesTest extends TestCase
             'name' => 'Existing User',
             'email' => 'existing@example.com',
             'telefon' => '0123456789',
-            'role' => $superAdminRole->id,
+            'roles' => [$superAdminRole->id],
             'activ' => 1,
         ]);
 
-        $updateResponse->assertSessionHasErrors('role');
+        $updateResponse->assertSessionHasErrors('roles.0');
         $this->assertFalse($user->fresh()->hasRole('super-admin'));
     }
 
@@ -74,7 +75,7 @@ class UserRolesTest extends TestCase
             'name' => 'Mechanic User',
             'email' => 'mechanic@example.com',
             'telefon' => '0123456789',
-            'role' => $mechanicRole->id,
+            'roles' => [$mechanicRole->id],
             'password' => 'password123',
             'password_confirmation' => 'password123',
             'activ' => 1,
@@ -87,6 +88,50 @@ class UserRolesTest extends TestCase
         $this->assertSame($mechanicRole->id, $createdUser->primary_role_id);
         $this->assertTrue($createdUser->hasRole($mechanicRole->id));
         $this->assertNull($createdUser->getRawOriginal('role'));
+    }
+
+    public function test_user_creation_syncs_multiple_roles_and_permissions(): void
+    {
+        [, $adminRole, $mechanicRole] = $this->createCoreRoles();
+
+        $dispatcherRole = Role::firstOrCreate(
+            ['slug' => 'dispecer'],
+            [
+                'name' => 'Dispecer',
+                'description' => 'Acces specific dispecerilor.',
+            ]
+        );
+
+        $admin = $this->createUserWithRole($adminRole);
+
+        $dashboardPermission = Permission::where('module', 'dashboard')->firstOrFail();
+        $documentsPermission = Permission::where('module', 'documente')->firstOrFail();
+
+        $response = $this->actingAs($admin)->post('/utilizatori', [
+            'name' => 'Advanced User',
+            'email' => 'advanced@example.com',
+            'telefon' => '0123456789',
+            'roles' => [$adminRole->id, $dispatcherRole->id, $mechanicRole->id],
+            'permissions' => [$dashboardPermission->id, $documentsPermission->id],
+            'password' => 'password123',
+            'password_confirmation' => 'password123',
+            'activ' => 1,
+        ]);
+
+        $response->assertRedirect('/utilizatori');
+
+        $createdUser = User::where('email', 'advanced@example.com')->with(['roles', 'permissions'])->firstOrFail();
+
+        $this->assertCount(3, $createdUser->roles);
+        $this->assertEqualsCanonicalizing(
+            [$adminRole->id, $dispatcherRole->id, $mechanicRole->id],
+            $createdUser->roles->pluck('id')->map(fn ($value) => (int) $value)->all()
+        );
+        $this->assertEqualsCanonicalizing(
+            [$dashboardPermission->id, $documentsPermission->id],
+            $createdUser->permissions->pluck('id')->map(fn ($value) => (int) $value)->all()
+        );
+        $this->assertContains($createdUser->primary_role_id, [$adminRole->id, $dispatcherRole->id, $mechanicRole->id]);
     }
 
     public function test_user_update_syncs_primary_role_and_hides_legacy_column(): void
@@ -104,7 +149,7 @@ class UserRolesTest extends TestCase
             'name' => 'Legacy Mechanic',
             'email' => 'legacy-mechanic@example.com',
             'telefon' => '0123456789',
-            'role' => $adminRole->id,
+            'roles' => [$adminRole->id],
             'password' => null,
             'password_confirmation' => null,
             'activ' => 1,
@@ -117,6 +162,60 @@ class UserRolesTest extends TestCase
         $this->assertSame($adminRole->id, $updatedUser->primary_role_id);
         $this->assertTrue($updatedUser->hasRole($adminRole->id));
         $this->assertNull($updatedUser->getRawOriginal('role'));
+    }
+
+    public function test_user_update_syncs_multiple_roles_and_permissions(): void
+    {
+        [, $adminRole, $mechanicRole] = $this->createCoreRoles();
+
+        $dispatcherRole = Role::firstOrCreate(
+            ['slug' => 'dispecer'],
+            [
+                'name' => 'Dispecer',
+                'description' => 'Acces specific dispecerilor.',
+            ]
+        );
+
+        $admin = $this->createUserWithRole($adminRole);
+        $user = $this->createUserWithRole($mechanicRole, [
+            'name' => 'Advanced Existing',
+            'email' => 'advanced-existing@example.com',
+        ]);
+
+        $initialPermission = Permission::where('module', 'gestiune-piese')->firstOrFail();
+        $user->syncPermissions([$initialPermission->id]);
+
+        $documentsPermission = Permission::where('module', 'documente')->firstOrFail();
+        $techToolsPermission = Permission::where('module', 'tech-tools')->firstOrFail();
+
+        $response = $this->actingAs($admin)->put("/utilizatori/{$user->id}", [
+            'id' => $user->id,
+            'name' => 'Advanced Existing',
+            'email' => 'advanced-existing@example.com',
+            'telefon' => '0123456789',
+            'roles' => [$dispatcherRole->id, $adminRole->id],
+            'permissions' => [$documentsPermission->id, $techToolsPermission->id],
+            'password' => null,
+            'password_confirmation' => null,
+            'activ' => 1,
+        ]);
+
+        $response->assertRedirect('/utilizatori');
+
+        $updatedUser = $user->fresh()->load(['roles', 'permissions']);
+
+        $this->assertEqualsCanonicalizing(
+            [$dispatcherRole->id, $adminRole->id],
+            $updatedUser->roles->pluck('id')->map(fn ($value) => (int) $value)->all()
+        );
+        $this->assertEqualsCanonicalizing(
+            [$documentsPermission->id, $techToolsPermission->id],
+            $updatedUser->permissions->pluck('id')->map(fn ($value) => (int) $value)->all()
+        );
+        $this->assertNotContains(
+            $initialPermission->id,
+            $updatedUser->permissions->pluck('id')->map(fn ($value) => (int) $value)->all()
+        );
     }
 
     public function test_user_without_pivot_role_cannot_access_user_management(): void

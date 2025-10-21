@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
+use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 
@@ -24,7 +25,7 @@ class UserController extends Controller
 
         $searchNume = $request->searchNume;
 
-        $useri = User::with('roles')
+        $useri = User::with(['roles', 'permissions'])
             ->when($searchNume, function ($query, $searchNume) {
                 return $query->where('name', 'like', '%' . $searchNume . '%');
             })
@@ -48,8 +49,9 @@ class UserController extends Controller
 
         $user = new User();
         $roles = $this->availableRolesForUser();
+        $permissions = $this->availablePermissionsForUser();
 
-        return view('useri.create', compact('user', 'roles'));
+        return view('useri.create', compact('user', 'roles', 'permissions'));
     }
 
     /**
@@ -61,12 +63,14 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $data = $this->validateRequest($request);
-        $roleId = (int) Arr::pull($data, 'role');
+        $roleIds = $this->normalizeIds(Arr::pull($data, 'roles', []));
+        $permissionIds = $this->normalizeIds(Arr::pull($data, 'permissions', []));
         $data['password'] = Hash::make($data['password']);
 
-        $user = DB::transaction(function () use ($data, $roleId) {
+        $user = DB::transaction(function () use ($data, $roleIds, $permissionIds) {
             $user = User::create($data);
-            $user->roles()->sync([$roleId]);
+            $user->roles()->sync($roleIds);
+            $user->permissions()->sync($permissionIds);
 
             return $user;
         });
@@ -84,7 +88,7 @@ class UserController extends Controller
     {
         $request->session()->get('userReturnUrl') ?? $request->session()->put('userReturnUrl', url()->previous());
 
-        $user->load('roles');
+        $user->load(['roles', 'permissions']);
 
         return view('useri.show', compact('user'));
     }
@@ -99,10 +103,11 @@ class UserController extends Controller
     {
         $request->session()->get('userReturnUrl') ?? $request->session()->put('userReturnUrl', url()->previous());
 
-        $user->load('roles');
+        $user->load(['roles', 'permissions']);
         $roles = $this->availableRolesForUser($user);
+        $permissions = $this->availablePermissionsForUser($user);
 
-        return view('useri.edit', compact('user', 'roles'));
+        return view('useri.edit', compact('user', 'roles', 'permissions'));
     }
 
     /**
@@ -115,7 +120,8 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $data = $this->validateRequest($request, $user);
-        $roleId = (int) Arr::pull($data, 'role');
+        $roleIds = $this->normalizeIds(Arr::pull($data, 'roles', []));
+        $permissionIds = $this->normalizeIds(Arr::pull($data, 'permissions', []));
 
         if (array_key_exists('password', $data)) {
             if (is_null($data['password'])) {
@@ -125,9 +131,10 @@ class UserController extends Controller
             }
         }
 
-        DB::transaction(function () use ($user, $data, $roleId) {
+        DB::transaction(function () use ($user, $data, $roleIds, $permissionIds) {
             $user->update($data);
-            $user->roles()->sync([$roleId]);
+            $user->roles()->sync($roleIds);
+            $user->permissions()->sync($permissionIds);
         });
 
         return redirect($request->session()->get('userReturnUrl') ?? ('/utilizatori'))->with('status', 'Utilizatorul „' . $user->name . '” a fost modificat cu succes!');
@@ -166,14 +173,25 @@ class UserController extends Controller
 // dd($request, $request->isMethod('post'));
         return $request->validate(
             [
-                'role' => [
+                'roles' => [
                     'required',
+                    'array',
+                    'min:1',
+                ],
+                'roles.*' => [
                     'integer',
+                    'distinct',
                     Rule::exists('roles', 'id')->where(function ($query) use ($allowSuperAdmin) {
                         if (! $allowSuperAdmin) {
                             $query->where('slug', '!=', 'super-admin');
                         }
                     }),
+                ],
+                'permissions' => ['nullable', 'array'],
+                'permissions.*' => [
+                    'integer',
+                    'distinct',
+                    Rule::exists('permissions', 'id'),
                 ],
                 'name' => 'required|max:255',
                 'telefon' => 'nullable|max:50',
@@ -190,12 +208,30 @@ class UserController extends Controller
 
     protected function availableRolesForUser(?User $user = null)
     {
-        $query = Role::query()->orderBy('id');
+        $query = Role::query()->with('permissions')->orderBy('id');
 
         if ($user && $user->hasRole('super-admin')) {
             return $query->get();
         }
 
         return $query->where('slug', '!=', 'super-admin')->get();
+    }
+
+    protected function availablePermissionsForUser(?User $user = null)
+    {
+        return Permission::query()
+            ->orderBy('module')
+            ->orderBy('name')
+            ->get();
+    }
+
+    protected function normalizeIds($ids): array
+    {
+        return collect($ids)
+            ->map(fn ($value) => (int) $value)
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
     }
 }

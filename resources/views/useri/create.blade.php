@@ -21,6 +21,7 @@
                             @include ('useri.form', [
                                 'user' => $user,
                                 'roles' => $roles,
+                                'permissions' => $permissions,
                                 'buttonText' => 'Adaugă utilizator'
                             ])
                     </form>
