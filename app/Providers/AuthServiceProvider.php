@@ -33,5 +33,15 @@ class AuthServiceProvider extends ServiceProvider
             // Tech menu (migration tooling, etc.) stays available during rollouts.
             return $user->id === 1 || $user->hasRole('super-admin');
         });
+
+        Gate::define('access-tech-impersonation', function ($user) {
+            // Allow specific trusted accounts to reach the impersonation tool even if they
+            // are not full Super Admins.
+            if (in_array((int) $user->id, [1, 2], true)) {
+                return true;
+            }
+
+            return $user->hasRole('super-admin');
+        });
     }
 }

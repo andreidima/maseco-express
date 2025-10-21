@@ -86,15 +86,19 @@ Route::group(['middleware' => ['auth', 'restrict-mechanic-access']], function ()
 
     Route::prefix('tech')
         ->name('tech.')
-        ->middleware('role:super-admin')
         ->group(function () {
-            Route::get('impersonation', [ImpersonationController::class, 'index'])->name('impersonation.index');
-            Route::post('impersonation', [ImpersonationController::class, 'store'])->name('impersonation.start');
-            Route::get('migrations', [MigrationCenterController::class, 'index'])->name('migrations.index');
-            Route::post('migrations/preview', [MigrationCenterController::class, 'preview'])->name('migrations.preview');
-            Route::post('migrations/run', [MigrationCenterController::class, 'run'])->name('migrations.run');
-            Route::get('seeders', [SeederCenterController::class, 'index'])->name('seeders.index');
-            Route::post('seeders/run', [SeederCenterController::class, 'run'])->name('seeders.run');
+            Route::middleware('can:access-tech-impersonation')->group(function () {
+                Route::get('impersonation', [ImpersonationController::class, 'index'])->name('impersonation.index');
+                Route::post('impersonation', [ImpersonationController::class, 'store'])->name('impersonation.start');
+            });
+
+            Route::middleware('role:super-admin')->group(function () {
+                Route::get('migrations', [MigrationCenterController::class, 'index'])->name('migrations.index');
+                Route::post('migrations/preview', [MigrationCenterController::class, 'preview'])->name('migrations.preview');
+                Route::post('migrations/run', [MigrationCenterController::class, 'run'])->name('migrations.run');
+                Route::get('seeders', [SeederCenterController::class, 'index'])->name('seeders.index');
+                Route::post('seeders/run', [SeederCenterController::class, 'run'])->name('seeders.run');
+            });
         });
 
     Route::post('impersonation/stop', [ImpersonationController::class, 'destroy'])
