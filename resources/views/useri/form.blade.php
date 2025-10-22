@@ -156,35 +156,31 @@
                     @forelse ($permissionGroups as $module => $modulePermissions)
                         @php
                             $moduleDetails = $permissionDefinitions->get($module, []);
-                            $moduleName = $moduleDetails['name'] ?? ucwords(str_replace(['-', '_'], ' ', (string) $module));
                             $moduleDescription = $moduleDetails['description'] ?? null;
                         @endphp
-                        <div class="mb-3">
-                            <div class="fw-semibold">{{ $moduleName }}</div>
-                            @if ($moduleDescription)
-                                <div class="small text-muted">{{ $moduleDescription }}</div>
-                            @endif
-                            <div class="mt-2">
-                                @foreach ($modulePermissions as $permission)
-                                    @php
-                                        $permissionId = (int) ($permission->id ?? 0);
-                                        $permissionLabel = $permission->name ?? ucwords(str_replace(['-', '_'], ' ', (string) $permission->slug));
-                                    @endphp
-                                    <div class="form-check form-switch">
-                                        <input
-                                            class="form-check-input"
-                                            type="checkbox"
-                                            name="permissions[]"
-                                            value="{{ $permissionId }}"
-                                            id="permission_{{ $permissionId }}"
-                                            {{ in_array($permissionId, $selectedPermissions, true) ? 'checked' : '' }}
-                                        >
-                                        <label class="form-check-label" for="permission_{{ $permissionId }}">
-                                            {{ $permissionLabel }}
-                                        </label>
-                                    </div>
-                                @endforeach
-                            </div>
+                        <div class="mb-4">
+                            @foreach ($modulePermissions as $permission)
+                                @php
+                                    $permissionId = (int) ($permission->id ?? 0);
+                                    $permissionLabel = $permission->name ?? ucwords(str_replace(['-', '_'], ' ', (string) $permission->slug));
+                                @endphp
+                                <div class="form-check form-switch mb-3">
+                                    <input
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        name="permissions[]"
+                                        value="{{ $permissionId }}"
+                                        id="permission_{{ $permissionId }}"
+                                        {{ in_array($permissionId, $selectedPermissions, true) ? 'checked' : '' }}
+                                    >
+                                    <label class="form-check-label fw-semibold" for="permission_{{ $permissionId }}">
+                                        {{ $permissionLabel }}
+                                    </label>
+                                    @if ($moduleDescription)
+                                        <div class="text-muted small ms-5">{{ $moduleDescription }}</div>
+                                    @endif
+                                </div>
+                            @endforeach
                         </div>
                     @empty
                         <p class="text-muted mb-0">Nu există permisiuni configurate.</p>

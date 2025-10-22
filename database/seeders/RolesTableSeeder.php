@@ -26,7 +26,7 @@ class RolesTableSeeder extends Seeder
             ['slug' => 'admin'],
             [
                 'name' => 'Administrator',
-                'description' => 'Legacy administrator role mapped from users.role = 1.',
+                'description' => 'Acces complet la configurarea aplicației și administrarea utilizatorilor.',
             ]
         );
 
@@ -34,7 +34,7 @@ class RolesTableSeeder extends Seeder
             ['slug' => 'dispecer'],
             [
                 'name' => 'Dispecer',
-                'description' => 'Legacy dispatcher role mapped from users.role = 2.',
+                'description' => 'Coordonează comenzile și distribuie cursele către șoferi.',
             ]
         );
 
@@ -42,7 +42,7 @@ class RolesTableSeeder extends Seeder
             ['slug' => 'mecanic'],
             [
                 'name' => 'Mecanic',
-                'description' => 'Acces limitat la gestiunea pieselor și service-ul mașinilor.',
+                'description' => 'Gestionează intervențiile tehnice și starea vehiculelor.',
             ]
         );
 

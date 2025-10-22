@@ -91,18 +91,6 @@
 
         $primaryNavLinks = array_values(array_filter([
             [
-                'permission' => 'gestiune-piese',
-                'href' => route('gestiune-piese.index'),
-                'icon' => 'fa-solid fa-boxes-stacked',
-                'label' => 'Gestiune piese',
-            ],
-            [
-                'permission' => 'service-masini',
-                'href' => route('service-masini.index'),
-                'icon' => 'fa-solid fa-screwdriver-wrench',
-                'label' => 'Service mașini',
-            ],
-            [
                 'permission' => 'documente',
                 'href' => '/file-manager-personalizat',
                 'icon' => 'fa-solid fa-folder',
@@ -442,7 +430,7 @@
                                 <li class="nav-item d-flex align-items-center me-3 gap-2">
                                     <span class="badge bg-warning text-dark text-wrap">
                                         <i class="fa-solid fa-user-secret me-1"></i>
-                                        Impersonare: {{ auth()->user()->name }}
+                                        Impersonate
                                     </span>
                                 </li>
                             @endif
