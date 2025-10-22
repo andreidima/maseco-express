@@ -26,7 +26,7 @@
                 </div>
             </form>
         </div>
-        @can('documente-admin')
+        @can('documente-manage')
             <div class="col-lg-3 text-end">
                 <div class="mb-2">
                     <a class="btn btn-sm btn-success text-white border border-dark rounded-3"
@@ -132,7 +132,7 @@
                                         /
                                     @endforeach
                                 </th>
-                                @can('documente-admin')
+                                @can('documente-manage')
                                     <th class="text-end">Acțiuni</th>
                                 @endcan
                             </tr>
@@ -149,7 +149,7 @@
                                             <i class="fas fa-folder text-warning"></i> {{ $dirName }}
                                         </a>
                                     </td>
-                                    @can('documente-admin')
+                                    @can('documente-manage')
                                         <td>
                                             <div class="d-flex justify-content-end">
                                                 <!-- Modify button  -->
@@ -200,7 +200,7 @@
                                             <i class="fas fa-file"></i> {{ $fileName }}
                                         </a>
                                     </td>
-                                    @can('documente-admin')
+                                    @can('documente-manage')
                                         <td>
                                             <div class="d-flex justify-content-end">
                                                 <!-- Modify button -->
@@ -248,7 +248,7 @@
     </div>
 </div>
 
-@can('documente-admin')
+@can('documente-manage')
 {{-- ======================= Modale ======================= --}}
 
 {{-- Crează Director Modal --}}

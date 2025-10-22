@@ -38,7 +38,7 @@ class DocumentWordPolicy
     public function update(User $user, DocumentWord $documentWord): Response
     {
         // Check if the document has admin-only rights and the user isn't an admin
-        if ($documentWord->nivel_acces === 1 && ! $user->hasPermission('documente-admin')) {
+        if ($documentWord->nivel_acces === 1 && ! $user->hasPermission('documente-manage')) {
             return Response::deny('Nu ai drepturi să modifici acest document.');
         }
 

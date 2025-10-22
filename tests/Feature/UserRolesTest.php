@@ -349,7 +349,7 @@ class UserRolesTest extends TestCase
         [, , $mechanicRole] = $this->createCoreRoles();
 
         $documentsPermission = Permission::where('module', 'documente')->firstOrFail();
-        $adminDocumentsPermission = Permission::where('module', 'documente-admin')->firstOrFail();
+        $adminDocumentsPermission = Permission::where('module', 'documente-manage')->firstOrFail();
 
         $mechanic = $this->createUserWithRole($mechanicRole);
 
