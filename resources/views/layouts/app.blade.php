@@ -442,7 +442,7 @@
                                 <li class="nav-item d-flex align-items-center me-3 gap-2">
                                     <span class="badge bg-warning text-dark text-wrap">
                                         <i class="fa-solid fa-user-secret me-1"></i>
-                                        Impersonare: {{ auth()->user()->name }}
+                                        Impersonate
                                     </span>
                                 </li>
                             @endif
