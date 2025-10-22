@@ -105,7 +105,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
     Route::post('impersonation/stop', [ImpersonationController::class, 'destroy'])
-        ->middleware('permission:tech-tools')
+        ->middleware('can-stop-impersonation')
         ->name('impersonation.stop');
 
     Route::middleware('permission:documente')->group(function () {

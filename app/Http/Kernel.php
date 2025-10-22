@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         // Andrei
         'role' => \App\Http\Middleware\Role::class,
         'permission' => \App\Http\Middleware\EnsurePermission::class,
+        'can-stop-impersonation' => \App\Http\Middleware\EnsureCanStopImpersonation::class,
     ];
 }

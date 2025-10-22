@@ -33,8 +33,8 @@ class StatiePecoController extends Controller
         $totalCount = $statiiPeco->count();
 
         if ($request->action === "massDelete") {
-            // Check if the user is not admin and the document has just 'admin' rights
-            if (! auth()->user()->isAdministrator()) {
+            // Check if the user has the required permissions for mass deletion
+            if (! $request->user()?->hasPermission('comenzi')) {
                 abort(403, 'Unauthorized action.');
             }
 

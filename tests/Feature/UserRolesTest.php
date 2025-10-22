@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\DocumentWord;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
@@ -341,6 +342,51 @@ class UserRolesTest extends TestCase
         $adminResponse->assertOk();
         $adminResponse->assertSee('Factură', false);
         $adminResponse->assertSee('Facturi furnizori', false);
+    }
+
+    public function test_mechanic_with_document_permissions_gains_document_access(): void
+    {
+        [, , $mechanicRole] = $this->createCoreRoles();
+
+        $documentsPermission = Permission::where('module', 'documente')->firstOrFail();
+        $adminDocumentsPermission = Permission::where('module', 'documente-admin')->firstOrFail();
+
+        $mechanic = $this->createUserWithRole($mechanicRole);
+
+        $operatorDocument = DocumentWord::create([
+            'nume' => 'Manual Operator',
+            'nivel_acces' => 2,
+            'continut' => json_encode(['content' => 'operator']),
+        ]);
+
+        $adminDocument = DocumentWord::create([
+            'nume' => 'Procedura Administrativa',
+            'nivel_acces' => 1,
+            'continut' => json_encode(['content' => 'admin']),
+        ]);
+
+        $this->actingAs($mechanic)->get('/documente-word')->assertForbidden();
+
+        $mechanic->syncPermissions([$documentsPermission->id]);
+
+        $indexResponse = $this->actingAs($mechanic->fresh())->get('/documente-word');
+        $indexResponse->assertOk();
+        $indexResponse->assertSee($operatorDocument->nume, false);
+        $indexResponse->assertDontSee($adminDocument->nume, false);
+
+        $editResponse = $this->actingAs($mechanic->fresh())->get($adminDocument->path() . '/modifica');
+        $editResponse->assertForbidden();
+
+        $mechanic->syncPermissions([$documentsPermission->id, $adminDocumentsPermission->id]);
+
+        $indexResponse = $this->actingAs($mechanic->fresh())->get('/documente-word');
+        $indexResponse->assertOk();
+        $indexResponse->assertSee($operatorDocument->nume, false);
+        $indexResponse->assertSee($adminDocument->nume, false);
+
+        $editResponse = $this->actingAs($mechanic->fresh())->get($adminDocument->path() . '/modifica');
+        $editResponse->assertOk();
+        $editResponse->assertSee($adminDocument->nume, false);
     }
 
     public function test_primary_admin_user_is_not_mistaken_for_mechanic_when_role_is_missing(): void

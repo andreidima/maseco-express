@@ -79,9 +79,9 @@ class FileManagerPersonalizatController extends Controller
         return back()->with('status', 'Directorul „' . $request->numeDirector . '" a fost creat cu succes!');
     }
 
-    public function directorSterge($cale = null)
+    public function directorSterge(Request $request, $cale = null)
     {
-        if (! auth()->user()->isAdministrator()) {
+        if (! $request->user()?->hasPermission('documente')) {
             return back()->with('error', 'Nu aveți dreptul să ștergeti directoare! Contactați administratorul aplicației.');
         }
 
@@ -140,9 +140,9 @@ class FileManagerPersonalizatController extends Controller
         }
     }
 
-    public function fisierSterge($cale = null)
+    public function fisierSterge(Request $request, $cale = null)
     {
-        if (! auth()->user()->isAdministrator()) {
+        if (! $request->user()?->hasPermission('documente')) {
             return back()->with('error', 'Nu aveți dreptul să ștergeti fișiere! Contactați administratorul aplicației.');
         }
 
@@ -158,7 +158,7 @@ class FileManagerPersonalizatController extends Controller
 
     public function modificaCaleNume(Request $request)
     {
-        if (! auth()->user()->isAdministrator()) {
+        if (! $request->user()?->hasPermission('documente')) {
             return back()->with('error', 'Nu aveți dreptul de modificare! Contactați administratorul aplicației.');
         }
 

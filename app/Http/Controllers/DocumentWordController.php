@@ -27,8 +27,8 @@ class DocumentWordController extends Controller
             when($searchNume, function ($query, $searchNume) {
                 return $query->where('nume', 'like', '%' . $searchNume . '%');
             })
-            ->when(! auth()->user()->isAdministrator(), function ($query) {
-                // Non-admin users can see only "operator" documents
+            ->when(! $request->user()?->hasPermission('documente-admin'), function ($query) {
+                // Users without the admin document permission can see only "operator" documents
                 return $query->where('nivel_acces', 2);
             })
             ->orderBy('nume')

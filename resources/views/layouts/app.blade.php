@@ -286,14 +286,14 @@
                                         <i class="fa-solid fa-comment-sms me-1"></i>SMS trimise
                                     </a>
                                 </li>
-                                @if (auth()->user()->isAdministrator())
+                                @can('users')
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" href="{{ route('utilizatori.index') }}">
                                             <i class="fa-solid fa-users me-1"></i>Utilizatori
                                         </a>
                                     </li>
-                                @endif
+                                @endcan
                             </ul>
                         </li>
                         @canany(['access-tech', 'access-tech-impersonation'])
