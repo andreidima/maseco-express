@@ -3,67 +3,67 @@
 return [
     'modules' => [
         'dashboard' => [
-            'name' => 'Access Dashboard',
+            'name' => 'Acces Panou Principal',
             'description' => 'Vizualizează pagina principală și indicatorii generali.',
         ],
         'users' => [
-            'name' => 'Manage Users',
+            'name' => 'Gestionare Utilizatori',
             'description' => 'Acces la listarea și administrarea utilizatorilor.',
         ],
         'roles' => [
-            'name' => 'Manage Roles',
+            'name' => 'Gestionare Roluri',
             'description' => 'Configurează rolurile și accesul acestora.',
         ],
         'firme' => [
-            'name' => 'Manage Companies',
+            'name' => 'Gestionare Companii',
             'description' => 'Gestionează clienții, transportatorii și partenerii.',
         ],
         'camioane' => [
-            'name' => 'Manage Trucks',
+            'name' => 'Gestionare Camioane',
             'description' => 'Administrează flota de camioane și documentele aferente.',
         ],
         'locuri-operare' => [
-            'name' => 'Manage Operation Sites',
+            'name' => 'Gestionare Locații de Operare',
             'description' => 'Gestionează locațiile de operare și detaliile acestora.',
         ],
         'comenzi' => [
-            'name' => 'Manage Orders',
+            'name' => 'Gestionare Comenzi',
             'description' => 'Creează, actualizează și monitorizează comenzile.',
         ],
         'mesagerie' => [
-            'name' => 'Manage Messaging',
+            'name' => 'Gestionare Mesagerie',
             'description' => 'Acces la notificările și mesajele trimise.',
         ],
         'mementouri' => [
-            'name' => 'Manage Reminders',
+            'name' => 'Gestionare Mementouri',
             'description' => 'Administrează mementourile și alertele.',
         ],
         'documente' => [
-            'name' => 'Manage Documents',
+            'name' => 'Gestionare Documente',
             'description' => 'Acces la managerul de fișiere și documente interne.',
         ],
         'facturi' => [
-            'name' => 'Manage Invoices',
+            'name' => 'Gestionare Facturi',
             'description' => 'Gestionează facturile și scadențarele.',
         ],
         'facturi-furnizori' => [
-            'name' => 'Manage Supplier Invoices',
+            'name' => 'Gestionare Facturi Furnizori',
             'description' => 'Administrează facturile furnizorilor și plățile.',
         ],
         'service-masini' => [
-            'name' => 'Manage Vehicle Service',
+            'name' => 'Gestionare Service Auto',
             'description' => 'Gestionează operațiunile din service-ul mașinilor.',
         ],
         'gestiune-piese' => [
-            'name' => 'Manage Parts Inventory',
+            'name' => 'Gestionare Stoc Piese',
             'description' => 'Gestionează stocul de piese și ajustările acestuia.',
         ],
         'rapoarte' => [
-            'name' => 'View Reports',
+            'name' => 'Vizualizare Rapoarte',
             'description' => 'Acces la rapoartele și analizele aplicației.',
         ],
         'tech-tools' => [
-            'name' => 'Access Tech Tools',
+            'name' => 'Acces Instrumente Tehnice',
             'description' => 'Acces la instrumentele tehnice dedicate echipei interne.',
         ],
     ],
