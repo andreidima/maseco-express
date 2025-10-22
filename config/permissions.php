@@ -102,7 +102,6 @@ return [
             'mementouri',
             'documente',
             'facturi',
-            'facturi-furnizori',
             'rapoarte',
         ],
         'mecanic' => [
