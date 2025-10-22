@@ -41,8 +41,249 @@
         $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
         $impersonationActive = session()->has('impersonated_by');
         $impersonatorName = session('impersonated_by_name');
-        $isMechanic = auth()->user()->hasRole('mecanic');
-        $brandHref = $isMechanic ? route('gestiune-piese.index') : url('/');
+        $user = auth()->user();
+
+        $brandHref = url('/');
+        if ($user) {
+            if ($user->hasPermission('gestiune-piese')) {
+                $brandHref = route('gestiune-piese.index');
+            } elseif ($user->hasPermission('service-masini')) {
+                $brandHref = route('service-masini.index');
+            } elseif ($user->hasPermission('dashboard')) {
+                $brandHref = route('dashboard');
+            }
+        }
+
+        $prepareDropdown = function (array $items) use ($user) {
+            $filtered = array_values(array_filter($items, function ($item) use ($user) {
+                if (($item['type'] ?? 'link') === 'divider') {
+                    return true;
+                }
+
+                if (! isset($item['permission'])) {
+                    return true;
+                }
+
+                return $user && $user->hasPermission($item['permission']);
+            }));
+
+            while (! empty($filtered) && (($filtered[0]['type'] ?? 'link') === 'divider')) {
+                array_shift($filtered);
+            }
+
+            while (! empty($filtered) && ((end($filtered)['type'] ?? 'link') === 'divider')) {
+                array_pop($filtered);
+            }
+
+            $cleaned = [];
+            foreach ($filtered as $entry) {
+                if (($entry['type'] ?? 'link') === 'divider'
+                    && ! empty($cleaned)
+                    && (($cleaned[array_key_last($cleaned)]['type'] ?? 'link') === 'divider')) {
+                    continue;
+                }
+
+                $cleaned[] = $entry;
+            }
+
+            return $cleaned;
+        };
+
+        $primaryNavLinks = array_values(array_filter([
+            [
+                'permission' => 'gestiune-piese',
+                'href' => route('gestiune-piese.index'),
+                'icon' => 'fa-solid fa-boxes-stacked',
+                'label' => 'Gestiune piese',
+            ],
+            [
+                'permission' => 'service-masini',
+                'href' => route('service-masini.index'),
+                'icon' => 'fa-solid fa-screwdriver-wrench',
+                'label' => 'Service mașini',
+            ],
+            [
+                'permission' => 'documente',
+                'href' => '/file-manager-personalizat',
+                'icon' => 'fa-solid fa-folder',
+                'label' => null,
+                'title' => 'File Explorer',
+            ],
+            [
+                'permission' => 'dashboard',
+                'href' => '/acasa',
+                'icon' => 'fa-solid fa-house',
+                'label' => null,
+                'title' => 'Pagina principală',
+            ],
+            [
+                'permission' => 'comenzi',
+                'href' => '/comenzi',
+                'icon' => 'fa-solid fa-clipboard-list',
+                'label' => 'Comenzi',
+            ],
+        ], function ($link) use ($user) {
+            return ! isset($link['permission']) || ($user && $user->hasPermission($link['permission']));
+        }));
+
+        $resurseDropdownItems = $prepareDropdown([
+            [
+                'permission' => 'comenzi',
+                'href' => '/flota-statusuri',
+                'icon' => 'fa-solid fa-truck',
+                'label' => 'Flotă statusuri',
+                'target' => '_blank',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'comenzi',
+                'href' => '/flota-statusuri-c',
+                'icon' => 'fa-solid fa-truck',
+                'label' => 'Flotă statusuri C',
+                'target' => '_blank',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'service-masini',
+                'href' => '/masini-valabilitati',
+                'icon' => 'fa-solid fa-truck',
+                'label' => 'Mașini valabilități',
+                'target' => '_blank',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'comenzi',
+                'href' => '/oferte-curse',
+                'icon' => 'fa-solid fa-truck',
+                'label' => 'Oferte curse',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'firme',
+                'href' => '/firme/clienti',
+                'icon' => 'fa-solid fa-users',
+                'label' => 'Firme Clienți',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'firme',
+                'href' => '/firme/transportatori',
+                'icon' => 'fa-solid fa-people-carry-box',
+                'label' => 'Firme Transportatori',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'camioane',
+                'href' => '/camioane',
+                'icon' => 'fa-solid fa-truck',
+                'label' => 'Camioane',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'locuri-operare',
+                'href' => '/locuri-operare',
+                'icon' => 'fa-solid fa-location-dot',
+                'label' => 'Locuri de operare',
+            ],
+        ]);
+
+        $rapoarteDropdownItems = $prepareDropdown([
+            [
+                'permission' => 'rapoarte',
+                'href' => '/rapoarte/documente-transportatori',
+                'icon' => 'fa-solid fa-file',
+                'label' => 'Documente transportatori',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'comenzi',
+                'href' => '/intermedieri',
+                'icon' => 'fa-solid fa-file',
+                'label' => 'Intermedieri',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'rapoarte',
+                'href' => '/key-performance-indicators',
+                'icon' => 'fa-solid fa-chart-simple',
+                'label' => 'KPI',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'facturi',
+                'href' => '/facturi-scadente',
+                'icon' => 'fa-solid fa-file-invoice',
+                'label' => 'Facturi scadente',
+            ],
+        ]);
+
+        $utileDropdownItems = $prepareDropdown([
+            [
+                'permission' => 'mementouri',
+                'href' => '/mementouri/1/mementouri',
+                'icon' => 'fa-solid fa-bell',
+                'label' => 'Mementouri generale',
+            ],
+            [
+                'permission' => 'mementouri',
+                'href' => '/mementouri/2/mementouri',
+                'icon' => 'fa-solid fa-bell',
+                'label' => 'Mementouri rca + copii conforme',
+            ],
+            [
+                'permission' => 'mementouri',
+                'href' => '/mementouri/3/mementouri',
+                'icon' => 'fa-solid fa-bell',
+                'label' => 'Mementouri itp + rovinieta',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'comenzi',
+                'href' => '/statii-peco',
+                'icon' => 'fa-solid fa-gas-pump',
+                'label' => 'Stații peco',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'documente',
+                'href' => '/documente-word',
+                'icon' => 'fa-solid fa-file-word',
+                'label' => 'Documente word',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'facturi',
+                'href' => '/facturi',
+                'icon' => 'fa-solid fa-file-invoice',
+                'label' => 'Facturi',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'facturi-furnizori',
+                'href' => $facturiIndexUrl,
+                'icon' => 'fa-solid fa-file-invoice-dollar',
+                'label' => 'Facturi furnizori',
+            ],
+            [
+                'permission' => 'gestiune-piese',
+                'href' => route('gestiune-piese.index'),
+                'icon' => 'fa-solid fa-boxes-stacked',
+                'label' => 'Gestiune piese',
+            ],
+            [
+                'permission' => 'service-masini',
+                'href' => route('service-masini.index'),
+                'icon' => 'fa-solid fa-screwdriver-wrench',
+                'label' => 'Service mașini',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'mesagerie',
+                'href' => route('mesaje-trimise-sms.index'),
+                'icon' => 'fa-solid fa-comment-sms',
+                'label' => 'SMS trimise',
+            ],
+        ]);
     @endphp
     {{-- <div id="app"> --}}
     <header>
@@ -59,243 +300,97 @@
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
-                    @if ($isMechanic)
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        @foreach ($primaryNavLinks as $link)
                             <li class="nav-item me-3">
-                                <a class="nav-link active" href="{{ route('gestiune-piese.index') }}">
-                                    <i class="fa-solid fa-boxes-stacked me-1"></i>Gestiune piese
+                                <a class="nav-link active" href="{{ $link['href'] }}" aria-current="page"
+                                    @if (! empty($link['title'])) title="{{ $link['title'] }}" @endif>
+                                    <i class="{{ $link['icon'] }}{{ ! empty($link['label']) ? ' me-1' : '' }}"></i>
+                                    @if (! empty($link['label']))
+                                        {{ $link['label'] }}
+                                    @else
+                                        &nbsp;
+                                    @endif
                                 </a>
                             </li>
-                            <li class="nav-item me-3">
-                                <a class="nav-link active" href="{{ route('service-masini.index') }}">
-                                    <i class="fa-solid fa-screwdriver-wrench me-1"></i>Service mașini
+                        @endforeach
+
+                        @if (! empty($resurseDropdownItems))
+                            <li class="nav-item me-3 dropdown">
+                                <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-list-ul me-1"></i>
+                                    Resurse
                                 </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                                    @foreach ($resurseDropdownItems as $item)
+                                        @if (($item['type'] ?? 'link') === 'divider')
+                                            <li><hr class="dropdown-divider"></li>
+                                        @else
+                                            <li>
+                                                <a class="dropdown-item" href="{{ $item['href'] }}" @if (! empty($item['target'])) target="{{ $item['target'] }}" @endif>
+                                                    <i class="{{ $item['icon'] }} me-1"></i>{{ $item['label'] }}
+                                                </a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
                             </li>
-                        </ul>
-                    @else
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        {{-- <li class="nav-item me-3 dropdown">
-                            <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-folder"></i>&nbsp;
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li>
-                                    <a class="dropdown-item" href="/file-manager" title="File Manager">
-                                        File Manager
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ $facturiIndexUrl }}">
-                                        <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/file-manager-personalizat" title="File Explorer">
-                                        File Explorer
-                                    </a>
-                                </li>
-                            </ul>
-                        </li> --}}
-                        <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/file-manager-personalizat" title="File Explorer">
-                                <i class="fa-solid fa-folder"></i>&nbsp;
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/acasa" title="Pagina principală">
-                                <i class="fa-solid fa-house"></i>&nbsp;
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/comenzi">
-                                <i class="fa-solid fa-clipboard-list me-1"></i>Comenzi
-                            </a>
-                        </li>
-                        {{-- <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/comenzi-statusuri">
-                                <i class="fa-solid fa-circle-check me-1"></i>Statusuri
-                            </a>
-                        </li> --}}
-                        <li class="nav-item me-3 dropdown">
-                            <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-list-ul me-1"></i>
-                                Resurse
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li>
-                                    <a class="dropdown-item" href="/flota-statusuri" target="_blank">
-                                        <i class="fa-solid fa-truck me-1"></i>Flotă statusuri
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/flota-statusuri-c" target="_blank">
-                                        <i class="fa-solid fa-truck me-1"></i>Flotă statusuri C
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/masini-valabilitati" target="_blank">
-                                        <i class="fa-solid fa-truck me-1"></i>Mașini valabilități
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/oferte-curse">
-                                        <i class="fa-solid fa-truck me-1"></i>Oferte curse
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/firme/clienti">
-                                        <i class="fa-solid fa-users me-1"></i>Firme Clienți
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/firme/transportatori">
-                                        <i class="fa-solid fa-people-carry-box me-1"></i>Firme Transportatori
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/camioane">
-                                        <i class="fa-solid fa-truck me-1"></i>Camioane
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/locuri-operare">
-                                        <i class="fa-solid fa-location-dot me-1"></i>Locuri de operare
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        {{-- <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/camioane">
-                                <i class="fa-solid fa-truck me-1"></i>Camioane
-                            </a>
-                        </li>
-                        <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/locuri-operare">
-                                <i class="fa-solid fa-location-dot me-1"></i>Locuri de operare
-                            </a>
-                        </li> --}}
-                        {{-- <li class="nav-item me-3">
-                            <a class="nav-link active" aria-current="page" href="/facturi">
-                                <i class="fa-solid fa-file-invoice me-1"></i>Facturi
-                            </a>
-                        </li> --}}
-                        <li class="nav-item me-3 dropdown">
-                            <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fa-solid fa-table-list me-1"></i>
-                                Rapoarte
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                {{-- Removed on 18.02.2025 - A more complet raport can be found on intermedieri --}}
-                                {{-- <li>
-                                    <a class="dropdown-item" href="/rapoarte/incasari-utilizatori">
-                                        <i class="fa-solid fa-chart-pie me-1"></i>Încasări utilizatori
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li> --}}
-                                <li>
-                                    <a class="dropdown-item" href="/rapoarte/documente-transportatori">
-                                        <i class="fa-solid fa-file me-1"></i>Documente transportatori
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/intermedieri">
-                                        <i class="fa-solid fa-file me-1"></i>Intermedieri
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/key-performance-indicators">
-                                        <i class="fa-solid fa-chart-simple me-1"></i>KPI
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/facturi-scadente">
-                                        <i class="fa-solid fa-file-invoice"></i> Facturi scadente
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="nav-item me-3 dropdown">
-                            <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-bars me-1"></i>
-                                Utile
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li>
-                                    <a class="dropdown-item" href="/mementouri/1/mementouri">
-                                        <i class="fa-solid fa-bell me-1"></i>Mementouri generale
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="/mementouri/2/mementouri">
-                                        <i class="fa-solid fa-bell me-1"></i>Mementouri rca + copii conforme
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="/mementouri/3/mementouri">
-                                        <i class="fa-solid fa-bell me-1"></i>Mementouri itp + rovinieta
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/statii-peco">
-                                        <i class="fa-solid fa-gas-pump me-1"></i>Stații peco
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/documente-word">
-                                        <i class="fa-solid fa-file-word me-1"></i>Documente word
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="/facturi">
-                                        <i class="fa-solid fa-file-invoice me-1"></i>Facturi
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ $facturiIndexUrl }}">
-                                        <i class="fa-solid fa-file-invoice-dollar me-1"></i>Facturi furnizori
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('gestiune-piese.index') }}">
-                                        <i class="fa-solid fa-boxes-stacked me-1"></i>Gestiune piese
-                                    </a>
-                                </li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('service-masini.index') }}">
-                                        <i class="fa-solid fa-screwdriver-wrench me-1"></i>Service mașini
-                                    </a>
-                                </li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" href="{{ route('mesaje-trimise-sms.index') }}">
-                                        <i class="fa-solid fa-comment-sms me-1"></i>SMS trimise
-                                    </a>
-                                </li>
-                                @can('users')
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('utilizatori.index') }}">
-                                            <i class="fa-solid fa-users me-1"></i>Utilizatori
-                                        </a>
-                                    </li>
-                                @endcan
-                            </ul>
-                        </li>
+                        @endif
+
+                        @if (! empty($rapoarteDropdownItems))
+                            <li class="nav-item me-3 dropdown">
+                                <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarReports" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-table-list me-1"></i>
+                                    Rapoarte
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarReports">
+                                    @foreach ($rapoarteDropdownItems as $item)
+                                        @if (($item['type'] ?? 'link') === 'divider')
+                                            <li><hr class="dropdown-divider"></li>
+                                        @else
+                                            <li>
+                                                <a class="dropdown-item" href="{{ $item['href'] }}">
+                                                    <i class="{{ $item['icon'] }} me-1"></i>{{ $item['label'] }}
+                                                </a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </li>
+                        @endif
+
+                        @if (! empty($utileDropdownItems) || Gate::check('users'))
+                            <li class="nav-item me-3 dropdown">
+                                <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarUtile" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-bars me-1"></i>
+                                    Utile
+                                </a>
+                                <ul class="dropdown-menu" aria-labelledby="navbarUtile">
+                                    @foreach ($utileDropdownItems as $item)
+                                        @if (($item['type'] ?? 'link') === 'divider')
+                                            <li><hr class="dropdown-divider"></li>
+                                        @else
+                                            <li>
+                                                <a class="dropdown-item" href="{{ $item['href'] }}">
+                                                    <i class="{{ $item['icon'] }} me-1"></i>{{ $item['label'] }}
+                                                </a>
+                                            </li>
+                                        @endif
+                                    @endforeach
+                                    @can('users')
+                                        @if (! empty($utileDropdownItems))
+                                            <li><hr class="dropdown-divider"></li>
+                                        @endif
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('utilizatori.index') }}">
+                                                <i class="fa-solid fa-users me-1"></i>Utilizatori
+                                            </a>
+                                        </li>
+                                    @endcan
+                                </ul>
+                            </li>
+                        @endif
+
                         @canany(['access-tech', 'access-tech-impersonation'])
                             <li class="nav-item me-3 dropdown">
                                 <a class="nav-link active dropdown-toggle" href="about:blank" id="navbarTech" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -325,8 +420,7 @@
                                 </ul>
                             </li>
                         @endcanany
-                        </ul>
-                    @endif
+                    </ul>
 
                     <!-- Right Side Of Navbar -->
                     <ul class="navbar-nav ms-auto">
