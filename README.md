@@ -101,6 +101,17 @@ php artisan facturi-furnizori:organize-calup-files --dry-run
 php artisan db:seed --class=RolesTableSeeder --force
 ```
 
+## Permission pivot cleanup (March 2025)
+
+Follow this order in production to realign cached permissions with the updated role defaults:
+
+1. **Run the migrations** so the new cleanup executes: `php artisan migrate --force`.
+2. **Reseed the roles** to pull the revised role → permission map into the database: `php artisan db:seed --class=RolesTableSeeder --force`.
+3. **Reset caches** so Laravel reads the refreshed config and permission metadata: `php artisan optimize:clear`.
+4. **Warm the caches** that matter for permissions before releasing to users (optional but recommended): `php artisan config:cache` followed by `php artisan route:cache`.
+
+After these steps the `permission_user` pivot remains empty by design, and each user's effective access comes from the roles assigned in `role_user`.
+
 ## Tech toolkit rollout checklist
 
 Follow these steps the first time you deploy the new Tech → Migration Center tooling:

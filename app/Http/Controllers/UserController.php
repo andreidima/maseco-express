@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
-use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 
@@ -25,7 +24,7 @@ class UserController extends Controller
 
         $searchNume = $request->searchNume;
 
-        $useri = User::with(['roles', 'permissions'])
+        $useri = User::with(['roles'])
             ->when($searchNume, function ($query, $searchNume) {
                 return $query->where('name', 'like', '%' . $searchNume . '%');
             })
@@ -49,10 +48,9 @@ class UserController extends Controller
 
         $user = new User();
         $roles = $this->availableRolesForUser();
-        $permissions = $this->availablePermissionsForUser();
         $moduleRoleMatrix = $this->moduleRoleMatrix();
 
-        return view('useri.create', compact('user', 'roles', 'permissions', 'moduleRoleMatrix'));
+        return view('useri.create', compact('user', 'roles', 'moduleRoleMatrix'));
     }
 
     /**
@@ -65,13 +63,11 @@ class UserController extends Controller
     {
         $data = $this->validateRequest($request);
         $roleIds = $this->normalizeIds(Arr::pull($data, 'roles', []));
-        $permissionIds = $this->normalizeIds(Arr::pull($data, 'permissions', []));
         $data['password'] = Hash::make($data['password']);
 
-        $user = DB::transaction(function () use ($data, $roleIds, $permissionIds) {
+        $user = DB::transaction(function () use ($data, $roleIds) {
             $user = User::create($data);
             $user->roles()->sync($roleIds);
-            $user->permissions()->sync($permissionIds);
 
             return $user;
         });
@@ -89,7 +85,7 @@ class UserController extends Controller
     {
         $request->session()->get('userReturnUrl') ?? $request->session()->put('userReturnUrl', url()->previous());
 
-        $user->load(['roles', 'permissions']);
+        $user->load(['roles']);
 
         return view('useri.show', compact('user'));
     }
@@ -104,12 +100,11 @@ class UserController extends Controller
     {
         $request->session()->get('userReturnUrl') ?? $request->session()->put('userReturnUrl', url()->previous());
 
-        $user->load(['roles', 'permissions']);
+        $user->load(['roles']);
         $roles = $this->availableRolesForUser($user);
-        $permissions = $this->availablePermissionsForUser($user);
         $moduleRoleMatrix = $this->moduleRoleMatrix();
 
-        return view('useri.edit', compact('user', 'roles', 'permissions', 'moduleRoleMatrix'));
+        return view('useri.edit', compact('user', 'roles', 'moduleRoleMatrix'));
     }
 
     /**
@@ -123,7 +118,6 @@ class UserController extends Controller
     {
         $data = $this->validateRequest($request, $user);
         $roleIds = $this->normalizeIds(Arr::pull($data, 'roles', []));
-        $permissionIds = $this->normalizeIds(Arr::pull($data, 'permissions', []));
 
         if (array_key_exists('password', $data)) {
             if (is_null($data['password'])) {
@@ -133,10 +127,9 @@ class UserController extends Controller
             }
         }
 
-        DB::transaction(function () use ($user, $data, $roleIds, $permissionIds) {
+        DB::transaction(function () use ($user, $data, $roleIds) {
             $user->update($data);
             $user->roles()->sync($roleIds);
-            $user->permissions()->sync($permissionIds);
         });
 
         return redirect($request->session()->get('userReturnUrl') ?? ('/utilizatori'))->with('status', 'Utilizatorul „' . $user->name . '” a fost modificat cu succes!');
@@ -189,12 +182,6 @@ class UserController extends Controller
                         }
                     }),
                 ],
-                'permissions' => ['nullable', 'array'],
-                'permissions.*' => [
-                    'integer',
-                    'distinct',
-                    Rule::exists('permissions', 'id'),
-                ],
                 'name' => 'required|max:255',
                 'telefon' => 'nullable|max:50',
                 'email' => 'required|max:255|email:rfc,dns|unique:users,email,' . $request->id,
@@ -217,14 +204,6 @@ class UserController extends Controller
         }
 
         return $query->where('slug', '!=', 'super-admin')->get();
-    }
-
-    protected function availablePermissionsForUser(?User $user = null)
-    {
-        return Permission::query()
-            ->orderBy('module')
-            ->orderBy('name')
-            ->get();
     }
 
     protected function moduleRoleMatrix()

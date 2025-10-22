@@ -2,17 +2,16 @@
 
 namespace Tests\Feature;
 
-use App\Models\Role;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Tests\Concerns\CreatesUsersWithRoles;
 use Tests\TestCase;
 
 class FileManagerPersonalizatTest extends TestCase
 {
     use RefreshDatabase;
+    use CreatesUsersWithRoles;
 
     protected function setUp(): void
     {
@@ -23,7 +22,7 @@ class FileManagerPersonalizatTest extends TestCase
 
     public function test_dispatcher_cannot_mutate_file_manager(): void
     {
-        $dispatcher = $this->createUserWithRole('dispecer');
+        $dispatcher = $this->createUserWithRoles('dispecer');
 
         $this->actingAs($dispatcher)
             ->post('/file-manager-personalizat-director/creaza', [
@@ -82,7 +81,7 @@ class FileManagerPersonalizatTest extends TestCase
 
     public function test_admin_can_manage_file_manager_resources(): void
     {
-        $admin = $this->createUserWithRole('admin');
+        $admin = $this->createUserWithRoles('admin');
 
         $this->actingAs($admin)
             ->from('/file-manager-personalizat')
@@ -185,21 +184,4 @@ class FileManagerPersonalizatTest extends TestCase
         Storage::disk('filemanager')->assertDirectoryMissing('Archive3/Archive2');
     }
 
-    private function createUserWithRole(string $slug): User
-    {
-        $role = Role::firstOrCreate(
-            ['slug' => $slug],
-            [
-                'name' => Str::headline($slug),
-                'description' => Str::headline($slug) . ' role.',
-            ]
-        );
-
-        $role->syncPermissions(config('permissions.role_defaults.' . $slug, []));
-
-        $user = User::factory()->create();
-        $user->assignRole($role);
-
-        return $user;
-    }
 }

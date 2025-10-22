@@ -107,6 +107,9 @@ class User extends Authenticatable
         $this->forgetCachedPermissions();
     }
 
+    /**
+     * @deprecated Accesul utilizatorilor se gestionează prin roluri; metoda rămâne disponibilă pentru scenarii moștenite.
+     */
     public function syncPermissions($permissions): void
     {
         $ids = $this->resolvePermissionIds($permissions);

@@ -10,19 +10,21 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Tests\Concerns\CreatesUsersWithRoles;
 use Tests\TestCase;
 
 class UserRolesTest extends TestCase
 {
     use RefreshDatabase;
+    use CreatesUsersWithRoles;
 
     public function test_user_management_access_is_limited_to_admin_roles(): void
     {
         [$superAdminRole, $adminRole, $mechanicRole] = $this->createCoreRoles();
 
-        $admin = $this->createUserWithRole($adminRole);
-        $superAdmin = $this->createUserWithRole($superAdminRole);
-        $mechanic = $this->createUserWithRole($mechanicRole);
+        $admin = $this->createUserWithRoles($adminRole);
+        $superAdmin = $this->createUserWithRoles($superAdminRole);
+        $mechanic = $this->createUserWithRoles($mechanicRole);
 
         $this->actingAs($admin)->get('/utilizatori')->assertOk();
         $this->actingAs($superAdmin)->get('/utilizatori')->assertOk();
@@ -33,7 +35,7 @@ class UserRolesTest extends TestCase
     {
         [$superAdminRole, $adminRole] = $this->createCoreRoles();
 
-        $admin = $this->createUserWithRole($adminRole);
+        $admin = $this->createUserWithRoles($adminRole);
 
         $response = $this->actingAs($admin)->post('/utilizatori', [
             'name' => 'Test User',
@@ -48,7 +50,7 @@ class UserRolesTest extends TestCase
         $response->assertSessionHasErrors('roles.0');
         $this->assertDatabaseMissing('users', ['email' => 'test@example.com']);
 
-        $user = $this->createUserWithRole($adminRole, [
+        $user = $this->createUserWithRoles($adminRole, [
             'name' => 'Existing User',
             'email' => 'existing@example.com',
         ]);
@@ -70,7 +72,7 @@ class UserRolesTest extends TestCase
     {
         [, $adminRole, $mechanicRole] = $this->createCoreRoles();
 
-        $admin = $this->createUserWithRole($adminRole);
+        $admin = $this->createUserWithRoles($adminRole);
 
         $response = $this->actingAs($admin)->post('/utilizatori', [
             'name' => 'Mechanic User',
@@ -91,20 +93,16 @@ class UserRolesTest extends TestCase
         $this->assertNull($createdUser->getRawOriginal('role'));
     }
 
-    public function test_user_creation_syncs_multiple_roles_and_permissions(): void
+    public function test_user_creation_syncs_multiple_roles_without_direct_permissions(): void
     {
         [, $adminRole, $mechanicRole] = $this->createCoreRoles();
 
-        $dispatcherRole = Role::firstOrCreate(
-            ['slug' => 'dispecer'],
-            [
-                'name' => 'Dispecer',
-                'description' => 'Acces specific dispecerilor.',
-            ]
-        );
-        $this->syncRoleDefaults($dispatcherRole);
+        $dispatcherRole = $this->ensureRole('dispecer', null, [
+            'name' => 'Dispecer',
+            'description' => 'Acces specific dispecerilor.',
+        ]);
 
-        $admin = $this->createUserWithRole($adminRole);
+        $admin = $this->createUserWithRoles($adminRole);
 
         $dashboardPermission = Permission::where('module', 'dashboard')->firstOrFail();
         $documentsPermission = Permission::where('module', 'documente')->firstOrFail();
@@ -129,10 +127,7 @@ class UserRolesTest extends TestCase
             [$adminRole->id, $dispatcherRole->id, $mechanicRole->id],
             $createdUser->roles->pluck('id')->map(fn ($value) => (int) $value)->all()
         );
-        $this->assertEqualsCanonicalizing(
-            [$dashboardPermission->id, $documentsPermission->id],
-            $createdUser->permissions->pluck('id')->map(fn ($value) => (int) $value)->all()
-        );
+        $this->assertTrue($createdUser->permissions->isEmpty());
         $this->assertContains($createdUser->primary_role_id, [$adminRole->id, $dispatcherRole->id, $mechanicRole->id]);
     }
 
@@ -140,8 +135,8 @@ class UserRolesTest extends TestCase
     {
         [, $adminRole, $mechanicRole] = $this->createCoreRoles();
 
-        $admin = $this->createUserWithRole($adminRole);
-        $user = $this->createUserWithRole($mechanicRole, [
+        $admin = $this->createUserWithRoles($adminRole);
+        $user = $this->createUserWithRoles($mechanicRole, [
             'name' => 'Legacy Mechanic',
             'email' => 'legacy-mechanic@example.com',
         ]);
@@ -166,27 +161,25 @@ class UserRolesTest extends TestCase
         $this->assertNull($updatedUser->getRawOriginal('role'));
     }
 
-    public function test_user_update_syncs_multiple_roles_and_permissions(): void
+    public function test_user_update_syncs_roles_and_preserves_manual_module_roles(): void
     {
         [, $adminRole, $mechanicRole] = $this->createCoreRoles();
 
-        $dispatcherRole = Role::firstOrCreate(
-            ['slug' => 'dispecer'],
-            [
-                'name' => 'Dispecer',
-                'description' => 'Acces specific dispecerilor.',
-            ]
-        );
-        $this->syncRoleDefaults($dispatcherRole);
+        $dispatcherRole = $this->ensureRole('dispecer', null, [
+            'name' => 'Dispecer',
+            'description' => 'Acces specific dispecerilor.',
+        ]);
 
-        $admin = $this->createUserWithRole($adminRole);
-        $user = $this->createUserWithRole($mechanicRole, [
+        $customPartsRole = $this->ensureRole('gestiune-piese-manual', ['gestiune-piese'], [
+            'name' => 'Gestiune Piese Manual',
+            'description' => 'Rol suplimentar pentru accesul la gestiune piese.',
+        ]);
+
+        $admin = $this->createUserWithRoles($adminRole);
+        $user = $this->createUserWithRoles([$mechanicRole, $customPartsRole], [
             'name' => 'Advanced Existing',
             'email' => 'advanced-existing@example.com',
         ]);
-
-        $initialPermission = Permission::where('module', 'gestiune-piese')->firstOrFail();
-        $user->syncPermissions([$initialPermission->id]);
 
         $documentsPermission = Permission::where('module', 'documente')->firstOrFail();
         $techToolsPermission = Permission::where('module', 'tech-tools')->firstOrFail();
@@ -196,7 +189,7 @@ class UserRolesTest extends TestCase
             'name' => 'Advanced Existing',
             'email' => 'advanced-existing@example.com',
             'telefon' => '0123456789',
-            'roles' => [$dispatcherRole->id, $adminRole->id],
+            'roles' => [$dispatcherRole->id, $adminRole->id, $customPartsRole->id],
             'permissions' => [$documentsPermission->id, $techToolsPermission->id],
             'password' => null,
             'password_confirmation' => null,
@@ -208,15 +201,11 @@ class UserRolesTest extends TestCase
         $updatedUser = $user->fresh()->load(['roles', 'permissions']);
 
         $this->assertEqualsCanonicalizing(
-            [$dispatcherRole->id, $adminRole->id],
+            [$dispatcherRole->id, $adminRole->id, $customPartsRole->id],
             $updatedUser->roles->pluck('id')->map(fn ($value) => (int) $value)->all()
         );
         $this->assertEqualsCanonicalizing(
             [$documentsPermission->id, $techToolsPermission->id],
-            $updatedUser->permissions->pluck('id')->map(fn ($value) => (int) $value)->all()
-        );
-        $this->assertNotContains(
-            $initialPermission->id,
             $updatedUser->permissions->pluck('id')->map(fn ($value) => (int) $value)->all()
         );
     }
@@ -235,7 +224,7 @@ class UserRolesTest extends TestCase
     {
         [, , $mechanicRole] = $this->createCoreRoles();
 
-        $mechanic = $this->createUserWithRole($mechanicRole);
+        $mechanic = $this->createUserWithRoles($mechanicRole);
 
         $this->actingAs($mechanic)->get('/gestiune-piese')->assertOk();
         $this->actingAs($mechanic)->get('/service-masini')->assertOk();
@@ -248,7 +237,7 @@ class UserRolesTest extends TestCase
     {
         [$_superAdminRole, $adminRole, $_mechanicRole] = $this->createCoreRoles();
 
-        $user = $this->createUserWithRole($adminRole, [
+        $user = $this->createUserWithRoles($adminRole, [
             'email' => 'user@example.com',
             'cod_email' => 'login-code',
         ]);
@@ -267,7 +256,7 @@ class UserRolesTest extends TestCase
     {
         [, , $mechanicRole] = $this->createCoreRoles();
 
-        $mechanic = $this->createUserWithRole($mechanicRole, [
+        $mechanic = $this->createUserWithRoles($mechanicRole, [
             'email' => 'mechanic@example.com',
             'cod_email' => 'login-code',
         ]);
@@ -328,7 +317,7 @@ class UserRolesTest extends TestCase
             'updated_at' => now(),
         ]);
 
-        $mechanic = $this->createUserWithRole($mechanicRole);
+        $mechanic = $this->createUserWithRoles($mechanicRole);
 
         $mechanicResponse = $this->actingAs($mechanic)->get('/gestiune-piese');
         $mechanicResponse->assertOk();
@@ -336,7 +325,7 @@ class UserRolesTest extends TestCase
         $mechanicResponse->assertDontSee('Facturi furnizori', false);
         $mechanicResponse->assertSee('href="' . route('gestiune-piese.index') . '"', false);
 
-        $admin = $this->createUserWithRole($adminRole);
+        $admin = $this->createUserWithRoles($adminRole);
 
         $adminResponse = $this->actingAs($admin)->get('/gestiune-piese');
         $adminResponse->assertOk();
@@ -348,10 +337,17 @@ class UserRolesTest extends TestCase
     {
         [, , $mechanicRole] = $this->createCoreRoles();
 
-        $documentsPermission = Permission::where('module', 'documente')->firstOrFail();
-        $adminDocumentsPermission = Permission::where('module', 'documente-admin')->firstOrFail();
+        $documentViewerRole = $this->ensureRole('documente-operator', ['documente'], [
+            'name' => 'Operator Documente',
+            'description' => 'Poate vizualiza documentele disponibile.',
+        ]);
 
-        $mechanic = $this->createUserWithRole($mechanicRole);
+        $documentManagerRole = $this->ensureRole('documente-administrator', ['documente', 'documente-manage'], [
+            'name' => 'Administrator Documente',
+            'description' => 'Poate gestiona documentele disponibile.',
+        ]);
+
+        $mechanic = $this->createUserWithRoles($mechanicRole);
 
         $operatorDocument = DocumentWord::create([
             'nume' => 'Manual Operator',
@@ -367,7 +363,7 @@ class UserRolesTest extends TestCase
 
         $this->actingAs($mechanic)->get('/documente-word')->assertForbidden();
 
-        $mechanic->syncPermissions([$documentsPermission->id]);
+        $mechanic->assignRole($documentViewerRole);
 
         $indexResponse = $this->actingAs($mechanic->fresh())->get('/documente-word');
         $indexResponse->assertOk();
@@ -377,7 +373,7 @@ class UserRolesTest extends TestCase
         $editResponse = $this->actingAs($mechanic->fresh())->get($adminDocument->path() . '/modifica');
         $editResponse->assertForbidden();
 
-        $mechanic->syncPermissions([$documentsPermission->id, $adminDocumentsPermission->id]);
+        $mechanic->assignRole($documentManagerRole);
 
         $indexResponse = $this->actingAs($mechanic->fresh())->get('/documente-word');
         $indexResponse->assertOk();
@@ -391,13 +387,10 @@ class UserRolesTest extends TestCase
 
     public function test_primary_admin_user_is_not_mistaken_for_mechanic_when_role_is_missing(): void
     {
-        $adminRole = Role::firstOrCreate(
-            ['slug' => 'admin'],
-            [
-                'name' => 'Administrator',
-                'description' => 'Administrator access.',
-            ]
-        );
+        $adminRole = $this->ensureRole('admin', null, [
+            'name' => 'Administrator',
+            'description' => 'Administrator access.',
+        ]);
 
         $admin = User::factory()->create(['id' => 1]);
         $admin->assignRole($adminRole);
@@ -411,61 +404,20 @@ class UserRolesTest extends TestCase
      */
     private function createCoreRoles(): array
     {
-        $superAdmin = Role::firstOrCreate(
-            ['slug' => 'super-admin'],
-            [
+        return [
+            $this->ensureRole('super-admin', null, [
                 'name' => 'Super Admin',
                 'description' => 'Full access.',
-            ]
-        );
-        $this->syncRoleDefaults($superAdmin);
-
-        $admin = Role::firstOrCreate(
-            ['slug' => 'admin'],
-            [
+            ]),
+            $this->ensureRole('admin', null, [
                 'name' => 'Administrator',
                 'description' => 'Administrator access.',
-            ]
-        );
-        $this->syncRoleDefaults($admin);
-
-        $mechanic = Role::firstOrCreate(
-            ['slug' => 'mecanic'],
-            [
+            ]),
+            $this->ensureRole('mecanic', null, [
                 'name' => 'Mecanic',
                 'description' => 'Acces limitat la gestiune piese și service mașini.',
-            ]
-        );
-        $this->syncRoleDefaults($mechanic);
-
-        return [$superAdmin, $admin, $mechanic];
+            ]),
+        ];
     }
 
-    private function createUserWithRole(Role $role, array $attributes = []): User
-    {
-        $user = User::factory()->create($attributes);
-        $user->assignRole($role);
-
-        return $user->fresh();
-    }
-
-    private function syncRoleDefaults(Role $role): void
-    {
-        $defaults = config('permissions.role_defaults', []);
-        $modules = $defaults[$role->slug] ?? [];
-
-        if (in_array('*', $modules, true)) {
-            $role->syncPermissions(Permission::all());
-
-            return;
-        }
-
-        if (empty($modules)) {
-            $role->syncPermissions([]);
-
-            return;
-        }
-
-        $role->syncPermissions(Permission::whereIn('module', $modules)->get());
-    }
 }

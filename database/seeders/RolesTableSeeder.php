@@ -79,7 +79,6 @@ class RolesTableSeeder extends Seeder
         if ($user) {
             $user->assignRole($superAdmin);
             $user->assignRole($admin);
-            $user->syncPermissions($permissions);
         }
     }
 }

@@ -47,24 +47,20 @@
                             </tr>
                             <tr>
                                 <td class="pe-4">
-                                    Permisiuni directe
+                                    Acces suplimentar
                                 </td>
                                 <td>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        @php
-                                            $uniquePermissions = $user->permissions?->unique('id');
-                                        @endphp
-                                        @if ($uniquePermissions && $uniquePermissions->isNotEmpty())
-                                            @foreach ($uniquePermissions as $permission)
-                                                @php
-                                                    $permissionLabel = $permission->name ?? ucwords(str_replace(['-', '_'], ' ', (string) $permission->module));
-                                                @endphp
-                                                <span class="badge bg-secondary">{{ $permissionLabel }}</span>
-                                            @endforeach
-                                        @else
-                                            <span class="text-muted">-</span>
-                                        @endif
+                                    @php
+                                        $legacyPermissions = $user->permissions?->unique('id');
+                                    @endphp
+                                    <div class="text-muted">
+                                        Accesul se stabilește exclusiv prin rolurile active ale utilizatorului.
                                     </div>
+                                    @if ($legacyPermissions && $legacyPermissions->isNotEmpty())
+                                        <div class="alert alert-warning mt-2 py-2 px-3 small" role="status">
+                                            Acest cont păstrează permisiuni directe moștenite ({{ $legacyPermissions->count() }}). Recomandăm revizuirea rolurilor pentru a integra accesul necesar.
+                                        </div>
+                                    @endif
                                 </td>
                             </tr>
                             <tr>

@@ -4,94 +4,77 @@ return [
     'modules' => [
         'dashboard' => [
             'name' => 'Acces Panou Principal',
-            'description' => 'Vizualizează pagina principală și indicatorii generali.',
+            'description' => 'Cuprinde indicatorii principali, panourile de stare și legăturile rapide către procese zilnice.',
         ],
         'users' => [
             'name' => 'Gestionare Utilizatori',
-            'description' => 'Acces la listarea și administrarea utilizatorilor.',
+            'description' => 'Include listarea, invitarea și administrarea conturilor și a permisiunilor individuale.',
         ],
         'roles' => [
             'name' => 'Gestionare Roluri',
-            'description' => 'Configurează rolurile și accesul acestora.',
+            'description' => 'Acoperă configurarea rolurilor, asocierile lor și revizuirea accesului implicit.',
         ],
         'firme' => [
             'name' => 'Gestionare Companii',
-            'description' => 'Gestionează clienții, transportatorii și partenerii.',
+            'description' => 'Grupul dedicat gestiunii clienților, transportatorilor, furnizorilor și documentelor companiei.',
         ],
         'camioane' => [
             'name' => 'Gestionare Camioane',
-            'description' => 'Administrează flota de camioane și documentele aferente.',
+            'description' => 'Conține inventarul vehiculelor, fișele tehnice și monitorizarea documentelor obligatorii.',
         ],
         'locuri-operare' => [
             'name' => 'Gestionare Locații de Operare',
-            'description' => 'Gestionează locațiile de operare și detaliile acestora.',
+            'description' => 'Include adresele operaționale, depozitele și configurările logistice aferente.',
         ],
         'comenzi' => [
             'name' => 'Gestionare Comenzi',
-            'description' => 'Creează, actualizează și monitorizează comenzile.',
+            'description' => 'Reunește fluxul de creare, planificare și urmărire a comenzilor și curselor.',
         ],
         'mesagerie' => [
             'name' => 'Gestionare Mesagerie',
-            'description' => 'Acces la notificările și mesajele trimise.',
+            'description' => 'Acoperă notificările interne, comunicările către șoferi și istoricul mesajelor.',
         ],
         'mementouri' => [
             'name' => 'Gestionare Mementouri',
-            'description' => 'Administrează mementourile și alertele.',
+            'description' => 'Cuprinde configurarea alertelor, revizuirilor periodice și urmărirea termenelor.',
         ],
         'documente' => [
-            'name' => 'Gestionare Documente',
-            'description' => 'Acces la managerul de fișiere și documente interne.',
+            'name' => 'Documente (vizualizare)',
+            'description' => 'Oferă acces doar la navigarea și descărcarea documentelor din managerul de fișiere.',
         ],
-        'documente-admin' => [
-            'name' => 'Manage Admin Documents',
-            'description' => 'Administrează documentele cu acces restricționat la administratori.',
+        'documente-manage' => [
+            'name' => 'Documente (Acțiuni)',
+            'description' => 'Controlează acțiunile din coloana „Acțiuni” (încărcare, redenumire, ștergere) din managerul de fișiere.',
         ],
         'facturi' => [
             'name' => 'Gestionare Facturi',
-            'description' => 'Gestionează facturile și scadențarele.',
+            'description' => 'Include emiterea, urmărirea încasărilor și raportarea scadențarelor clienților.',
         ],
         'facturi-furnizori' => [
             'name' => 'Gestionare Facturi Furnizori',
-            'description' => 'Administrează facturile furnizorilor și plățile.',
+            'description' => 'Cuprinde înregistrarea și aprobarea facturilor furnizorilor și a plăților aferente.',
         ],
         'service-masini' => [
             'name' => 'Gestionare Service Auto',
-            'description' => 'Gestionează operațiunile din service-ul mașinilor.',
+            'description' => 'Include recepția în service, programările, istoricul intervențiilor și validarea lucrărilor.',
         ],
         'gestiune-piese' => [
             'name' => 'Gestionare Stoc Piese',
-            'description' => 'Gestionează stocul de piese și ajustările acestuia.',
+            'description' => 'Acoperă stocurile de piese, transferurile interne și inventarele periodice.',
         ],
         'rapoarte' => [
             'name' => 'Vizualizare Rapoarte',
-            'description' => 'Acces la rapoartele și analizele aplicației.',
+            'description' => 'Reunește tablourile de raportare, exporturile și indicatorii operaționali.',
         ],
         'tech-tools' => [
             'name' => 'Acces Instrumente Tehnice',
-            'description' => 'Acces la instrumentele tehnice dedicate echipei interne.',
+            'description' => 'Include instrumentele tehnice și de suport dedicate echipei interne.',
         ],
     ],
 
     'role_defaults' => [
         'super-admin' => ['*'],
-        'admin' => [
-            'dashboard',
-            'users',
-            'roles',
-            'firme',
-            'camioane',
-            'locuri-operare',
-            'comenzi',
-            'mesagerie',
-            'mementouri',
-            'documente',
-            'documente-admin',
-            'facturi',
-            'facturi-furnizori',
-            'service-masini',
-            'gestiune-piese',
-            'rapoarte',
-        ],
+        'admin' => ['*'],
         'dispecer' => [
             'dashboard',
             'firme',
