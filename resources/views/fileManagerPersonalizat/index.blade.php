@@ -26,26 +26,28 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-3 text-end">
-            <div class="mb-2">
-                <a class="btn btn-sm btn-success text-white border border-dark rounded-3"
-                   href="#"
-                   data-bs-toggle="modal"
-                   data-bs-target="#creazaDirector"
-                   title="Crează Director">
-                    <i class="fas fa-folder-plus"></i> Crează director
-                </a>
+        @can('documente-admin')
+            <div class="col-lg-3 text-end">
+                <div class="mb-2">
+                    <a class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                       href="#"
+                       data-bs-toggle="modal"
+                       data-bs-target="#creazaDirector"
+                       title="Crează Director">
+                        <i class="fas fa-folder-plus"></i> Crează director
+                    </a>
+                </div>
+                <div>
+                    <a class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                       href="#"
+                       data-bs-toggle="modal"
+                       data-bs-target="#adaugaFisiere"
+                       title="Adaugă fișiere">
+                        <i class="fas fa-file-upload"></i> Adaugă fișiere
+                    </a>
+                </div>
             </div>
-            <div>
-                <a class="btn btn-sm btn-success text-white border border-dark rounded-3"
-                   href="#"
-                   data-bs-toggle="modal"
-                   data-bs-target="#adaugaFisiere"
-                   title="Adaugă fișiere">
-                    <i class="fas fa-file-upload"></i> Adaugă fișiere
-                </a>
-            </div>
-        </div>
+        @endcan
     </div>
 
     <div class="card-body px-0 py-3">
@@ -130,7 +132,7 @@
                                         /
                                     @endforeach
                                 </th>
-                                @can('documente')
+                                @can('documente-admin')
                                     <th class="text-end">Acțiuni</th>
                                 @endcan
                             </tr>
@@ -147,8 +149,8 @@
                                             <i class="fas fa-folder text-warning"></i> {{ $dirName }}
                                         </a>
                                     </td>
-                                    <td>
-                                        @can('documente')
+                                    @can('documente-admin')
+                                        <td>
                                             <div class="d-flex justify-content-end">
                                                 <!-- Modify button  -->
                                                 <div class="me-1">
@@ -183,8 +185,8 @@
                                                     </a>
                                                 </div>
                                             </div>
-                                        @endcan
-                                    </td>
+                                        </td>
+                                    @endcan
                                 </tr>
                             @endforeach
                             @foreach ($fisiere as $fisier)
@@ -198,8 +200,8 @@
                                             <i class="fas fa-file"></i> {{ $fileName }}
                                         </a>
                                     </td>
-                                    <td>
-                                        @can('documente')
+                                    @can('documente-admin')
+                                        <td>
                                             <div class="d-flex justify-content-end">
                                                 <!-- Modify button -->
                                                 <div class="me-1">
@@ -234,8 +236,8 @@
                                                     </a>
                                                 </div>
                                             </div>
-                                        @endcan
-                                    </td>
+                                        </td>
+                                    @endcan
                                 </tr>
                             @endforeach
                         </tbody>
@@ -246,6 +248,7 @@
     </div>
 </div>
 
+@can('documente-admin')
 {{-- ======================= Modale ======================= --}}
 
 {{-- Crează Director Modal --}}
@@ -635,5 +638,7 @@
         </div>
     </div>
 @endforeach
+
+@endcan
 
 @endsection

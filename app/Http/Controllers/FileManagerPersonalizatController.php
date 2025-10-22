@@ -60,6 +60,8 @@ class FileManagerPersonalizatController extends Controller
 
     public function directorCreaza(Request $request)
     {
+        $this->authorize('documente-admin');
+
         $request->validate([
             'cale'         => '',
             'numeDirector' => 'required',
@@ -81,9 +83,7 @@ class FileManagerPersonalizatController extends Controller
 
     public function directorSterge(Request $request, $cale = null)
     {
-        if (! $request->user()?->hasPermission('documente')) {
-            return back()->with('error', 'Nu aveți dreptul să ștergeti directoare! Contactați administratorul aplicației.');
-        }
+        $this->authorize('documente-admin');
 
         try {
             Storage::disk('filemanager')->deleteDirectory($cale);
@@ -97,6 +97,8 @@ class FileManagerPersonalizatController extends Controller
 
     public function fisiereAdauga(Request $request)
     {
+        $this->authorize('documente-admin');
+
         $request->validate([
             'fisiere.*' => 'required|max:300000'
         ]);
@@ -142,9 +144,7 @@ class FileManagerPersonalizatController extends Controller
 
     public function fisierSterge(Request $request, $cale = null)
     {
-        if (! $request->user()?->hasPermission('documente')) {
-            return back()->with('error', 'Nu aveți dreptul să ștergeti fișiere! Contactați administratorul aplicației.');
-        }
+        $this->authorize('documente-admin');
 
         try {
             Storage::disk('filemanager')->delete($cale);
@@ -158,9 +158,7 @@ class FileManagerPersonalizatController extends Controller
 
     public function modificaCaleNume(Request $request)
     {
-        if (! $request->user()?->hasPermission('documente')) {
-            return back()->with('error', 'Nu aveți dreptul de modificare! Contactați administratorul aplicației.');
-        }
+        $this->authorize('documente-admin');
 
         $request->validate([
             'cale'           => '',
@@ -195,6 +193,8 @@ class FileManagerPersonalizatController extends Controller
      */
     public function copyFile(Request $request)
     {
+        $this->authorize('documente-admin');
+
         $request->validate([
             'source'      => 'required',
             'destination' => 'nullable',
@@ -224,6 +224,8 @@ class FileManagerPersonalizatController extends Controller
      */
     public function moveFile(Request $request)
     {
+        $this->authorize('documente-admin');
+
         $request->validate([
             'source'      => 'required',
             'destination' => 'nullable',
@@ -253,6 +255,8 @@ class FileManagerPersonalizatController extends Controller
      */
     public function copyDirectory(Request $request)
     {
+        $this->authorize('documente-admin');
+
         $request->validate([
             'source'      => 'required',
             'destination' => 'nullable',
@@ -283,6 +287,8 @@ class FileManagerPersonalizatController extends Controller
      */
     public function moveDirectory(Request $request)
     {
+        $this->authorize('documente-admin');
+
         $request->validate([
             'source'      => 'required',
             'destination' => 'nullable',

@@ -84,6 +84,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:dashboard')->group(function () {
         Route::view('acasa', 'acasa')->name('dashboard');
         Route::view('various-tests', 'variousTests');
+        Route::view('ajutor-intern/gestionare-utilizatori', 'useri.help.permissionsMatrix')
+            ->name('help.user-management');
     });
 
     Route::prefix('tech')
@@ -110,17 +112,20 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:documente')->group(function () {
         Route::get('/file-manager-personalizat/{cale?}', [FileManagerPersonalizatController::class, 'afisareDirectoareSiFisiere'])->where('cale', '.*');
-        Route::post('/file-manager-personalizat-director/creaza', [FileManagerPersonalizatController::class, 'directorCreaza']);
-        // Route::post('/file-manager-personalizat-director/modifica-cale-nume', [FileManagerPersonalizatController::class, 'directorModificaCaleNume']);
-        Route::delete('/file-manager-personalizat-director/sterge/{cale?}', [FileManagerPersonalizatController::class, 'directorSterge'])->where('cale', '.*');
-        Route::post('/file-manager-personalizat-fisiere/adauga', [FileManagerPersonalizatController::class, 'fisiereAdauga']);
         Route::get('/file-manager-personalizat-fisier/deschide/{cale?}', [FileManagerPersonalizatController::class, 'fisierDeschide'])->where('cale', '.*');
-        Route::delete('/file-manager-personalizat-fisier/sterge/{cale?}', [FileManagerPersonalizatController::class, 'fisierSterge'])->where('cale', '.*');
-        Route::post('/file-manager-personalizat-resursa/modifica-cale-nume', [FileManagerPersonalizatController::class, 'ModificaCaleNume']);
-        Route::post('/file-manager-personalizat-fisier/copy', [FileManagerPersonalizatController::class, 'copyFile']);
-        Route::post('/file-manager-personalizat-fisier/move', [FileManagerPersonalizatController::class, 'moveFile']);
-        Route::post('/file-manager-personalizat-director/copy', [FileManagerPersonalizatController::class, 'copyDirectory']);
-        Route::post('/file-manager-personalizat-director/move', [FileManagerPersonalizatController::class, 'moveDirectory']);
+
+        Route::middleware('permission:documente-admin')->group(function () {
+            Route::post('/file-manager-personalizat-director/creaza', [FileManagerPersonalizatController::class, 'directorCreaza']);
+            // Route::post('/file-manager-personalizat-director/modifica-cale-nume', [FileManagerPersonalizatController::class, 'directorModificaCaleNume']);
+            Route::delete('/file-manager-personalizat-director/sterge/{cale?}', [FileManagerPersonalizatController::class, 'directorSterge'])->where('cale', '.*');
+            Route::post('/file-manager-personalizat-fisiere/adauga', [FileManagerPersonalizatController::class, 'fisiereAdauga']);
+            Route::delete('/file-manager-personalizat-fisier/sterge/{cale?}', [FileManagerPersonalizatController::class, 'fisierSterge'])->where('cale', '.*');
+            Route::post('/file-manager-personalizat-resursa/modifica-cale-nume', [FileManagerPersonalizatController::class, 'ModificaCaleNume']);
+            Route::post('/file-manager-personalizat-fisier/copy', [FileManagerPersonalizatController::class, 'copyFile']);
+            Route::post('/file-manager-personalizat-fisier/move', [FileManagerPersonalizatController::class, 'moveFile']);
+            Route::post('/file-manager-personalizat-director/copy', [FileManagerPersonalizatController::class, 'copyDirectory']);
+            Route::post('/file-manager-personalizat-director/move', [FileManagerPersonalizatController::class, 'moveDirectory']);
+        });
 
         // For transporters to upload their documents
         Route::get('/comanda-documente-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'afisareDocumenteIncarcateDejaSiFormular']);
