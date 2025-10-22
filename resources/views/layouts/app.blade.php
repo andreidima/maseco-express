@@ -91,18 +91,6 @@
 
         $primaryNavLinks = array_values(array_filter([
             [
-                'permission' => 'gestiune-piese',
-                'href' => route('gestiune-piese.index'),
-                'icon' => 'fa-solid fa-boxes-stacked',
-                'label' => 'Gestiune piese',
-            ],
-            [
-                'permission' => 'service-masini',
-                'href' => route('service-masini.index'),
-                'icon' => 'fa-solid fa-screwdriver-wrench',
-                'label' => 'Service mașini',
-            ],
-            [
                 'permission' => 'documente',
                 'href' => '/file-manager-personalizat',
                 'icon' => 'fa-solid fa-folder',
