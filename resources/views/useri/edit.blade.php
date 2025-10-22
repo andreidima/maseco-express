@@ -21,7 +21,6 @@
 
                                 @include ('useri.form', [
                                     'roles' => $roles,
-                                    'permissions' => $permissions,
                                     'moduleRoleMatrix' => $moduleRoleMatrix ?? collect(),
                                     'buttonText' => 'Modifică utilizator'
                                 ])

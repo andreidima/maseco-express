@@ -7,9 +7,9 @@
     <div class="border rounded-3 p-3 bg-white shadow-sm">
         <div class="d-flex justify-content-between flex-wrap gap-2 mb-3">
             <div>
-                <h6 class="mb-1 fw-bold text-uppercase small">Legendă permisiuni implicite</h6>
+                <h6 class="mb-1 fw-bold text-uppercase small">Legendă acces implicit pe roluri</h6>
                 <p class="mb-0 text-muted small">
-                    Consultă tabelul pentru a vedea ce module sunt acordate implicit atunci când atribui un rol.
+                    Rolurile stabilesc complet accesul utilizatorilor. Consultă tabelul pentru a vedea ce module sunt acordate automat de fiecare rol înainte să îl bifezi.
                 </p>
             </div>
         </div>
