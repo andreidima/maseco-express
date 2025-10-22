@@ -92,6 +92,15 @@ You can perform a dry run first to inspect the planned moves without making chan
 php artisan facturi-furnizori:organize-calup-files --dry-run
 ```
 
+## Dispatcher permissions update (March 2025)
+
+- The dispatcher role (`dispecer`) no longer has access to the Supplier Invoices module (`facturi-furnizori`). Deploying this release runs a migration that detaches the permission from existing dispatcher assignments.
+- After deploying, rerun the roles seeder to ensure permission maps stay in sync:
+
+```bash
+php artisan db:seed --class=RolesTableSeeder --force
+```
+
 ## Tech toolkit rollout checklist
 
 Follow these steps the first time you deploy the new Tech → Migration Center tooling:
