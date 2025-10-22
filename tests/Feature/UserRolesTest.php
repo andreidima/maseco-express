@@ -91,7 +91,7 @@ class UserRolesTest extends TestCase
         $this->assertNull($createdUser->getRawOriginal('role'));
     }
 
-    public function test_user_creation_syncs_multiple_roles_and_permissions(): void
+    public function test_user_creation_syncs_multiple_roles_without_direct_permissions(): void
     {
         [, $adminRole, $mechanicRole] = $this->createCoreRoles();
 
@@ -129,10 +129,7 @@ class UserRolesTest extends TestCase
             [$adminRole->id, $dispatcherRole->id, $mechanicRole->id],
             $createdUser->roles->pluck('id')->map(fn ($value) => (int) $value)->all()
         );
-        $this->assertEqualsCanonicalizing(
-            [$dashboardPermission->id, $documentsPermission->id],
-            $createdUser->permissions->pluck('id')->map(fn ($value) => (int) $value)->all()
-        );
+        $this->assertTrue($createdUser->permissions->isEmpty());
         $this->assertContains($createdUser->primary_role_id, [$adminRole->id, $dispatcherRole->id, $mechanicRole->id]);
     }
 
@@ -166,7 +163,7 @@ class UserRolesTest extends TestCase
         $this->assertNull($updatedUser->getRawOriginal('role'));
     }
 
-    public function test_user_update_syncs_multiple_roles_and_permissions(): void
+    public function test_user_update_syncs_roles_without_touching_direct_permissions(): void
     {
         [, $adminRole, $mechanicRole] = $this->createCoreRoles();
 
@@ -212,11 +209,7 @@ class UserRolesTest extends TestCase
             $updatedUser->roles->pluck('id')->map(fn ($value) => (int) $value)->all()
         );
         $this->assertEqualsCanonicalizing(
-            [$documentsPermission->id, $techToolsPermission->id],
-            $updatedUser->permissions->pluck('id')->map(fn ($value) => (int) $value)->all()
-        );
-        $this->assertNotContains(
-            $initialPermission->id,
+            [$initialPermission->id],
             $updatedUser->permissions->pluck('id')->map(fn ($value) => (int) $value)->all()
         );
     }

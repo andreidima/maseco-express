@@ -12,7 +12,6 @@
         @php
             $allowSuperAdminSelection = $user && $user->exists && $user->hasRole('super-admin');
             $availableRoles = $roles ?? collect();
-            $availablePermissions = $permissions ?? collect();
 
             if ($availableRoles instanceof \Illuminate\Support\Collection) {
                 if (! $allowSuperAdminSelection) {
@@ -28,10 +27,6 @@
                 }
             }
 
-            if (! $availablePermissions instanceof \Illuminate\Support\Collection) {
-                $availablePermissions = collect();
-            }
-
             $selectedRoles = collect(old('roles', $user->roles->pluck('id')->all()))
                 ->map(fn ($value) => (int) $value)
                 ->filter()
@@ -39,14 +34,6 @@
                 ->values()
                 ->all();
 
-            $selectedPermissions = collect(old('permissions', $user->permissions->pluck('id')->all()))
-                ->map(fn ($value) => (int) $value)
-                ->filter()
-                ->unique()
-                ->values()
-                ->all();
-
-            $permissionGroups = $availablePermissions->groupBy('module');
             $permissionDefinitions = collect(config('permissions.modules', []));
             $moduleRoleMatrix = collect($moduleRoleMatrix ?? []);
         @endphp
@@ -109,8 +96,11 @@
             </div>
         @endif
         <div class="row mb-0">
-            <div class="col-lg-6 mb-4">
+            <div class="col-lg-12 mb-4">
                 <label class="mb-0 ps-3">Roluri<span class="text-danger">*</span></label>
+                <div class="alert alert-info bg-light text-dark border-start border-3 border-primary small mt-2" role="alert">
+                    <strong>Rolurile controlează tot accesul.</strong> Alege combinația potrivită pentru noul cont – fiecare rol aduce permisiunile implicite afișate în legendă, iar permisiunile directe nu mai pot fi configurate individual.
+                </div>
                 <div class="border rounded-3 p-3 bg-white {{ $errors->has('roles') || $errors->has('roles.*') ? 'border-danger' : '' }}">
                     @forelse ($availableRoles as $roleOption)
                         @php
@@ -136,7 +126,7 @@
                             @endif
                             @if ($roleOption->relationLoaded('permissions') && $roleOption->permissions && $roleOption->permissions->isNotEmpty())
                                 <div class="ms-4 mt-2">
-                                    <small class="text-muted">Permisiuni implicite:</small>
+                                    <small class="text-muted">Acces implicit prin rol:</small>
                                     <div class="d-flex flex-wrap gap-1 mt-1">
                                         @foreach ($roleOption->permissions as $rolePermission)
                                             @php
@@ -156,49 +146,6 @@
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
                 @error('roles.*')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-            </div>
-            <div class="col-lg-6 mb-4">
-                <label class="mb-0 ps-3">Permisiuni suplimentare</label>
-                <div class="border rounded-3 p-3 bg-white {{ $errors->has('permissions') || $errors->has('permissions.*') ? 'border-danger' : '' }}">
-                    @forelse ($permissionGroups as $module => $modulePermissions)
-                        @php
-                            $moduleDetails = $permissionDefinitions->get($module, []);
-                            $moduleDescription = $moduleDetails['description'] ?? null;
-                        @endphp
-                        <div class="mb-4">
-                            @foreach ($modulePermissions as $permission)
-                                @php
-                                    $permissionId = (int) ($permission->id ?? 0);
-                                    $permissionLabel = $permission->name ?? ucwords(str_replace(['-', '_'], ' ', (string) $permission->slug));
-                                @endphp
-                                <div class="form-check form-switch mb-3">
-                                    <input
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        name="permissions[]"
-                                        value="{{ $permissionId }}"
-                                        id="permission_{{ $permissionId }}"
-                                        {{ in_array($permissionId, $selectedPermissions, true) ? 'checked' : '' }}
-                                    >
-                                    <label class="form-check-label fw-semibold" for="permission_{{ $permissionId }}">
-                                        {{ $permissionLabel }}
-                                    </label>
-                                    @if ($moduleDescription)
-                                        <div class="text-muted small ms-5">{{ $moduleDescription }}</div>
-                                    @endif
-                                </div>
-                            @endforeach
-                        </div>
-                    @empty
-                        <p class="text-muted mb-0">Nu există permisiuni configurate.</p>
-                    @endforelse
-                </div>
-                @error('permissions')
-                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                @enderror
-                @error('permissions.*')
                     <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
             </div>
