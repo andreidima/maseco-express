@@ -35,12 +35,12 @@ return new class extends Migration {
                 1 => [
                     'name' => 'Administrator',
                     'slug' => 'admin',
-                    'description' => 'Legacy administrator role mapped from users.role = 1.',
+                    'description' => 'Acces complet la configurarea aplicației și administrarea utilizatorilor.',
                 ],
                 2 => [
                     'name' => 'Dispecer',
                     'slug' => 'dispecer',
-                    'description' => 'Legacy dispatcher role mapped from users.role = 2.',
+                    'description' => 'Coordonează comenzile și distribuie cursele către șoferi.',
                 ],
             ];
 
