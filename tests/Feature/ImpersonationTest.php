@@ -64,6 +64,32 @@ class ImpersonationTest extends TestCase
         $this->assertNull(session('impersonated_by_name'));
     }
 
+    public function test_impersonated_mechanic_receives_redirect_when_stopping_impersonation(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+        $mechanicRole = Role::firstOrCreate(
+            ['slug' => 'mecanic'],
+            [
+                'name' => 'Mecanic',
+                'description' => 'Acces limitat la gestiune piese și service mașini.',
+            ]
+        );
+
+        $mechanicUser = User::factory()->create();
+        $mechanicUser->assignRole($mechanicRole);
+
+        $this->actingAs($superAdmin)->post(route('tech.impersonation.start'), [
+            'user_id' => $mechanicUser->id,
+        ]);
+
+        $this->assertAuthenticatedAs($mechanicUser);
+
+        $response = $this->post(route('impersonation.stop'));
+
+        $response->assertStatus(302);
+        $response->assertRedirect('/');
+    }
+
     public function test_impersonating_mechanic_redirects_to_service_module(): void
     {
         $superAdmin = $this->createSuperAdmin();
