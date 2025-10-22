@@ -42,6 +42,10 @@ return [
             'name' => 'Gestionare Documente',
             'description' => 'Acces la managerul de fișiere și documente interne.',
         ],
+        'documente-admin' => [
+            'name' => 'Manage Admin Documents',
+            'description' => 'Administrează documentele cu acces restricționat la administratori.',
+        ],
         'facturi' => [
             'name' => 'Gestionare Facturi',
             'description' => 'Gestionează facturile și scadențarele.',
@@ -81,6 +85,7 @@ return [
             'mesagerie',
             'mementouri',
             'documente',
+            'documente-admin',
             'facturi',
             'facturi-furnizori',
             'service-masini',

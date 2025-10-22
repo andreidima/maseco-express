@@ -130,9 +130,9 @@
                                         /
                                     @endforeach
                                 </th>
-                                @if (auth()->user()->isAdministrator())
+                                @can('documente')
                                     <th class="text-end">Acțiuni</th>
-                                @endif
+                                @endcan
                             </tr>
                         </thead>
                         <tbody>
@@ -148,7 +148,7 @@
                                         </a>
                                     </td>
                                     <td>
-                                        @if (auth()->user()->isAdministrator())
+                                        @can('documente')
                                             <div class="d-flex justify-content-end">
                                                 <!-- Modify button  -->
                                                 <div class="me-1">
@@ -183,7 +183,7 @@
                                                     </a>
                                                 </div>
                                             </div>
-                                        @endif
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach
@@ -199,7 +199,7 @@
                                         </a>
                                     </td>
                                     <td>
-                                        @if (auth()->user()->isAdministrator())
+                                        @can('documente')
                                             <div class="d-flex justify-content-end">
                                                 <!-- Modify button -->
                                                 <div class="me-1">
@@ -234,7 +234,7 @@
                                                     </a>
                                                 </div>
                                             </div>
-                                        @endif
+                                        @endcan
                                     </td>
                                 </tr>
                             @endforeach
