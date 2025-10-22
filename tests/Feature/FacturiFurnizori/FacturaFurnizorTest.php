@@ -6,19 +6,20 @@ use App\Models\FacturiFurnizori\FacturaFurnizor;
 use App\Models\Service\GestiunePiesa;
 use App\Models\Service\Masina;
 use App\Models\Service\MasinaServiceEntry;
-use App\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\CreatesUsersWithRoles;
 use Tests\TestCase;
 
 class FacturaFurnizorTest extends TestCase
 {
     use RefreshDatabase;
+    use CreatesUsersWithRoles;
 
     public function test_it_allows_storing_negative_amounts(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles('admin');
 
         $payload = [
             'denumire_furnizor' => 'Furnizor Negativ SRL',
@@ -45,7 +46,7 @@ class FacturaFurnizorTest extends TestCase
 
     public function test_it_allows_updating_to_negative_amounts(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles('admin');
         $factura = FacturaFurnizor::factory()->create([
             'suma' => 450.00,
             'moneda' => 'RON',
@@ -76,7 +77,7 @@ class FacturaFurnizorTest extends TestCase
 
     public function test_it_stores_products_together_with_the_invoice(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles('admin');
 
         $payload = [
             'denumire_furnizor' => 'Furnizor Produse SRL',
@@ -133,7 +134,7 @@ class FacturaFurnizorTest extends TestCase
 
     public function test_it_replaces_products_when_updating_an_invoice(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles('admin');
         $factura = FacturaFurnizor::factory()->create([
             'suma' => 150,
             'moneda' => 'EUR',
@@ -190,7 +191,7 @@ class FacturaFurnizorTest extends TestCase
 
     public function test_it_updates_initial_quantity_without_affecting_allocations(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles('admin');
         $factura = FacturaFurnizor::factory()->create([
             'suma' => 250,
             'moneda' => 'RON',
@@ -264,7 +265,7 @@ class FacturaFurnizorTest extends TestCase
 
     public function test_it_validates_initial_quantity_against_allocations(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles('admin');
         $factura = FacturaFurnizor::factory()->create([
             'suma' => 300,
             'moneda' => 'RON',
@@ -337,7 +338,7 @@ class FacturaFurnizorTest extends TestCase
     {
         Storage::fake('local');
 
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles('admin');
 
         $pdfOne = UploadedFile::fake()->create('factura_initiala.pdf', 120, 'application/pdf');
         $pdfTwo = UploadedFile::fake()->create('anexa.pdf', 80, 'application/pdf');
@@ -376,7 +377,7 @@ class FacturaFurnizorTest extends TestCase
     {
         Storage::fake('local');
 
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles('admin');
 
         $payload = [
             'denumire_furnizor' => 'Furnizor Delete SRL',
@@ -413,7 +414,7 @@ class FacturaFurnizorTest extends TestCase
 
     public function test_piece_without_invoice_remains_available_for_service_entries(): void
     {
-        $user = User::factory()->create(['name' => 'Service User']);
+        $user = $this->createUserWithRoles('admin', ['name' => 'Service User']);
         $factura = FacturaFurnizor::factory()->create();
 
         $piece = $factura->piese()->create([
@@ -468,7 +469,7 @@ class FacturaFurnizorTest extends TestCase
 
     public function test_show_displays_products_with_stock_details_modal_trigger(): void
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithRoles('admin');
         $factura = FacturaFurnizor::factory()->create();
 
         $piece = GestiunePiesa::factory()
