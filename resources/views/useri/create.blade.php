@@ -22,6 +22,7 @@
                                 'user' => $user,
                                 'roles' => $roles,
                                 'permissions' => $permissions,
+                                'moduleRoleMatrix' => $moduleRoleMatrix ?? collect(),
                                 'buttonText' => 'Adaugă utilizator'
                             ])
                     </form>

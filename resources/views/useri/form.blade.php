@@ -48,6 +48,7 @@
 
             $permissionGroups = $availablePermissions->groupBy('module');
             $permissionDefinitions = collect(config('permissions.modules', []));
+            $moduleRoleMatrix = collect($moduleRoleMatrix ?? []);
         @endphp
 
         <div class="row mb-0">
@@ -99,6 +100,14 @@
                     required>
             </div>
         </div>
+        @if ($moduleRoleMatrix->isNotEmpty())
+            <div class="mb-4">
+                @include('useri.partials.permissionsMatrix', [
+                    'moduleRoleMatrix' => $moduleRoleMatrix,
+                    'moduleDefinitions' => $permissionDefinitions,
+                ])
+            </div>
+        @endif
         <div class="row mb-0">
             <div class="col-lg-6 mb-4">
                 <label class="mb-0 ps-3">Roluri<span class="text-danger">*</span></label>

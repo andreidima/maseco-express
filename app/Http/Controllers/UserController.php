@@ -50,8 +50,9 @@ class UserController extends Controller
         $user = new User();
         $roles = $this->availableRolesForUser();
         $permissions = $this->availablePermissionsForUser();
+        $moduleRoleMatrix = $this->moduleRoleMatrix();
 
-        return view('useri.create', compact('user', 'roles', 'permissions'));
+        return view('useri.create', compact('user', 'roles', 'permissions', 'moduleRoleMatrix'));
     }
 
     /**
@@ -106,8 +107,9 @@ class UserController extends Controller
         $user->load(['roles', 'permissions']);
         $roles = $this->availableRolesForUser($user);
         $permissions = $this->availablePermissionsForUser($user);
+        $moduleRoleMatrix = $this->moduleRoleMatrix();
 
-        return view('useri.edit', compact('user', 'roles', 'permissions'));
+        return view('useri.edit', compact('user', 'roles', 'permissions', 'moduleRoleMatrix'));
     }
 
     /**
@@ -223,6 +225,39 @@ class UserController extends Controller
             ->orderBy('module')
             ->orderBy('name')
             ->get();
+    }
+
+    protected function moduleRoleMatrix()
+    {
+        $modules = collect(config('permissions.modules', []));
+        $roleDefaults = collect(config('permissions.role_defaults', []));
+
+        if ($modules->isEmpty() || $roleDefaults->isEmpty()) {
+            return collect();
+        }
+
+        $rolesBySlug = Role::query()
+            ->whereIn('slug', $roleDefaults->keys()->all())
+            ->get(['id', 'slug', 'name', 'description'])
+            ->keyBy('slug');
+
+        return $modules->mapWithKeys(function ($moduleDetails, $moduleKey) use ($roleDefaults, $rolesBySlug) {
+            $defaultRoles = $roleDefaults->filter(function ($defaultModules) use ($moduleKey) {
+                $defaultModules = Arr::wrap($defaultModules);
+
+                return in_array('*', $defaultModules, true) || in_array($moduleKey, $defaultModules, true);
+            })->map(function ($defaultModules, $roleSlug) use ($rolesBySlug) {
+                $role = $rolesBySlug->get($roleSlug);
+
+                return [
+                    'slug' => $roleSlug,
+                    'name' => $role->name ?? ucwords(str_replace(['-', '_'], ' ', $roleSlug)),
+                    'description' => $role->description ?? null,
+                ];
+            })->values();
+
+            return [$moduleKey => $defaultRoles];
+        });
     }
 
     protected function normalizeIds($ids): array

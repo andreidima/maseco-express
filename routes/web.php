@@ -84,6 +84,8 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:dashboard')->group(function () {
         Route::view('acasa', 'acasa')->name('dashboard');
         Route::view('various-tests', 'variousTests');
+        Route::view('ajutor-intern/gestionare-utilizatori', 'useri.help.permissionsMatrix')
+            ->name('help.user-management');
     });
 
     Route::prefix('tech')
