@@ -61,57 +61,7 @@ return new class extends Migration {
             }
         }
 
-        $rolePermissions = DB::table('permission_role')
-            ->select('role_id', 'permission_id')
-            ->get()
-            ->groupBy('role_id')
-            ->map(function ($items) {
-                return $items->pluck('permission_id')->unique()->all();
-            });
-
-        $userPermissions = [];
-
-        DB::table('role_user')
-            ->select('id', 'user_id', 'role_id')
-            ->orderBy('id')
-            ->chunkById(500, function ($rows) use (&$userPermissions, $rolePermissions) {
-                foreach ($rows as $row) {
-                    $roleId = (int) $row->role_id;
-                    $userId = (int) $row->user_id;
-
-                    foreach ($rolePermissions->get($roleId, []) as $permissionId) {
-                        $userPermissions[$userId][$permissionId] = true;
-                    }
-                }
-            }, 'id');
-
-        foreach ($userPermissions as $userId => $permissionSet) {
-            foreach (array_keys($permissionSet) as $permissionId) {
-                DB::table('permission_user')->updateOrInsert(
-                    [
-                        'user_id' => $userId,
-                        'permission_id' => (int) $permissionId,
-                    ],
-                    [
-                        'created_at' => $now,
-                        'updated_at' => $now,
-                    ]
-                );
-            }
-        }
-
-        foreach ($allPermissionIds as $permissionId) {
-            DB::table('permission_user')->updateOrInsert(
-                [
-                    'user_id' => 1,
-                    'permission_id' => (int) $permissionId,
-                ],
-                [
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]
-            );
-        }
+        // User permissions are now expected to be inherited from their assigned roles.
     }
 
     /**
