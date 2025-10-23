@@ -337,14 +337,14 @@ class UserRolesTest extends TestCase
     {
         [, , $mechanicRole] = $this->createCoreRoles();
 
-        $documentViewerRole = $this->ensureRole('documente-operator', ['documente'], [
-            'name' => 'Operator Documente',
-            'description' => 'Poate vizualiza documentele disponibile.',
+        $documentWordViewerRole = $this->ensureRole('documente-word-operator', ['documente-word'], [
+            'name' => 'Operator Documente Word',
+            'description' => 'Poate vizualiza documentele Word disponibile.',
         ]);
 
-        $documentManagerRole = $this->ensureRole('documente-administrator', ['documente', 'documente-manage'], [
-            'name' => 'Administrator Documente',
-            'description' => 'Poate gestiona documentele disponibile.',
+        $documentWordManagerRole = $this->ensureRole('documente-word-administrator', ['documente-word', 'documente-word-manage'], [
+            'name' => 'Administrator Documente Word',
+            'description' => 'Poate gestiona documentele Word disponibile.',
         ]);
 
         $mechanic = $this->createUserWithRoles($mechanicRole);
@@ -363,7 +363,7 @@ class UserRolesTest extends TestCase
 
         $this->actingAs($mechanic)->get('/documente-word')->assertForbidden();
 
-        $mechanic->assignRole($documentViewerRole);
+        $mechanic->assignRole($documentWordViewerRole);
 
         $indexResponse = $this->actingAs($mechanic->fresh())->get('/documente-word');
         $indexResponse->assertOk();
@@ -373,7 +373,7 @@ class UserRolesTest extends TestCase
         $editResponse = $this->actingAs($mechanic->fresh())->get($adminDocument->path() . '/modifica');
         $editResponse->assertForbidden();
 
-        $mechanic->assignRole($documentManagerRole);
+        $mechanic->assignRole($documentWordManagerRole);
 
         $indexResponse = $this->actingAs($mechanic->fresh())->get('/documente-word');
         $indexResponse->assertOk();

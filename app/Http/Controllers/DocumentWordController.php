@@ -27,7 +27,7 @@ class DocumentWordController extends Controller
             when($searchNume, function ($query, $searchNume) {
                 return $query->where('nume', 'like', '%' . $searchNume . '%');
             })
-            ->when(! $request->user()?->hasPermission('documente-manage'), function ($query) {
+            ->when(! $request->user()?->hasPermission('documente-word-manage'), function ($query) {
                 // Users without the admin document permission can see only "operator" documents
                 return $query->where('nivel_acces', 2);
             })
@@ -145,6 +145,8 @@ class DocumentWordController extends Controller
 
     public function unlock(Request $request, DocumentWord $documentWord)
     {
+        $this->authorize('unlock', $documentWord);
+
         // Unlock the record
         $documentWord->update([
             'locked_by' => null,
