@@ -958,6 +958,7 @@
                 let activeIndex = -1;
                 let selectedPieceId = hiddenInput.value ? hiddenInput.value.toString() : '';
                 let selectedLabel = '';
+                let pointerDownInDropdown = false;
 
                 function updateInputState() {
                     const hasValue = textInput.value.trim().length > 0;
@@ -1207,6 +1208,11 @@
 
                 textInput.addEventListener('blur', function () {
                     setTimeout(function () {
+                        if (pointerDownInDropdown) {
+                            textInput.focus();
+                            return;
+                        }
+
                         if (!root.contains(document.activeElement)) {
                             closeDropdown();
                             if (selectedPieceId) {
@@ -1215,6 +1221,24 @@
                             updateInputState();
                         }
                     }, 150);
+                });
+
+                dropdown.addEventListener('mousedown', function () {
+                    pointerDownInDropdown = true;
+                });
+
+                dropdown.addEventListener('mouseup', function () {
+                    pointerDownInDropdown = false;
+                });
+
+                dropdown.addEventListener('mouseleave', function (event) {
+                    if (event.buttons === 0) {
+                        pointerDownInDropdown = false;
+                    }
+                });
+
+                window.addEventListener('mouseup', function () {
+                    pointerDownInDropdown = false;
                 });
 
                 if (clearBtn) {
