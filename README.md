@@ -112,6 +112,16 @@ Follow this order in production to realign cached permissions with the updated r
 
 After these steps the `permission_user` pivot remains empty by design, and each user's effective access comes from the roles assigned in `role_user`.
 
+## Documente permission rename (March 2025)
+
+When deploying the migration that renames the `documente-admin` permission to `documente-manage`, follow these commands to refresh database state and caches so every environment picks up the new key:
+
+1. `php artisan migrate --force`
+2. `php artisan optimize:clear`
+3. (Optional but encouraged) Warm caches again afterwards: `php artisan config:cache` and `php artisan route:cache`
+
+These steps ensure role assignments are re-synchronized to the renamed permission and that cached permission maps no longer reference the old slug.
+
 ## Tech toolkit rollout checklist
 
 Follow these steps the first time you deploy the new Tech → Migration Center tooling:
