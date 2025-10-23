@@ -28,33 +28,52 @@ return new class extends Migration {
             ->where('module', 'documente-admin')
             ->first();
 
-        if ($permission !== null) {
-            $duplicateManageIds = DB::table('permissions')
+        if ($permission === null) {
+            $permission = DB::table('permissions')
+                ->select('id')
                 ->where('module', $moduleKey)
-                ->where('id', '!=', $permission->id)
-                ->pluck('id')
-                ->all();
+                ->where('slug', $slug)
+                ->first();
+        }
 
-            if (! empty($duplicateManageIds)) {
-                DB::table('permission_role')->whereIn('permission_id', $duplicateManageIds)->delete();
+        if ($permission === null) {
+            $permissionId = DB::table('permissions')->insertGetId([
+                'name' => $name,
+                'slug' => $slug,
+                'module' => $moduleKey,
+                'description' => $description,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ]);
 
-                if (Schema::hasTable('permission_user')) {
-                    DB::table('permission_user')->whereIn('permission_id', $duplicateManageIds)->delete();
-                }
+            $permission = (object) ['id' => $permissionId];
+        }
 
-                DB::table('permissions')->whereIn('id', $duplicateManageIds)->delete();
+        $duplicateManageIds = DB::table('permissions')
+            ->where('module', $moduleKey)
+            ->where('id', '!=', $permission->id)
+            ->pluck('id')
+            ->all();
+
+        if (! empty($duplicateManageIds)) {
+            DB::table('permission_role')->whereIn('permission_id', $duplicateManageIds)->delete();
+
+            if (Schema::hasTable('permission_user')) {
+                DB::table('permission_user')->whereIn('permission_id', $duplicateManageIds)->delete();
             }
 
-            DB::table('permissions')
-                ->where('id', $permission->id)
-                ->update([
-                    'name' => $name,
-                    'slug' => $slug,
-                    'module' => $moduleKey,
-                    'description' => $description,
-                    'updated_at' => $now,
-                ]);
+            DB::table('permissions')->whereIn('id', $duplicateManageIds)->delete();
         }
+
+        DB::table('permissions')
+            ->where('id', $permission->id)
+            ->update([
+                'name' => $name,
+                'slug' => $slug,
+                'module' => $moduleKey,
+                'description' => $description,
+                'updated_at' => $now,
+            ]);
 
         $this->syncRolePermissions();
     }
