@@ -229,6 +229,24 @@ class ComandaRequest extends FormRequest
                     );
                 }
             }
+
+            $selectedFormat = isset($data['transportator_format_documente']) ? (int) $data['transportator_format_documente'] : null;
+            $selectedPaymentTerm = isset($data['transportator_termen_plata_id']) ? (int) $data['transportator_termen_plata_id'] : null;
+
+            $invalidCombinations = [
+                1 => 4,
+                2 => 3,
+            ];
+
+            foreach ($invalidCombinations as $format => $paymentTerm) {
+                if ($selectedFormat === $format && $selectedPaymentTerm === $paymentTerm) {
+                    $validator->errors()->add(
+                        'transportator_termen_plata_id',
+                        'Termenul de plată selectat nu este disponibil pentru formatul documentelor ales.'
+                    );
+                    break;
+                }
+            }
         });
     }
 }

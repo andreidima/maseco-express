@@ -209,7 +209,7 @@
             </div>
             <div class="col-lg-3 mb-4">
                 <label for="transportator_termen_plata_id" class="mb-0 ps-3">Termen de plată</label>
-                <select name="transportator_termen_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_termen_plata_id') ? 'is-invalid' : '' }}">
+                <select id="transportator_termen_plata_id" name="transportator_termen_plata_id" class="form-select bg-white rounded-3 {{ $errors->has('transportator_termen_plata_id') ? 'is-invalid' : '' }}">
                     <option selected></option>
                     @foreach ($termeneDePlata as $termenDePlata)
                         <option value="{{ $termenDePlata->id }}" {{ ($termenDePlata->id === intval(old('transportator_termen_plata_id', $comanda->transportator_termen_plata_id ?? ''))) ? 'selected' : '' }}>{{ $termenDePlata->nume }}</option>
@@ -227,7 +227,7 @@
             </div>
             <div class="col-lg-2 mb-4">
                 <label for="transportator_format_documente" class="mb-0 ps-3">Format documente<span class="text-danger">*</span></label>
-                <select name="transportator_format_documente" class="form-select bg-white rounded-3 {{ $errors->has('transportator_format_documente') ? 'is-invalid' : '' }}">
+                <select id="transportator_format_documente" name="transportator_format_documente" class="form-select bg-white rounded-3 {{ $errors->has('transportator_format_documente') ? 'is-invalid' : '' }}">
                     <option selected></option>
                         <option value="1" {{ intval(old('transportator_format_documente', $comanda->transportator_format_documente === 1 )) ? 'selected' : '' }}>Per post</option>
                         <option value="2" {{ intval(old('transportator_format_documente', $comanda->transportator_format_documente === 2 )) ? 'selected' : '' }}>Digital</option>
