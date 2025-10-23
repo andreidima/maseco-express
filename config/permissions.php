@@ -42,6 +42,14 @@ return [
             'name' => 'Documente (Acțiuni)',
             'description' => 'Controlează acțiunile din coloana „Acțiuni” (încărcare, redenumire, ștergere) din managerul de fișiere.',
         ],
+        'documente-word' => [
+            'name' => 'Documente Word — Acces operativ',
+            'description' => 'Permite dispecerilor și operatorilor să creeze, să actualizeze, să caute, să vizualizeze și să descarce documentele Word cu nivel de acces „Operator” (nivel 2).',
+        ],
+        'documente-word-manage' => [
+            'name' => 'Documente Word — Administrare completă',
+            'description' => 'Permite administratorilor să creeze, să actualizeze, să blocheze și să șteargă documentele Word, inclusiv pe cele rezervate nivelului „Administrator” (nivel 1).',
+        ],
         'facturi' => [
             'name' => 'Gestionare Facturi',
             'description' => 'Include emiterea, urmărirea încasărilor și raportarea scadențarelor clienților.',
@@ -80,6 +88,7 @@ return [
             'mesagerie',
             'mementouri',
             'documente',
+            'documente-word',
             'facturi',
             'rapoarte',
         ],

@@ -337,14 +337,14 @@ class UserRolesTest extends TestCase
     {
         [, , $mechanicRole] = $this->createCoreRoles();
 
-        $documentViewerRole = $this->ensureRole('documente-operator', ['documente'], [
-            'name' => 'Operator Documente',
-            'description' => 'Poate vizualiza documentele disponibile.',
+        $documentWordViewerRole = $this->ensureRole('documente-word-operator', ['documente-word'], [
+            'name' => 'Operator Documente Word',
+            'description' => 'Poate vizualiza documentele Word disponibile.',
         ]);
 
-        $documentManagerRole = $this->ensureRole('documente-administrator', ['documente', 'documente-manage'], [
-            'name' => 'Administrator Documente',
-            'description' => 'Poate gestiona documentele disponibile.',
+        $documentWordManagerRole = $this->ensureRole('documente-word-administrator', ['documente-word', 'documente-word-manage'], [
+            'name' => 'Administrator Documente Word',
+            'description' => 'Poate gestiona documentele Word disponibile.',
         ]);
 
         $mechanic = $this->createUserWithRoles($mechanicRole);
@@ -363,17 +363,44 @@ class UserRolesTest extends TestCase
 
         $this->actingAs($mechanic)->get('/documente-word')->assertForbidden();
 
-        $mechanic->assignRole($documentViewerRole);
+        $mechanic->assignRole($documentWordViewerRole);
 
         $indexResponse = $this->actingAs($mechanic->fresh())->get('/documente-word');
         $indexResponse->assertOk();
         $indexResponse->assertSee($operatorDocument->nume, false);
         $indexResponse->assertDontSee($adminDocument->nume, false);
 
+        $createResponse = $this->actingAs($mechanic->fresh())->post('/documente-word', [
+            'nume' => 'Procedura Operatori',
+            'nivel_acces' => 1,
+            'continut' => json_encode(['content' => 'operator']),
+        ]);
+        $createResponse->assertRedirect('/documente-word');
+
+        $this->assertDatabaseHas('documente_word', [
+            'nume' => 'Procedura Operatori',
+            'nivel_acces' => 2,
+        ]);
+
+        $updateResponse = $this->actingAs($mechanic->fresh())->put($operatorDocument->path(), [
+            'nume' => 'Manual Operator',
+            'nivel_acces' => 1,
+            'continut' => json_encode(['content' => 'operator-updated']),
+        ]);
+        $updateResponse->assertRedirect('/documente-word');
+        $this->assertSame(2, $operatorDocument->fresh()->nivel_acces);
+
         $editResponse = $this->actingAs($mechanic->fresh())->get($adminDocument->path() . '/modifica');
         $editResponse->assertForbidden();
 
-        $mechanic->assignRole($documentManagerRole);
+        $failedUpdate = $this->actingAs($mechanic->fresh())->put($adminDocument->path(), [
+            'nume' => $adminDocument->nume,
+            'nivel_acces' => 1,
+            'continut' => json_encode(['content' => 'admin']),
+        ]);
+        $failedUpdate->assertForbidden();
+
+        $mechanic->assignRole($documentWordManagerRole);
 
         $indexResponse = $this->actingAs($mechanic->fresh())->get('/documente-word');
         $indexResponse->assertOk();
@@ -383,6 +410,14 @@ class UserRolesTest extends TestCase
         $editResponse = $this->actingAs($mechanic->fresh())->get($adminDocument->path() . '/modifica');
         $editResponse->assertOk();
         $editResponse->assertSee($adminDocument->nume, false);
+
+        $successfulUpdate = $this->actingAs($mechanic->fresh())->put($adminDocument->path(), [
+            'nume' => 'Procedura Administrativa',
+            'nivel_acces' => 1,
+            'continut' => json_encode(['content' => 'admin-updated']),
+        ]);
+        $successfulUpdate->assertRedirect('/documente-word');
+        $this->assertSame(1, $adminDocument->fresh()->nivel_acces);
     }
 
     public function test_primary_admin_user_is_not_mistaken_for_mechanic_when_role_is_missing(): void

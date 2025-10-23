@@ -26,9 +26,11 @@
             </form>
         </div>
         <div class="col-lg-3 text-end">
-            <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ url()->current() }}/adauga" role="button">
-                <i class="fas fa-plus-square text-white me-1"></i>Adaugă Document Word
-            </a>
+            @can('create', \App\Models\DocumentWord::class)
+                <a class="btn btn-sm btn-success text-white border border-dark rounded-3 col-md-8" href="{{ url()->current() }}/adauga" role="button">
+                    <i class="fas fa-plus-square text-white me-1"></i>Adaugă Document Word
+                </a>
+            @endcan
         </div>
     </div>
 

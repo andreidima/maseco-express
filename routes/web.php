@@ -138,8 +138,20 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/fisiere/{categorieFisier}', FisierController::class)->parameters(['{categorieFisier}' => 'fisier']);
         Route::get('/fisiere/{categorieFisier}/{fisier}/descarca', [FisierController::class, 'descarca']);
 
+    });
+
+    Route::middleware('permission:documente-word')->group(function () {
+        Route::resource('/documente-word', DocumentWordController::class)
+            ->only(['index', 'show', 'create', 'store', 'edit', 'update'])
+            ->parameters(['documente-word' => 'documentWord']);
+    });
+
+    Route::middleware('permission:documente-word-manage')->group(function () {
         Route::get('/documente-word/{documentWord}/unlock', [DocumentWordController::class, 'unlock'])->name('documentWord.unlock');
-        Route::resource('/documente-word', DocumentWordController::class)->parameters(['documente-word' => 'documentWord']);
+
+        Route::resource('/documente-word', DocumentWordController::class)
+            ->only(['destroy'])
+            ->parameters(['documente-word' => 'documentWord']);
     });
 
     Route::middleware('permission:firme')->group(function () {

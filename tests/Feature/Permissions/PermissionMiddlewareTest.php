@@ -39,6 +39,7 @@ class PermissionMiddlewareTest extends TestCase
         return [
             'dashboard' => ['GET', '/acasa', 'dashboard'],
             'document manager' => ['GET', '/file-manager-personalizat', 'documente'],
+            'document word library' => ['GET', '/documente-word', 'documente-word'],
             'companies' => ['GET', '/firme/transportatori', 'firme'],
             'trucks' => ['GET', '/camioane', 'camioane'],
             'operation sites' => ['GET', '/locuri-operare', 'locuri-operare'],
