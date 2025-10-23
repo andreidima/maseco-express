@@ -142,7 +142,7 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:documente-word')->group(function () {
         Route::resource('/documente-word', DocumentWordController::class)
-            ->only(['index', 'show'])
+            ->only(['index', 'show', 'create', 'store', 'edit', 'update'])
             ->parameters(['documente-word' => 'documentWord']);
     });
 
@@ -150,7 +150,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/documente-word/{documentWord}/unlock', [DocumentWordController::class, 'unlock'])->name('documentWord.unlock');
 
         Route::resource('/documente-word', DocumentWordController::class)
-            ->except(['index', 'show'])
+            ->only(['destroy'])
             ->parameters(['documente-word' => 'documentWord']);
     });
 

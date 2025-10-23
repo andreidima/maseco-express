@@ -46,6 +46,8 @@ class DocumentWordController extends Controller
      */
     public function create(Request $request)
     {
+        $this->authorize('create', DocumentWord::class);
+
         $request->session()->get('documentWordReturnUrl') ?? $request->session()->put('documentWordReturnUrl', url()->previous());
 
         $documentWord = new DocumentWord;
@@ -62,7 +64,15 @@ class DocumentWordController extends Controller
      */
     public function store(DocumentWordRequest $request)
     {
-        $documentWord = DocumentWord::create($request->validated());
+        $this->authorize('create', DocumentWord::class);
+
+        $data = $request->validated();
+
+        if (! $request->user()?->hasPermission('documente-word-manage')) {
+            $data['nivel_acces'] = 2;
+        }
+
+        $documentWord = DocumentWord::create($data);
 
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost adăugat cu succes!');
     }
@@ -118,6 +128,10 @@ class DocumentWordController extends Controller
 
         $data = $request->validated();
 
+        if (! $request->user()?->hasPermission('documente-word-manage')) {
+            $data['nivel_acces'] = 2;
+        }
+
         // Add the lock release fields to the update data
         $data['locked_by'] = null;
         $data['locked_at'] = null;
@@ -136,7 +150,7 @@ class DocumentWordController extends Controller
     public function destroy(Request $request, DocumentWord $documentWord)
     {
         // This will throw an authorization exception if the user is not allowed
-        $this->authorize('update', $documentWord);
+        $this->authorize('delete', $documentWord);
 
         $documentWord->delete();
 
