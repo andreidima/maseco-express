@@ -83,6 +83,7 @@ class ServiceMasiniTest extends TestCase
         $response = $this->actingAs($user)->post(route('service-masini.entries.store', $masina), [
             'tip' => 'manual',
             'denumire_interventie' => 'Schimb ulei',
+            'cod_piesa' => 'MAN-001',
             'data_montaj' => now()->toDateString(),
             'nume_mecanic' => 'Mecanic Test',
             'observatii' => 'Ulei 5W40',
@@ -94,6 +95,65 @@ class ServiceMasiniTest extends TestCase
             'masina_id' => $masina->id,
             'tip' => 'manual',
             'denumire_interventie' => 'Schimb ulei',
+            'cod_piesa' => 'MAN-001',
+        ]);
+    }
+
+    public function test_manual_intervention_is_blocked_when_stock_exists_for_code(): void
+    {
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        GestiunePiesa::factory()->count(2)->create([
+            'cod' => 'DUPLICATE',
+            'nr_bucati' => 3,
+        ]);
+
+        $response = $this->actingAs($user)->from(route('service-masini.index', ['masina_id' => $masina->id]))
+            ->post(route('service-masini.entries.store', $masina), [
+                'form_context' => 'entry_store',
+                'tip' => 'manual',
+                'denumire_interventie' => 'Diagnoză manuală',
+                'cod_piesa' => 'DUPLICATE',
+                'data_montaj' => now()->toDateString(),
+                'nume_mecanic' => 'Ion Blocaj',
+            ]);
+
+        $response->assertRedirect();
+        $response->assertSessionHasErrors('cod_piesa');
+        $this->assertDatabaseMissing('service_masina_service_entries', [
+            'masina_id' => $masina->id,
+            'denumire_interventie' => 'Diagnoză manuală',
+        ]);
+    }
+
+    public function test_manual_intervention_is_allowed_when_stock_is_zero_for_code(): void
+    {
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        GestiunePiesa::factory()->create([
+            'cod' => 'ZERO-STOCK',
+            'nr_bucati' => 0,
+        ]);
+        GestiunePiesa::factory()->create([
+            'cod' => 'ZERO-STOCK',
+            'nr_bucati' => 0,
+        ]);
+
+        $response = $this->actingAs($user)->post(route('service-masini.entries.store', $masina), [
+            'tip' => 'manual',
+            'denumire_interventie' => 'Intervenție cu cod',
+            'cod_piesa' => 'ZERO-STOCK',
+            'data_montaj' => now()->toDateString(),
+            'nume_mecanic' => 'Ion Aprobat',
+        ]);
+
+        $response->assertRedirect();
+
+        $this->assertDatabaseHas('service_masina_service_entries', [
+            'masina_id' => $masina->id,
+            'tip' => 'manual',
+            'denumire_interventie' => 'Intervenție cu cod',
+            'cod_piesa' => 'ZERO-STOCK',
         ]);
     }
 

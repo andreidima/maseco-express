@@ -395,7 +395,7 @@
                                                             {{ $entry->denumire_interventie ?? '—' }}
                                                         @endif
                                                     </td>
-                                                    <td>{{ $entry->tip === 'piesa' ? ($entry->cod_piesa ?? '—') : '—' }}</td>
+                                                    <td>{{ $entry->cod_piesa ?? '—' }}</td>
                                                     <td>
                                                         @if ($entry->tip === 'piesa')
                                                             {{ $entry->cantitate !== null ? number_format((float) $entry->cantitate, 2) : '—' }}
@@ -472,6 +472,7 @@
             $createEntryMechanic = $createEntryOld ? old('nume_mecanic') : '';
             $createEntryObservatii = $createEntryOld ? old('observatii') : '';
             $createEntryDenumire = $createEntryOld ? old('denumire_interventie') : '';
+            $createEntryCod = $createEntryOld ? old('cod_piesa') : '';
             @endphp
         <div class="modal fade" id="createEntryModal" tabindex="-1" aria-labelledby="createEntryModalLabel"
             aria-hidden="true">
@@ -564,6 +565,17 @@
                                 @endif
                             </div>
 
+                            <div class="col-lg-6" data-entry="manual">
+                                <label for="cod_piesa_create" class="form-label small text-muted mb-1">Cod piesă
+                                    <small class="text-muted">(pentru intervenții manuale)</small>
+                                </label>
+                                <input type="text" class="form-control rounded-3" id="cod_piesa_create" name="cod_piesa"
+                                    value="{{ $createEntryCod }}">
+                                @if ($createEntryOld && $errors->has('cod_piesa'))
+                                    <div class="text-danger small mt-1">{{ $errors->first('cod_piesa') }}</div>
+                                @endif
+                            </div>
+
                             <div class="col-lg-6">
                                 <label for="data_montaj_create" class="form-label small text-muted mb-1">Data intervenției
                                     <span class="text-danger">*</span></label>
@@ -616,6 +628,9 @@
                 $editEntryDenumire = $entryOldMatchesEditing
                     ? old('denumire_interventie', $editingEntry->denumire_interventie)
                     : $editingEntry->denumire_interventie;
+                $editEntryCod = $entryOldMatchesEditing
+                    ? old('cod_piesa', $editingEntry->cod_piesa)
+                    : $editingEntry->cod_piesa;
                 $editEntryDateDefault = optional($editingEntry->data_montaj)->toDateString() ?? now()->toDateString();
                 $editEntryDate = $entryOldMatchesEditing ? old('data_montaj', $editEntryDateDefault) : $editEntryDateDefault;
                 $editEntryMechanic = $entryOldMatchesEditing ? old('nume_mecanic', $editingEntry->nume_mecanic) : $editingEntry->nume_mecanic;
@@ -712,6 +727,17 @@
                                         name="denumire_interventie" value="{{ $editEntryDenumire }}">
                                     @if ($entryOldMatchesEditing && $errors->has('denumire_interventie'))
                                         <div class="text-danger small mt-1">{{ $errors->first('denumire_interventie') }}</div>
+                                    @endif
+                                </div>
+
+                                <div class="col-lg-6" data-entry="manual">
+                                    <label for="cod_piesa_edit" class="form-label small text-muted mb-1">Cod piesă
+                                        <small class="text-muted">(pentru intervenții manuale)</small>
+                                    </label>
+                                    <input type="text" class="form-control rounded-3" id="cod_piesa_edit" name="cod_piesa"
+                                        value="{{ $editEntryCod }}">
+                                    @if ($entryOldMatchesEditing && $errors->has('cod_piesa'))
+                                        <div class="text-danger small mt-1">{{ $errors->first('cod_piesa') }}</div>
                                     @endif
                                 </div>
 

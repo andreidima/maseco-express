@@ -96,7 +96,7 @@
                             {{ $entry->denumire_interventie ?? '—' }}
                         @endif
                     </td>
-                    <td>{{ $entry->tip === 'piesa' ? ($entry->cod_piesa ?? '—') : '—' }}</td>
+                    <td>{{ $entry->cod_piesa ?? '—' }}</td>
                     <td>
                         @if ($entry->tip === 'piesa')
                             {{ $entry->cantitate !== null ? number_format((float) $entry->cantitate, 2) : '—' }}
