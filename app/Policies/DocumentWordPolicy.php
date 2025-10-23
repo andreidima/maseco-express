@@ -29,7 +29,7 @@ class DocumentWordPolicy
      */
     public function create(User $user): bool
     {
-        //
+        return $user->hasPermission('documente-word') || $user->hasPermission('documente-word-manage');
     }
 
     /**
@@ -37,9 +37,13 @@ class DocumentWordPolicy
      */
     public function update(User $user, DocumentWord $documentWord): Response
     {
+        if (! $user->hasPermission('documente-word') && ! $user->hasPermission('documente-word-manage')) {
+            return Response::deny('Nu ai permisiunea „Documente Word — Acces operativ” necesară pentru a modifica acest document.');
+        }
+
         // Check if the document has admin-only rights and the user isn't an admin
         if ($documentWord->nivel_acces === 1 && ! $user->hasPermission('documente-word-manage')) {
-            return Response::deny('Nu ai drepturi să modifici acest document.');
+            return Response::deny('Nu ai permisiunea „Documente Word — Administrare completă” necesară pentru a modifica acest document.');
         }
 
         // Check if the record is locked by someone else
@@ -55,9 +59,13 @@ class DocumentWordPolicy
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, DocumentWord $documentWord): bool
+    public function delete(User $user, DocumentWord $documentWord): Response
     {
-        //
+        if (! $user->hasPermission('documente-word-manage')) {
+            return Response::deny('Nu ai permisiunea „Documente Word — Administrare completă” necesară pentru a modifica acest document.');
+        }
+
+        return $this->update($user, $documentWord);
     }
 
     /**
