@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -48,7 +49,7 @@ class UserController extends Controller
 
         $user = new User();
         $roles = $this->availableRolesForUser();
-        $moduleRoleMatrix = $this->moduleRoleMatrix();
+        $moduleRoleMatrix = $this->moduleRoleMatrix($roles);
 
         return view('useri.create', compact('user', 'roles', 'moduleRoleMatrix'));
     }
@@ -102,7 +103,7 @@ class UserController extends Controller
 
         $user->load(['roles']);
         $roles = $this->availableRolesForUser($user);
-        $moduleRoleMatrix = $this->moduleRoleMatrix();
+        $moduleRoleMatrix = $this->moduleRoleMatrix($roles);
 
         return view('useri.edit', compact('user', 'roles', 'moduleRoleMatrix'));
     }
@@ -206,7 +207,7 @@ class UserController extends Controller
         return $query->where('slug', '!=', 'super-admin')->get();
     }
 
-    protected function moduleRoleMatrix()
+    protected function moduleRoleMatrix(?Collection $visibleRoles = null)
     {
         $modules = collect(config('permissions.modules', []));
         $roleDefaults = collect(config('permissions.role_defaults', []));
@@ -215,13 +216,31 @@ class UserController extends Controller
             return collect();
         }
 
-        $rolesBySlug = Role::query()
-            ->whereIn('slug', $roleDefaults->keys()->all())
-            ->get(['id', 'slug', 'name', 'description'])
-            ->keyBy('slug');
+        $visibleRoleSlugs = $visibleRoles
+            ? $visibleRoles->pluck('slug')->filter()->unique()->values()
+            : collect();
 
-        return $modules->mapWithKeys(function ($moduleDetails, $moduleKey) use ($roleDefaults, $rolesBySlug) {
-            $defaultRoles = $roleDefaults->filter(function ($defaultModules) use ($moduleKey) {
+        $filteredRoleDefaults = $visibleRoleSlugs->isNotEmpty()
+            ? $visibleRoleSlugs->mapWithKeys(function ($roleSlug) use ($roleDefaults) {
+                if (! $roleDefaults->has($roleSlug)) {
+                    return [];
+                }
+
+                return [$roleSlug => $roleDefaults->get($roleSlug)];
+            })
+            : $roleDefaults;
+
+        $roleSlugs = $filteredRoleDefaults->keys();
+
+        $rolesBySlug = $roleSlugs->isNotEmpty()
+            ? Role::query()
+                ->whereIn('slug', $roleSlugs->all())
+                ->get(['id', 'slug', 'name', 'description'])
+                ->keyBy('slug')
+            : collect();
+
+        return $modules->mapWithKeys(function ($moduleDetails, $moduleKey) use ($filteredRoleDefaults, $rolesBySlug) {
+            $defaultRoles = $filteredRoleDefaults->filter(function ($defaultModules) use ($moduleKey) {
                 $defaultModules = Arr::wrap($defaultModules);
 
                 return in_array('*', $defaultModules, true) || in_array($moduleKey, $defaultModules, true);
