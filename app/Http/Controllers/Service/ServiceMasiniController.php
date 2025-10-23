@@ -115,6 +115,11 @@ class ServiceMasiniController extends Controller
                     }
                 } else {
                     $entry->denumire_interventie = $data['denumire_interventie'];
+                    $manualCode = trim((string) ($data['cod_piesa'] ?? ''));
+                    $entry->cod_piesa = $manualCode !== '' ? $manualCode : null;
+                    $entry->gestiune_piesa_id = null;
+                    $entry->denumire_piesa = null;
+                    $entry->cantitate = null;
                 }
 
                 $entry->save();
@@ -229,7 +234,8 @@ class ServiceMasiniController extends Controller
                 } else {
                     $entry->gestiune_piesa_id = null;
                     $entry->denumire_piesa = null;
-                    $entry->cod_piesa = null;
+                    $manualCode = trim((string) ($data['cod_piesa'] ?? ''));
+                    $entry->cod_piesa = $manualCode !== '' ? $manualCode : null;
                     $entry->cantitate = null;
                     $entry->denumire_interventie = $data['denumire_interventie'];
                 }
