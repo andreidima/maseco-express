@@ -53,7 +53,8 @@ class PermissionMiddlewareTest extends TestCase
             'vehicle service' => ['GET', '/service-masini', 'service-masini'],
             'user management' => ['GET', '/utilizatori', 'users'],
             'tech impersonation' => ['GET', '/tech/impersonation', 'tech-tools'],
-            'fuel stations' => ['GET', '/statii-peco', 'comenzi'],
+            'fuel stations' => ['GET', '/statii-peco', 'statii-peco'],
+            'fuel stations import' => ['POST', '/statii-peco/excel-import', 'statii-peco'],
         ];
     }
 }

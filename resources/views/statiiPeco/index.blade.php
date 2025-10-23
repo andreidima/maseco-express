@@ -1,6 +1,11 @@
 @extends ('layouts.app')
 
 @section('content')
+@php
+    $currentUser = auth()->user();
+    $canImportStations = $currentUser?->hasPermission('statii-peco') || $currentUser?->hasPermission('statii-peco-manage');
+    $canMassDeleteStations = $currentUser?->hasPermission('statii-peco-manage');
+@endphp
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
             <div class="col-lg-3">
@@ -34,16 +39,18 @@
                 </form>
             </div>
             <div class="col-lg-3 text-end">
-                <a href="#"
-                    class="mb-1 btn btn-sm btn-success text-white border border-dark rounded-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#adaugaStatiiPeco"
-                    title="Adaugă stații peco"
-                    >
-                    <i class="fas fa-plus-square text-white me-1"></i>Adaugă stații peco
-                </a>
+                @if ($canImportStations)
+                    <a href="#"
+                        class="mb-1 btn btn-sm btn-success text-white border border-dark rounded-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#adaugaStatiiPeco"
+                        title="Adaugă stații peco"
+                        >
+                        <i class="fas fa-plus-square text-white me-1"></i>Adaugă stații peco
+                    </a>
+                @endif
 
-                @can('is-admin')
+                @if ($canMassDeleteStations)
                     <br>
                     <a href="#"
                         class="btn btn-sm btn-danger text-white border border-dark rounded-3"
@@ -52,7 +59,7 @@
                         title="Șterge stații peco"
                         >
                         <i class="far fa-trash-alt text-white me-1"></i>Șterge stațiile căutate</a>
-                @endcan
+                @endif
             </div>
         </div>
 
@@ -100,6 +107,7 @@
     </div>
 
     {{-- Modal to add statii peco --}}
+    @if ($canImportStations)
     <div id="disableButton1">
         <div class="modal fade text-dark" id="adaugaStatiiPeco" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -146,9 +154,10 @@
             </div>
         </div>
     </div>
+    @endif
 
     {{-- Modal to mass delete statii peco --}}
-    @can('is-admin')
+    @if ($canMassDeleteStations)
     <div id="disableButton2">
     <div class="modal fade text-dark" id="stergeStatiiPeco" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -187,5 +196,5 @@
         </div>
     </div>
     </div>
-    @endcan
+    @endif
 @endsection
