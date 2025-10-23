@@ -42,6 +42,14 @@ return [
             'name' => 'Documente (Acțiuni)',
             'description' => 'Controlează acțiunile din coloana „Acțiuni” (încărcare, redenumire, ștergere) din managerul de fișiere.',
         ],
+        'documente-word' => [
+            'name' => 'Documente Word (vizualizare)',
+            'description' => 'Permite accesul la biblioteca de documente Word interne.',
+        ],
+        'documente-word-manage' => [
+            'name' => 'Documente Word (Acțiuni)',
+            'description' => 'Autorizează modificarea, adăugarea și ștergerea documentelor Word.',
+        ],
         'facturi' => [
             'name' => 'Gestionare Facturi',
             'description' => 'Include emiterea, urmărirea încasărilor și raportarea scadențarelor clienților.',
@@ -86,6 +94,13 @@ return [
         'mecanic' => [
             'service-masini',
             'gestiune-piese',
+        ],
+        'documente-word-operator' => [
+            'documente-word',
+        ],
+        'documente-word-administrator' => [
+            'documente-word',
+            'documente-word-manage',
         ],
     ],
 ];
