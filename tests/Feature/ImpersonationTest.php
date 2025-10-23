@@ -21,6 +21,21 @@ class ImpersonationTest extends TestCase
         $response->assertSee('Impersonare utilizatori');
     }
 
+    public function test_impersonation_index_excludes_super_admin_account(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+        $visibleUser = User::factory()->create([
+            'name' => 'Visible Operator',
+            'activ' => 1,
+        ]);
+
+        $response = $this->actingAs($superAdmin)->get(route('tech.impersonation.index'));
+
+        $response->assertOk();
+        $response->assertSee($visibleUser->name);
+        $response->assertDontSee($superAdmin->name);
+    }
+
     public function test_super_admin_can_impersonate_a_user(): void
     {
         $superAdmin = $this->createSuperAdmin();
@@ -167,8 +182,8 @@ class ImpersonationTest extends TestCase
             'Zed Admin',
             'Alpha Mechanic',
             'Beta Operator',
-            'Root User',
         ]);
+        $response->assertDontSee('Root User');
     }
 
     public function test_impersonation_index_shows_only_active_accounts(): void
@@ -238,6 +253,20 @@ class ImpersonationTest extends TestCase
         $attemptResponse->assertRedirect(route('tech.impersonation.index'));
         $attemptResponse->assertSessionHas('impersonation_status', 'Nu poți impersona acest cont.');
         $this->assertAuthenticatedAs($userFour);
+    }
+
+    public function test_super_admin_cannot_impersonate_super_account_via_direct_post(): void
+    {
+        $superAccount = $this->createSuperAdmin();
+        $actingSuperAdmin = $this->createSuperAdmin();
+
+        $response = $this->actingAs($actingSuperAdmin)->post(route('tech.impersonation.start'), [
+            'user_id' => $superAccount->id,
+        ]);
+
+        $response->assertRedirect(route('tech.impersonation.index'));
+        $response->assertSessionHas('impersonation_status', 'Nu poți impersona acest cont.');
+        $this->assertAuthenticatedAs($actingSuperAdmin);
     }
 
     private function createSuperAdmin(): User

@@ -21,6 +21,7 @@ class ImpersonationController extends Controller
         $users = User::query()
             ->with('roles')
             ->where('activ', 1)
+            ->whereKeyNot(1)
             ->when(! empty($restrictedTargetIds), function ($query) use ($restrictedTargetIds) {
                 $query->whereNotIn('id', $restrictedTargetIds);
             })
@@ -60,7 +61,7 @@ class ImpersonationController extends Controller
                 ->with('impersonation_status', 'Ești deja autentificat ca acest utilizator.');
         }
 
-        if (in_array($targetUser->id, $restrictedTargetIds, true)) {
+        if ($targetUser->id === 1 || in_array($targetUser->id, $restrictedTargetIds, true)) {
             return redirect()
                 ->route('tech.impersonation.index')
                 ->with('impersonation_status', 'Nu poți impersona acest cont.');
