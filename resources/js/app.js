@@ -1139,3 +1139,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Optional: stop timer when navigating away
     window.addEventListener('beforeunload', () => { if (timerId) clearTimeout(timerId); });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+    const formatSelect = document.getElementById('transportator_format_documente');
+    const termSelect = document.getElementById('transportator_termen_plata_id');
+
+    if (!formatSelect || !termSelect) {
+        return;
+    }
+
+    const forbiddenPairs = {
+        '1': ['4'],
+        '2': ['3'],
+    };
+
+    const updatePaymentTermOptions = () => {
+        const selectedFormat = formatSelect.value;
+        const disallowedTerms = forbiddenPairs[selectedFormat] ?? [];
+
+        Array.from(termSelect.options).forEach((option) => {
+            const shouldDisable = disallowedTerms.includes(option.value);
+
+            option.disabled = shouldDisable;
+
+            if (shouldDisable && termSelect.value === option.value) {
+                termSelect.value = '';
+                termSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    };
+
+    formatSelect.addEventListener('change', updatePaymentTermOptions);
+
+    updatePaymentTermOptions();
+});
