@@ -92,6 +92,7 @@
                 @include('useri.partials.permissionsMatrix', [
                     'moduleRoleMatrix' => $moduleRoleMatrix,
                     'moduleDefinitions' => $permissionDefinitions,
+                    'visibleRoles' => $availableRoles,
                 ])
             </div>
         @endif

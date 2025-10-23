@@ -20,14 +20,14 @@
                         <ul class="mb-4">
                             <li><strong>Coloana „Modul”</strong> indică funcționalitatea din aplicație (ex.: Comenzi, Documente, Service).</li>
                             <li><strong>Descrierea</strong> sintetizează ce acoperă modulul respectiv pentru a-ți reaminti rapid scopul lui.</li>
-                            <li><strong>Rolurile cu acces implicit</strong> afișează insigne pentru fiecare rol care acordă automat modulul atunci când este atribuit unui utilizator.</li>
+                            <li><strong>Fiecare rol vizibil are propria coloană</strong>; bifele verzi indică modulele acordate implicit de acel rol, iar simbolul „—” arată că modulul nu este inclus.</li>
                         </ul>
 
                         <h2 class="h6 text-uppercase text-muted">Recomandări pentru onboarding</h2>
                         <ul class="mb-4">
                             <li>Înainte de a bifa rolurile, consultă legenda pentru a verifica dacă permisiunile implicite acoperă responsabilitățile noului coleg.</li>
                             <li>Dacă un rol nu oferă toate modulele necesare, combină-l cu alte roluri relevante – permisiunile directe nu mai sunt configurabile individual.</li>
-                            <li>Păstrează supravegherea asupra rolurilor speciale (ex. Super Admin) – acestea apar în legendă pentru transparență, dar rămân rezervate echipei de administratori principali.</li>
+                            <li>Păstrează supravegherea asupra rolurilor speciale (ex. Super Admin) – acestea apar în legendă doar pentru administratorii cu acces la ele și rămân rezervate echipei principale.</li>
                         </ul>
 
                         <h2 class="h6 text-uppercase text-muted">Actualizarea permisiunilor existente</h2>
