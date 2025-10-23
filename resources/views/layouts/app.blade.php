@@ -226,7 +226,7 @@
             ],
             ['type' => 'divider'],
             [
-                'permission' => 'comenzi',
+                'permission' => 'statii-peco',
                 'href' => '/statii-peco',
                 'icon' => 'fa-solid fa-gas-pump',
                 'label' => 'Stații peco',

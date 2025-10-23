@@ -324,7 +324,7 @@ Route::middleware(['auth'])->group(function () {
                 ->name('plati-calupuri.descarca-fisier');
         });
 
-    Route::middleware('permission:comenzi')->group(function () {
+    Route::middleware('permission:statii-peco')->group(function () {
         Route::get('/statii-peco', [StatiePecoController::class, 'index']);
         Route::post('/statii-peco/excel-import', [StatiePecoController::class, 'excelImport']);
     });

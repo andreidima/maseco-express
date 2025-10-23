@@ -17,6 +17,7 @@ class StatiePecoController extends Controller
     {
         $searchNumarStatie = $request->searchNumarStatie;
         $searchNume = $request->searchNume;
+        $user = $request->user();
 
         $statiiPeco = StatiePeco::
             when($searchNumarStatie, function ($query, $searchNumarStatie) {
@@ -33,8 +34,7 @@ class StatiePecoController extends Controller
         $totalCount = $statiiPeco->count();
 
         if ($request->action === "massDelete") {
-            // Check if the user has the required permissions for mass deletion
-            if (! $request->user()?->hasPermission('comenzi')) {
+            if (! $user || ! $user->hasPermission('statii-peco-manage')) {
                 abort(403, 'Unauthorized action.');
             }
 
@@ -67,6 +67,12 @@ class StatiePecoController extends Controller
 
     public function excelImport(Request $request)
     {
+        $user = $request->user();
+
+        if (! $user || ! ($user->hasPermission('statii-peco-manage') || $user->hasPermission('statii-peco'))) {
+            abort(403, 'Unauthorized action.');
+        }
+
         // Validate the uploaded file
         $request->validate([
             'fisier_excel' => 'required|mimes:xls,xlsx'
