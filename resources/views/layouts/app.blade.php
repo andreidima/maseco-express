@@ -233,7 +233,7 @@
             ],
             ['type' => 'divider'],
             [
-                'permission' => 'documente',
+                'permission' => 'documente-word',
                 'href' => '/documente-word',
                 'icon' => 'fa-solid fa-file-word',
                 'label' => 'Documente word',
