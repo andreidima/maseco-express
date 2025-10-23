@@ -26,6 +26,14 @@ return [
             'name' => 'Gestionare Comenzi',
             'description' => 'Reunește fluxul de creare, planificare și urmărire a comenzilor și curselor.',
         ],
+        'statii-peco' => [
+            'name' => 'Stații Peco',
+            'description' => 'Permite consultarea catalogului de stații peco și încărcarea de fișiere Excel cu noi înregistrări.',
+        ],
+        'statii-peco-manage' => [
+            'name' => 'Stații Peco (Ștergeri în masă)',
+            'description' => 'Limitează operațiunile destructive (ex. ștergere în masă) la rolurile administrative.',
+        ],
         'mesagerie' => [
             'name' => 'Gestionare Mesagerie',
             'description' => 'Acoperă notificările interne, comunicările către șoferi și istoricul mesajelor.',
@@ -91,10 +99,18 @@ return [
             'documente-word',
             'facturi',
             'rapoarte',
+            'statii-peco',
         ],
         'mecanic' => [
             'service-masini',
             'gestiune-piese',
+        ],
+        'documente-word-operator' => [
+            'documente-word',
+        ],
+        'documente-word-administrator' => [
+            'documente-word',
+            'documente-word-manage',
         ],
     ],
 ];

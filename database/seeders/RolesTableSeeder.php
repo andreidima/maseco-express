@@ -46,6 +46,22 @@ class RolesTableSeeder extends Seeder
             ]
         );
 
+        $documenteWordOperator = Role::firstOrCreate(
+            ['slug' => 'documente-word-operator'],
+            [
+                'name' => 'Operator Documente Word',
+                'description' => 'Poate consulta biblioteca de documente Word.',
+            ]
+        );
+
+        $documenteWordAdministrator = Role::firstOrCreate(
+            ['slug' => 'documente-word-administrator'],
+            [
+                'name' => 'Administrator Documente Word',
+                'description' => 'Gestionează conținutul bibliotecii de documente Word.',
+            ]
+        );
+
         $permissions = Permission::all();
         $permissionMap = $permissions->keyBy('module');
         $roleDefaults = collect(config('permissions.role_defaults', []));
@@ -73,6 +89,8 @@ class RolesTableSeeder extends Seeder
         $syncPermissions($admin);
         $syncPermissions($dispecer);
         $syncPermissions($mecanic);
+        $syncPermissions($documenteWordOperator);
+        $syncPermissions($documenteWordAdministrator);
 
         $user = User::find(1);
 
