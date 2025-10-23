@@ -22,7 +22,120 @@
     $updateMasinaOld = $formContext === 'update_masina' && $selectedMasinaId && (int) old('masina_id') === $selectedMasinaId;
     $updateMasinaErrorFields = $createMasinaErrorFields;
     $shouldShowEditModal = $updateMasinaOld && collect($updateMasinaErrorFields)->contains(fn ($field) => $errors->has($field));
+
+    $pieceComboboxDataset = collect($availablePieces ?? [])->map(function ($piesa) {
+        $denumire = (string) ($piesa->denumire ?? '');
+        $cod = (string) ($piesa->cod ?? '');
+        $labelName = trim($denumire);
+
+        if ($cod !== '') {
+            $labelName = $labelName !== '' ? $labelName . ' (' . $cod . ')' : '(' . $cod . ')';
+        }
+
+        $stockLabel = number_format((float) $piesa->nr_bucati, 2) . ' buc';
+        $label = $labelName !== '' ? $labelName . ' - ' . $stockLabel : $stockLabel;
+
+        return [
+            'id' => (string) $piesa->id,
+            'denumire' => $denumire,
+            'cod' => $cod,
+            'label' => $label,
+        ];
+    })->values();
 @endphp
+
+@push('page-styles')
+    <style>
+        .piece-combobox {
+            position: relative;
+        }
+
+        .piece-combobox__input {
+            padding-right: 2.5rem;
+        }
+
+        .piece-combobox__clear {
+            position: absolute;
+            top: 50%;
+            right: 0.75rem;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #6c757d;
+            padding: 0;
+            line-height: 1;
+            display: none;
+            cursor: pointer;
+        }
+
+        .piece-combobox__clear:hover {
+            color: #495057;
+        }
+
+        .piece-combobox__clear:focus-visible {
+            outline: 2px solid rgba(13, 110, 253, 0.5);
+            outline-offset: 2px;
+        }
+
+        .piece-combobox.has-value .piece-combobox__clear {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .piece-combobox__dropdown {
+            display: none;
+            position: absolute;
+            left: 0;
+            right: 0;
+            z-index: 1061;
+            background-color: #fff;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-top: none;
+            border-bottom-left-radius: 0.75rem;
+            border-bottom-right-radius: 0.75rem;
+            max-height: 240px;
+            overflow-y: auto;
+            margin-top: -1px;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .piece-combobox.is-open .piece-combobox__dropdown {
+            display: block;
+        }
+
+        .piece-combobox.is-open .piece-combobox__input {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .piece-combobox__option {
+            display: block;
+            width: 100%;
+            border: 0;
+            background: transparent;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+            font-size: 0.9375rem;
+            cursor: pointer;
+        }
+
+        .piece-combobox__option:hover,
+        .piece-combobox__option.is-active {
+            background-color: rgba(13, 110, 253, 0.12);
+        }
+
+        .piece-combobox__option.is-selected {
+            font-weight: 600;
+        }
+
+        .piece-combobox__empty {
+            padding: 0.5rem 0.75rem;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+@endpush
 
 @section('content')
     <div class="mx-3 px-3 card mx-auto" style="border-radius: 40px 40px 40px 40px;">
@@ -404,20 +517,24 @@
 
                         <div class="row g-3">
                             <div class="col-lg-6" data-entry="piesa">
-                                <label for="gestiune_piesa_id_create" class="form-label small text-muted mb-1">Piesă
+                                <label for="gestiune_piesa_search_create" class="form-label small text-muted mb-1">Piesă
                                     <span class="text-danger">*</span>
                                     <small class="text-muted">(pentru alocări din gestiune)</small>
                                 </label>
-                                <select name="gestiune_piesa_id" id="gestiune_piesa_id_create"
-                                    class="form-select rounded-3">
-                                    <option value="">Selectează piesa</option>
-                                    @foreach ($availablePieces as $piesa)
-                                        <option value="{{ $piesa->id }}" @selected($createEntrySelectedPiece === $piesa->id)>
-                                            {{ $piesa->denumire }} ({{ $piesa->cod }}) -
-                                            {{ number_format((float) $piesa->nr_bucati, 2) }} buc
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="piece-combobox" data-piece-combobox>
+                                    <input type="hidden" name="gestiune_piesa_id" id="gestiune_piesa_id_create"
+                                        value="{{ $createEntrySelectedPiece }}">
+                                    <input type="text" class="form-control rounded-3 piece-combobox__input"
+                                        id="gestiune_piesa_search_create" placeholder="Caută după denumire sau cod"
+                                        autocomplete="off" role="combobox" aria-expanded="false"
+                                        aria-controls="gestiune_piesa_dropdown_create" aria-haspopup="listbox"
+                                        aria-autocomplete="list">
+                                    <button type="button" class="piece-combobox__clear" aria-label="Șterge selecția">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                    <div class="piece-combobox__dropdown shadow-sm" id="gestiune_piesa_dropdown_create"
+                                        role="listbox"></div>
+                                </div>
                                 @if ($createEntryOld && $errors->has('gestiune_piesa_id'))
                                     <div class="text-danger small mt-1">{{ $errors->first('gestiune_piesa_id') }}</div>
                                 @endif
@@ -551,20 +668,24 @@
 
                             <div class="row g-3">
                                 <div class="col-lg-6" data-entry="piesa">
-                                    <label for="gestiune_piesa_id_edit" class="form-label small text-muted mb-1">Piesă
+                                    <label for="gestiune_piesa_search_edit" class="form-label small text-muted mb-1">Piesă
                                         <span class="text-danger">*</span>
                                         <small class="text-muted">(pentru alocări din gestiune)</small>
                                     </label>
-                                    <select name="gestiune_piesa_id" id="gestiune_piesa_id_edit"
-                                        class="form-select rounded-3">
-                                        <option value="">Selectează piesa</option>
-                                        @foreach ($availablePieces as $piesa)
-                                            <option value="{{ $piesa->id }}" @selected($editEntrySelectedPiece === $piesa->id)>
-                                                {{ $piesa->denumire }} ({{ $piesa->cod }}) -
-                                                {{ number_format((float) $piesa->nr_bucati, 2) }} buc
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="piece-combobox" data-piece-combobox>
+                                        <input type="hidden" name="gestiune_piesa_id" id="gestiune_piesa_id_edit"
+                                            value="{{ $editEntrySelectedPiece }}">
+                                        <input type="text" class="form-control rounded-3 piece-combobox__input"
+                                            id="gestiune_piesa_search_edit" placeholder="Caută după denumire sau cod"
+                                            autocomplete="off" role="combobox" aria-expanded="false"
+                                            aria-controls="gestiune_piesa_dropdown_edit" aria-haspopup="listbox"
+                                            aria-autocomplete="list">
+                                        <button type="button" class="piece-combobox__clear" aria-label="Șterge selecția">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                        <div class="piece-combobox__dropdown shadow-sm" id="gestiune_piesa_dropdown_edit"
+                                            role="listbox"></div>
+                                    </div>
                                     @if ($entryOldMatchesEditing && $errors->has('gestiune_piesa_id'))
                                         <div class="text-danger small mt-1">{{ $errors->first('gestiune_piesa_id') }}</div>
                                     @endif
@@ -790,6 +911,377 @@
 @push('page-scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const pieceComboboxRaw = @json($pieceComboboxDataset);
+            const normalizedPieces = Array.isArray(pieceComboboxRaw)
+                ? pieceComboboxRaw.map(function (piece) {
+                    const den = piece && piece.denumire ? String(piece.denumire) : '';
+                    const cod = piece && piece.cod ? String(piece.cod) : '';
+                    const label = piece && piece.label ? String(piece.label) : '';
+                    const id = piece && piece.id !== undefined && piece.id !== null ? String(piece.id) : '';
+
+                    return {
+                        id: id,
+                        denumire: den,
+                        cod: cod,
+                        label: label,
+                        denLower: den.toLowerCase(),
+                        codLower: cod.toLowerCase(),
+                        labelLower: label.toLowerCase(),
+                    };
+                })
+                : [];
+
+            const COMBOBOX_LIMIT = 50;
+            const comboboxInstances = [];
+
+            function initPieceCombobox(root, uniqueIndex) {
+                const hiddenInput = root.querySelector('input[type="hidden"]');
+                const textInput = root.querySelector('.piece-combobox__input');
+                const dropdown = root.querySelector('.piece-combobox__dropdown');
+                const clearBtn = root.querySelector('.piece-combobox__clear');
+
+                if (!hiddenInput || !textInput || !dropdown) {
+                    return null;
+                }
+
+                if (!dropdown.id) {
+                    dropdown.id = 'piece-combobox-options-' + Date.now() + '-' + uniqueIndex;
+                }
+
+                textInput.setAttribute('aria-controls', dropdown.id);
+                textInput.setAttribute('aria-haspopup', 'listbox');
+                textInput.setAttribute('aria-autocomplete', 'list');
+                textInput.setAttribute('aria-expanded', 'false');
+
+                let filteredPieces = [];
+                let isOpen = false;
+                let activeIndex = -1;
+                let selectedPieceId = hiddenInput.value ? hiddenInput.value.toString() : '';
+                let selectedLabel = '';
+                let pointerDownInDropdown = false;
+
+                function updateInputState() {
+                    const hasValue = textInput.value.trim().length > 0;
+                    root.classList.toggle('has-value', hasValue);
+                }
+
+                function syncSelectedFromHidden() {
+                    selectedPieceId = hiddenInput.value ? hiddenInput.value.toString() : '';
+                    if (selectedPieceId) {
+                        const match = normalizedPieces.find(function (piece) {
+                            return piece.id === selectedPieceId;
+                        });
+
+                        if (match) {
+                            selectedLabel = match.label;
+                            textInput.value = match.label;
+                        } else {
+                            selectedPieceId = '';
+                            selectedLabel = '';
+                            hiddenInput.value = '';
+                        }
+                    } else {
+                        selectedLabel = '';
+                    }
+
+                    updateInputState();
+                }
+
+                function buildFiltered(query) {
+                    const q = query.trim().toLowerCase();
+                    if (!q) {
+                        return normalizedPieces.slice(0, COMBOBOX_LIMIT);
+                    }
+
+                    return normalizedPieces
+                        .filter(function (piece) {
+                            return (
+                                piece.denLower.includes(q) ||
+                                piece.codLower.includes(q) ||
+                                piece.labelLower.includes(q)
+                            );
+                        })
+                        .slice(0, COMBOBOX_LIMIT);
+                }
+
+                function openDropdown() {
+                    if (isOpen) {
+                        return;
+                    }
+
+                    isOpen = true;
+                    root.classList.add('is-open');
+                    textInput.setAttribute('aria-expanded', 'true');
+                }
+
+                function closeDropdown() {
+                    if (!isOpen) {
+                        return;
+                    }
+
+                    isOpen = false;
+                    root.classList.remove('is-open');
+                    textInput.setAttribute('aria-expanded', 'false');
+                    activeIndex = -1;
+                    textInput.removeAttribute('aria-activedescendant');
+                    dropdown.querySelectorAll('.piece-combobox__option').forEach(function (optionEl) {
+                        optionEl.classList.remove('is-active');
+                        optionEl.setAttribute('aria-selected', 'false');
+                    });
+                }
+
+                function setActiveIndex(index, options) {
+                    if (!filteredPieces.length) {
+                        activeIndex = -1;
+                        textInput.removeAttribute('aria-activedescendant');
+                        return;
+                    }
+
+                    const opts = Object.assign({ scroll: true }, options || {});
+
+                    if (index < 0) {
+                        index = filteredPieces.length - 1;
+                    } else if (index >= filteredPieces.length) {
+                        index = 0;
+                    }
+
+                    activeIndex = index;
+
+                    const optionEls = dropdown.querySelectorAll('.piece-combobox__option');
+                    optionEls.forEach(function (optionEl, idx) {
+                        const isActive = idx === activeIndex;
+                        optionEl.classList.toggle('is-active', isActive);
+                        optionEl.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                        if (isActive) {
+                            textInput.setAttribute('aria-activedescendant', optionEl.id);
+                            if (opts.scroll) {
+                                optionEl.scrollIntoView({ block: 'nearest' });
+                            }
+                        }
+                    });
+
+                    if (activeIndex === -1 || !optionEls.length) {
+                        textInput.removeAttribute('aria-activedescendant');
+                    }
+                }
+
+                function selectPiece(piece) {
+                    if (!piece) {
+                        return;
+                    }
+
+                    selectedPieceId = piece.id;
+                    selectedLabel = piece.label;
+                    hiddenInput.value = piece.id;
+                    hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    textInput.value = piece.label;
+                    updateInputState();
+                    closeDropdown();
+                }
+
+                function renderOptions() {
+                    dropdown.innerHTML = '';
+
+                    if (!filteredPieces.length) {
+                        const empty = document.createElement('div');
+                        empty.className = 'piece-combobox__empty';
+                        empty.textContent = normalizedPieces.length
+                            ? 'Nu s-au găsit rezultate'
+                            : 'Nu există piese disponibile';
+                        dropdown.appendChild(empty);
+                        activeIndex = -1;
+                        textInput.removeAttribute('aria-activedescendant');
+                        return;
+                    }
+
+                    const fragment = document.createDocumentFragment();
+                    filteredPieces.forEach(function (piece, index) {
+                        const option = document.createElement('button');
+                        option.type = 'button';
+                        option.className = 'piece-combobox__option';
+                        option.setAttribute('role', 'option');
+                        option.dataset.index = String(index);
+                        option.dataset.pieceId = piece.id;
+                        option.id = dropdown.id + '-option-' + index;
+                        option.textContent = piece.label;
+
+                        if (piece.id === selectedPieceId) {
+                            option.classList.add('is-selected');
+                        }
+
+                        option.addEventListener('mousedown', function (event) {
+                            event.preventDefault();
+                            selectPiece(piece);
+                        });
+
+                        option.addEventListener('mouseenter', function () {
+                            setActiveIndex(index, { scroll: false });
+                        });
+
+                        fragment.appendChild(option);
+                    });
+
+                    dropdown.appendChild(fragment);
+
+                    const selectedIndex = filteredPieces.findIndex(function (piece) {
+                        return piece.id === selectedPieceId;
+                    });
+
+                    if (selectedIndex >= 0) {
+                        setActiveIndex(selectedIndex, { scroll: false });
+                    } else {
+                        setActiveIndex(filteredPieces.length ? 0 : -1, { scroll: false });
+                    }
+                }
+
+                function updateDropdown(open) {
+                    filteredPieces = buildFiltered(textInput.value);
+                    renderOptions();
+                    if (open) {
+                        openDropdown();
+                    }
+                }
+
+                syncSelectedFromHidden();
+
+                textInput.addEventListener('focus', function () {
+                    updateDropdown(true);
+                });
+
+                textInput.addEventListener('click', function () {
+                    updateDropdown(true);
+                });
+
+                textInput.addEventListener('input', function () {
+                    const value = textInput.value;
+                    const exactMatch = normalizedPieces.find(function (piece) {
+                        return piece.label === value;
+                    });
+
+                    if (exactMatch) {
+                        selectedPieceId = exactMatch.id;
+                        selectedLabel = exactMatch.label;
+                        hiddenInput.value = exactMatch.id;
+                    } else {
+                        selectedPieceId = '';
+                        selectedLabel = '';
+                        hiddenInput.value = '';
+                    }
+
+                    updateInputState();
+                    updateDropdown(true);
+                });
+
+                textInput.addEventListener('keydown', function (event) {
+                    if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        if (!isOpen) {
+                            updateDropdown(true);
+                        } else {
+                            setActiveIndex(activeIndex + 1);
+                        }
+                    } else if (event.key === 'ArrowUp') {
+                        event.preventDefault();
+                        if (!isOpen) {
+                            updateDropdown(true);
+                        } else {
+                            setActiveIndex(activeIndex - 1);
+                        }
+                    } else if (event.key === 'Enter') {
+                        if (isOpen && activeIndex >= 0 && filteredPieces[activeIndex]) {
+                            event.preventDefault();
+                            selectPiece(filteredPieces[activeIndex]);
+                        }
+                    } else if (event.key === 'Escape') {
+                        if (isOpen) {
+                            event.preventDefault();
+                            closeDropdown();
+                            if (selectedPieceId) {
+                                textInput.value = selectedLabel;
+                            }
+                            updateInputState();
+                        }
+                    } else if (event.key === 'Tab') {
+                        closeDropdown();
+                    }
+                });
+
+                textInput.addEventListener('blur', function () {
+                    setTimeout(function () {
+                        if (pointerDownInDropdown) {
+                            textInput.focus();
+                            return;
+                        }
+
+                        if (!root.contains(document.activeElement)) {
+                            closeDropdown();
+                            if (selectedPieceId) {
+                                textInput.value = selectedLabel;
+                            }
+                            updateInputState();
+                        }
+                    }, 150);
+                });
+
+                dropdown.addEventListener('mousedown', function () {
+                    pointerDownInDropdown = true;
+                });
+
+                dropdown.addEventListener('mouseup', function () {
+                    pointerDownInDropdown = false;
+                });
+
+                dropdown.addEventListener('mouseleave', function (event) {
+                    if (event.buttons === 0) {
+                        pointerDownInDropdown = false;
+                    }
+                });
+
+                window.addEventListener('mouseup', function () {
+                    pointerDownInDropdown = false;
+                });
+
+                if (clearBtn) {
+                    clearBtn.addEventListener('click', function () {
+                        selectedPieceId = '';
+                        selectedLabel = '';
+                        hiddenInput.value = '';
+                        hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                        textInput.value = '';
+                        updateInputState();
+                        closeDropdown();
+                        textInput.focus();
+                        updateDropdown(true);
+                    });
+                }
+
+                return {
+                    root: root,
+                    close: closeDropdown,
+                };
+            }
+
+            document.querySelectorAll('[data-piece-combobox]').forEach(function (element, index) {
+                const instance = initPieceCombobox(element, index);
+                if (instance) {
+                    comboboxInstances.push(instance);
+                }
+            });
+
+            document.addEventListener('click', function (event) {
+                comboboxInstances.forEach(function (instance) {
+                    if (!instance.root.contains(event.target)) {
+                        instance.close();
+                    }
+                });
+            });
+
+            function closeAllComboboxes() {
+                comboboxInstances.forEach(function (instance) {
+                    instance.close();
+                });
+            }
+
             function setupEntryForm(formId) {
                 var form = document.getElementById(formId);
                 if (!form) {
@@ -799,12 +1291,19 @@
                 function toggleFields() {
                     var selectedType = form.querySelector('input[name="tip"]:checked')?.value || 'piesa';
 
+                    if (selectedType !== 'piesa') {
+                        closeAllComboboxes();
+                    }
+
+                    var hidePiesa = selectedType !== 'piesa';
+                    var hideManual = selectedType !== 'manual';
+
                     form.querySelectorAll('[data-entry="piesa"]').forEach(function (element) {
-                        element.classList.toggle('d-none', selectedType !== 'piesa');
+                        element.classList.toggle('d-none', hidePiesa);
                     });
 
                     form.querySelectorAll('[data-entry="manual"]').forEach(function (element) {
-                        element.classList.toggle('d-none', selectedType !== 'manual');
+                        element.classList.toggle('d-none', hideManual);
                     });
                 }
 
