@@ -22,6 +22,7 @@ abstract class MasinaServiceEntryRequest extends FormRequest
             'gestiune_piesa_id' => ['nullable', 'integer', 'exists:service_gestiune_piese,id'],
             'cantitate' => ['nullable', 'numeric', 'min:0.01'],
             'denumire_interventie' => ['nullable', 'string', 'max:255'],
+            'cod_piesa' => ['nullable', 'string', 'max:255'],
             'data_montaj' => ['required', 'date'],
             'nume_mecanic' => ['required', 'string', 'max:255'],
             'observatii' => ['nullable', 'string'],
@@ -60,6 +61,22 @@ abstract class MasinaServiceEntryRequest extends FormRequest
             } elseif ($tip === 'manual') {
                 if (! $this->filled('denumire_interventie')) {
                     $validator->errors()->add('denumire_interventie', 'Completează denumirea intervenției.');
+                }
+
+                $codPiesa = trim((string) $this->input('cod_piesa', ''));
+
+                if ($codPiesa !== '') {
+                    $hasStockForCode = GestiunePiesa::query()
+                        ->where('cod', $codPiesa)
+                        ->where('nr_bucati', '>', 0)
+                        ->exists();
+
+                    if ($hasStockForCode) {
+                        $validator->errors()->add(
+                            'cod_piesa',
+                            'Există stoc disponibil pentru codul introdus. Folosește alocarea din gestiune.'
+                        );
+                    }
                 }
             }
         });
