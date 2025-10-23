@@ -8,11 +8,7 @@ return [
         ],
         'users' => [
             'name' => 'Gestionare Utilizatori',
-            'description' => 'Include listarea, invitarea și administrarea conturilor și a permisiunilor individuale.',
-        ],
-        'roles' => [
-            'name' => 'Gestionare Roluri',
-            'description' => 'Acoperă configurarea rolurilor, asocierile lor și revizuirea accesului implicit.',
+            'description' => 'Include listarea, invitarea și administrarea conturilor, rolurilor și a permisiunilor individuale.',
         ],
         'firme' => [
             'name' => 'Gestionare Companii',
