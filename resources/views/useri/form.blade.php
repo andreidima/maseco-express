@@ -99,7 +99,7 @@
             <div class="col-lg-12 mb-4">
                 <label class="mb-0 ps-3">Roluri<span class="text-danger">*</span></label>
                 <div class="alert alert-info bg-light text-dark border-start border-3 border-primary small mt-2" role="alert">
-                    <strong>Rolurile controlează tot accesul.</strong> Alege combinația potrivită pentru noul cont – fiecare rol aduce permisiunile implicite afișate în legendă, iar permisiunile directe nu mai pot fi configurate individual.
+                    <strong>Rolurile controlează tot accesul.</strong> Alege combinația potrivită pentru noul cont – fiecare rol aduce permisiunile implicite afișate în legendă.
                 </div>
                 <div class="border rounded-3 p-3 bg-white {{ $errors->has('roles') || $errors->has('roles.*') ? 'border-danger' : '' }}">
                     @forelse ($availableRoles as $roleOption)
