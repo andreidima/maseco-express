@@ -263,11 +263,10 @@ class UserRolesTest extends TestCase
 
         $this->withoutMiddleware(\App\Http\Middleware\VerifyCsrfToken::class);
 
-        $response = $this->withSession(['url.intended' => '/acasa'])
-            ->post('/login', [
-                'email' => 'mechanic@example.com',
-                'password' => 'password',
-            ]);
+        $response = $this->post('/login', [
+            'email' => 'mechanic@example.com',
+            'password' => 'password',
+        ]);
 
         $response->assertRedirect(route('gestiune-piese.index'));
         $this->assertAuthenticatedAs($mechanic->fresh());
