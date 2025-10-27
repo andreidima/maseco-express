@@ -5,11 +5,11 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
+use App\Support\Navigation\MainNavigation;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate;
 
 class LoginController extends Controller
 {
@@ -37,8 +37,16 @@ class LoginController extends Controller
     {
         $user = Auth::user();
 
-        if ($user && Gate::forUser($user)->allows('gestiune-piese')) {
-            return '/gestiune-piese';
+        if ($user && $user->hasPermission('dashboard')) {
+            return route('dashboard');
+        }
+
+        if ($user) {
+            $menuUrl = MainNavigation::firstAccessibleUrlFor($user);
+
+            if ($menuUrl) {
+                return $menuUrl;
+            }
         }
 
         return $this->redirectTo;
@@ -103,9 +111,7 @@ class LoginController extends Controller
         $user->cod_email = null;
         $user->save();
 
-        if (Gate::forUser($user)->allows('gestiune-piese')) {
-            return redirect()->route('gestiune-piese.index');
-        }
+        return null;
     }
 
     private function shouldRequireEmailCode(Request $request): bool
