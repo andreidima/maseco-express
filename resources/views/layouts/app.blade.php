@@ -38,13 +38,11 @@
 <body class="d-flex flex-column h-100">
     @auth
     @php
-        use App\Support\Navigation\MainNavigation;
-
         $impersonationActive = session()->has('impersonated_by');
         $impersonatorName = session('impersonated_by_name');
         $user = auth()->user();
 
-        $navigation = MainNavigation::navigationForUser($user);
+        $navigation = \App\Support\Navigation\MainNavigation::navigationForUser($user);
         $brandHref = $navigation['brand_href'];
         $primaryNavLinks = $navigation['primary_links'];
         $resurseDropdownItems = $navigation['resurse_dropdown'];
