@@ -71,7 +71,7 @@ class MainNavigation
             ],
             ['type' => 'divider'],
             [
-                'permission' => 'service-masini',
+                'permission' => 'masini-valabilitati',
                 'href' => '/masini-valabilitati',
                 'icon' => 'fa-solid fa-truck',
                 'label' => 'Mașini valabilități',

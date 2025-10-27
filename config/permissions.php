@@ -70,6 +70,10 @@ return [
             'name' => 'Gestionare Service Auto',
             'description' => 'Include recepția în service, programările, istoricul intervențiilor și validarea lucrărilor.',
         ],
+        'masini-valabilitati' => [
+            'name' => 'Resurse — Mașini valabilități',
+            'description' => 'Permite consultarea și actualizarea valabilităților pentru parcul auto.',
+        ],
         'gestiune-piese' => [
             'name' => 'Gestionare Stoc Piese',
             'description' => 'Acoperă stocurile de piese, transferurile interne și inventarele periodice.',
@@ -100,6 +104,7 @@ return [
             'facturi',
             'rapoarte',
             'statii-peco',
+            'masini-valabilitati',
         ],
         'mecanic' => [
             'service-masini',
@@ -107,10 +112,12 @@ return [
         ],
         'documente-word-operator' => [
             'documente-word',
+            'masini-valabilitati',
         ],
         'documente-word-administrator' => [
             'documente-word',
             'documente-word-manage',
+            'masini-valabilitati',
         ],
     ],
 ];

@@ -271,8 +271,11 @@ Route::middleware(['auth'])->group(function () {
             ->name('service-masini.sheet.destroy');
         Route::get('/service-masini/{masina}/foaie-service/{sheet}/pdf', [ServiceSheetController::class, 'download'])
             ->name('service-masini.sheet.download');
+    });
 
-        Route::resource('masini-valabilitati', MasinaValabilitatiController::class)->parameters(['masini-valabilitati' => 'masinaValabilitati']);
+    Route::middleware('permission:masini-valabilitati')->group(function () {
+        Route::resource('masini-valabilitati', MasinaValabilitatiController::class)
+            ->parameters(['masini-valabilitati' => 'masinaValabilitati']);
     });
 
     Route::middleware('permission:rapoarte')->group(function () {
