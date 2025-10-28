@@ -9,6 +9,8 @@ class MasinaDocumentFisier extends Model
 {
     use HasFactory;
 
+    protected $table = 'masini_documente_fisiere';
+
     protected $fillable = [
         'cale',
         'nume_fisier',
