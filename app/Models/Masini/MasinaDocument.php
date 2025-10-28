@@ -10,6 +10,8 @@ class MasinaDocument extends Model
 {
     use HasFactory;
 
+    protected $table = 'masini_documente';
+
     public const TYPE_ITP = 'itp';
     public const TYPE_RCA = 'rca';
     public const TYPE_COPIE_CONFORMA = 'copie_conforma';

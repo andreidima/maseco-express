@@ -9,6 +9,8 @@ class MasinaMemento extends Model
 {
     use HasFactory;
 
+    protected $table = 'masini_mementouri';
+
     protected $fillable = [
         'email_notificari',
         'telefon_notificari',
