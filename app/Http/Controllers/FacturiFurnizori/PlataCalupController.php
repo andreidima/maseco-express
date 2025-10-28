@@ -112,9 +112,32 @@ class PlataCalupController extends Controller
             ->sortBy(fn (FacturaFurnizor $factura) => $factura->data_scadenta?->timestamp ?? PHP_INT_MAX)
             ->values();
 
-        $totaluriFacturiCalup = $facturiCalup
+        $totaluriFacturiCalupPeMoneda = $facturiCalup
             ->groupBy(fn (FacturaFurnizor $factura) => $factura->moneda)
-            ->map(fn ($facturi) => $facturi->sum('suma'));
+            ->map(fn ($facturi) => $facturi->sum('suma'))
+            ->sortKeys();
+
+        $totaluriFacturiCalupPeFurnizor = $facturiCalup
+            ->groupBy(function (FacturaFurnizor $factura) {
+                $furnizorId = $factura->furnizor_id ?? 'null';
+
+                return $furnizorId . '|' . $factura->denumire_furnizor;
+            })
+            ->map(function ($facturi) {
+                /** @var \Illuminate\Support\Collection<int, FacturaFurnizor> $facturi */
+                $primul = $facturi->first();
+
+                return [
+                    'furnizor_id' => $primul->furnizor_id ?? null,
+                    'furnizor' => $primul->denumire_furnizor,
+                    'totals' => $facturi
+                        ->groupBy(fn (FacturaFurnizor $factura) => $factura->moneda)
+                        ->map(fn ($facturiMoneda) => $facturiMoneda->sum('suma'))
+                        ->sortKeys(),
+                ];
+            })
+            ->sortBy('furnizor')
+            ->values();
 
         $facturiDisponibile = FacturaFurnizor::query()
             ->whereDoesntHave('calupuri')
@@ -126,7 +149,8 @@ class PlataCalupController extends Controller
         return view('facturiFurnizori.calupuri.show', [
             'calup' => $plataCalup,
             'facturiCalup' => $facturiCalup,
-            'totaluriFacturiCalup' => $totaluriFacturiCalup,
+            'totaluriFacturiCalupPeMoneda' => $totaluriFacturiCalupPeMoneda,
+            'totaluriFacturiCalupPeFurnizor' => $totaluriFacturiCalupPeFurnizor,
             'facturiDisponibile' => $facturiDisponibile,
         ]);
     }
