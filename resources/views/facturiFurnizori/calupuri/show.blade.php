@@ -138,6 +138,17 @@
                                     </tr>
                                 @endforeach
                             </tbody>
+                            @if ($totaluriFacturiCalup->isNotEmpty())
+                                <tfoot>
+                                    @foreach ($totaluriFacturiCalup as $moneda => $total)
+                                        <tr class="fw-semibold">
+                                            <td colspan="3" class="text-end">Total {{ $moneda }}</td>
+                                            <td class="text-end">{{ number_format($total, 2) }} {{ $moneda }}</td>
+                                            <td></td>
+                                        </tr>
+                                    @endforeach
+                                </tfoot>
+                            @endif
                         </table>
                     </div>
                 @endif
