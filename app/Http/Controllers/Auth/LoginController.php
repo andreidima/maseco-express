@@ -40,35 +40,17 @@ class LoginController extends Controller
     {
         $user = Auth::user();
 
-        Log::debug('Login redirectTo invoked', [
-            'user_id' => $user?->id,
-        ]);
-
         if ($user && $user->hasPermission('dashboard')) {
-            Log::debug('Login redirecting to dashboard', [
-                'user_id' => $user->id,
-            ]);
-
             return route('dashboard');
         }
 
         if ($user) {
             $menuUrl = MainNavigation::firstAccessibleUrlFor($user);
 
-            Log::debug('Login menu candidate resolved', [
-                'user_id' => $user->id,
-                'menu_url' => $menuUrl,
-            ]);
-
             if ($menuUrl) {
                 return $menuUrl;
             }
         }
-
-        Log::debug('Login falling back to default redirect', [
-            'user_id' => $user?->id,
-            'fallback' => $this->redirectTo,
-        ]);
 
         return $this->redirectTo;
     }
@@ -93,28 +75,11 @@ class LoginController extends Controller
         $intendedEvaluation = $this->evaluateIntendedRedirect($intendedUrl, $user);
 
         if ($intendedEvaluation['allowed']) {
-            Log::debug('Login honoring intended redirect', [
-                'user_id' => $user?->id,
-                'intended_url' => $intendedUrl,
-            ]);
-
             return redirect()->to($intendedUrl);
         }
 
         if ($intendedUrl) {
-            Log::debug('Login ignoring intended redirect', [
-                'user_id' => $user?->id,
-                'intended_url' => $intendedUrl,
-                'reason' => $intendedEvaluation['reason'] ?? null,
-                'missing_permissions' => $intendedEvaluation['missing_permissions'] ?? [],
-                'missing_roles' => $intendedEvaluation['missing_roles'] ?? [],
-            ]);
         }
-
-        Log::debug('Login using default redirect', [
-            'user_id' => $user?->id,
-            'redirect_path' => $defaultRedirect,
-        ]);
 
         return redirect()->to($defaultRedirect);
     }
