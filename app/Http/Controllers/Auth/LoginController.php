@@ -11,6 +11,8 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Throwable;
 
 class LoginController extends Controller
 {
@@ -81,16 +83,114 @@ class LoginController extends Controller
         $this->clearLoginAttempts($request);
 
         $user = $this->guard()->user();
-        $redirectPath = $this->redirectPath();
+        $defaultRedirect = $this->redirectPath();
+        $intendedUrl = $request->session()->pull('url.intended');
 
-        Log::debug('Login sendLoginResponse resolving redirect', [
+        if ($response = $this->authenticated($request, $user)) {
+            return $response;
+        }
+
+        $intendedEvaluation = $this->evaluateIntendedRedirect($intendedUrl, $user);
+
+        if ($intendedEvaluation['allowed']) {
+            Log::debug('Login honoring intended redirect', [
+                'user_id' => $user?->id,
+                'intended_url' => $intendedUrl,
+            ]);
+
+            return redirect()->to($intendedUrl);
+        }
+
+        if ($intendedUrl) {
+            Log::debug('Login ignoring intended redirect', [
+                'user_id' => $user?->id,
+                'intended_url' => $intendedUrl,
+                'reason' => $intendedEvaluation['reason'] ?? null,
+                'missing_permissions' => $intendedEvaluation['missing_permissions'] ?? [],
+                'missing_roles' => $intendedEvaluation['missing_roles'] ?? [],
+            ]);
+        }
+
+        Log::debug('Login using default redirect', [
             'user_id' => $user?->id,
-            'intended_url' => $request->session()->get('url.intended'),
-            'redirect_path' => $redirectPath,
+            'redirect_path' => $defaultRedirect,
         ]);
 
-        return $this->authenticated($request, $user)
-            ?: redirect()->intended($redirectPath);
+        return redirect()->to($defaultRedirect);
+    }
+
+    protected function evaluateIntendedRedirect(?string $intendedUrl, ?User $user): array
+    {
+        if (! $intendedUrl) {
+            return ['allowed' => false, 'reason' => 'missing-intended-url'];
+        }
+
+        if (! $user) {
+            return ['allowed' => false, 'reason' => 'missing-user'];
+        }
+
+        $path = parse_url($intendedUrl, PHP_URL_PATH) ?? '/';
+
+        try {
+            $route = app('router')->getRoutes()->match(Request::create($path, 'GET'));
+        } catch (Throwable $exception) {
+            Log::debug('Login intended redirect route match failed', [
+                'user_id' => $user->id,
+                'intended_url' => $intendedUrl,
+                'exception_class' => get_class($exception),
+                'exception_message' => $exception->getMessage(),
+            ]);
+
+            return ['allowed' => false, 'reason' => 'unmatched-route'];
+        }
+
+        $missingPermissions = [];
+        $missingRoles = [];
+
+        foreach ($route->gatherMiddleware() as $middleware) {
+            if (Str::startsWith($middleware, 'permission:')) {
+                $requiredPermissions = preg_split('/[|,]/', Str::after($middleware, 'permission:'), -1, PREG_SPLIT_NO_EMPTY);
+
+                foreach ($requiredPermissions as $permission) {
+                    $permission = trim($permission);
+
+                    if ($permission === '') {
+                        continue;
+                    }
+
+                    if (! $user->hasPermission($permission)) {
+                        $missingPermissions[] = $permission;
+                    }
+                }
+            }
+
+            if (Str::startsWith($middleware, 'role:')) {
+                $requiredRoles = preg_split('/[|,]/', Str::after($middleware, 'role:'), -1, PREG_SPLIT_NO_EMPTY);
+
+                foreach ($requiredRoles as $role) {
+                    $role = trim($role);
+
+                    if ($role === '') {
+                        continue;
+                    }
+
+                    if (! $user->hasRole($role)) {
+                        $missingRoles[] = $role;
+                    }
+                }
+            }
+        }
+
+        if (! empty($missingPermissions) || ! empty($missingRoles)) {
+            return [
+                'allowed' => false,
+                'reason' => 'failed-access-check',
+                'missing_permissions' => array_values(array_unique($missingPermissions)),
+                'missing_roles' => array_values(array_unique($missingRoles)),
+            ];
+        }
+
+        return ['allowed' => true];
     }
 
     /**
