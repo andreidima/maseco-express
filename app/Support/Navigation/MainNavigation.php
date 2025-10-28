@@ -172,6 +172,12 @@ class MainNavigation
                 'icon' => 'fa-solid fa-bell',
                 'label' => 'Mementouri itp + rovinieta',
             ],
+            [
+                'permission' => 'mementouri',
+                'href' => route('masini-mementouri.index'),
+                'icon' => 'fa-solid fa-car',
+                'label' => 'Mementouri mașini',
+            ],
             ['type' => 'divider'],
             [
                 'permission' => 'statii-peco',
