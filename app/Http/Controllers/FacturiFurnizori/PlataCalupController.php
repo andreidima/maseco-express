@@ -112,6 +112,10 @@ class PlataCalupController extends Controller
             ->sortBy(fn (FacturaFurnizor $factura) => $factura->data_scadenta?->timestamp ?? PHP_INT_MAX)
             ->values();
 
+        $totaluriFacturiCalup = $facturiCalup
+            ->groupBy(fn (FacturaFurnizor $factura) => $factura->moneda)
+            ->map(fn ($facturi) => $facturi->sum('suma'));
+
         $facturiDisponibile = FacturaFurnizor::query()
             ->whereDoesntHave('calupuri')
             ->orderByRaw('data_scadenta IS NULL')
@@ -122,6 +126,7 @@ class PlataCalupController extends Controller
         return view('facturiFurnizori.calupuri.show', [
             'calup' => $plataCalup,
             'facturiCalup' => $facturiCalup,
+            'totaluriFacturiCalup' => $totaluriFacturiCalup,
             'facturiDisponibile' => $facturiDisponibile,
         ]);
     }
