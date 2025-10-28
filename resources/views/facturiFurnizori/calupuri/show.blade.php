@@ -138,9 +138,9 @@
                                     </tr>
                                 @endforeach
                             </tbody>
-                            @if ($totaluriFacturiCalup->isNotEmpty())
+                            @if ($totaluriFacturiCalupPeMoneda->isNotEmpty())
                                 <tfoot>
-                                    @foreach ($totaluriFacturiCalup as $moneda => $total)
+                                    @foreach ($totaluriFacturiCalupPeMoneda as $moneda => $total)
                                         <tr class="fw-semibold">
                                             <td colspan="3" class="text-end">Total {{ $moneda }}</td>
                                             <td class="text-end">{{ number_format($total, 2) }} {{ $moneda }}</td>
@@ -151,6 +151,33 @@
                             @endif
                         </table>
                     </div>
+                    @if ($totaluriFacturiCalupPeFurnizor->isNotEmpty())
+                        <div class="mt-3">
+                            <h6 class="text-uppercase text-muted mb-2">Subtotaluri pe furnizor</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm table-bordered border-dark align-middle mb-0">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>Furnizor</th>
+                                            <th class="text-end">Totaluri</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($totaluriFacturiCalupPeFurnizor as $subtotal)
+                                            <tr>
+                                                <td class="fw-semibold">{{ $subtotal['furnizor'] }}</td>
+                                                <td class="text-end">
+                                                    @foreach ($subtotal['totals'] as $moneda => $total)
+                                                        <div>{{ number_format($total, 2) }} {{ $moneda }}</div>
+                                                    @endforeach
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    @endif
                 @endif
             </div>
 
