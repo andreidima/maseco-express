@@ -72,6 +72,28 @@ class LoginController extends Controller
     }
 
     /**
+     * Send the response after the user was authenticated.
+     */
+    protected function sendLoginResponse(Request $request)
+    {
+        $request->session()->regenerate();
+
+        $this->clearLoginAttempts($request);
+
+        $user = $this->guard()->user();
+        $redirectPath = $this->redirectPath();
+
+        Log::debug('Login sendLoginResponse resolving redirect', [
+            'user_id' => $user?->id,
+            'intended_url' => $request->session()->get('url.intended'),
+            'redirect_path' => $redirectPath,
+        ]);
+
+        return $this->authenticated($request, $user)
+            ?: redirect()->intended($redirectPath);
+    }
+
+    /**
      * Create a new controller instance.
      *
      * @return void
