@@ -27,6 +27,9 @@ use App\Http\Controllers\FlotaStatusController;
 use App\Http\Controllers\FlotaStatusInformatieController;
 use App\Http\Controllers\FlotaStatusCController;
 use App\Http\Controllers\MasinaValabilitatiController;
+use App\Http\Controllers\Masini\MasiniDocumentController;
+use App\Http\Controllers\Masini\MasiniDocumentFisierController;
+use App\Http\Controllers\Masini\MasiniMementoController;
 use App\Http\Controllers\DocumentWordController;
 use App\Http\Controllers\KeyPerformanceIndicatorController;
 use App\Http\Controllers\OfertaCursaController;
@@ -216,6 +219,19 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:mementouri')->group(function () {
         Route::resource('/mementouri/{tip}/mementouri', MementoController::class)->parameters(['mementouri' => 'memento']);
+        Route::resource('masini-mementouri', MasiniMementoController::class)
+            ->parameters(['masini-mementouri' => 'masini_mementouri']);
+
+        Route::scopeBindings()->group(function () {
+            Route::patch('masini-mementouri/{masini_mementouri}/documente/{document}', [MasiniDocumentController::class, 'update'])
+                ->name('masini-mementouri.documente.update');
+            Route::post('masini-mementouri/{masini_mementouri}/documente/{document}/fisiere', [MasiniDocumentFisierController::class, 'store'])
+                ->name('masini-mementouri.documente.fisiere.store');
+            Route::delete('masini-mementouri/{masini_mementouri}/documente/{document}/fisiere/{fisier}', [MasiniDocumentFisierController::class, 'destroy'])
+                ->name('masini-mementouri.documente.fisiere.destroy');
+            Route::get('masini-mementouri/{masini_mementouri}/documente/{document}/fisiere/{fisier}', [MasiniDocumentFisierController::class, 'download'])
+                ->name('masini-mementouri.documente.fisiere.download');
+        });
     });
 
     Route::middleware('permission:facturi')->group(function () {
