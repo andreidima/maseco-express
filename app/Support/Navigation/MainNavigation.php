@@ -4,6 +4,7 @@ namespace App\Support\Navigation;
 
 use App\Models\User;
 use App\Support\FacturiFurnizori\FacturiIndexFilterState;
+use Illuminate\Support\Facades\Log;
 
 class MainNavigation
 {
@@ -247,11 +248,27 @@ class MainNavigation
 
     public static function firstAccessibleUrlFor(?User $user): ?string
     {
+        Log::debug('MainNavigation::firstAccessibleUrlFor invoked', [
+            'user_id' => $user?->id,
+        ]);
+
         if ($user) {
             foreach (self::brandCandidates() as $candidate) {
                 if (! isset($candidate['permission']) || $user->hasPermission($candidate['permission'])) {
+                    Log::debug('MainNavigation brand candidate matched', [
+                        'user_id' => $user->id,
+                        'permission' => $candidate['permission'] ?? null,
+                        'href' => $candidate['href'],
+                    ]);
+
                     return $candidate['href'];
                 }
+
+                Log::debug('MainNavigation brand candidate skipped', [
+                    'user_id' => $user->id,
+                    'permission' => $candidate['permission'] ?? null,
+                    'href' => $candidate['href'],
+                ]);
             }
         }
 
@@ -262,15 +279,26 @@ class MainNavigation
             self::filterDropdownItems(self::utileDropdownItems(), $user),
         ];
 
-        foreach ($sections as $links) {
-            foreach ($links as $link) {
+        foreach ($sections as $sectionIndex => $links) {
+            foreach ($links as $linkIndex => $link) {
                 if (($link['type'] ?? 'link') === 'divider') {
                     continue;
                 }
 
+                Log::debug('MainNavigation non-brand candidate matched', [
+                    'user_id' => $user?->id,
+                    'section' => $sectionIndex,
+                    'link_index' => $linkIndex,
+                    'href' => $link['href'],
+                ]);
+
                 return $link['href'];
             }
         }
+
+        Log::debug('MainNavigation::firstAccessibleUrlFor found no accessible link', [
+            'user_id' => $user?->id,
+        ]);
 
         return null;
     }

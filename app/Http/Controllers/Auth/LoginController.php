@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -37,19 +38,59 @@ class LoginController extends Controller
     {
         $user = Auth::user();
 
+        Log::debug('Login redirectTo invoked', [
+            'user_id' => $user?->id,
+        ]);
+
         if ($user && $user->hasPermission('dashboard')) {
+            Log::debug('Login redirecting to dashboard', [
+                'user_id' => $user->id,
+            ]);
+
             return route('dashboard');
         }
 
         if ($user) {
             $menuUrl = MainNavigation::firstAccessibleUrlFor($user);
 
+            Log::debug('Login menu candidate resolved', [
+                'user_id' => $user->id,
+                'menu_url' => $menuUrl,
+            ]);
+
             if ($menuUrl) {
                 return $menuUrl;
             }
         }
 
+        Log::debug('Login falling back to default redirect', [
+            'user_id' => $user?->id,
+            'fallback' => $this->redirectTo,
+        ]);
+
         return $this->redirectTo;
+    }
+
+    /**
+     * Send the response after the user was authenticated.
+     */
+    protected function sendLoginResponse(Request $request)
+    {
+        $request->session()->regenerate();
+
+        $this->clearLoginAttempts($request);
+
+        $user = $this->guard()->user();
+        $redirectPath = $this->redirectPath();
+
+        Log::debug('Login sendLoginResponse resolving redirect', [
+            'user_id' => $user?->id,
+            'intended_url' => $request->session()->get('url.intended'),
+            'redirect_path' => $redirectPath,
+        ]);
+
+        return $this->authenticated($request, $user)
+            ?: redirect()->intended($redirectPath);
     }
 
     /**
