@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 
 use App\Models\Comanda;
 use App\Models\ComandaCronJob;
+use App\Models\Masini\MasinaDocument;
 use App\Models\MesajTrimisEmail;
 use Carbon\Carbon;
 use Carbon\CarbonInterval;
@@ -167,61 +168,125 @@ class CronJobController extends Controller
             echo '<br>';
         }
 
-        // Daca nu este nici o alerta setata pentru ziua curenta, se termina functia
-        if (count($mementouriAlerte) === 0){
+        if ($mementouriAlerte->isNotEmpty()){
+            // Trimitere SMS
+            $mementouriAlerteDeTrimisSmsGrupateDupaTelefon = $mementouriAlerte->whereNotNull('memento.telefon')->groupBy('memento.telefon');
+            foreach($mementouriAlerteDeTrimisSmsGrupateDupaTelefon as $mementouriAlerteDeTrimisSms){
+                $mesaj = 'Memento aplicatie! ';
+                foreach($mementouriAlerteDeTrimisSms as $alerta){
+                    $mesaj .= ($alerta->memento->nume ?? '');
+                    if ($alerta->memento->data_expirare){
+                        $mesaj .= ', expirare ' . Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY');
+                    }
+                    if ($alerta->memento->descriere){
+                        $mesaj .= ', ' . $alerta->memento->descriere;
+                    }
+                    if ($alerta->memento->observatii){
+                        $mesaj .= ', ' . $alerta->memento->observatii;
+                    }
+                    $mesaj .= ". ";
+                }
+                $this->trimiteSms('Memento', null, null, [$alerta->memento->telefon ?? ''], $mesaj);
+            }
+
+            // Trimitere email
+            foreach ($mementouriAlerte as $alerta){
+                if (isset($alerta->memento->email)){
+                    $validator = Validator::make(['email' => $alerta->memento->email], ['email' => 'email:rfc,dns',]);
+
+                    if ($validator->passes()){
+                        $subiect = $alerta->memento->nume ?? '';
+
+                        $mesaj = '';
+                        $mesaj .= 'Nume: ' . ($alerta->memento->nume ?? '') . '<br>';
+                        $mesaj .= 'Dată expirare: ' . ($alerta->memento->data_expirare ? Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY') : '') . '<br>';
+                        $mesaj .= 'Descriere: ' . ($alerta->memento->descriere ?? '') . '<br>';
+                        $mesaj .= 'Observații: ' . ($alerta->memento->observatii ?? '') . '<br>';
+                        $mesaj .= '<br>';
+
+                        // Trimitere alerta prin email
+                        \Mail::
+                            // mailer('office')
+                            // to('masecoexpres@gmail.com')
+                            to($alerta->memento->email)
+                            // to('adima@validsoftware.ro')
+                            // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
+                            // ->bcc(['andrei.dima@usm.ro'])
+                            ->send(new \App\Mail\MementoAlerta($subiect, $mesaj)
+                        );
+                    }
+                }
+            }
+        }
+
+        $this->trimiteMasiniMementouriAlerte();
+
+            // echo $mesaj;
+    }
+
+    protected function trimiteMasiniMementouriAlerte(): void
+    {
+        $documente = MasinaDocument::with(['masina.memento'])
+            ->whereNotNull('data_expirare')
+            ->get();
+
+        if ($documente->isEmpty()) {
+            echo '<b>Alerte mementouri mașini</b>: 0<br>';
             return;
         }
 
-        // Trimitere SMS
-        $mementouriAlerteDeTrimisSmsGrupateDupaTelefon = $mementouriAlerte->whereNotNull('memento.telefon')->groupBy('memento.telefon');
-        foreach($mementouriAlerteDeTrimisSmsGrupateDupaTelefon as $mementouriAlerteDeTrimisSms){
-            $mesaj = 'Memento aplicatie! ';
-            foreach($mementouriAlerteDeTrimisSms as $alerta){
-                $mesaj .= ($alerta->memento->nume ?? '');
-                if ($alerta->memento->data_expirare){
-                    $mesaj .= ', expirare ' . Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY');
-                }
-                if ($alerta->memento->descriere){
-                    $mesaj .= ', ' . $alerta->memento->descriere;
-                }
-                if ($alerta->memento->observatii){
-                    $mesaj .= ', ' . $alerta->memento->observatii;
-                }
-                $mesaj .= ". ";
+        $alerteTrimise = 0;
+
+        foreach ($documente as $document) {
+            $days = $document->daysUntilExpiry();
+
+            if ($days === null) {
+                continue;
             }
-            $this->trimiteSms('Memento', null, null, [$alerta->memento->telefon ?? ''], $mesaj);
-        }
 
-        // Trimitere email
-        foreach ($mementouriAlerte as $alerta){
-            if (isset($alerta->memento->email)){
-                $validator = Validator::make(['email' => $alerta->memento->email], ['email' => 'email:rfc,dns',]);
+            $thresholds = collect(MasinaDocument::notificationThresholds())->sortKeys();
 
-                if ($validator->passes()){
-                    $subiect = $alerta->memento->nume ?? '';
+            foreach ($thresholds as $threshold => $column) {
+                if ($days <= $threshold && !$document->{$column}) {
+                    $recipients = collect([
+                        $document->email_notificare,
+                        optional($document->masina->memento)->email_notificari,
+                    ])->filter()->unique()->values();
 
+                    if ($recipients->isEmpty()) {
+                        continue;
+                    }
+
+                    $validator = Validator::make(['emails' => $recipients->all()], ['emails.*' => 'email:rfc']);
+                    if ($validator->fails()) {
+                        $recipients = $recipients->filter(fn ($email) => filter_var($email, FILTER_VALIDATE_EMAIL));
+                    }
+
+                    if ($recipients->isEmpty()) {
+                        continue;
+                    }
+
+                    $subiect = $document->masina->numar_inmatriculare . ' - ' . $document->label();
                     $mesaj = '';
-                    $mesaj .= 'Nume: ' . ($alerta->memento->nume ?? '') . '<br>';
-                    $mesaj .= 'Dată expirare: ' . ($alerta->memento->data_expirare ? Carbon::parse($alerta->memento->data_expirare)->isoFormat('DD.MM.YYYY') : '') . '<br>';
-                    $mesaj .= 'Descriere: ' . ($alerta->memento->descriere ?? '') . '<br>';
-                    $mesaj .= 'Observații: ' . ($alerta->memento->observatii ?? '') . '<br>';
+                    $mesaj .= 'Vehicul: ' . $document->masina->numar_inmatriculare . '<br>';
+                    $mesaj .= 'Document: ' . $document->label() . '<br>';
+                    $mesaj .= 'Dată expirare: ' . ($document->data_expirare ? $document->data_expirare->isoFormat('DD.MM.YYYY') : '-') . '<br>';
+                    $mesaj .= 'Prag alertă: ' . $threshold . ' zile.<br>';
                     $mesaj .= '<br>';
 
-                    // Trimitere alerta prin email
-                    \Mail::
-                        // mailer('office')
-                        // to('masecoexpres@gmail.com')
-                        to($alerta->memento->email)
-                        // to('adima@validsoftware.ro')
-                        // ->bcc(['contact@validsoftware.ro', 'adima@validsoftware.ro'])
-                        // ->bcc(['andrei.dima@usm.ro'])
-                        ->send(new \App\Mail\MementoAlerta($subiect, $mesaj)
-                    );
+                    foreach ($recipients as $email) {
+                        Mail::to($email)->send(new \App\Mail\MementoAlerta($subiect, $mesaj));
+                    }
+
+                    $document->markThresholdAsSent($threshold);
+                    $alerteTrimise++;
+
+                    break;
                 }
             }
         }
 
-            // echo $mesaj;
+        echo '<b>Alerte mementouri mașini</b>: ' . $alerteTrimise . '<br>';
     }
 
     public function trimiteMementoFacturi($key = null){
