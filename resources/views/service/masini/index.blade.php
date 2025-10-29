@@ -943,7 +943,16 @@
                 const activeCar = carList.querySelector('.list-group-item.active');
 
                 if (activeCar) {
-                    carList.scrollTop = Math.max(0, activeCar.offsetTop);
+                    const carListRect = carList.getBoundingClientRect();
+                    const activeRect = activeCar.getBoundingClientRect();
+                    const offsetFromTop = activeRect.top - carListRect.top;
+                    const centeredOffset = offsetFromTop - Math.max(0, (carList.clientHeight - activeCar.offsetHeight) / 2);
+                    const targetScrollTop = Math.max(0, Math.min(
+                        carList.scrollHeight - carList.clientHeight,
+                        carList.scrollTop + centeredOffset
+                    ));
+
+                    carList.scrollTop = targetScrollTop;
                 }
             }
 
