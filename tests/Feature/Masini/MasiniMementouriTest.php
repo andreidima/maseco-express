@@ -12,6 +12,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class MasiniMementouriTest extends TestCase
@@ -108,5 +109,73 @@ class MasiniMementouriTest extends TestCase
         $this->assertSame('Test modificare', $masina->descriere);
         $this->assertSame('masecoexpres@gmail.com', optional($masina->memento)->email_notificari);
         $this->assertSame('Obs', optional($masina->memento)->observatii);
+    }
+
+    public function test_preview_streams_inline_for_previewable_files(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B33PDF']);
+        $document = $masina->documente()->first();
+
+        $path = 'masini-documente/' . $document->id . '/atestare.pdf';
+        $content = '%PDF-1.4 Sample';
+        Storage::disk('public')->put($path, $content);
+
+        $fisier = $document->fisiere()->create([
+            'cale' => $path,
+            'nume_fisier' => basename($path),
+            'nume_original' => 'atestare.pdf',
+            'mime_type' => 'application/pdf',
+            'dimensiune' => strlen($content),
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $fisier]));
+
+        $response->assertOk();
+        $response->assertHeader('Content-Type', 'application/pdf');
+        $this->assertStringContainsString('inline', strtolower($response->headers->get('content-disposition')));
+    }
+
+    public function test_preview_is_blocked_for_non_previewable_files_but_download_is_available(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B44DOC']);
+        $document = $masina->documente()->first();
+
+        $path = 'masini-documente/' . $document->id . '/contract.docx';
+        $content = 'Fake DOCX binary';
+        Storage::disk('public')->put($path, $content);
+
+        $fisier = $document->fisiere()->create([
+            'cale' => $path,
+            'nume_fisier' => basename($path),
+            'nume_original' => 'contract.docx',
+            'mime_type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'dimensiune' => strlen($content),
+        ]);
+
+        $previewResponse = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $fisier]));
+
+        $previewResponse->assertNotFound();
+
+        $downloadResponse = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.documente.fisiere.download', [$masina, $document, $fisier]));
+
+        $downloadResponse->assertOk();
+        $downloadResponse->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        $this->assertStringContainsString('attachment', strtolower($downloadResponse->headers->get('content-disposition')));
     }
 }

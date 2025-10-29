@@ -51,13 +51,35 @@ class MasiniDocumentFisierController extends Controller
     {
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
 
-        return Storage::disk('public')->download($fisier->cale, $fisier->nume_original);
+        $headers = [];
+
+        if ($mimeType = $fisier->guessMimeType()) {
+            $headers['Content-Type'] = $mimeType;
+        }
+
+        return Storage::disk('public')->download(
+            $fisier->cale,
+            $fisier->downloadName(),
+            $headers
+        );
     }
 
     public function preview(Masina $masina, MasinaDocument $document, MasinaDocumentFisier $fisier)
     {
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
 
-        return Storage::disk('public')->response($fisier->cale, $fisier->nume_original);
+        abort_unless($fisier->isPreviewable(), 404);
+
+        $headers = [];
+
+        if ($mimeType = $fisier->guessMimeType()) {
+            $headers['Content-Type'] = $mimeType;
+        }
+
+        return Storage::disk('public')->response(
+            $fisier->cale,
+            $fisier->downloadName(),
+            $headers
+        );
     }
 }
