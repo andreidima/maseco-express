@@ -46,7 +46,9 @@
     <div class="card-body px-0 py-3">
         @include('errors', ['showSessionAlerts' => false])
 
-        @php($statusMessage = session('status') ?? session('success'))
+        @php
+            $statusMessage = session('status') ?? session('success');
+        @endphp
 
         @if (filled($statusMessage))
             <div class="alert alert-success border border-success-subtle rounded-4 mx-3">
