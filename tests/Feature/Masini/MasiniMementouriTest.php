@@ -315,7 +315,10 @@ class MasiniMementouriTest extends TestCase
                 'fisier' => [$file],
             ]);
 
-        $response->assertRedirect(route('masini-mementouri.documente.edit', [$masina, $document]));
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
         $response->assertSessionHas('status', 'Fișierul a fost încărcat.');
 
         Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $file->hashName());
@@ -346,7 +349,10 @@ class MasiniMementouriTest extends TestCase
                 'fisier' => [$firstFile, $secondFile],
             ]);
 
-        $response->assertRedirect(route('masini-mementouri.documente.edit', [$masina, $document]));
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
         $response->assertSessionHas('status', 'Fișierele au fost încărcate.');
 
         Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $firstFile->hashName());
@@ -378,7 +384,10 @@ class MasiniMementouriTest extends TestCase
             ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
             ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), []);
 
-        $response->assertRedirect(route('masini-mementouri.documente.edit', [$masina, $document]));
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
         $response->assertSessionHasErrors('fisier');
     }
 

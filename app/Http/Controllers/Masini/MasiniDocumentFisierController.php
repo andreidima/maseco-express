@@ -17,8 +17,10 @@ use Illuminate\Validation\ValidationException;
 
 class MasiniDocumentFisierController extends Controller
 {
-    public function store(Request $request, Masina $masina, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
+    public function store(Request $request, Masina $masini_mementouri, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id, 404);
@@ -45,7 +47,10 @@ class MasiniDocumentFisierController extends Controller
                 throw new ValidationException($validator);
             }
 
-            return Redirect::route('masini-mementouri.documente.edit', [$masina, $document])
+            return Redirect::route('masini-mementouri.documente.edit', [
+                'masini_mementouri' => $masina->getRouteKey(),
+                'document' => MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+            ])
                 ->withErrors($validator)
                 ->withInput();
         }
@@ -86,12 +91,17 @@ class MasiniDocumentFisierController extends Controller
             ]);
         }
 
-        return Redirect::route('masini-mementouri.documente.edit', [$masina, $document])
+        return Redirect::route('masini-mementouri.documente.edit', [
+            'masini_mementouri' => $masina->getRouteKey(),
+            'document' => MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ])
             ->with('status', $message);
     }
 
-    public function destroy(Request $request, Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier): JsonResponse|RedirectResponse
+    public function destroy(Request $request, Masina $masini_mementouri, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier): JsonResponse|RedirectResponse
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
@@ -118,8 +128,10 @@ class MasiniDocumentFisierController extends Controller
         return Redirect::back()->with('status', 'Fișierul a fost șters.');
     }
 
-    public function download(Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
+    public function download(Masina $masini_mementouri, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
@@ -137,8 +149,10 @@ class MasiniDocumentFisierController extends Controller
         );
     }
 
-    public function preview(Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
+    public function preview(Masina $masini_mementouri, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
