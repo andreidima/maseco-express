@@ -384,10 +384,11 @@
             const activeCar = carList?.querySelector('.list-group-item.active');
 
             if (carList && activeCar) {
-                const containerTop = carList.getBoundingClientRect().top;
-                const activeTop = activeCar.getBoundingClientRect().top;
+                const containerRect = carList.getBoundingClientRect();
+                const activeRect = activeCar.getBoundingClientRect();
+                const offsetTop = activeRect.top - containerRect.top + carList.scrollTop;
 
-                carList.scrollTop += activeTop - containerTop;
+                carList.scrollTo({ top: Math.max(0, offsetTop) });
             }
         });
     </script>
