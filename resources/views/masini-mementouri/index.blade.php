@@ -30,10 +30,6 @@
             color: #000 !important;
         }
 
-        .document-legend {
-            background-color: var(--bs-body-bg);
-        }
-
         .document-legend-pill {
             border-radius: 0.75rem;
             display: inline-flex;
@@ -43,24 +39,34 @@
             padding: 0.35rem 0.75rem;
             font-weight: 600;
         }
-
-        .document-legend-pill--empty {
-            background-color: transparent;
-            color: var(--bs-primary);
-            text-decoration: underline;
-        }
     </style>
 @endpush
 
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
-    <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-        <div class="col-lg-4">
+    <div class="row card-header align-items-center gy-3" style="border-radius: 40px 40px 0px 0px;">
+        <div class="col-xl-3 col-lg-4">
             <span class="badge culoare1 fs-5">
                 <i class="fa-solid fa-car me-1"></i>Mementouri mașini
             </span>
         </div>
-        <div class="col-lg-8 text-end">
+        <div class="col-xl-6 col-lg-5">
+            <div class="p-2 px-lg-3 border border-secondary-subtle rounded-4 bg-body-tertiary h-100">
+                <p class="mb-2 text-uppercase small fw-semibold text-muted">Legendă culori</p>
+                <ul class="list-inline small mb-0 d-flex flex-wrap gap-2">
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-danger text-white">Expirat / ≤ 1 zi</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-warning">≤ 30 zile</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-success text-white">≤ 60 zile</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 text-lg-end">
             <button type="button" class="btn btn-primary border border-dark rounded-3" data-action="add-masina">
                 <i class="fa-solid fa-plus me-1"></i>Adaugă mașină
             </button>
@@ -138,7 +144,7 @@
                             @foreach ($gridDocumentTypes as $type => $label)
                                 @php
                                     $document = $documents->get($type);
-                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? 'N/A';
+                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? '—';
                                     $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
                                     $isEmpty = !$document?->data_expirare;
                                     $ariaLabel = "Actualizează {$label} pentru {$masina->numar_inmatriculare}";
@@ -158,7 +164,7 @@
                                 @php
                                     $documentKey = \App\Models\Masini\MasinaDocument::TYPE_VIGNETA . ':' . $code;
                                     $document = $documents->get($documentKey);
-                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? 'N/A';
+                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? '—';
                                     $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
                                     $isEmpty = !$document?->data_expirare;
                                     $ariaLabel = "Actualizează Vignetă {$label} pentru {$masina->numar_inmatriculare}";
