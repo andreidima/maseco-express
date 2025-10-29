@@ -175,11 +175,6 @@
                                                 <i class="fa-solid fa-database me-1"></i>Migration Center
                                             </a>
                                         </li>
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('tech.seeders.index') }}">
-                                                <i class="fa-solid fa-seedling me-1"></i>Seeder Center
-                                            </a>
-                                        </li>
                                     @endcan
                                 </ul>
                             </li>
