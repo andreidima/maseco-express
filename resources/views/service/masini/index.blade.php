@@ -222,7 +222,7 @@
                             <span class="fw-semibold"><i class="fa-solid fa-car-side me-1"></i>Mașini</span>
                         </div>
                         <div class="card-body">
-                            <div class="list-group mb-4" style="max-height: 450px; overflow-y: auto;">
+                            <div id="service-cars-list" class="list-group mb-4" style="max-height: 450px; overflow-y: auto;">
                                 @forelse ($masini as $masina)
                                     @php
                                         $masinaQuery = $queryParams;
@@ -937,6 +937,25 @@
 @push('page-scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const carList = document.getElementById('service-cars-list');
+
+            if (carList) {
+                const activeCar = carList.querySelector('.list-group-item.active');
+
+                if (activeCar) {
+                    const carListRect = carList.getBoundingClientRect();
+                    const activeRect = activeCar.getBoundingClientRect();
+                    const offsetFromTop = activeRect.top - carListRect.top;
+                    const centeredOffset = offsetFromTop - Math.max(0, (carList.clientHeight - activeCar.offsetHeight) / 2);
+                    const targetScrollTop = Math.max(0, Math.min(
+                        carList.scrollHeight - carList.clientHeight,
+                        carList.scrollTop + centeredOffset
+                    ));
+
+                    carList.scrollTop = targetScrollTop;
+                }
+            }
+
             const pieceComboboxRaw = @json($pieceComboboxDataset);
             const normalizedPieces = Array.isArray(pieceComboboxRaw)
                 ? pieceComboboxRaw.map(function (piece) {
