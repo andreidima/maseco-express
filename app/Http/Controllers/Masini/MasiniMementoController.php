@@ -80,6 +80,19 @@ class MasiniMementoController extends Controller
         ]);
     }
 
+    public function edit(Masina $masini_mementouri): View
+    {
+        $masini_mementouri->syncDefaultDocuments();
+        $masini_mementouri->loadMissing(['documente.fisiere']);
+
+        $uploadDocumentLabels = MasinaDocument::uploadDocumentLabels();
+
+        return view('masini-mementouri.edit', [
+            'masina' => $masini_mementouri,
+            'uploadDocumentLabels' => $uploadDocumentLabels,
+        ]);
+    }
+
     public function update(Request $request, Masina $masini_mementouri): RedirectResponse
     {
         $validated = $request->validate([
