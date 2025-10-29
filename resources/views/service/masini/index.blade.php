@@ -222,7 +222,7 @@
                             <span class="fw-semibold"><i class="fa-solid fa-car-side me-1"></i>Mașini</span>
                         </div>
                         <div class="card-body">
-                            <div class="list-group mb-4" style="max-height: 450px; overflow-y: auto;">
+                            <div id="service-cars-list" class="list-group mb-4" style="max-height: 450px; overflow-y: auto;">
                                 @forelse ($masini as $masina)
                                     @php
                                         $masinaQuery = $queryParams;
@@ -937,6 +937,41 @@
 @push('page-scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            const carList = document.getElementById('service-cars-list');
+
+            if (carList) {
+                const activeCar = carList.querySelector('.list-group-item.active');
+
+                if (activeCar) {
+                    const listStyles = window.getComputedStyle(carList);
+                    const itemStyles = window.getComputedStyle(activeCar);
+                    const paddingTop = parseFloat(listStyles.paddingTop) || 0;
+                    const borderTop = parseFloat(listStyles.borderTopWidth) || 0;
+                    const marginTop = parseFloat(itemStyles.marginTop) || 0;
+                    const marginBottom = parseFloat(itemStyles.marginBottom) || 0;
+                    const buttonHeight = activeCar.offsetHeight || activeCar.getBoundingClientRect().height;
+                    const maxScrollTop = Math.max(0, carList.scrollHeight - carList.clientHeight);
+                    const desiredTop = activeCar.offsetTop - paddingTop - borderTop - marginTop;
+                    const activeBottom = activeCar.offsetTop + buttonHeight + marginBottom;
+                    const extraSpace = Math.max(0, buttonHeight + marginTop);
+
+                    let targetScrollTop = Math.max(0, Math.min(desiredTop - extraSpace, maxScrollTop));
+
+                    if (targetScrollTop + paddingTop + borderTop + marginTop > activeCar.offsetTop) {
+                        targetScrollTop = Math.max(0, activeCar.offsetTop - paddingTop - borderTop - marginTop);
+                    }
+
+                    if (targetScrollTop + carList.clientHeight < activeBottom) {
+                        targetScrollTop = Math.min(
+                            Math.max(0, activeBottom - carList.clientHeight),
+                            maxScrollTop
+                        );
+                    }
+
+                    carList.scrollTop = targetScrollTop;
+                }
+            }
+
             const pieceComboboxRaw = @json($pieceComboboxDataset);
             const normalizedPieces = Array.isArray(pieceComboboxRaw)
                 ? pieceComboboxRaw.map(function (piece) {
