@@ -11,11 +11,29 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 class MasiniDocumentController extends Controller
 {
-    public function update(Request $request, Masina $masina, MasinaDocument $document): JsonResponse|RedirectResponse
+    public function edit(Masina $masina, MasinaDocument|string|int $document): View
     {
+        $document = $this->resolveDocument($masina, $document);
+
+        abort_unless($document->masina_id === $masina->id, 404);
+
+        $document->loadMissing('fisiere');
+
+        return view('masini-mementouri.document-edit', [
+            'masina' => $masina,
+            'document' => $document,
+            'documentLabel' => $document->label(),
+        ]);
+    }
+
+    public function update(Request $request, Masina $masina, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
+    {
+        $document = $this->resolveDocument($masina, $document);
+
         abort_unless($document->masina_id === $masina->id, 404);
 
         $validated = $request->validate([
@@ -58,5 +76,14 @@ class MasiniDocumentController extends Controller
         }
 
         return Redirect::back()->with('status', 'Documentul a fost actualizat.');
+    }
+
+    protected function resolveDocument(Masina $masina, MasinaDocument|string|int $document): MasinaDocument
+    {
+        if ($document instanceof MasinaDocument) {
+            return $document;
+        }
+
+        return MasinaDocument::resolveForMasina($masina, $document);
     }
 }
