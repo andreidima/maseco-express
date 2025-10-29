@@ -71,6 +71,7 @@ Route::get('/axios/trimitere-cod-autentificare-prin-email', [AxiosController::cl
 Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'afisareDocumenteIncarcateDejaSiFormular']);
 Route::post('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'salvareDocumente']);
 Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/deschide/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierDeschide']);
+Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/descarca/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierDownload']);
 Route::delete('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/sterge/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierSterge']);
 Route::post('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/trimitere-email-transportator-catre-maseco-documente-incarcate/{categorieEmail}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailTransportatorCatreMasecoDocumenteIncarcate']);
 Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/mesaj-succes-trimitere-notificare', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailTransportatorCatreMasecoDocumenteIncarcateMesajSucces']);
@@ -113,6 +114,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:documente')->group(function () {
         Route::get('/file-manager-personalizat/{cale?}', [FileManagerPersonalizatController::class, 'afisareDirectoareSiFisiere'])->where('cale', '.*');
         Route::get('/file-manager-personalizat-fisier/deschide/{cale?}', [FileManagerPersonalizatController::class, 'fisierDeschide'])->where('cale', '.*');
+        Route::get('/file-manager-personalizat-fisier/descarca/{cale?}', [FileManagerPersonalizatController::class, 'fisierDownload'])->where('cale', '.*');
 
         Route::middleware('permission:documente-manage')->group(function () {
             Route::post('/file-manager-personalizat-director/creaza', [FileManagerPersonalizatController::class, 'directorCreaza']);
@@ -179,6 +181,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/comenzi/{comanda}/fisiere-interne', [ComandaFisierInternController::class, 'afisareFisiereIncarcateDejaSiFormular']);
         Route::post('/comenzi/{comanda}/fisiere-interne', [ComandaFisierInternController::class, 'salvareDocumente']);
         Route::get('/comenzi/{comanda}/fisiere-interne/deschide/{numeFisier?}', [ComandaFisierInternController::class, 'fisierDeschide']);
+        Route::get('/comenzi/{comanda}/fisiere-interne/descarca/{numeFisier?}', [ComandaFisierInternController::class, 'fisierDownload']);
         Route::delete('/comenzi/{comanda}/fisiere-interne/sterge/{numeFisier?}', [ComandaFisierInternController::class, 'fisierSterge']);
 
         Route::resource('/comenzi', ComandaController::class)->parameters(['comenzi' => 'comanda']);

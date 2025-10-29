@@ -5,8 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use File;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
+use App\Support\BrowserViewableFile;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FileManagerPersonalizatController extends Controller
 {
@@ -132,14 +133,66 @@ class FileManagerPersonalizatController extends Controller
     public function fisierDeschide($cale = null)
     {
         try {
-            $file = Storage::disk('filemanager')->get($cale);
-            $type = Storage::disk('filemanager')->mimeType($cale);
-            $response = Response::make($file, 200);
-            $response->header("Content-Type", $type);
-            return $response;
+            $mimeType = Storage::disk('filemanager')->mimeType($cale) ?? 'application/octet-stream';
+
+            if (! BrowserViewableFile::isViewable(basename((string) $cale), $mimeType)) {
+                return $this->fisierDownload($cale);
+            }
+
+            return $this->streamFromDisk('filemanager', $cale, basename((string) $cale), $mimeType);
         } catch (FileNotFoundException $exception) {
             abort(404);
         }
+    }
+
+    public function fisierDownload($cale = null)
+    {
+        try {
+            $mimeType = Storage::disk('filemanager')->mimeType($cale) ?? 'application/octet-stream';
+
+            return $this->downloadFromDisk('filemanager', $cale, basename((string) $cale), $mimeType);
+        } catch (FileNotFoundException $exception) {
+            abort(404);
+        }
+    }
+
+    protected function streamFromDisk(string $disk, string $path, string $filename, string $mimeType): StreamedResponse
+    {
+        $stream = Storage::disk($disk)->readStream($path);
+
+        if ($stream === false) {
+            abort(404);
+        }
+
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => BrowserViewableFile::contentDisposition('inline', $filename),
+        ]);
+    }
+
+    protected function downloadFromDisk(string $disk, string $path, string $filename, string $mimeType): StreamedResponse
+    {
+        $stream = Storage::disk($disk)->readStream($path);
+
+        if ($stream === false) {
+            abort(404);
+        }
+
+        return response()->streamDownload(function () use ($stream) {
+            fpassthru($stream);
+
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }, $filename, [
+            'Content-Type' => $mimeType,
+        ]);
     }
 
     public function fisierSterge(Request $request, $cale = null)
