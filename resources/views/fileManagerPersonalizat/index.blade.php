@@ -1,5 +1,9 @@
 @extends ('layouts.app')
 
+@php
+    use App\Support\BrowserViewableFile;
+@endphp
+
 @section('content')
 <div class="container mx-auto mx-3 px-3 card" style="border-radius: 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0 0;">
@@ -193,12 +197,27 @@
                                 @php
                                     $exploded = explode("/", $fisier);
                                     $fileName = end($exploded);
+                                    $isViewable = BrowserViewableFile::isViewable($fileName ?? '');
+                                    $previewUrl = url('/file-manager-personalizat-fisier/deschide/' . $fisier);
+                                    $downloadUrl = url('/file-manager-personalizat-fisier/descarca/' . $fisier);
                                 @endphp
                                 <tr>
                                     <td>
-                                        <a href="/file-manager-personalizat-fisier/deschide/{{ $fisier }}" target="_blank" style="text-decoration:cornflowerblue">
-                                            <i class="fas fa-file"></i> {{ $fileName }}
-                                        </a>
+                                        <div class="d-flex flex-column">
+                                            <span class="text-break"><i class="fas fa-file"></i> {{ $fileName }}</span>
+                                            <div class="d-flex flex-wrap gap-2 mt-1">
+                                                @if ($isViewable)
+                                                    <a href="{{ $previewUrl }}" target="_blank" rel="noopener" class="badge bg-primary d-inline-flex align-items-center gap-1" title="Deschide fișierul">
+                                                        <i class="fa-solid fa-up-right-from-square"></i>
+                                                        Deschide
+                                                    </a>
+                                                @endif
+                                                <a href="{{ $downloadUrl }}" class="badge bg-secondary d-inline-flex align-items-center gap-1" title="Descarcă fișierul">
+                                                    <i class="fa-solid fa-download"></i>
+                                                    Descarcă
+                                                </a>
+                                            </div>
+                                        </div>
                                     </td>
                                     @can('documente-manage')
                                         <td>

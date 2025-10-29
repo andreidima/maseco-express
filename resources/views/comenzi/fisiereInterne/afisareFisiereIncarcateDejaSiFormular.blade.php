@@ -2,6 +2,7 @@
 
 @php
     use \Carbon\Carbon;
+    use App\Support\BrowserViewableFile;
 @endphp
 
 @section('content')
@@ -53,16 +54,32 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($comanda->fisiereInterne as $fisier)
+                                            @php
+                                                $isViewable = BrowserViewableFile::isViewable($fisier->nume ?? '');
+                                                $previewUrl = url('/comenzi/' . $comanda->id . '/fisiere-interne/deschide/' . $fisier->nume);
+                                                $downloadUrl = url('/comenzi/' . $comanda->id . '/fisiere-interne/descarca/' . $fisier->nume);
+                                            @endphp
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>
-                                                    <a href="/comenzi/{{$comanda->id}}/fisiere-interne/deschide/{{ $fisier->nume }}" target="_blank" style="text-decoration:cornflowerblue">
-                                                        {{-- <i class="fa-solid fa-file"></i> --}}
-                                                        {{ $fisier->nume ?? '' }}
-                                                    </a>
+                                                <td class="text-break">
+                                                    {{ $fisier->nume ?? '' }}
                                                 </td>
                                                 <td class="d-flex justify-content-end">
-                                                    <div class="d-flex">
+                                                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                                                        @if ($isViewable)
+                                                            <a href="{{ $previewUrl }}" target="_blank" rel="noopener" title="Deschide fișierul">
+                                                                <span class="badge bg-primary d-inline-flex align-items-center gap-1">
+                                                                    <i class="fa-solid fa-up-right-from-square"></i>
+                                                                    Deschide
+                                                                </span>
+                                                            </a>
+                                                        @endif
+                                                        <a href="{{ $downloadUrl }}" title="Descarcă fișierul">
+                                                            <span class="badge bg-secondary d-inline-flex align-items-center gap-1">
+                                                                <i class="fa-solid fa-download"></i>
+                                                                Descarcă
+                                                            </span>
+                                                        </a>
                                                         <a
                                                             href="#"
                                                             data-bs-toggle="modal"

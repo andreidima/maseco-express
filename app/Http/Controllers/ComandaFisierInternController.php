@@ -9,11 +9,11 @@ use App\Models\ComandaFisier;
 use App\Models\ComandaFisierIstoric;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
-use File;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Response;
 use Closure;
 use App\Models\ComandaFisierEmail;
+use App\Support\BrowserViewableFile;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ComandaFisierInternController extends Controller
 {
@@ -82,20 +82,83 @@ class ComandaFisierInternController extends Controller
 
     public function fisierDeschide(Comanda $comanda, $numeFisier)
     {
-        //This method will look for the file and get it from drive
         foreach ($comanda->fisiereInterne as $fisier) {
             if ($fisier->nume === $numeFisier) {
-                try {
-                    $file = Storage::get($fisier->cale . '/' . $fisier->nume);
-                    $type = Storage::mimeType($fisier->cale . '/' . $fisier->nume);
-                    $response = Response::make($file, 200);
-                    $response->header("Content-Type", $type);
-                    return $response;
-                } catch (FileNotFoundException $exception) {
+                $path = $fisier->cale . '/' . $fisier->nume;
+
+                if (! Storage::exists($path)) {
                     abort(404);
                 }
+
+                $mimeType = Storage::mimeType($path) ?? 'application/octet-stream';
+
+                if (! BrowserViewableFile::isViewable($fisier->nume, $mimeType)) {
+                    return $this->fisierDownload($comanda, $numeFisier);
+                }
+
+                return $this->streamStorageFile($path, $fisier->nume, $mimeType);
             }
         }
+
+        abort(404);
+    }
+
+    public function fisierDownload(Comanda $comanda, $numeFisier)
+    {
+        foreach ($comanda->fisiereInterne as $fisier) {
+            if ($fisier->nume === $numeFisier) {
+                $path = $fisier->cale . '/' . $fisier->nume;
+
+                if (! Storage::exists($path)) {
+                    abort(404);
+                }
+
+                $mimeType = Storage::mimeType($path) ?? 'application/octet-stream';
+
+                return $this->downloadStorageFile($path, $fisier->nume, $mimeType);
+            }
+        }
+
+        abort(404);
+    }
+
+    protected function streamStorageFile(string $path, string $downloadName, string $mimeType): StreamedResponse
+    {
+        $stream = Storage::readStream($path);
+
+        if ($stream === false) {
+            abort(404);
+        }
+
+        return response()->stream(function () use ($stream) {
+            fpassthru($stream);
+
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }, 200, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => BrowserViewableFile::contentDisposition('inline', $downloadName),
+        ]);
+    }
+
+    protected function downloadStorageFile(string $path, string $downloadName, string $mimeType): StreamedResponse
+    {
+        $stream = Storage::readStream($path);
+
+        if ($stream === false) {
+            abort(404);
+        }
+
+        return response()->streamDownload(function () use ($stream) {
+            fpassthru($stream);
+
+            if (is_resource($stream)) {
+                fclose($stream);
+            }
+        }, $downloadName, [
+            'Content-Type' => $mimeType,
+        ]);
     }
 
     public function fisierSterge(Comanda $comanda, $numeFisier)
