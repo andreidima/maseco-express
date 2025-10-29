@@ -13,6 +13,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class MasiniDocumentFisierController extends Controller
 {
@@ -22,14 +23,35 @@ class MasiniDocumentFisierController extends Controller
 
         abort_unless($document->masina_id === $masina->id, 404);
 
-        $files = Arr::wrap($request->file('fisier'));
+        $files = $request->file('fisier');
 
-        Validator::make([
+        if (is_array($files)) {
+            $files = array_values(array_filter($files));
+        } elseif ($files !== null) {
+            $files = [$files];
+        } else {
+            $files = [];
+        }
+
+        $validator = Validator::make([
             'fisier' => $files,
         ], [
             'fisier' => ['required', 'array', 'min:1'],
             'fisier.*' => ['file', 'mimes:pdf', 'max:51200'],
-        ])->validate();
+        ]);
+
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                throw new ValidationException($validator);
+            }
+
+            return Redirect::route('masini-mementouri.documente.edit', [$masina, $document])
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $files = $validator->validated();
+        $files = $files['fisier'] ?? [];
 
         $storedCount = 0;
 

@@ -363,6 +363,25 @@ class MasiniMementouriTest extends TestCase
         ]);
     }
 
+    public function test_document_file_upload_via_standard_form_redirects_back_with_errors(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
+            ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), []);
+
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [$masina, $document]));
+        $response->assertSessionHasErrors('fisier');
+    }
+
     public function test_document_file_delete_returns_json_payload(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
