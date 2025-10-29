@@ -52,6 +52,7 @@ class MasiniDocumentController extends Controller
                 'color_class' => $document->colorClass(),
                 'days_until_expiry' => $document->daysUntilExpiry(),
                 'formatted_date' => $document->data_expirare?->format('Y-m-d'),
+                'readable_date' => $document->data_expirare?->format('d.m.Y'),
                 'message' => __('Modificarea a fost salvată.'),
             ]);
         }
