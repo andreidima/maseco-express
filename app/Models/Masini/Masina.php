@@ -32,6 +32,10 @@ class Masina extends Model
             $masina->memento()->create();
             $masina->syncDefaultDocuments();
         });
+
+        static::deleting(function (Masina $masina) {
+            $masina->documente->each->delete();
+        });
     }
 
     public function syncDefaultDocuments(): void

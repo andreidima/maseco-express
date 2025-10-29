@@ -17,7 +17,8 @@ use Illuminate\Validation\ValidationException;
 
 class MasiniDocumentFisierController extends Controller
 {
-    private const STORAGE_DISK = 'local';
+    private const STORAGE_DISK = MasinaDocumentFisier::STORAGE_DISK;
+    private const STORAGE_DIRECTORY = MasinaDocumentFisier::STORAGE_DIRECTORY;
 
     public function store(Request $request, Masina $masini_mementouri, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
     {
@@ -63,7 +64,7 @@ class MasiniDocumentFisierController extends Controller
         $storedCount = 0;
 
         foreach ($files as $file) {
-            $path = $file->store('masini-documente/' . $document->id, self::STORAGE_DISK);
+            $path = $file->store(self::STORAGE_DIRECTORY . '/' . $document->id, self::STORAGE_DISK);
 
             $document->fisiere()->create([
                 'cale' => $path,
