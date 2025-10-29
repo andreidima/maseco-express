@@ -61,7 +61,7 @@
         @endphp
 
         <div class="table-responsive rounded">
-            <table class="table table-striped table-hover align-middle mb-0">
+            <table class="table table-striped table-hover align-middle table-sm mb-0">
                 <thead class="text-white rounded culoare2">
                     <tr>
                         <th>#</th>
@@ -101,7 +101,7 @@
                                     <a href="{{ route('masini-mementouri.documente.edit', [$masina, $routeDocumentParam]) }}"
                                        class="document-cell-link d-inline-flex w-100 justify-content-center {{ $isEmpty ? 'document-cell-link--empty' : '' }}"
                                        aria-label="{{ $ariaLabel }}">
-                                        <span class="document-cell px-2 py-2 w-100 {{ $colorClass }}">
+                                        <span class="document-cell px-2 py-1 w-100 {{ $colorClass }}">
                                             {{ $displayDate }}
                                         </span>
                                     </a>
@@ -121,7 +121,7 @@
                                     <a href="{{ route('masini-mementouri.documente.edit', [$masina, $routeDocumentParam]) }}"
                                        class="document-cell-link d-inline-flex w-100 justify-content-center {{ $isEmpty ? 'document-cell-link--empty' : '' }}"
                                        aria-label="{{ $ariaLabel }}">
-                                        <span class="document-cell px-2 py-2 w-100 {{ $colorClass }}">
+                                        <span class="document-cell px-2 py-1 w-100 {{ $colorClass }}">
                                             {{ $displayDate }}
                                         </span>
                                     </a>
