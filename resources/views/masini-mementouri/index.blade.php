@@ -91,19 +91,16 @@
                                     $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
                                     $isEmpty = !$document?->data_expirare;
                                     $ariaLabel = "Actualizează {$label} pentru {$masina->numar_inmatriculare}";
+                                    $routeDocumentParam = $document?->getRouteKey() ?? \App\Models\Masini\MasinaDocument::buildRouteKey($type);
                                 @endphp
                                 <td class="text-center">
-                                    @if ($document)
-                                        <a href="{{ route('masini-mementouri.documente.edit', [$masina, $document]) }}"
-                                           class="document-cell-link d-inline-flex w-100 justify-content-center {{ $isEmpty ? 'document-cell-link--empty' : '' }}"
-                                           aria-label="{{ $ariaLabel }}">
-                                            <span class="document-cell px-2 py-2 w-100 {{ $colorClass }}">
-                                                {{ $displayDate }}
-                                            </span>
-                                        </a>
-                                    @else
-                                        <span class="document-cell px-2 py-2 w-100 bg-secondary-subtle text-body-secondary">N/A</span>
-                                    @endif
+                                    <a href="{{ route('masini-mementouri.documente.edit', [$masina, $routeDocumentParam]) }}"
+                                       class="document-cell-link d-inline-flex w-100 justify-content-center {{ $isEmpty ? 'document-cell-link--empty' : '' }}"
+                                       aria-label="{{ $ariaLabel }}">
+                                        <span class="document-cell px-2 py-2 w-100 {{ $colorClass }}">
+                                            {{ $displayDate }}
+                                        </span>
+                                    </a>
                                 </td>
                             @endforeach
                             @foreach ($vignetteCountries as $code => $label)
@@ -114,19 +111,16 @@
                                     $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
                                     $isEmpty = !$document?->data_expirare;
                                     $ariaLabel = "Actualizează Vignetă {$label} pentru {$masina->numar_inmatriculare}";
+                                    $routeDocumentParam = $document?->getRouteKey() ?? \App\Models\Masini\MasinaDocument::buildRouteKey(\App\Models\Masini\MasinaDocument::TYPE_VIGNETA, $code);
                                 @endphp
                                 <td class="text-center">
-                                    @if ($document)
-                                        <a href="{{ route('masini-mementouri.documente.edit', [$masina, $document]) }}"
-                                           class="document-cell-link d-inline-flex w-100 justify-content-center {{ $isEmpty ? 'document-cell-link--empty' : '' }}"
-                                           aria-label="{{ $ariaLabel }}">
-                                            <span class="document-cell px-2 py-2 w-100 {{ $colorClass }}">
-                                                {{ $displayDate }}
-                                            </span>
-                                        </a>
-                                    @else
-                                        <span class="document-cell px-2 py-2 w-100 bg-secondary-subtle text-body-secondary">N/A</span>
-                                    @endif
+                                    <a href="{{ route('masini-mementouri.documente.edit', [$masina, $routeDocumentParam]) }}"
+                                       class="document-cell-link d-inline-flex w-100 justify-content-center {{ $isEmpty ? 'document-cell-link--empty' : '' }}"
+                                       aria-label="{{ $ariaLabel }}">
+                                        <span class="document-cell px-2 py-2 w-100 {{ $colorClass }}">
+                                            {{ $displayDate }}
+                                        </span>
+                                    </a>
                                 </td>
                             @endforeach
                             <td class="text-end">
