@@ -231,6 +231,8 @@ Route::middleware(['auth'])->group(function () {
                 ->name('masini-mementouri.documente.fisiere.destroy');
             Route::get('masini-mementouri/{masini_mementouri}/documente/{document}/fisiere/{fisier}', [MasiniDocumentFisierController::class, 'download'])
                 ->name('masini-mementouri.documente.fisiere.download');
+            Route::get('masini-mementouri/{masini_mementouri}/documente/{document}/fisiere/{fisier}/preview', [MasiniDocumentFisierController::class, 'preview'])
+                ->name('masini-mementouri.documente.fisiere.preview');
         });
     });
 
