@@ -53,4 +53,11 @@ class MasiniDocumentFisierController extends Controller
 
         return Storage::disk('public')->download($fisier->cale, $fisier->nume_original);
     }
+
+    public function preview(Masina $masina, MasinaDocument $document, MasinaDocumentFisier $fisier)
+    {
+        abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
+
+        return Storage::disk('public')->response($fisier->cale, $fisier->nume_original);
+    }
 }
