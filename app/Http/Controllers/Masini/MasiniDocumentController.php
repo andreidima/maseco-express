@@ -15,8 +15,10 @@ use Illuminate\View\View;
 
 class MasiniDocumentController extends Controller
 {
-    public function edit(Masina $masina, MasinaDocument|string|int $document): View
+    public function edit(Masina $masini_mementouri, MasinaDocument|string|int $document): View
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id, 404);
@@ -30,8 +32,10 @@ class MasiniDocumentController extends Controller
         ]);
     }
 
-    public function update(Request $request, Masina $masina, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
+    public function update(Request $request, Masina $masini_mementouri, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id, 404);
@@ -78,12 +82,12 @@ class MasiniDocumentController extends Controller
         return Redirect::back()->with('status', 'Documentul a fost actualizat.');
     }
 
-    protected function resolveDocument(Masina $masina, MasinaDocument|string|int $document): MasinaDocument
+    protected function resolveDocument(Masina $masini_mementouri, MasinaDocument|string|int $document): MasinaDocument
     {
         if ($document instanceof MasinaDocument) {
             return $document;
         }
 
-        return MasinaDocument::resolveForMasina($masina, $document);
+        return MasinaDocument::resolveForMasina($masini_mementouri, $document);
     }
 }

@@ -44,11 +44,13 @@
     </div>
 
     <div class="card-body px-0 py-3">
-        @include('errors')
+        @include('errors', ['showSessionAlerts' => false])
 
-        @if (session('status'))
+        @php($statusMessage = session('status') ?? session('success'))
+
+        @if ($statusMessage)
             <div class="alert alert-success border border-success-subtle rounded-4 mx-3">
-                {{ session('status') }}
+                {{ $statusMessage }}
             </div>
         @endif
 
@@ -125,10 +127,6 @@
                             @endforeach
                             <td class="text-end">
                                 <div class="d-inline-flex gap-2 justify-content-end">
-                                    <button type="button" class="btn btn-sm btn-outline-primary border border-dark rounded-3"
-                                            data-action="edit-masina" data-masina-id="{{ $masina->id }}">
-                                        <i class="fa-solid fa-pen-to-square me-1"></i>Editează
-                                    </button>
                                     <button type="button" class="btn btn-sm btn-outline-danger border border-dark rounded-3"
                                             data-bs-toggle="modal" data-bs-target="#deleteMasinaModal"
                                             data-delete-url="{{ route('masini-mementouri.destroy', $masina) }}"
