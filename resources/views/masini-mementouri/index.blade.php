@@ -212,22 +212,22 @@
                                                             <ul class="list-unstyled mb-0">
                                                                 @forelse ($document->fisiere as $fisier)
                                                                     @php
-                                                                        $previewable = ($fisier->mime_type === 'application/pdf') || (is_string($fisier->mime_type) && \Illuminate\Support\Str::startsWith($fisier->mime_type, 'image/'));
+                                                                        $iconClass = $fisier->iconClass();
                                                                     @endphp
                                                                     <li class="d-flex flex-column gap-2 mb-3">
                                                                         <div class="d-flex justify-content-between align-items-center gap-2">
                                                                             <div class="me-auto">
-                                                                                <i class="fa-solid fa-file-pdf text-danger me-2"></i>
+                                                                                <i class="fa-solid {{ $iconClass }} me-2"></i>
                                                                                 <span class="fw-semibold">{{ $fisier->nume_original }}</span>
                                                                                 <small class="text-muted ms-2">{{ number_format(($fisier->dimensiune ?? 0) / 1024, 1) }} KB</small>
                                                                             </div>
                                                                             <div class="btn-group btn-group-sm" role="group">
-                                                                                @if ($previewable)
-                                                                                    <a href="{{ route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $fisier]) }}" class="btn btn-outline-secondary border" target="_blank" rel="noopener">
+                                                                                @if ($fisier->isPreviewable())
+                                                                                    <a href="{{ route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $fisier]) }}" class="btn btn-outline-primary border" target="_blank" rel="noopener" title="Deschide în filă nouă">
                                                                                         <i class="fa-solid fa-eye"></i>
                                                                                     </a>
                                                                                 @endif
-                                                                                <a href="{{ route('masini-mementouri.documente.fisiere.download', [$masina, $document, $fisier]) }}" class="btn btn-outline-secondary border">
+                                                                                <a href="{{ route('masini-mementouri.documente.fisiere.download', [$masina, $document, $fisier]) }}" class="btn btn-outline-secondary border" download="{{ $fisier->downloadName() }}" title="Descarcă fișierul">
                                                                                     <i class="fa-solid fa-download"></i>
                                                                                 </a>
                                                                             </div>

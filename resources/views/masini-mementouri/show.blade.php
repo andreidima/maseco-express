@@ -103,21 +103,36 @@
                                     <hr>
                                     <ul class="list-unstyled mb-0">
                                         @forelse ($document->fisiere as $fisier)
-                                            <li class="d-flex justify-content-between align-items-center py-1">
-                                                <div>
-                                                    <i class="fa-solid fa-file-pdf text-danger me-2"></i>
-                                                    <a href="{{ route('masini-mementouri.documente.fisiere.download', [$masina, $document, $fisier]) }}" class="text-decoration-none">
-                                                        {{ $fisier->nume_original }}
-                                                    </a>
+                                            @php
+                                                $iconClass = $fisier->iconClass();
+                                            @endphp
+                                            <li class="d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center py-2 border-bottom">
+                                                <div class="me-md-3">
+                                                    <i class="fa-solid {{ $iconClass }} me-2"></i>
+                                                    <span class="fw-semibold">{{ $fisier->nume_original }}</span>
                                                     <small class="text-muted ms-2">{{ number_format(($fisier->dimensiune ?? 0) / 1024, 1) }} KB</small>
                                                 </div>
-                                                <form method="POST" action="{{ route('masini-mementouri.documente.fisiere.destroy', [$masina, $document, $fisier]) }}" onsubmit="return confirm('Ștergi fișierul?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger border border-dark">
-                                                        <i class="fa-solid fa-trash me-1"></i>Șterge
-                                                    </button>
-                                                </form>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div class="btn-group btn-group-sm" role="group">
+                                                        @if ($fisier->isPreviewable())
+                                                            <a href="{{ route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $fisier]) }}" class="btn btn-outline-primary border" target="_blank" rel="noopener" title="Deschide în filă nouă">
+                                                                <i class="fa-solid fa-eye me-1"></i>
+                                                                <span class="d-none d-sm-inline">Deschide</span>
+                                                            </a>
+                                                        @endif
+                                                        <a href="{{ route('masini-mementouri.documente.fisiere.download', [$masina, $document, $fisier]) }}" class="btn btn-outline-secondary border" download="{{ $fisier->downloadName() }}" title="Descarcă fișierul">
+                                                            <i class="fa-solid fa-download me-1"></i>
+                                                            <span class="d-none d-sm-inline">Descarcă</span>
+                                                        </a>
+                                                    </div>
+                                                    <form method="POST" action="{{ route('masini-mementouri.documente.fisiere.destroy', [$masina, $document, $fisier]) }}" onsubmit="return confirm('Ștergi fișierul?');">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger border border-dark">
+                                                            <i class="fa-solid fa-trash me-1"></i>Șterge
+                                                        </button>
+                                                    </form>
+                                                </div>
                                             </li>
                                         @empty
                                             <li class="text-muted">Nu există fișiere încărcate.</li>
