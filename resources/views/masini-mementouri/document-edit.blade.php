@@ -34,36 +34,7 @@
                 <div class="col-xl-6 col-lg-7">
                     <div class="card border border-secondary-subtle rounded-4 h-100">
                         <div class="card-header rounded-4 d-flex justify-content-between align-items-center">
-                            <span class="fw-semibold">Actualizează data expirării</span>
-                        </div>
-                        <div class="card-body">
-                            <form method="POST" action="{{ route('masini-mementouri.documente.update', [$masina, $document]) }}">
-                                @csrf
-                                @method('PATCH')
-
-                                <div class="mb-3">
-                                    <label class="form-label" for="data_expirare">Dată expirare</label>
-                                    <input type="date"
-                                           id="data_expirare"
-                                           name="data_expirare"
-                                           class="form-control rounded-3"
-                                           value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}">
-                                </div>
-
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-primary border border-dark rounded-3">
-                                        <i class="fa-solid fa-floppy-disk me-1"></i>Salvează data
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-6 col-lg-7">
-                    <div class="card border border-secondary-subtle rounded-4 h-100">
-                        <div class="card-header rounded-4 d-flex justify-content-between align-items-center">
-                            <span class="fw-semibold">Încarcă documente (PDF)</span>
+                            <span class="fw-semibold">Actualizează documentul</span>
                         </div>
                         <div class="card-body">
                             <form method="POST"
@@ -72,14 +43,24 @@
                                 @csrf
 
                                 <div class="mb-3">
-                                    <label class="form-label" for="fisier">Selectează fișiere</label>
+                                    <label class="form-label" for="data_expirare">Dată expirare</label>
+                                    <input type="date"
+                                           id="data_expirare"
+                                           name="data_expirare"
+                                           class="form-control rounded-3"
+                                           value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}">
+                                    <small class="text-muted">Modificarea datei necesită încărcarea unui fișier în același timp.</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label class="form-label" for="fisier">Selectează fișiere (PDF)</label>
                                     <input type="file" id="fisier" name="fisier[]" class="form-control rounded-3"
                                            accept="application/pdf" multiple required>
                                 </div>
 
                                 <div class="text-end">
                                     <button type="submit" class="btn btn-success text-white border border-dark rounded-3">
-                                        <i class="fa-solid fa-upload me-1"></i>Încarcă
+                                        <i class="fa-solid fa-floppy-disk me-1"></i>Salvează documentul
                                     </button>
                                 </div>
                             </form>

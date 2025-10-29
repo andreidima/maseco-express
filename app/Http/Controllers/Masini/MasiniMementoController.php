@@ -33,6 +33,8 @@ class MasiniMementoController extends Controller
                         'id' => $masina->id,
                         'numar_inmatriculare' => $masina->numar_inmatriculare,
                         'descriere' => $masina->descriere,
+                        'marca_masina' => $masina->marca_masina,
+                        'serie_sasiu' => $masina->serie_sasiu,
                         'email_notificari' => optional($masina->memento)->email_notificari,
                         'observatii' => optional($masina->memento)->observatii,
                         'update_url' => route('masini-mementouri.update', $masina),
@@ -54,11 +56,18 @@ class MasiniMementoController extends Controller
         $validated = $request->validate([
             'numar_inmatriculare' => ['required', 'string', 'max:50', 'unique:masini,numar_inmatriculare'],
             'descriere' => ['nullable', 'string', 'max:255'],
+            'marca_masina' => ['nullable', 'string', 'max:255'],
+            'serie_sasiu' => ['nullable', 'string', 'max:255'],
             'email_notificari' => ['nullable', 'email:rfc'],
             'observatii' => ['nullable', 'string'],
         ]);
 
-        $masina = Masina::create(Arr::only($validated, ['numar_inmatriculare', 'descriere']));
+        $masina = Masina::create(Arr::only($validated, [
+            'numar_inmatriculare',
+            'descriere',
+            'marca_masina',
+            'serie_sasiu',
+        ]));
 
         $masina->memento?->update(Arr::only($validated, ['email_notificari', 'observatii']));
 
@@ -96,11 +105,18 @@ class MasiniMementoController extends Controller
         $validated = $request->validate([
             'numar_inmatriculare' => ['required', 'string', 'max:50', Rule::unique('masini', 'numar_inmatriculare')->ignore($masini_mementouri->id)],
             'descriere' => ['nullable', 'string', 'max:255'],
+            'marca_masina' => ['nullable', 'string', 'max:255'],
+            'serie_sasiu' => ['nullable', 'string', 'max:255'],
             'email_notificari' => ['nullable', 'email:rfc'],
             'observatii' => ['nullable', 'string'],
         ]);
 
-        $masini_mementouri->update(Arr::only($validated, ['numar_inmatriculare', 'descriere']));
+        $masini_mementouri->update(Arr::only($validated, [
+            'numar_inmatriculare',
+            'descriere',
+            'marca_masina',
+            'serie_sasiu',
+        ]));
         $masini_mementouri->memento?->update(Arr::only($validated, ['email_notificari', 'observatii']));
 
         $redirect = $request->input('redirect');

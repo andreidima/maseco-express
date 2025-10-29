@@ -33,6 +33,16 @@
                            value="{{ old('descriere', $masina->descriere) }}">
                 </div>
                 <div class="col-md-3">
+                    <label class="form-label" for="marca_masina">Marca mașină</label>
+                    <input type="text" id="marca_masina" name="marca_masina" class="form-control rounded-3"
+                           value="{{ old('marca_masina', $masina->marca_masina) }}">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" for="serie_sasiu">Serie șasiu</label>
+                    <input type="text" id="serie_sasiu" name="serie_sasiu" class="form-control rounded-3"
+                           value="{{ old('serie_sasiu', $masina->serie_sasiu) }}">
+                </div>
+                <div class="col-md-3">
                     <label class="form-label" for="email_notificari">Email notificări</label>
                     <input type="email" id="email_notificari" name="email_notificari" class="form-control rounded-3"
                            value="{{ old('email_notificari', optional($masina->memento)->email_notificari) }}">
