@@ -273,6 +273,10 @@
                             return;
                         }
 
+                        if (typeof data.formatted_date !== 'undefined') {
+                            input.value = data.formatted_date ?? '';
+                        }
+
                         const holder = form.closest('[data-color-holder]');
                         if (holder) {
                             holder.className = holder.dataset.baseClass + (data.color_class ? ' ' + data.color_class : '');
@@ -281,13 +285,30 @@
                         const daysLabel = form.querySelector('[data-days-label]');
                         if (daysLabel) {
                             if (data.days_until_expiry === null || typeof data.days_until_expiry === 'undefined') {
-                                daysLabel.textContent = 'Fără dată';
+                                daysLabel.innerHTML = '&nbsp;';
                             } else if (data.days_until_expiry < 0) {
                                 const days = Math.abs(data.days_until_expiry);
                                 daysLabel.textContent = `Expirat de ${days} ${days === 1 ? 'zi' : 'zile'}`;
                             } else {
                                 daysLabel.textContent = `Expiră în ${data.days_until_expiry} ${data.days_until_expiry === 1 ? 'zi' : 'zile'}`;
                             }
+                        }
+
+                        const feedback = form.querySelector('[data-save-feedback]');
+                        if (feedback) {
+                            if (feedback.dataset.timeoutId) {
+                                clearTimeout(Number(feedback.dataset.timeoutId));
+                            }
+
+                            feedback.textContent = data.message || 'Modificarea a fost salvată.';
+                            feedback.classList.remove('d-none');
+
+                            const timeoutId = window.setTimeout(() => {
+                                feedback.classList.add('d-none');
+                                feedback.dataset.timeoutId = '';
+                            }, 3000);
+
+                            feedback.dataset.timeoutId = String(timeoutId);
                         }
                     })
                     .catch(() => {

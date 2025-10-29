@@ -4,7 +4,7 @@
     $daysUntilExpiry = $document->daysUntilExpiry();
 
     if ($daysUntilExpiry === null) {
-        $daysText = 'Fără dată';
+        $daysText = null;
     } elseif ($daysUntilExpiry < 0) {
         $abs = abs($daysUntilExpiry);
         $daysText = 'Expirat de ' . $abs . ' ' . ($abs === 1 ? 'zi' : 'zile');
@@ -20,5 +20,12 @@
         <input type="date" name="data_expirare" class="form-control form-control-sm rounded-3"
                value="{{ optional($document->data_expirare)->format('Y-m-d') }}">
     </form>
-    <small class="d-block" data-days-label>{{ $daysText }}</small>
+    <small class="d-block" data-days-label>
+        @if (!is_null($daysText))
+            {{ $daysText }}
+        @else
+            &nbsp;
+        @endif
+    </small>
+    <small class="d-block text-success d-none" data-save-feedback></small>
 </div>
