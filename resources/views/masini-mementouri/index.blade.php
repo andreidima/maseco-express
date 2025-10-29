@@ -168,18 +168,20 @@
                                                 $documentDateValue = optional($document->data_expirare)->format('Y-m-d');
                                             @endphp
                                             <div class="col-xl-4 col-lg-6">
-                                                <div class="expanded-row-document">
+                                                <div class="expanded-row-document" data-document-wrapper data-document-id="{{ $document->id }}" data-empty-label="Fără dată">
                                                     <div class="expanded-row-document__header">
                                                         <span class="fw-semibold">{{ $documentLabel }}</span>
-                                                        <span class="badge text-bg-light text-dark border">{{ optional($document->data_expirare)->isoFormat('DD.MM.YYYY') ?? 'Fără dată' }}</span>
+                                                        <span class="badge text-bg-light text-dark border" data-document-badge data-empty-label="Fără dată">{{ optional($document->data_expirare)->isoFormat('DD.MM.YYYY') ?? 'Fără dată' }}</span>
                                                     </div>
                                                     <div class="expanded-row-document__body">
-                                                        <form method="POST" action="{{ route('masini-mementouri.documente.update', [$masina, $document]) }}" class="row g-2 align-items-end">
+                                                        <div class="document-feedback small" data-feedback-target hidden></div>
+
+                                                        <form method="POST" action="{{ route('masini-mementouri.documente.update', [$masina, $document]) }}" class="row g-2 align-items-end" data-document-update>
                                                             @csrf
                                                             @method('PATCH')
                                                             <div class="col-12">
                                                                 <label class="form-label" for="document_expiration_{{ $document->id }}">Dată expirare</label>
-                                                                <input type="date" class="form-control form-control-sm" id="document_expiration_{{ $document->id }}" name="data_expirare"
+                                                                <input type="date" class="form-control form-control-sm" id="document_expiration_{{ $document->id }}" name="data_expirare" data-date-input
                                                                        value="{{ $documentDateValue ?? $today }}" data-sync-target="{{ $masina->id }}">
                                                             </div>
                                                             <div class="col-12">
@@ -194,7 +196,7 @@
                                                             </div>
                                                         </form>
 
-                                                        <form method="POST" action="{{ route('masini-mementouri.documente.fisiere.store', [$masina, $document]) }}" enctype="multipart/form-data" class="row g-2 align-items-end">
+                                                        <form method="POST" action="{{ route('masini-mementouri.documente.fisiere.store', [$masina, $document]) }}" enctype="multipart/form-data" class="row g-2 align-items-end" data-document-upload>
                                                             @csrf
                                                             <div class="col-12">
                                                                 <label class="form-label" for="document_file_{{ $document->id }}">Adaugă document (PDF)</label>
@@ -207,43 +209,9 @@
                                                             </div>
                                                         </form>
 
-                                                        <div class="expanded-row-document__files">
+                                                        <div class="expanded-row-document__files" data-document-files>
                                                             <p class="fw-semibold small mb-2">Fișiere existente</p>
-                                                            <ul class="list-unstyled mb-0">
-                                                                @forelse ($document->fisiere as $fisier)
-                                                                    @php
-                                                                        $iconClass = $fisier->iconClass();
-                                                                    @endphp
-                                                                    <li class="d-flex flex-column gap-2 mb-3">
-                                                                        <div class="d-flex justify-content-between align-items-center gap-2">
-                                                                            <div class="me-auto">
-                                                                                <i class="fa-solid {{ $iconClass }} me-2"></i>
-                                                                                <span class="fw-semibold">{{ $fisier->nume_original }}</span>
-                                                                                <small class="text-muted ms-2">{{ number_format(($fisier->dimensiune ?? 0) / 1024, 1) }} KB</small>
-                                                                            </div>
-                                                                            <div class="btn-group btn-group-sm" role="group">
-                                                                                @if ($fisier->isPreviewable())
-                                                                                    <a href="{{ route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $fisier]) }}" class="btn btn-outline-primary border" target="_blank" rel="noopener" title="Deschide în filă nouă">
-                                                                                        <i class="fa-solid fa-eye"></i>
-                                                                                    </a>
-                                                                                @endif
-                                                                                <a href="{{ route('masini-mementouri.documente.fisiere.download', [$masina, $document, $fisier]) }}" class="btn btn-outline-secondary border" download="{{ $fisier->downloadName() }}" title="Descarcă fișierul">
-                                                                                    <i class="fa-solid fa-download"></i>
-                                                                                </a>
-                                                                            </div>
-                                                                        </div>
-                                                                        <form method="POST" action="{{ route('masini-mementouri.documente.fisiere.destroy', [$masina, $document, $fisier]) }}" onsubmit="return confirm('Ștergi fișierul?');" class="text-end">
-                                                                            @csrf
-                                                                            @method('DELETE')
-                                                                            <button type="submit" class="btn btn-sm btn-outline-danger border border-dark rounded-3">
-                                                                                <i class="fa-solid fa-trash me-1"></i>Șterge
-                                                                            </button>
-                                                                        </form>
-                                                                    </li>
-                                                                @empty
-                                                                    <li class="text-muted">Nu există fișiere încărcate.</li>
-                                                                @endforelse
-                                                            </ul>
+                                                            @include('masini-mementouri.partials.document-files-list', ['masina' => $masina, 'document' => $document])
                                                         </div>
                                                     </div>
                                                 </div>
@@ -507,68 +475,471 @@
             }
         }
 
-        const forms = document.querySelectorAll('[data-document-update]');
+        const feedbackClasses = ['text-success', 'text-danger', 'text-muted'];
 
-        forms.forEach((form) => {
-            const input = form.querySelector('[data-date-input]');
-            const display = form.querySelector('[data-date-text]');
-            const trigger = form.querySelector('[data-edit-trigger]');
-            const emptyLabel = form.dataset.emptyLabel || '—';
+        const findFeedbackElement = (form) => {
+            if (!form) {
+                return null;
+            }
 
-            if (!input || !display) {
+            const direct = form.querySelector('[data-feedback-target]');
+            if (direct) {
+                return direct;
+            }
+
+            const wrapper = form.closest('[data-document-wrapper]');
+            if (wrapper) {
+                return wrapper.querySelector('[data-feedback-target]') ?? null;
+            }
+
+            return null;
+        };
+
+        const clearFeedback = (element) => {
+            if (!element) {
                 return;
             }
 
-            if (trigger) {
-                trigger.addEventListener('click', () => {
-                    if (typeof input.showPicker === 'function') {
-                        input.showPicker();
+            feedbackClasses.forEach((className) => element.classList.remove(className));
+            element.textContent = '';
+            element.hidden = true;
+        };
+
+        const setFeedback = (element, type, message) => {
+            if (!element) {
+                return;
+            }
+
+            clearFeedback(element);
+
+            const className = type === 'success'
+                ? 'text-success'
+                : type === 'error'
+                    ? 'text-danger'
+                    : 'text-muted';
+
+            element.classList.add(className);
+            element.textContent = message;
+            element.hidden = !message;
+        };
+
+        const extractErrorMessage = (data, fallback = 'A apărut o eroare. Te rugăm să încerci din nou.') => {
+            if (!data) {
+                return fallback;
+            }
+
+            if (typeof data.message === 'string' && data.message.trim() !== '') {
+                return data.message;
+            }
+
+            if (data.errors && typeof data.errors === 'object') {
+                for (const key of Object.keys(data.errors)) {
+                    const value = data.errors[key];
+                    if (Array.isArray(value) && value.length > 0) {
+                        return value[0];
+                    }
+                }
+            }
+
+            return fallback;
+        };
+
+        const isValidDateValue = (value) => {
+            if (!value) {
+                return true;
+            }
+
+            const match = /^([0-9]{4})-([0-9]{2})-([0-9]{2})$/.exec(value);
+
+            if (!match) {
+                return false;
+            }
+
+            const year = Number.parseInt(match[1], 10);
+            const month = Number.parseInt(match[2], 10);
+            const day = Number.parseInt(match[3], 10);
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) {
+                return false;
+            }
+
+            return date.getUTCFullYear() === year
+                && date.getUTCMonth() + 1 === month
+                && date.getUTCDate() === day;
+        };
+
+        const updateDocumentDisplays = (documentId, data, fallbackLabel = '—') => {
+            if (!documentId) {
+                return;
+            }
+
+            const wrappers = document.querySelectorAll(`[data-document-id="${documentId}"]`);
+            const hasFormatted = Object.prototype.hasOwnProperty.call(data, 'formatted_date');
+            const hasReadable = Object.prototype.hasOwnProperty.call(data, 'readable_date');
+
+            wrappers.forEach((wrapper) => {
+                const localFallback = wrapper.dataset.emptyLabel
+                    || wrapper.querySelector('[data-document-badge]')?.dataset.emptyLabel
+                    || fallbackLabel;
+
+                const dateInput = wrapper.querySelector('input[name="data_expirare"]');
+                if (dateInput && hasFormatted) {
+                    dateInput.value = data.formatted_date ?? '';
+                }
+
+                const inlineDisplay = wrapper.querySelector('[data-date-text]');
+                if (inlineDisplay) {
+                    if (hasReadable) {
+                        inlineDisplay.textContent = data.readable_date ?? localFallback;
+                    } else if (hasFormatted) {
+                        inlineDisplay.textContent = data.formatted_date ?? localFallback;
+                    }
+                }
+
+                const badge = wrapper.querySelector('[data-document-badge]');
+                if (badge && (hasReadable || hasFormatted)) {
+                    const badgeFallback = badge.dataset.emptyLabel || localFallback;
+                    if (hasReadable) {
+                        badge.textContent = data.readable_date ?? badgeFallback;
                     } else {
-                        input.focus();
-                        input.click();
+                        badge.textContent = data.formatted_date ?? badgeFallback;
+                    }
+                }
+
+                const holder = wrapper.dataset.baseClass ? wrapper : wrapper.querySelector('[data-color-holder]');
+
+                if (holder && holder.dataset.baseClass && Object.prototype.hasOwnProperty.call(data, 'color_class')) {
+                    const baseClass = holder.dataset.baseClass;
+                    const colorClass = data.color_class ? ` ${data.color_class}` : '';
+                    holder.className = baseClass + colorClass;
+                }
+            });
+        };
+
+        const refreshFileList = (wrapper, html) => {
+            if (!wrapper) {
+                return;
+            }
+
+            const container = wrapper.querySelector('[data-document-files]');
+
+            if (!container) {
+                return;
+            }
+
+            const existingList = container.querySelector('[data-document-files-list]');
+            if (existingList) {
+                existingList.remove();
+            }
+
+            if (html) {
+                container.insertAdjacentHTML('beforeend', html);
+            }
+
+            initializeDocumentForms(container);
+        };
+
+        const initializeDocumentUpdateForm = (form) => {
+            if (!form || form.dataset.initialized === 'true') {
+                return;
+            }
+
+            form.dataset.initialized = 'true';
+
+            const wrapper = form.closest('[data-document-wrapper]');
+            const documentId = wrapper?.dataset.documentId;
+            const tokenField = form.querySelector('input[name="_token"]');
+            const dateInput = form.querySelector('[data-date-input], input[name="data_expirare"]');
+            const trigger = form.querySelector('[data-edit-trigger]');
+            const submitButton = form.querySelector('button[type="submit"]');
+            const feedbackElement = findFeedbackElement(form);
+            const emptyLabel = wrapper?.dataset.emptyLabel || '—';
+
+            const setLoading = (loading) => {
+                form.dataset.loading = loading ? 'true' : 'false';
+
+                const interactiveElements = Array.from(form.elements).filter((element) => {
+                    if (!element || !element.tagName) {
+                        return false;
+                    }
+
+                    const tag = element.tagName.toLowerCase();
+                    if (!['input', 'button', 'select', 'textarea'].includes(tag)) {
+                        return false;
+                    }
+
+                    if (tag === 'input' && element.type === 'hidden') {
+                        return false;
+                    }
+
+                    return true;
+                });
+
+                interactiveElements.forEach((element) => {
+                    element.disabled = loading;
+                });
+
+                if (submitButton) {
+                    submitButton.disabled = loading;
+                }
+
+                if (trigger) {
+                    trigger.disabled = loading;
+                }
+            };
+
+            const handleSubmit = async (event) => {
+                event.preventDefault();
+
+                if (form.dataset.loading === 'true') {
+                    return;
+                }
+
+                clearFeedback(feedbackElement);
+
+                if (form.reportValidity && !form.reportValidity()) {
+                    return;
+                }
+
+                if (dateInput && !isValidDateValue(dateInput.value)) {
+                    setFeedback(feedbackElement, 'error', 'Data introdusă nu este validă.');
+                    return;
+                }
+
+                const formData = new FormData(form);
+
+                setLoading(true);
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': tokenField ? tokenField.value : '',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    });
+
+                    let data = null;
+
+                    try {
+                        data = await response.json();
+                    } catch (error) {
+                        data = null;
+                    }
+
+                    if (!response.ok || !data || data.status !== 'ok') {
+                        setFeedback(feedbackElement, 'error', extractErrorMessage(data));
+                        return;
+                    }
+
+                    setFeedback(feedbackElement, 'success', data.message || 'Modificarea a fost salvată.');
+                    updateDocumentDisplays(documentId, data, emptyLabel);
+                } catch (error) {
+                    setFeedback(feedbackElement, 'error', 'A apărut o eroare neașteptată. Te rugăm să încerci din nou.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            form.addEventListener('submit', handleSubmit);
+
+            if (dateInput && form.dataset.autoSubmit === 'true') {
+                dateInput.addEventListener('change', () => {
+                    if (form.dataset.loading === 'true') {
+                        return;
+                    }
+
+                    if (!isValidDateValue(dateInput.value)) {
+                        setFeedback(feedbackElement, 'error', 'Data introdusă nu este validă.');
+                        return;
+                    }
+
+                    if (typeof form.requestSubmit === 'function') {
+                        form.requestSubmit();
+                    } else {
+                        form.submit();
                     }
                 });
             }
 
-            input.addEventListener('change', () => {
+            if (trigger && dateInput) {
+                trigger.addEventListener('click', () => {
+                    if (typeof dateInput.showPicker === 'function') {
+                        dateInput.showPicker();
+                    } else {
+                        dateInput.focus();
+                        dateInput.click();
+                    }
+                });
+            }
+        };
+
+        const initializeDocumentUploadForm = (form) => {
+            if (!form || form.dataset.initialized === 'true') {
+                return;
+            }
+
+            form.dataset.initialized = 'true';
+
+            const wrapper = form.closest('[data-document-wrapper]');
+            const tokenField = form.querySelector('input[name="_token"]');
+            const fileInput = form.querySelector('input[type="file"]');
+            const submitButton = form.querySelector('button[type="submit"]');
+            const feedbackElement = findFeedbackElement(form);
+
+            const setLoading = (loading) => {
+                form.dataset.loading = loading ? 'true' : 'false';
+
+                if (submitButton) {
+                    submitButton.disabled = loading;
+                }
+
+                if (fileInput) {
+                    fileInput.disabled = loading;
+                }
+            };
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                if (form.dataset.loading === 'true') {
+                    return;
+                }
+
+                clearFeedback(feedbackElement);
+
+                if (!fileInput || fileInput.files.length === 0) {
+                    setFeedback(feedbackElement, 'error', 'Te rugăm să selectezi un fișier PDF.');
+                    return;
+                }
+
                 const formData = new FormData(form);
-                const token = form.querySelector('input[name="_token"]').value;
 
-                fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    },
-                    body: formData,
-                })
-                    .then((response) => response.json())
-                    .then((data) => {
-                        if (!data || data.status !== 'ok') {
-                            return;
-                        }
+                setLoading(true);
 
-                        if (typeof data.formatted_date !== 'undefined') {
-                            input.value = data.formatted_date ?? '';
-                        }
-
-                        if (typeof data.readable_date !== 'undefined') {
-                            display.textContent = data.readable_date ?? emptyLabel;
-                        } else {
-                            display.textContent = input.value ? input.value : emptyLabel;
-                        }
-
-                        const holder = form.closest('[data-color-holder]');
-                        if (holder) {
-                            holder.className = holder.dataset.baseClass + (data.color_class ? ' ' + data.color_class : '');
-                        }
-                    })
-                    .catch(() => {
-                        // Silent failure; inline feedback is optional.
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': tokenField ? tokenField.value : '',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
                     });
+
+                    let data = null;
+
+                    try {
+                        data = await response.json();
+                    } catch (error) {
+                        data = null;
+                    }
+
+                    if (!response.ok || !data || data.status !== 'ok') {
+                        setFeedback(feedbackElement, 'error', extractErrorMessage(data, 'Încărcarea a eșuat.'));
+                        return;
+                    }
+
+                    setFeedback(feedbackElement, 'success', data.message || 'Fișierul a fost încărcat.');
+                    if (data.files_html) {
+                        refreshFileList(wrapper, data.files_html);
+                    }
+
+                    if (fileInput) {
+                        fileInput.value = '';
+                    }
+                } catch (error) {
+                    setFeedback(feedbackElement, 'error', 'A apărut o eroare neașteptată la încărcare.');
+                } finally {
+                    setLoading(false);
+                }
             });
-        });
+        };
+
+        const initializeDocumentDeleteForm = (form) => {
+            if (!form || form.dataset.initialized === 'true') {
+                return;
+            }
+
+            form.dataset.initialized = 'true';
+
+            const wrapper = form.closest('[data-document-wrapper]');
+            const tokenField = form.querySelector('input[name="_token"]');
+            const submitButton = form.querySelector('button[type="submit"]');
+            const feedbackElement = findFeedbackElement(form);
+
+            const setLoading = (loading) => {
+                form.dataset.loading = loading ? 'true' : 'false';
+
+                if (submitButton) {
+                    submitButton.disabled = loading;
+                }
+            };
+
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault();
+
+                if (form.dataset.loading === 'true') {
+                    return;
+                }
+
+                if (!window.confirm('Ștergi fișierul?')) {
+                    return;
+                }
+
+                clearFeedback(feedbackElement);
+
+                const formData = new FormData(form);
+
+                setLoading(true);
+
+                try {
+                    const response = await fetch(form.action, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': tokenField ? tokenField.value : '',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        body: formData,
+                    });
+
+                    let data = null;
+
+                    try {
+                        data = await response.json();
+                    } catch (error) {
+                        data = null;
+                    }
+
+                    if (!response.ok || !data || data.status !== 'ok') {
+                        setFeedback(feedbackElement, 'error', extractErrorMessage(data, 'Fișierul nu a putut fi șters.'));
+                        return;
+                    }
+
+                    setFeedback(feedbackElement, 'success', data.message || 'Fișierul a fost șters.');
+                    if (data.files_html) {
+                        refreshFileList(wrapper, data.files_html);
+                    }
+                } catch (error) {
+                    setFeedback(feedbackElement, 'error', 'A apărut o eroare neașteptată la ștergere.');
+                } finally {
+                    setLoading(false);
+                }
+            });
+        };
+
+        const initializeDocumentForms = (root = document) => {
+            root.querySelectorAll('form[data-document-update]').forEach(initializeDocumentUpdateForm);
+            root.querySelectorAll('form[data-document-upload]').forEach(initializeDocumentUploadForm);
+            root.querySelectorAll('form[data-document-delete]').forEach(initializeDocumentDeleteForm);
+        };
+
+        initializeDocumentForms();
     });
 </script>
 @endpush

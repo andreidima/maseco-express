@@ -5,10 +5,15 @@
     $displayDate = optional($document->data_expirare)->format('d.m.Y');
 @endphp
 
-<div class="{{ $baseClass }} {{ $colorClass }}" data-color-holder data-base-class="{{ $baseClass }}">
+<div class="{{ $baseClass }} {{ $colorClass }}"
+     data-color-holder
+     data-base-class="{{ $baseClass }}"
+     data-document-wrapper
+     data-document-id="{{ $document->id }}"
+     data-empty-label="—">
     <form method="POST" action="{{ route('masini-mementouri.documente.update', [$masina, $document]) }}"
           class="document-date-form"
-          data-document-update data-empty-label="—">
+          data-document-update data-auto-submit="true">
         @csrf
         @method('PATCH')
 
@@ -24,5 +29,7 @@
         <button type="button" class="btn btn-link p-0 document-date-edit" data-edit-trigger aria-label="Editează data">
             <i class="fa-solid fa-pen"></i>
         </button>
+
+        <div class="document-feedback small mt-1" data-feedback-target hidden></div>
     </form>
 </div>

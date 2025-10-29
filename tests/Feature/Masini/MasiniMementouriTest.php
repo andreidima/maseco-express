@@ -11,6 +11,7 @@ use App\Models\Masini\MasinaDocument;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
@@ -54,6 +55,72 @@ class MasiniMementouriTest extends TestCase
 
         $this->assertEquals(Carbon::parse($payload['data_expirare'])->toDateString(), optional($document->data_expirare)->toDateString());
         $this->assertFalse($document->notificare_60_trimisa);
+    }
+
+    public function test_document_file_upload_returns_json_payload(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $file = UploadedFile::fake()->create('atestat.pdf', 128, 'application/pdf');
+
+        $response = $this
+            ->actingAs($user)
+            ->postJson(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), [
+                'fisier' => $file,
+            ]);
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'status',
+            'message',
+            'files_html',
+        ]);
+        $response->assertJson(['status' => 'ok']);
+
+        Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $file->hashName());
+    }
+
+    public function test_document_file_delete_returns_json_payload(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $path = 'masini-documente/' . $document->id . '/contract.pdf';
+        Storage::disk('public')->put($path, 'PDF content');
+
+        $fisier = $document->fisiere()->create([
+            'cale' => $path,
+            'nume_fisier' => basename($path),
+            'nume_original' => 'contract.pdf',
+            'mime_type' => 'application/pdf',
+            'dimensiune' => 1200,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->deleteJson(route('masini-mementouri.documente.fisiere.destroy', [$masina, $document, $fisier]));
+
+        $response->assertOk();
+        $response->assertJson(['status' => 'ok']);
+        $response->assertJsonStructure([
+            'status',
+            'message',
+            'files_html',
+        ]);
+
+        $this->assertDatabaseMissing('masini_documente_fisiere', ['id' => $fisier->id]);
+        Storage::disk('public')->assertMissing($path);
     }
 
     public function test_cron_job_sends_vehicle_alerts_once_per_threshold(): void
