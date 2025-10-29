@@ -5,6 +5,7 @@ namespace App\Models\Masini;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class MasinaDocument extends Model
 {
@@ -42,6 +43,66 @@ class MasinaDocument extends Model
     public function fisiere()
     {
         return $this->hasMany(MasinaDocumentFisier::class, 'document_id');
+    }
+
+    public static function resolveForMasina(Masina $masina, string|int $key): self
+    {
+        if (is_numeric($key)) {
+            return $masina->documente()->whereKey($key)->firstOrFail();
+        }
+
+        [$type, $country] = self::parseRouteKey((string) $key);
+
+        $document = $masina->documente()
+            ->where('document_type', $type)
+            ->when($country === null, function ($query) {
+                $query->whereNull('tara');
+            }, function ($query) use ($country) {
+                $query->where('tara', $country);
+            })
+            ->first();
+
+        if ($document instanceof self) {
+            return $document;
+        }
+
+        if (!self::isKnownDocumentKey($type, $country)) {
+            throw (new ModelNotFoundException())->setModel(self::class, [$key]);
+        }
+
+        return $masina->documente()->create([
+            'document_type' => $type,
+            'tara' => $country,
+        ]);
+    }
+
+    public static function parseRouteKey(string $key): array
+    {
+        $segments = explode(':', strtolower(trim($key)), 2);
+        $type = $segments[0] ?? '';
+
+        if ($type === '') {
+            throw (new ModelNotFoundException())->setModel(self::class, [$key]);
+        }
+
+        $country = null;
+
+        if (array_key_exists(1, $segments) && $segments[1] !== '') {
+            $country = strtolower(trim($segments[1]));
+        }
+
+        return [$type, $country];
+    }
+
+    public static function buildRouteKey(string $type, ?string $country = null): string
+    {
+        $type = strtolower(trim($type));
+
+        if ($country === null || $country === '') {
+            return $type;
+        }
+
+        return $type . ':' . strtolower(trim($country));
     }
 
     public static function defaultDefinitions(): array
@@ -192,5 +253,30 @@ class MasinaDocument extends Model
             self::TYPE_ASIGURARE_CMR => 'Asigurare CMR',
             default => ucfirst(str_replace('_', ' ', (string) $this->document_type)),
         };
+    }
+
+    protected static function isKnownDocumentKey(string $type, ?string $country): bool
+    {
+        $type = strtolower($type);
+        $country = $country !== null ? strtolower($country) : null;
+
+        foreach (self::defaultDefinitions() as $definition) {
+            $definitionType = strtolower($definition['document_type']);
+            $definitionCountry = $definition['tara'] ?? null;
+
+            if ($definitionType !== $type) {
+                continue;
+            }
+
+            if ($definitionCountry === null && $country === null) {
+                return true;
+            }
+
+            if ($definitionCountry !== null && strtolower($definitionCountry) === $country) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

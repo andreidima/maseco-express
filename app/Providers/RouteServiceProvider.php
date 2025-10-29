@@ -2,7 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Masini\Masina;
+use App\Models\Masini\MasinaDocument;
 use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
@@ -25,6 +28,26 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Route::bind('document', function ($value, $route) {
+            $masinaParameter = $route?->parameter('masini_mementouri');
+
+            if ($masinaParameter instanceof Masina) {
+                return MasinaDocument::resolveForMasina($masinaParameter, $value);
+            }
+
+            if ($masinaParameter !== null) {
+                $masina = Masina::query()->whereKey($masinaParameter)->first();
+
+                if ($masina instanceof Masina) {
+                    return MasinaDocument::resolveForMasina($masina, $value);
+                }
+
+                throw (new ModelNotFoundException())->setModel(Masina::class, [$masinaParameter]);
+            }
+
+            return MasinaDocument::query()->findOrFail($value);
+        });
+
         $this->configureRateLimiting();
 
         $this->routes(function () {
