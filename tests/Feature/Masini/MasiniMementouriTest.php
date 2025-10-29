@@ -238,7 +238,7 @@ class MasiniMementouriTest extends TestCase
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
 
-        Storage::fake('public');
+        Storage::fake('local');
 
         $user = User::factory()->create();
         $masina = Masina::factory()->create();
@@ -272,15 +272,15 @@ class MasiniMementouriTest extends TestCase
         $this->assertStringContainsString($secondFile->getClientOriginalName(), $filesHtml);
         $this->assertStringContainsString('data-document-delete', $filesHtml);
 
-        Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $firstFile->hashName());
-        Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $secondFile->hashName());
+        Storage::disk('local')->assertExists('masini-documente/' . $document->id . '/' . $firstFile->hashName());
+        Storage::disk('local')->assertExists('masini-documente/' . $document->id . '/' . $secondFile->hashName());
     }
 
     public function test_document_file_upload_validation_errors_return_json_response(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
 
-        Storage::fake('public');
+        Storage::fake('local');
 
         $user = User::factory()->create();
         $masina = Masina::factory()->create();
@@ -300,7 +300,7 @@ class MasiniMementouriTest extends TestCase
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
 
-        Storage::fake('public');
+        Storage::fake('local');
 
         $user = User::factory()->create();
         $masina = Masina::factory()->create(['numar_inmatriculare' => 'B77FORM']);
@@ -321,7 +321,7 @@ class MasiniMementouriTest extends TestCase
         ]));
         $response->assertSessionHas('status', 'Fișierul a fost încărcat.');
 
-        Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $file->hashName());
+        Storage::disk('local')->assertExists('masini-documente/' . $document->id . '/' . $file->hashName());
 
         $this->assertDatabaseHas('masini_documente_fisiere', [
             'document_id' => $document->id,
@@ -333,7 +333,7 @@ class MasiniMementouriTest extends TestCase
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
 
-        Storage::fake('public');
+        Storage::fake('local');
 
         $user = User::factory()->create();
         $masina = Masina::factory()->create();
@@ -355,8 +355,8 @@ class MasiniMementouriTest extends TestCase
         ]));
         $response->assertSessionHas('status', 'Fișierele au fost încărcate.');
 
-        Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $firstFile->hashName());
-        Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $secondFile->hashName());
+        Storage::disk('local')->assertExists('masini-documente/' . $document->id . '/' . $firstFile->hashName());
+        Storage::disk('local')->assertExists('masini-documente/' . $document->id . '/' . $secondFile->hashName());
 
         $this->assertDatabaseHas('masini_documente_fisiere', [
             'document_id' => $document->id,
@@ -373,7 +373,7 @@ class MasiniMementouriTest extends TestCase
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
 
-        Storage::fake('public');
+        Storage::fake('local');
 
         $user = User::factory()->create();
         $masina = Masina::factory()->create();
@@ -395,14 +395,14 @@ class MasiniMementouriTest extends TestCase
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
 
-        Storage::fake('public');
+        Storage::fake('local');
 
         $user = User::factory()->create();
         $masina = Masina::factory()->create();
         $document = $masina->documente()->first();
 
         $path = 'masini-documente/' . $document->id . '/contract.pdf';
-        Storage::disk('public')->put($path, 'PDF content');
+        Storage::disk('local')->put($path, 'PDF content');
 
         $fisier = $document->fisiere()->create([
             'cale' => $path,
@@ -425,14 +425,14 @@ class MasiniMementouriTest extends TestCase
         ]);
 
         $this->assertDatabaseMissing('masini_documente_fisiere', ['id' => $fisier->id]);
-        Storage::disk('public')->assertMissing($path);
+        Storage::disk('local')->assertMissing($path);
     }
 
     public function test_document_file_delete_validates_document_belongs_to_vehicle(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
 
-        Storage::fake('public');
+        Storage::fake('local');
 
         $user = User::factory()->create();
         $masinaOne = Masina::factory()->create();
@@ -442,7 +442,7 @@ class MasiniMementouriTest extends TestCase
         $documentTwo = $masinaTwo->documente()->first();
 
         $path = 'masini-documente/' . $documentTwo->id . '/nepotrivit.pdf';
-        Storage::disk('public')->put($path, 'PDF content');
+        Storage::disk('local')->put($path, 'PDF content');
 
         $fisier = $documentTwo->fisiere()->create([
             'cale' => $path,
@@ -459,7 +459,7 @@ class MasiniMementouriTest extends TestCase
         $response->assertNotFound();
 
         $this->assertDatabaseHas('masini_documente_fisiere', ['id' => $fisier->id]);
-        Storage::disk('public')->assertExists($path);
+        Storage::disk('local')->assertExists($path);
     }
 
     public function test_cron_job_sends_vehicle_alerts_once_per_threshold(): void
@@ -521,15 +521,13 @@ class MasiniMementouriTest extends TestCase
     {
         $this->withoutMiddleware([EnsurePermission::class]);
 
-        Storage::fake('public');
-
         $user = User::factory()->create();
         $masina = Masina::factory()->create(['numar_inmatriculare' => 'B33PDF']);
         $document = $masina->documente()->first();
 
         $path = 'masini-documente/' . $document->id . '/atestare.pdf';
         $content = '%PDF-1.4 Sample';
-        Storage::disk('public')->put($path, $content);
+        Storage::disk('local')->put($path, $content);
 
         $fisier = $document->fisiere()->create([
             'cale' => $path,
@@ -546,13 +544,13 @@ class MasiniMementouriTest extends TestCase
         $response->assertOk();
         $response->assertHeader('Content-Type', 'application/pdf');
         $this->assertStringContainsString('inline', strtolower($response->headers->get('content-disposition')));
+
+        Storage::disk('local')->delete($path);
     }
 
     public function test_preview_is_blocked_for_non_previewable_files_but_download_is_available(): void
     {
         $this->withoutMiddleware([EnsurePermission::class]);
-
-        Storage::fake('public');
 
         $user = User::factory()->create();
         $masina = Masina::factory()->create(['numar_inmatriculare' => 'B44DOC']);
@@ -560,7 +558,7 @@ class MasiniMementouriTest extends TestCase
 
         $path = 'masini-documente/' . $document->id . '/contract.docx';
         $content = 'Fake DOCX binary';
-        Storage::disk('public')->put($path, $content);
+        Storage::disk('local')->put($path, $content);
 
         $fisier = $document->fisiere()->create([
             'cale' => $path,
@@ -583,13 +581,13 @@ class MasiniMementouriTest extends TestCase
         $downloadResponse->assertOk();
         $downloadResponse->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         $this->assertStringContainsString('attachment', strtolower($downloadResponse->headers->get('content-disposition')));
+
+        Storage::disk('local')->delete($path);
     }
 
     public function test_download_and_preview_return_not_found_for_mismatched_vehicle(): void
     {
         $this->withoutMiddleware([EnsurePermission::class]);
-
-        Storage::fake('public');
 
         $user = User::factory()->create();
         $masinaOne = Masina::factory()->create(['numar_inmatriculare' => 'B88MISM']);
@@ -598,7 +596,7 @@ class MasiniMementouriTest extends TestCase
         $documentTwo = $masinaTwo->documente()->first();
 
         $path = 'masini-documente/' . $documentTwo->id . '/atestare.pdf';
-        Storage::disk('public')->put($path, '%PDF');
+        Storage::disk('local')->put($path, '%PDF');
 
         $fisier = $documentTwo->fisiere()->create([
             'cale' => $path,
@@ -619,6 +617,8 @@ class MasiniMementouriTest extends TestCase
             ->get(route('masini-mementouri.documente.fisiere.download', [$masinaOne, $documentTwo, $fisier]));
 
         $downloadResponse->assertNotFound();
+
+        Storage::disk('local')->delete($path);
     }
 
     public function test_edit_page_displays_correct_preview_and_download_actions(): void

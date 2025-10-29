@@ -17,6 +17,8 @@ use Illuminate\Validation\ValidationException;
 
 class MasiniDocumentFisierController extends Controller
 {
+    private const STORAGE_DISK = 'local';
+
     public function store(Request $request, Masina $masini_mementouri, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
     {
         $masina = $masini_mementouri;
@@ -61,7 +63,7 @@ class MasiniDocumentFisierController extends Controller
         $storedCount = 0;
 
         foreach ($files as $file) {
-            $path = $file->store('masini-documente/' . $document->id, 'public');
+            $path = $file->store('masini-documente/' . $document->id, self::STORAGE_DISK);
 
             $document->fisiere()->create([
                 'cale' => $path,
@@ -107,7 +109,7 @@ class MasiniDocumentFisierController extends Controller
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
 
         if ($fisier->cale) {
-            Storage::disk('public')->delete($fisier->cale);
+            Storage::disk(self::STORAGE_DISK)->delete($fisier->cale);
         }
 
         $fisier->delete();
@@ -142,7 +144,7 @@ class MasiniDocumentFisierController extends Controller
             $headers['Content-Type'] = $mimeType;
         }
 
-        return Storage::disk('public')->download(
+        return Storage::disk(self::STORAGE_DISK)->download(
             $fisier->cale,
             $fisier->downloadName(),
             $headers
@@ -165,7 +167,7 @@ class MasiniDocumentFisierController extends Controller
             $headers['Content-Type'] = $mimeType;
         }
 
-        return Storage::disk('public')->response(
+        return Storage::disk(self::STORAGE_DISK)->response(
             $fisier->cale,
             $fisier->downloadName(),
             $headers
