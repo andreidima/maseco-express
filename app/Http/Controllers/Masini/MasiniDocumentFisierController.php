@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Masini\Masina;
 use App\Models\Masini\MasinaDocument;
 use App\Models\Masini\MasinaDocumentFisier;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Storage;
 
 class MasiniDocumentFisierController extends Controller
 {
-    public function store(Request $request, Masina $masina, MasinaDocument $document): RedirectResponse
+    public function store(Request $request, Masina $masina, MasinaDocument $document): JsonResponse|RedirectResponse
     {
         abort_unless($document->masina_id === $masina->id, 404);
 
@@ -31,10 +32,23 @@ class MasiniDocumentFisierController extends Controller
             'dimensiune' => $validated['fisier']->getSize(),
         ]);
 
+        if ($request->expectsJson()) {
+            $document->load('fisiere');
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => __('Fișierul a fost încărcat.'),
+                'files_html' => view('masini-mementouri.partials.document-files-list', [
+                    'masina' => $masina,
+                    'document' => $document,
+                ])->render(),
+            ]);
+        }
+
         return Redirect::back()->with('status', 'Fișierul a fost încărcat.');
     }
 
-    public function destroy(Masina $masina, MasinaDocument $document, MasinaDocumentFisier $fisier): RedirectResponse
+    public function destroy(Request $request, Masina $masina, MasinaDocument $document, MasinaDocumentFisier $fisier): JsonResponse|RedirectResponse
     {
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
 
@@ -43,6 +57,19 @@ class MasiniDocumentFisierController extends Controller
         }
 
         $fisier->delete();
+
+        if ($request->expectsJson()) {
+            $document->load('fisiere');
+
+            return response()->json([
+                'status' => 'ok',
+                'message' => __('Fișierul a fost șters.'),
+                'files_html' => view('masini-mementouri.partials.document-files-list', [
+                    'masina' => $masina,
+                    'document' => $document,
+                ])->render(),
+            ]);
+        }
 
         return Redirect::back()->with('status', 'Fișierul a fost șters.');
     }
