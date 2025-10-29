@@ -19,11 +19,13 @@
     </div>
 
     <div class="card-body px-0 py-3">
-        @include('errors')
+        @include('errors', ['showSessionAlerts' => false])
 
-        @if (session('status'))
+        @php($statusMessage = session('status') ?? session('success'))
+
+        @if ($statusMessage)
             <div class="alert alert-success border border-success-subtle rounded-4 mx-3">
-                {{ session('status') }}
+                {{ $statusMessage }}
             </div>
         @endif
 
