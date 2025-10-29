@@ -83,4 +83,30 @@ class MasiniMementouriTest extends TestCase
         $this->assertFalse($document->notificare_30_trimisa);
         $this->assertFalse($document->notificare_1_trimisa);
     }
+
+    public function test_update_from_modal_redirects_back_to_index(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B11XYZ']);
+
+        $response = $this
+            ->actingAs($user)
+            ->put(route('masini-mementouri.update', $masina), [
+                'numar_inmatriculare' => 'B22XYZ',
+                'descriere' => 'Test modificare',
+                'email_notificari' => 'masecoexpres@gmail.com',
+                'observatii' => 'Obs',
+                'redirect' => 'index',
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.index'));
+        $masina->refresh();
+
+        $this->assertSame('B22XYZ', $masina->numar_inmatriculare);
+        $this->assertSame('Test modificare', $masina->descriere);
+        $this->assertSame('masecoexpres@gmail.com', optional($masina->memento)->email_notificari);
+        $this->assertSame('Obs', optional($masina->memento)->observatii);
+    }
 }

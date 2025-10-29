@@ -26,7 +26,27 @@ class MasiniMementoController extends Controller
         $gridDocumentTypes = MasinaDocument::gridDocumentTypes();
         $vignetteCountries = MasinaDocument::vignetteCountries();
 
-        return view('masini-mementouri.index', compact('masini', 'gridDocumentTypes', 'vignetteCountries'));
+        $masiniModalData = $masini
+            ->mapWithKeys(function (Masina $masina) {
+                return [
+                    $masina->id => [
+                        'id' => $masina->id,
+                        'numar_inmatriculare' => $masina->numar_inmatriculare,
+                        'descriere' => $masina->descriere,
+                        'email_notificari' => optional($masina->memento)->email_notificari,
+                        'observatii' => optional($masina->memento)->observatii,
+                        'update_url' => route('masini-mementouri.update', $masina),
+                    ],
+                ];
+            })
+            ->toArray();
+
+        return view('masini-mementouri.index', compact(
+            'masini',
+            'gridDocumentTypes',
+            'vignetteCountries',
+            'masiniModalData'
+        ));
     }
 
     public function store(Request $request): RedirectResponse
@@ -35,13 +55,12 @@ class MasiniMementoController extends Controller
             'numar_inmatriculare' => ['required', 'string', 'max:50', 'unique:masini,numar_inmatriculare'],
             'descriere' => ['nullable', 'string', 'max:255'],
             'email_notificari' => ['nullable', 'email:rfc'],
-            'telefon_notificari' => ['nullable', 'string', 'max:50'],
             'observatii' => ['nullable', 'string'],
         ]);
 
         $masina = Masina::create(Arr::only($validated, ['numar_inmatriculare', 'descriere']));
 
-        $masina->memento?->update(Arr::only($validated, ['email_notificari', 'telefon_notificari', 'observatii']));
+        $masina->memento?->update(Arr::only($validated, ['email_notificari', 'observatii']));
 
         return Redirect::route('masini-mementouri.index')->with('status', 'Mașina a fost adăugată cu succes.');
     }
@@ -65,12 +84,17 @@ class MasiniMementoController extends Controller
             'numar_inmatriculare' => ['required', 'string', 'max:50', Rule::unique('masini', 'numar_inmatriculare')->ignore($masini_mementouri->id)],
             'descriere' => ['nullable', 'string', 'max:255'],
             'email_notificari' => ['nullable', 'email:rfc'],
-            'telefon_notificari' => ['nullable', 'string', 'max:50'],
             'observatii' => ['nullable', 'string'],
         ]);
 
         $masini_mementouri->update(Arr::only($validated, ['numar_inmatriculare', 'descriere']));
-        $masini_mementouri->memento?->update(Arr::only($validated, ['email_notificari', 'telefon_notificari', 'observatii']));
+        $masini_mementouri->memento?->update(Arr::only($validated, ['email_notificari', 'observatii']));
+
+        $redirect = $request->input('redirect');
+
+        if ($redirect === 'index') {
+            return Redirect::route('masini-mementouri.index')->with('status', 'Datele mașinii au fost actualizate.');
+        }
 
         return Redirect::route('masini-mementouri.show', $masini_mementouri)->with('status', 'Datele mașinii au fost actualizate.');
     }
