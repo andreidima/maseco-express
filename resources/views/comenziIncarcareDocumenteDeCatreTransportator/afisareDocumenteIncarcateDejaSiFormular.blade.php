@@ -2,6 +2,7 @@
 
 @php
     use \Carbon\Carbon;
+    use App\Support\BrowserViewableFile;
 @endphp
 
 @section('content')
@@ -153,13 +154,15 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($comanda->fisiereIncarcateDeTransportator as $fisier)
+                                            @php
+                                                $isViewable = BrowserViewableFile::isViewable($fisier->nume ?? '');
+                                                $previewUrl = url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica . '/deschide/' . $fisier->nume);
+                                                $downloadUrl = url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica . '/descarca/' . $fisier->nume);
+                                            @endphp
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
-                                                <td>
-                                                    <a href="/comanda-incarcare-documente-de-catre-transportator/{{$comanda->cheie_unica}}/deschide/{{ $fisier->nume }}" target="_blank" style="text-decoration:cornflowerblue">
-                                                        {{-- <i class="fa-solid fa-file"></i> --}}
-                                                        {{ $fisier->nume ?? '' }}
-                                                    </a>
+                                                <td class="text-break">
+                                                    {{ $fisier->nume ?? '' }}
                                                 </td>
                                                 <td>
                                                     {{-- If the file is uploaded by operators is shouldn't require validation --}}
@@ -172,7 +175,21 @@
                                                     @endif
                                                 </td>
                                                 <td>
-                                                    <div class="d-flex">
+                                                    <div class="d-flex flex-wrap gap-2">
+                                                        @if ($isViewable)
+                                                            <a href="{{ $previewUrl }}" target="_blank" rel="noopener" title="Deschide fișierul">
+                                                                <span class="badge bg-primary d-inline-flex align-items-center gap-1">
+                                                                    <i class="fa-solid fa-up-right-from-square"></i>
+                                                                    Deschide
+                                                                </span>
+                                                            </a>
+                                                        @endif
+                                                        <a href="{{ $downloadUrl }}" title="Descarcă fișierul">
+                                                            <span class="badge bg-secondary d-inline-flex align-items-center gap-1">
+                                                                <i class="fa-solid fa-download"></i>
+                                                                Descarcă
+                                                            </span>
+                                                        </a>
                                                         @auth
                                                             {{-- If the file is uploaded by operators is shouldn't require validation --}}
                                                             @if (!$fisier->user_id)
