@@ -943,14 +943,23 @@
                 const activeCar = carList.querySelector('.list-group-item.active');
 
                 if (activeCar) {
-                    const carListRect = carList.getBoundingClientRect();
-                    const activeRect = activeCar.getBoundingClientRect();
-                    const offsetFromTop = activeRect.top - carListRect.top;
-                    const centeredOffset = offsetFromTop - Math.max(0, (carList.clientHeight - activeCar.offsetHeight) / 2);
-                    const targetScrollTop = Math.max(0, Math.min(
-                        carList.scrollHeight - carList.clientHeight,
-                        carList.scrollTop + centeredOffset
-                    ));
+                    const listStyles = window.getComputedStyle(carList);
+                    const itemStyles = window.getComputedStyle(activeCar);
+                    const paddingTop = parseFloat(listStyles.paddingTop) || 0;
+                    const marginTop = parseFloat(itemStyles.marginTop) || 0;
+                    const marginBottom = parseFloat(itemStyles.marginBottom) || 0;
+                    const maxScrollTop = Math.max(0, carList.scrollHeight - carList.clientHeight);
+                    const desiredTop = activeCar.offsetTop - paddingTop - marginTop;
+                    const activeBottom = activeCar.offsetTop + activeCar.offsetHeight + marginBottom;
+
+                    let targetScrollTop = Math.max(0, Math.min(desiredTop, maxScrollTop));
+
+                    if (targetScrollTop + carList.clientHeight < activeBottom) {
+                        targetScrollTop = Math.min(
+                            Math.max(0, activeBottom - carList.clientHeight),
+                            maxScrollTop
+                        );
+                    }
 
                     carList.scrollTop = targetScrollTop;
                 }
