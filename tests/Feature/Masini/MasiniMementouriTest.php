@@ -40,6 +40,8 @@ class MasiniMementouriTest extends TestCase
         $document->update([
             'data_expirare' => Carbon::now()->addDays(120)->toDateString(),
             'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_1_trimisa' => true,
         ]);
 
         $payload = [
@@ -49,12 +51,127 @@ class MasiniMementouriTest extends TestCase
         $response = $this->actingAs($user)->patchJson(route('masini-mementouri.documente.update', [$masina, $document]), $payload);
 
         $response->assertOk();
-        $response->assertJson(["status" => 'ok']);
+        $response->assertJson([
+            'status' => 'ok',
+            'message' => __('Modificarea a fost salvată.'),
+        ]);
+        $response->assertJsonStructure([
+            'status',
+            'color_class',
+            'days_until_expiry',
+            'formatted_date',
+            'readable_date',
+            'message',
+        ]);
 
         $document->refresh();
 
         $this->assertEquals(Carbon::parse($payload['data_expirare'])->toDateString(), optional($document->data_expirare)->toDateString());
         $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+
+        $this->assertSame($document->colorClass(), $response->json('color_class'));
+        $this->assertSame($document->daysUntilExpiry(), $response->json('days_until_expiry'));
+        $this->assertSame($document->data_expirare?->format('Y-m-d'), $response->json('formatted_date'));
+        $this->assertSame($document->data_expirare?->format('d.m.Y'), $response->json('readable_date'));
+    }
+
+    public function test_document_inline_update_preserves_notifications_when_date_is_unchanged(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->where('document_type', MasinaDocument::TYPE_ITP)->first();
+
+        $existingDate = Carbon::now()->addDays(45)->toDateString();
+
+        $document->update([
+            'data_expirare' => $existingDate,
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patchJson(route('masini-mementouri.documente.update', [$masina, $document]), [
+                'data_expirare' => $existingDate,
+            ]);
+
+        $response->assertOk();
+        $response->assertJson(['status' => 'ok']);
+
+        $document->refresh();
+
+        $this->assertSame($existingDate, optional($document->data_expirare)->toDateString());
+        $this->assertTrue($document->notificare_60_trimisa);
+        $this->assertTrue($document->notificare_30_trimisa);
+        $this->assertTrue($document->notificare_1_trimisa);
+    }
+
+    public function test_document_inline_update_allows_clearing_date_and_resets_notifications(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->where('document_type', MasinaDocument::TYPE_COPIE_CONFORMA)->first();
+
+        $document->update([
+            'data_expirare' => Carbon::now()->addDays(30)->toDateString(),
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patchJson(route('masini-mementouri.documente.update', [$masina, $document]), [
+                'data_expirare' => null,
+            ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'status' => 'ok',
+            'formatted_date' => null,
+            'readable_date' => null,
+            'color_class' => 'bg-secondary-subtle',
+        ]);
+
+        $document->refresh();
+
+        $this->assertNull($document->data_expirare);
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+    }
+
+    public function test_document_inline_update_handles_invalid_payloads(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $originalDate = $document->data_expirare;
+
+        $response = $this
+            ->actingAs($user)
+            ->patchJson(route('masini-mementouri.documente.update', [$masina, $document]), [
+                'data_expirare' => 'not-a-date',
+                'email_notificare' => 'invalid-email',
+            ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['data_expirare', 'email_notificare']);
+
+        $document->refresh();
+
+        $this->assertEquals($originalDate?->toDateString(), optional($document->data_expirare)->toDateString());
+        $this->assertNull($document->email_notificare);
     }
 
     public function test_document_file_upload_returns_json_payload(): void
@@ -76,14 +193,42 @@ class MasiniMementouriTest extends TestCase
             ]);
 
         $response->assertOk();
+        $response->assertJson([
+            'status' => 'ok',
+            'message' => __('Fișierul a fost încărcat.'),
+        ]);
         $response->assertJsonStructure([
             'status',
             'message',
             'files_html',
         ]);
-        $response->assertJson(['status' => 'ok']);
+
+        $filesHtml = $response->json('files_html');
+
+        $this->assertIsString($filesHtml);
+        $this->assertStringContainsString('data-document-files-list', $filesHtml);
+        $this->assertStringContainsString($file->getClientOriginalName(), $filesHtml);
+        $this->assertStringContainsString('data-document-delete', $filesHtml);
 
         Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $file->hashName());
+    }
+
+    public function test_document_file_upload_validation_errors_return_json_response(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $response = $this
+            ->actingAs($user)
+            ->postJson(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), []);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['fisier']);
     }
 
     public function test_document_file_delete_returns_json_payload(): void
@@ -121,6 +266,40 @@ class MasiniMementouriTest extends TestCase
 
         $this->assertDatabaseMissing('masini_documente_fisiere', ['id' => $fisier->id]);
         Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_document_file_delete_validates_document_belongs_to_vehicle(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $masinaOne = Masina::factory()->create();
+        $masinaTwo = Masina::factory()->create();
+
+        $documentOne = $masinaOne->documente()->first();
+        $documentTwo = $masinaTwo->documente()->first();
+
+        $path = 'masini-documente/' . $documentTwo->id . '/nepotrivit.pdf';
+        Storage::disk('public')->put($path, 'PDF content');
+
+        $fisier = $documentTwo->fisiere()->create([
+            'cale' => $path,
+            'nume_fisier' => basename($path),
+            'nume_original' => 'nepotrivit.pdf',
+            'mime_type' => 'application/pdf',
+            'dimensiune' => 512,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->deleteJson(route('masini-mementouri.documente.fisiere.destroy', [$masinaOne, $documentTwo, $fisier]));
+
+        $response->assertNotFound();
+
+        $this->assertDatabaseHas('masini_documente_fisiere', ['id' => $fisier->id]);
+        Storage::disk('public')->assertExists($path);
     }
 
     public function test_cron_job_sends_vehicle_alerts_once_per_threshold(): void
@@ -244,5 +423,41 @@ class MasiniMementouriTest extends TestCase
         $downloadResponse->assertOk();
         $downloadResponse->assertHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
         $this->assertStringContainsString('attachment', strtolower($downloadResponse->headers->get('content-disposition')));
+    }
+
+    public function test_download_and_preview_return_not_found_for_mismatched_vehicle(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $masinaOne = Masina::factory()->create(['numar_inmatriculare' => 'B88MISM']);
+        $masinaTwo = Masina::factory()->create(['numar_inmatriculare' => 'B99MISM']);
+
+        $documentTwo = $masinaTwo->documente()->first();
+
+        $path = 'masini-documente/' . $documentTwo->id . '/atestare.pdf';
+        Storage::disk('public')->put($path, '%PDF');
+
+        $fisier = $documentTwo->fisiere()->create([
+            'cale' => $path,
+            'nume_fisier' => basename($path),
+            'nume_original' => 'atestare.pdf',
+            'mime_type' => 'application/pdf',
+            'dimensiune' => 64,
+        ]);
+
+        $previewResponse = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.documente.fisiere.preview', [$masinaOne, $documentTwo, $fisier]));
+
+        $previewResponse->assertNotFound();
+
+        $downloadResponse = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.documente.fisiere.download', [$masinaOne, $documentTwo, $fisier]));
+
+        $downloadResponse->assertNotFound();
     }
 }
