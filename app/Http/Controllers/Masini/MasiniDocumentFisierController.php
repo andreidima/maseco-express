@@ -14,8 +14,10 @@ use Illuminate\Support\Facades\Storage;
 
 class MasiniDocumentFisierController extends Controller
 {
-    public function store(Request $request, Masina $masina, MasinaDocument $document): JsonResponse|RedirectResponse
+    public function store(Request $request, Masina $masina, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
     {
+        $document = $this->resolveDocument($masina, $document);
+
         abort_unless($document->masina_id === $masina->id, 404);
 
         $validated = $request->validate([
@@ -48,8 +50,10 @@ class MasiniDocumentFisierController extends Controller
         return Redirect::back()->with('status', 'Fișierul a fost încărcat.');
     }
 
-    public function destroy(Request $request, Masina $masina, MasinaDocument $document, MasinaDocumentFisier $fisier): JsonResponse|RedirectResponse
+    public function destroy(Request $request, Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier): JsonResponse|RedirectResponse
     {
+        $document = $this->resolveDocument($masina, $document);
+
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
 
         if ($fisier->cale) {
@@ -74,8 +78,10 @@ class MasiniDocumentFisierController extends Controller
         return Redirect::back()->with('status', 'Fișierul a fost șters.');
     }
 
-    public function download(Masina $masina, MasinaDocument $document, MasinaDocumentFisier $fisier)
+    public function download(Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
     {
+        $document = $this->resolveDocument($masina, $document);
+
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
 
         $headers = [];
@@ -91,8 +97,10 @@ class MasiniDocumentFisierController extends Controller
         );
     }
 
-    public function preview(Masina $masina, MasinaDocument $document, MasinaDocumentFisier $fisier)
+    public function preview(Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
     {
+        $document = $this->resolveDocument($masina, $document);
+
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
 
         abort_unless($fisier->isPreviewable(), 404);
@@ -108,5 +116,14 @@ class MasiniDocumentFisierController extends Controller
             $fisier->downloadName(),
             $headers
         );
+    }
+
+    protected function resolveDocument(Masina $masina, MasinaDocument|string|int $document): MasinaDocument
+    {
+        if ($document instanceof MasinaDocument) {
+            return $document;
+        }
+
+        return MasinaDocument::resolveForMasina($masina, $document);
     }
 }
