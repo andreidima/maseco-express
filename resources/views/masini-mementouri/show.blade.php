@@ -18,10 +18,6 @@
     <div class="card-body px-0 py-3">
         @include('errors')
 
-        @if (session('status'))
-            <div class="alert alert-success mx-3">{{ session('status') }}</div>
-        @endif
-
         <div class="mx-3 mb-4">
             <form method="POST" action="{{ route('masini-mementouri.update', $masina) }}" class="row g-3">
                 @csrf
@@ -40,11 +36,6 @@
                     <label class="form-label" for="email_notificari">Email notificări</label>
                     <input type="email" id="email_notificari" name="email_notificari" class="form-control rounded-3"
                            value="{{ old('email_notificari', optional($masina->memento)->email_notificari) }}">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label" for="telefon_notificari">Telefon notificări</label>
-                    <input type="text" id="telefon_notificari" name="telefon_notificari" class="form-control rounded-3"
-                           value="{{ old('telefon_notificari', optional($masina->memento)->telefon_notificari) }}">
                 </div>
                 <div class="col-12">
                     <label class="form-label" for="observatii">Observații</label>
