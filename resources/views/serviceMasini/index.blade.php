@@ -94,7 +94,8 @@
                             <span class="fw-semibold"><i class="fa-solid fa-car-side me-1"></i>Mașini</span>
                         </div>
                         <div class="card-body">
-                            <div class="list-group mb-4" style="max-height: 320px; overflow-y: auto;">
+                            <div id="service-cars-list" class="list-group mb-4"
+                                style="max-height: 320px; overflow-y: auto;">
                                 @forelse ($masini as $masina)
                                     @php
                                         $masinaQuery = $queryParams;
@@ -360,7 +361,7 @@
 
 @push('page-scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        function initializeServiceMasiniPage() {
             function toggleEntryFields() {
                 const selectedType = document.querySelector('input[name="tip"]:checked')?.value || 'piesa';
 
@@ -378,6 +379,20 @@
             });
 
             toggleEntryFields();
-        });
+
+            const carList = document.getElementById('service-cars-list');
+            const activeCar = carList?.querySelector('.list-group-item.active');
+
+            if (carList && activeCar) {
+                const offsetTop = activeCar.offsetTop;
+                carList.scrollTop = Math.max(0, offsetTop);
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeServiceMasiniPage);
+        } else {
+            initializeServiceMasiniPage();
+        }
     </script>
 @endpush
