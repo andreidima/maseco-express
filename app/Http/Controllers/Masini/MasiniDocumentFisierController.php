@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Masini\Masina;
 use App\Models\Masini\MasinaDocument;
 use App\Models\Masini\MasinaDocumentFisier;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -38,12 +38,36 @@ class MasiniDocumentFisierController extends Controller
             $files = [];
         }
 
-        $validator = Validator::make([
+        $dateProvided = $request->has('data_expirare');
+        $rawDate = $dateProvided ? $request->input('data_expirare') : null;
+        $normalizedDate = $rawDate === '' ? null : $rawDate;
+
+        $payload = [
             'fisier' => $files,
-        ], [
+        ];
+
+        if ($dateProvided) {
+            $payload['data_expirare'] = $normalizedDate;
+        }
+
+        $validator = Validator::make($payload, [
             'fisier' => ['required', 'array', 'min:1'],
             'fisier.*' => ['file', 'mimes:pdf', 'max:51200'],
+            'data_expirare' => ['nullable', 'date'],
         ]);
+
+        $validator->after(function ($validator) use ($document, $dateProvided, $normalizedDate, $files) {
+            if (!$dateProvided) {
+                return;
+            }
+
+            $currentDate = optional($document->data_expirare)->format('Y-m-d');
+            $incomingDate = $normalizedDate ? Carbon::parse($normalizedDate)->format('Y-m-d') : null;
+
+            if ($incomingDate !== $currentDate && count($files) === 0) {
+                $validator->errors()->add('data_expirare', __('Pentru a modifica data expirării este necesar să atașezi cel puțin un fișier.'));
+            }
+        });
 
         if ($validator->fails()) {
             if ($request->expectsJson()) {
@@ -55,11 +79,34 @@ class MasiniDocumentFisierController extends Controller
                 'document' => MasinaDocument::buildRouteKey($document->document_type, $document->tara),
             ])
                 ->withErrors($validator)
-                ->withInput();
+                ->withInput($request->except('fisier'));
         }
 
-        $files = $validator->validated();
-        $files = $files['fisier'] ?? [];
+        $validated = $validator->validated();
+        $files = $validated['fisier'] ?? [];
+
+        $shouldResetNotifications = false;
+
+        if ($dateProvided) {
+            $incomingDate = $normalizedDate ? Carbon::parse($normalizedDate)->startOfDay() : null;
+            $currentDate = $document->data_expirare ? $document->data_expirare->copy()->startOfDay() : null;
+
+            if (($incomingDate?->ne($currentDate) ?? ($currentDate !== null))) {
+                $shouldResetNotifications = true;
+            }
+
+            $document->data_expirare = $incomingDate?->toDateString();
+        }
+
+        if ($shouldResetNotifications) {
+            $document->notificare_60_trimisa = false;
+            $document->notificare_30_trimisa = false;
+            $document->notificare_1_trimisa = false;
+        }
+
+        if ($dateProvided && ($document->isDirty('data_expirare') || $shouldResetNotifications)) {
+            $document->save();
+        }
 
         $storedCount = 0;
 

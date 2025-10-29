@@ -14,6 +14,8 @@ class Masina extends Model
     protected $fillable = [
         'numar_inmatriculare',
         'descriere',
+        'marca_masina',
+        'serie_sasiu',
     ];
 
     public function memento()

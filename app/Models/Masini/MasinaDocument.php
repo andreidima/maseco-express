@@ -142,6 +142,7 @@ class MasinaDocument extends Model
             self::TYPE_ITP => 'ITP',
             self::TYPE_RCA => 'RCA',
             self::TYPE_COPIE_CONFORMA => 'Copie conformă',
+            self::TYPE_ASIGURARE_CMR => 'Asigurare CMR',
         ];
     }
 
@@ -151,6 +152,7 @@ class MasinaDocument extends Model
             'ro' => 'RO',
             'hu' => 'HU',
             'at' => 'AT',
+            'brennero' => 'Brennero',
             'cz' => 'CZ',
             'sk' => 'SK',
         ];

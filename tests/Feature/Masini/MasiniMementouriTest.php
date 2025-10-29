@@ -30,6 +30,61 @@ class MasiniMementouriTest extends TestCase
         $this->assertCount(count(MasinaDocument::defaultDefinitions()), $masina->documente);
     }
 
+    public function test_vehicle_store_and_update_persist_additional_fields(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+
+        $payload = [
+            'numar_inmatriculare' => 'B11NEW',
+            'descriere' => 'Cap tractor',
+            'marca_masina' => 'Volvo',
+            'serie_sasiu' => 'YS2R4X20005399401',
+            'email_notificari' => 'test@example.com',
+            'observatii' => 'Note inițiale',
+        ];
+
+        $response = $this
+            ->actingAs($user)
+            ->post(route('masini-mementouri.store'), $payload);
+
+        $response->assertRedirect(route('masini-mementouri.index'));
+        $this->assertDatabaseHas('masini', [
+            'numar_inmatriculare' => 'B11NEW',
+            'marca_masina' => 'Volvo',
+            'serie_sasiu' => 'YS2R4X20005399401',
+        ]);
+
+        $masina = Masina::where('numar_inmatriculare', 'B11NEW')->first();
+        $this->assertNotNull($masina);
+        $this->assertEquals('Note inițiale', optional($masina->memento)->observatii);
+        $this->assertEquals('test@example.com', optional($masina->memento)->email_notificari);
+
+        $updatePayload = [
+            'numar_inmatriculare' => 'B11NEW',
+            'descriere' => 'Basculantă',
+            'marca_masina' => 'DAF',
+            'serie_sasiu' => 'XLRTE47MS0E123456',
+            'email_notificari' => 'actualizat@example.com',
+            'observatii' => 'Actualizat',
+            'redirect' => 'index',
+        ];
+
+        $response = $this
+            ->actingAs($user)
+            ->put(route('masini-mementouri.update', $masina), $updatePayload);
+
+        $response->assertRedirect(route('masini-mementouri.index'));
+
+        $masina->refresh();
+        $this->assertSame('Basculantă', $masina->descriere);
+        $this->assertSame('DAF', $masina->marca_masina);
+        $this->assertSame('XLRTE47MS0E123456', $masina->serie_sasiu);
+        $this->assertSame('actualizat@example.com', optional($masina->memento)->email_notificari);
+        $this->assertSame('Actualizat', optional($masina->memento)->observatii);
+    }
+
     public function test_index_document_date_links_to_edit_page(): void
     {
         $this->withoutMiddleware([EnsurePermission::class]);
@@ -47,6 +102,9 @@ class MasiniMementouriTest extends TestCase
             ->get(route('masini-mementouri.index'));
 
         $response->assertOk();
+        $response->assertSee('Legendă culori');
+        $response->assertSee('Asigurare CMR');
+        $response->assertSee('Vignetă Brennero');
         $response->assertSee('<a href="' . route('masini-mementouri.edit', $masina) . '"', false);
         $response->assertSee('aria-label="Editează ITP pentru ' . $masina->numar_inmatriculare . '"', false);
         $response->assertSee($document->data_expirare->format('d.m.Y'));
@@ -295,6 +353,81 @@ class MasiniMementouriTest extends TestCase
 
         $response->assertStatus(422);
         $response->assertJsonValidationErrors(['fisier']);
+    }
+
+    public function test_document_file_upload_requires_file_when_modifying_date(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake(MasinaDocumentFisier::STORAGE_DISK);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $newDate = Carbon::now()->addDays(15)->format('Y-m-d');
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
+            ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), [
+                'data_expirare' => $newDate,
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
+
+        $response->assertSessionHasErrors(['fisier', 'data_expirare']);
+
+        $document->refresh();
+        $this->assertNull($document->data_expirare);
+    }
+
+    public function test_document_file_upload_with_date_updates_document_and_resets_notifications(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake(MasinaDocumentFisier::STORAGE_DISK);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'data_expirare' => Carbon::now()->addDays(5)->toDateString(),
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $newDate = Carbon::now()->addDays(90)->format('Y-m-d');
+        $file = UploadedFile::fake()->create('atestat.pdf', 128, 'application/pdf');
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
+            ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), [
+                'data_expirare' => $newDate,
+                'fisier' => [$file],
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
+        $response->assertSessionHas('status', 'Fișierul a fost încărcat.');
+
+        $document->refresh();
+        $this->assertSame($newDate, optional($document->data_expirare)->toDateString());
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+
+        Storage::disk(MasinaDocumentFisier::STORAGE_DISK)->assertExists(
+            MasinaDocumentFisier::STORAGE_DIRECTORY . '/' . $document->id . '/' . $file->hashName()
+        );
     }
 
     public function test_document_file_upload_via_standard_form_redirects_to_edit_page(): void

@@ -21,8 +21,32 @@
 
         .document-cell-link--empty .document-cell {
             background-color: transparent !important;
-            border: 1px dashed var(--bs-primary);
+            border: none;
             color: var(--bs-primary) !important;
+            text-decoration: underline;
+        }
+
+        .document-cell.bg-warning {
+            color: #000 !important;
+        }
+
+        .document-legend {
+            background-color: var(--bs-body-bg);
+        }
+
+        .document-legend-pill {
+            border-radius: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 140px;
+            padding: 0.35rem 0.75rem;
+            font-weight: 600;
+        }
+
+        .document-legend-pill--empty {
+            background-color: transparent;
+            color: var(--bs-primary);
             text-decoration: underline;
         }
     </style>
@@ -60,6 +84,29 @@
             ($columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1)
         @endphp
 
+        <div class="px-3 mb-3">
+            <div class="p-3 border border-secondary-subtle rounded-4 document-legend">
+                <p class="mb-2 text-uppercase small fw-semibold text-muted">Legendă culori</p>
+                <ul class="list-inline small mb-0 d-flex flex-wrap gap-2">
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-danger text-white">Expirat / ≤ 1 zi</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-warning">≤ 30 zile</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-success text-white">≤ 60 zile</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-secondary-subtle text-body-secondary">Fără dată</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill document-legend-pill--empty">N/A</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <div class="table-responsive rounded">
             <table class="table table-striped table-hover align-middle table-sm mb-0">
                 <thead class="text-white rounded culoare2">
@@ -72,7 +119,7 @@
                         @foreach ($vignetteCountries as $code => $label)
                             <th class="text-center">Vignetă {{ $label }}</th>
                         @endforeach
-                        <th class="text-end">Acțiuni</th>
+                        <th class="text-end">Acț.</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -132,8 +179,10 @@
                                     <button type="button" class="btn btn-sm btn-outline-danger border border-dark rounded-3"
                                             data-bs-toggle="modal" data-bs-target="#deleteMasinaModal"
                                             data-delete-url="{{ route('masini-mementouri.destroy', $masina) }}"
-                                            data-masina-name="{{ $masina->numar_inmatriculare }}">
-                                        <i class="fa-solid fa-trash me-1"></i>Șterge
+                                            data-masina-name="{{ $masina->numar_inmatriculare }}"
+                                            aria-label="Șterge {{ $masina->numar_inmatriculare }}"
+                                            title="Șterge">
+                                        <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
                             </td>
@@ -170,6 +219,14 @@
                     <div class="col-md-6">
                         <label class="form-label" for="modal_descriere">Descriere</label>
                         <input type="text" class="form-control rounded-3" id="modal_descriere" name="descriere">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="modal_marca_masina">Marca mașină</label>
+                        <input type="text" class="form-control rounded-3" id="modal_marca_masina" name="marca_masina">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="modal_serie_sasiu">Serie șasiu</label>
+                        <input type="text" class="form-control rounded-3" id="modal_serie_sasiu" name="serie_sasiu">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="modal_email_notificari">Email notificări</label>
@@ -237,6 +294,8 @@
                 const inputs = {
                     numar_inmatriculare: form.querySelector('input[name="numar_inmatriculare"]'),
                     descriere: form.querySelector('input[name="descriere"]'),
+                    marca_masina: form.querySelector('input[name="marca_masina"]'),
+                    serie_sasiu: form.querySelector('input[name="serie_sasiu"]'),
                     email_notificari: form.querySelector('input[name="email_notificari"]'),
                     observatii: form.querySelector('textarea[name="observatii"]'),
                 };
@@ -254,6 +313,8 @@
                 const fillForm = (values = {}) => {
                     inputs.numar_inmatriculare.value = values.numar_inmatriculare ?? '';
                     inputs.descriere.value = values.descriere ?? '';
+                    inputs.marca_masina.value = values.marca_masina ?? '';
+                    inputs.serie_sasiu.value = values.serie_sasiu ?? '';
                     inputs.email_notificari.value = values.email_notificari ?? defaultEmail;
                     inputs.observatii.value = values.observatii ?? '';
                 };
@@ -305,6 +366,8 @@
                 const oldValues = {
                     numar_inmatriculare: @json(old('numar_inmatriculare')),
                     descriere: @json(old('descriere')),
+                    marca_masina: @json(old('marca_masina')),
+                    serie_sasiu: @json(old('serie_sasiu')),
                     email_notificari: @json(old('email_notificari')),
                     observatii: @json(old('observatii')),
                 };
