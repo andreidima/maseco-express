@@ -41,6 +41,7 @@ use App\Http\Controllers\Service\ServiceMasiniController;
 use App\Http\Controllers\Service\ServiceSheetController;
 use App\Http\Controllers\Tech\ImpersonationController;
 use App\Http\Controllers\Tech\MigrationCenterController;
+use App\Http\Controllers\Tech\CronJobLogController;
 
 
 /*
@@ -104,6 +105,8 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('migrations', [MigrationCenterController::class, 'index'])->name('migrations.index');
                 Route::post('migrations/preview', [MigrationCenterController::class, 'preview'])->name('migrations.preview');
                 Route::post('migrations/run', [MigrationCenterController::class, 'run'])->name('migrations.run');
+                Route::get('cron-logs', [CronJobLogController::class, 'index'])->name('cron-logs.index');
+                Route::get('cron-logs/{cronJobLog}', [CronJobLogController::class, 'show'])->name('cron-logs.show');
             });
         });
 
