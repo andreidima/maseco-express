@@ -7,7 +7,7 @@
             <span class="badge culoare1 fs-5">
                 <i class="fa-solid fa-car me-1"></i>{{ $masina->numar_inmatriculare }}
             </span>
-            <span class="badge bg-light text-dark border ms-2">
+            <span class="badge bg-light text-dark border ms-2 fs-5">
                 {{ $documentLabel }}
             </span>
         </div>
