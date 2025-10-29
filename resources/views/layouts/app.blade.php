@@ -170,11 +170,18 @@
                                         </li>
                                     @endcan
                                     @can('access-tech')
-                                        <li>
-                                            <a class="dropdown-item" href="{{ route('tech.migrations.index') }}">
-                                                <i class="fa-solid fa-database me-1"></i>Migration Center
-                                            </a>
-                                        </li>
+                                        @if (auth()->user()?->hasRole('super-admin'))
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('tech.migrations.index') }}">
+                                                    <i class="fa-solid fa-database me-1"></i>Migration Center
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item" href="{{ route('tech.cron-logs.index') }}">
+                                                    <i class="fa-solid fa-clock-rotate-left me-1"></i>Jurnal cron jobs
+                                                </a>
+                                            </li>
+                                        @endif
                                     @endcan
                                 </ul>
                             </li>
