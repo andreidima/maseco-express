@@ -41,7 +41,6 @@ use App\Http\Controllers\Service\ServiceMasiniController;
 use App\Http\Controllers\Service\ServiceSheetController;
 use App\Http\Controllers\Tech\ImpersonationController;
 use App\Http\Controllers\Tech\MigrationCenterController;
-use App\Http\Controllers\Tech\SeederCenterController;
 
 
 /*
@@ -104,8 +103,6 @@ Route::middleware(['auth'])->group(function () {
                 Route::get('migrations', [MigrationCenterController::class, 'index'])->name('migrations.index');
                 Route::post('migrations/preview', [MigrationCenterController::class, 'preview'])->name('migrations.preview');
                 Route::post('migrations/run', [MigrationCenterController::class, 'run'])->name('migrations.run');
-                Route::get('seeders', [SeederCenterController::class, 'index'])->name('seeders.index');
-                Route::post('seeders/run', [SeederCenterController::class, 'run'])->name('seeders.run');
             });
         });
 
@@ -231,6 +228,8 @@ Route::middleware(['auth'])->group(function () {
                 ->name('masini-mementouri.documente.fisiere.destroy');
             Route::get('masini-mementouri/{masini_mementouri}/documente/{document}/fisiere/{fisier}', [MasiniDocumentFisierController::class, 'download'])
                 ->name('masini-mementouri.documente.fisiere.download');
+            Route::get('masini-mementouri/{masini_mementouri}/documente/{document}/fisiere/{fisier}/preview', [MasiniDocumentFisierController::class, 'preview'])
+                ->name('masini-mementouri.documente.fisiere.preview');
         });
     });
 

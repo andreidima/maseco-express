@@ -20,11 +20,12 @@ class MasiniMementoController extends Controller
 
         $masini->each(function (Masina $masina): void {
             $masina->syncDefaultDocuments();
-            $masina->loadMissing(['memento', 'documente']);
+            $masina->loadMissing(['memento', 'documente.fisiere']);
         });
 
         $gridDocumentTypes = MasinaDocument::gridDocumentTypes();
         $vignetteCountries = MasinaDocument::vignetteCountries();
+        $uploadDocumentLabels = MasinaDocument::uploadDocumentLabels();
 
         $masiniModalData = $masini
             ->mapWithKeys(function (Masina $masina) {
@@ -45,6 +46,7 @@ class MasiniMementoController extends Controller
             'masini',
             'gridDocumentTypes',
             'vignetteCountries',
+            'uploadDocumentLabels',
             'masiniModalData'
         ));
     }

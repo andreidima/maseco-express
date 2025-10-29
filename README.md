@@ -134,4 +134,3 @@ Follow these steps the first time you deploy the new Tech → Migration Center t
 
 > Tip: from the Migration Center, you can trigger `php artisan migrate --pretend` to review the SQL that will run before committing migrations.
 
-Once your roles are seeded, you can also use the Tech → **Seeder Center** to run `php artisan db:seed --force` for the default `DatabaseSeeder` or any individual seeder class that lives in `database/seeders`. The UI captures the artisan output so you can confirm what ran after each execution.
