@@ -29,6 +29,28 @@ class MasiniMementouriTest extends TestCase
         $this->assertCount(count(MasinaDocument::defaultDefinitions()), $masina->documente);
     }
 
+    public function test_index_document_date_links_to_edit_page(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B55LINK']);
+        $document = $masina->documente()->where('document_type', MasinaDocument::TYPE_ITP)->first();
+
+        $document->update([
+            'data_expirare' => Carbon::create(2025, 3, 15),
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.index'));
+
+        $response->assertOk();
+        $response->assertSee('<a href="' . route('masini-mementouri.edit', $masina) . '"', false);
+        $response->assertSee('aria-label="Editează ITP pentru ' . $masina->numar_inmatriculare . '"', false);
+        $response->assertSee($document->data_expirare->format('d.m.Y'));
+    }
+
     public function test_document_inline_update_returns_json_and_resets_notifications(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
@@ -172,6 +194,44 @@ class MasiniMementouriTest extends TestCase
 
         $this->assertEquals($originalDate?->toDateString(), optional($document->data_expirare)->toDateString());
         $this->assertNull($document->email_notificare);
+    }
+
+    public function test_document_update_via_standard_form_redirects_back_with_flash_message(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B66FORM']);
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'data_expirare' => Carbon::now()->addDays(5)->toDateString(),
+            'email_notificare' => 'old-alert@example.com',
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $newDate = Carbon::now()->addDays(45)->toDateString();
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.edit', $masina))
+            ->patch(route('masini-mementouri.documente.update', [$masina, $document]), [
+                'data_expirare' => $newDate,
+                'email_notificare' => 'alerts@example.com',
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.edit', $masina));
+        $response->assertSessionHas('status', 'Documentul a fost actualizat.');
+
+        $document->refresh();
+
+        $this->assertSame($newDate, optional($document->data_expirare)->toDateString());
+        $this->assertSame('alerts@example.com', $document->email_notificare);
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
     }
 
     public function test_document_file_upload_returns_json_payload(): void
@@ -459,5 +519,75 @@ class MasiniMementouriTest extends TestCase
             ->get(route('masini-mementouri.documente.fisiere.download', [$masinaOne, $documentTwo, $fisier]));
 
         $downloadResponse->assertNotFound();
+    }
+
+    public function test_edit_page_displays_correct_preview_and_download_actions(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B77EDIT']);
+        $document = $masina->documente()->first();
+
+        $previewable = $document->fisiere()->create([
+            'cale' => 'masini-documente/' . $document->id . '/atestat.pdf',
+            'nume_fisier' => 'atestat.pdf',
+            'nume_original' => 'atestat.pdf',
+            'mime_type' => 'application/pdf',
+            'dimensiune' => 2048,
+        ]);
+
+        $nonPreviewable = $document->fisiere()->create([
+            'cale' => 'masini-documente/' . $document->id . '/contract.docx',
+            'nume_fisier' => 'contract.docx',
+            'nume_original' => 'contract.docx',
+            'mime_type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'dimensiune' => 4096,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.edit', $masina));
+
+        $response->assertOk();
+        $response->assertSee('<a href="' . route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $previewable]) . '"', false);
+        $response->assertSee('<a href="' . route('masini-mementouri.documente.fisiere.download', [$masina, $document, $previewable]) . '"', false);
+        $response->assertSee('<a href="' . route('masini-mementouri.documente.fisiere.download', [$masina, $document, $nonPreviewable]) . '"', false);
+        $response->assertDontSee('<a href="' . route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $nonPreviewable]) . '"', false);
+    }
+
+    public function test_show_page_displays_correct_preview_and_download_actions(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B77SHOW']);
+        $document = $masina->documente()->first();
+
+        $previewable = $document->fisiere()->create([
+            'cale' => 'masini-documente/' . $document->id . '/atestat.pdf',
+            'nume_fisier' => 'atestat.pdf',
+            'nume_original' => 'atestat.pdf',
+            'mime_type' => 'application/pdf',
+            'dimensiune' => 1024,
+        ]);
+
+        $nonPreviewable = $document->fisiere()->create([
+            'cale' => 'masini-documente/' . $document->id . '/contract.docx',
+            'nume_fisier' => 'contract.docx',
+            'nume_original' => 'contract.docx',
+            'mime_type' => 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'dimensiune' => 2048,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.show', $masina));
+
+        $response->assertOk();
+        $response->assertSee('<a href="' . route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $previewable]) . '"', false);
+        $response->assertSee('<a href="' . route('masini-mementouri.documente.fisiere.download', [$masina, $document, $previewable]) . '"', false);
+        $response->assertSee('<a href="' . route('masini-mementouri.documente.fisiere.download', [$masina, $document, $nonPreviewable]) . '"', false);
+        $response->assertDontSee('<a href="' . route('masini-mementouri.documente.fisiere.preview', [$masina, $document, $nonPreviewable]) . '"', false);
     }
 }
