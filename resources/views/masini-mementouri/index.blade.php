@@ -90,6 +90,29 @@
             ($columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1)
         @endphp
 
+        <div class="px-3 mb-3">
+            <div class="p-3 border border-secondary-subtle rounded-4 document-legend">
+                <p class="mb-2 text-uppercase small fw-semibold text-muted">Legendă culori</p>
+                <ul class="list-inline small mb-0 d-flex flex-wrap gap-2">
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-danger text-white">Expirat / ≤ 1 zi</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-warning">≤ 30 zile</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-success text-white">≤ 60 zile</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill bg-secondary-subtle text-body-secondary">Fără dată</span>
+                    </li>
+                    <li class="list-inline-item mb-1">
+                        <span class="document-legend-pill document-legend-pill--empty">N/A</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
         <div class="table-responsive rounded">
             <table class="table table-striped table-hover align-middle table-sm mb-0">
                 <thead class="text-white rounded culoare2">
