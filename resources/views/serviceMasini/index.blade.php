@@ -361,7 +361,7 @@
 
 @push('page-scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        function initializeServiceMasiniPage() {
             function toggleEntryFields() {
                 const selectedType = document.querySelector('input[name="tip"]:checked')?.value || 'piesa';
 
@@ -384,12 +384,15 @@
             const activeCar = carList?.querySelector('.list-group-item.active');
 
             if (carList && activeCar) {
-                const containerRect = carList.getBoundingClientRect();
-                const activeRect = activeCar.getBoundingClientRect();
-                const offsetTop = activeRect.top - containerRect.top + carList.scrollTop;
-
-                carList.scrollTo({ top: Math.max(0, offsetTop) });
+                const offsetTop = activeCar.offsetTop;
+                carList.scrollTop = Math.max(0, offsetTop);
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeServiceMasiniPage);
+        } else {
+            initializeServiceMasiniPage();
+        }
     </script>
 @endpush
