@@ -650,6 +650,45 @@ class MasiniMementouriTest extends TestCase
         $this->assertFalse($document->notificare_1_trimisa);
     }
 
+    public function test_cron_job_does_not_send_less_urgent_thresholds_after_one_day_alert(): void
+    {
+        Mail::fake();
+        Carbon::setTestNow(Carbon::create(2025, 3, 24));
+        config(['variabile.cron_job_key' => 'test-key']);
+
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B01URG']);
+        $masina->memento->update(['email_notificari' => 'alerta@example.com']);
+        $document = $masina->documente()->where('document_type', MasinaDocument::TYPE_ITP)->first();
+        $document->update(['data_expirare' => Carbon::now()->addDay()]);
+
+        $controller = app(CronJobController::class);
+
+        ob_start();
+        $controller->trimiteMementoAlerte('test-key');
+        ob_end_clean();
+
+        Mail::assertSent(MementoAlerta::class, 1);
+
+        $document->refresh();
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertTrue($document->notificare_1_trimisa);
+
+        Mail::fake();
+        Carbon::setTestNow(Carbon::now()->addDay());
+
+        ob_start();
+        $controller->trimiteMementoAlerte('test-key');
+        ob_end_clean();
+
+        Mail::assertNothingSent();
+
+        $document->refresh();
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertTrue($document->notificare_1_trimisa);
+    }
+
     public function test_update_from_modal_redirects_back_to_index(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
