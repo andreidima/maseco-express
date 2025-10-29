@@ -26,6 +26,32 @@
             </div>
         @endif
 
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Preview output</strong>
+            </div>
+            <div class="card-body">
+                @if ($previewOutput)
+                    <pre class="mb-0">{{ $previewOutput }}</pre>
+                @else
+                    <p class="mb-0 text-muted">Generate a preview to see which SQL statements will be executed.</p>
+                @endif
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Execution log</strong>
+            </div>
+            <div class="card-body">
+                @if ($executionOutput)
+                    <pre class="mb-0">{{ $executionOutput }}</pre>
+                @else
+                    <p class="mb-0 text-muted">Run the migrations to capture the artisan output.</p>
+                @endif
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-lg-6 mb-4">
                 <div class="card h-100">
@@ -78,30 +104,5 @@
             </div>
         </div>
 
-        <div class="card mb-4">
-            <div class="card-header">
-                <strong>Preview output</strong>
-            </div>
-            <div class="card-body">
-                @if ($previewOutput)
-                    <pre class="mb-0">{{ $previewOutput }}</pre>
-                @else
-                    <p class="mb-0 text-muted">Generate a preview to see which SQL statements will be executed.</p>
-                @endif
-            </div>
-        </div>
-
-        <div class="card mb-4">
-            <div class="card-header">
-                <strong>Execution log</strong>
-            </div>
-            <div class="card-body">
-                @if ($executionOutput)
-                    <pre class="mb-0">{{ $executionOutput }}</pre>
-                @else
-                    <p class="mb-0 text-muted">Run the migrations to capture the artisan output.</p>
-                @endif
-            </div>
-        </div>
     </div>
 @endsection
