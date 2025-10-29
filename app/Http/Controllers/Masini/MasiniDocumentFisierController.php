@@ -47,7 +47,10 @@ class MasiniDocumentFisierController extends Controller
             ]);
         }
 
-        return Redirect::back()->with('status', 'Fișierul a fost încărcat.');
+        $routeDocumentParam = MasinaDocument::buildRouteKey($document->document_type, $document->tara);
+
+        return Redirect::route('masini-mementouri.documente.edit', [$masina, $routeDocumentParam])
+            ->with('status', 'Fișierul a fost încărcat.');
     }
 
     public function destroy(Request $request, Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier): JsonResponse|RedirectResponse

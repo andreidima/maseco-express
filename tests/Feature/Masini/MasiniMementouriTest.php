@@ -291,6 +291,37 @@ class MasiniMementouriTest extends TestCase
         $response->assertJsonValidationErrors(['fisier']);
     }
 
+    public function test_document_file_upload_via_standard_form_redirects_to_edit_page(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake('public');
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B77FORM']);
+        $document = $masina->documente()->where('document_type', MasinaDocument::TYPE_RCA)->first();
+
+        $routeDocumentParam = MasinaDocument::buildRouteKey($document->document_type, $document->tara);
+        $file = UploadedFile::fake()->create('polita.pdf', 128, 'application/pdf');
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.documente.edit', [$masina, $routeDocumentParam]))
+            ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $routeDocumentParam]), [
+                'fisier' => $file,
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [$masina, $routeDocumentParam]));
+        $response->assertSessionHas('status', 'Fișierul a fost încărcat.');
+
+        Storage::disk('public')->assertExists('masini-documente/' . $document->id . '/' . $file->hashName());
+
+        $this->assertDatabaseHas('masini_documente_fisiere', [
+            'document_id' => $document->id,
+            'nume_original' => $file->getClientOriginalName(),
+        ]);
+    }
+
     public function test_document_file_delete_returns_json_payload(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
