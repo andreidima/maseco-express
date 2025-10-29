@@ -9,8 +9,10 @@ use App\Models\Masini\MasinaDocumentFisier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class MasiniDocumentFisierController extends Controller
 {
@@ -20,26 +22,41 @@ class MasiniDocumentFisierController extends Controller
 
         abort_unless($document->masina_id === $masina->id, 404);
 
-        $validated = $request->validate([
-            'fisier' => ['required', 'file', 'mimes:pdf', 'max:51200'],
-        ]);
+        $files = Arr::wrap($request->file('fisier'));
 
-        $path = $validated['fisier']->store('masini-documente/' . $document->id, 'public');
+        Validator::make([
+            'fisier' => $files,
+        ], [
+            'fisier' => ['required', 'array', 'min:1'],
+            'fisier.*' => ['file', 'mimes:pdf', 'max:51200'],
+        ])->validate();
 
-        $document->fisiere()->create([
-            'cale' => $path,
-            'nume_fisier' => basename($path),
-            'nume_original' => $validated['fisier']->getClientOriginalName(),
-            'mime_type' => $validated['fisier']->getMimeType(),
-            'dimensiune' => $validated['fisier']->getSize(),
-        ]);
+        $storedCount = 0;
+
+        foreach ($files as $file) {
+            $path = $file->store('masini-documente/' . $document->id, 'public');
+
+            $document->fisiere()->create([
+                'cale' => $path,
+                'nume_fisier' => basename($path),
+                'nume_original' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'dimensiune' => $file->getSize(),
+            ]);
+
+            $storedCount++;
+        }
+
+        $message = $storedCount === 1
+            ? __('Fișierul a fost încărcat.')
+            : __('Fișierele au fost încărcate.');
 
         if ($request->expectsJson()) {
             $document->load('fisiere');
 
             return response()->json([
                 'status' => 'ok',
-                'message' => __('Fișierul a fost încărcat.'),
+                'message' => $message,
                 'files_html' => view('masini-mementouri.partials.document-files-list', [
                     'masina' => $masina,
                     'document' => $document,
@@ -47,10 +64,8 @@ class MasiniDocumentFisierController extends Controller
             ]);
         }
 
-        $routeDocumentParam = MasinaDocument::buildRouteKey($document->document_type, $document->tara);
-
-        return Redirect::route('masini-mementouri.documente.edit', [$masina, $routeDocumentParam])
-            ->with('status', 'Fișierul a fost încărcat.');
+        return Redirect::route('masini-mementouri.documente.edit', [$masina, $document])
+            ->with('status', $message);
     }
 
     public function destroy(Request $request, Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier): JsonResponse|RedirectResponse
