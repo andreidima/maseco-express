@@ -223,6 +223,8 @@ Route::middleware(['auth'])->group(function () {
             ->parameters(['masini-mementouri' => 'masini_mementouri']);
 
         Route::scopeBindings()->group(function () {
+            Route::get('masini-mementouri/{masini_mementouri}/documente/{document}', [MasiniDocumentController::class, 'edit'])
+                ->name('masini-mementouri.documente.edit');
             Route::patch('masini-mementouri/{masini_mementouri}/documente/{document}', [MasiniDocumentController::class, 'update'])
                 ->name('masini-mementouri.documente.update');
             Route::post('masini-mementouri/{masini_mementouri}/documente/{document}/fisiere', [MasiniDocumentFisierController::class, 'store'])
