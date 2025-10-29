@@ -25,7 +25,6 @@ class MasiniMementoController extends Controller
 
         $gridDocumentTypes = MasinaDocument::gridDocumentTypes();
         $vignetteCountries = MasinaDocument::vignetteCountries();
-        $uploadDocumentLabels = MasinaDocument::uploadDocumentLabels();
 
         $masiniModalData = $masini
             ->mapWithKeys(function (Masina $masina) {
@@ -46,7 +45,6 @@ class MasiniMementoController extends Controller
             'masini',
             'gridDocumentTypes',
             'vignetteCountries',
-            'uploadDocumentLabels',
             'masiniModalData'
         ));
     }
