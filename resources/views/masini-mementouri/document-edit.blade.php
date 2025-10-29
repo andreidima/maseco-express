@@ -7,7 +7,7 @@
             <span class="badge culoare1 fs-5">
                 <i class="fa-solid fa-car me-1"></i>{{ $masina->numar_inmatriculare }}
             </span>
-            <span class="badge bg-light text-dark border ms-2">
+            <span class="badge bg-light text-dark border ms-2 fs-5">
                 {{ $documentLabel }}
             </span>
         </div>
@@ -72,9 +72,9 @@
                                 @csrf
 
                                 <div class="mb-3">
-                                    <label class="form-label" for="fisier">Selectează fișier</label>
-                                    <input type="file" id="fisier" name="fisier" class="form-control rounded-3"
-                                           accept="application/pdf" required>
+                                    <label class="form-label" for="fisier">Selectează fișiere</label>
+                                    <input type="file" id="fisier" name="fisier[]" class="form-control rounded-3"
+                                           accept="application/pdf" multiple required>
                                 </div>
 
                                 <div class="text-end">

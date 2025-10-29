@@ -45,6 +45,13 @@ class MasinaDocument extends Model
         return $this->hasMany(MasinaDocumentFisier::class, 'document_id');
     }
 
+    protected static function booted(): void
+    {
+        static::deleting(function (MasinaDocument $document) {
+            $document->fisiere->each->delete();
+        });
+    }
+
     public static function resolveForMasina(Masina $masina, string|int $key): self
     {
         if (is_numeric($key)) {

@@ -21,7 +21,7 @@ class MasinaDocumentFisierTest extends TestCase
         $fisier = new MasinaDocumentFisier([
             'nume_original' => $original,
             'nume_fisier' => $filename,
-            'cale' => 'masini-documente/1/' . ($filename ?? 'fallback.pdf'),
+            'cale' => MasinaDocumentFisier::STORAGE_DIRECTORY . '/1/' . ($filename ?? 'fallback.pdf'),
         ]);
 
         $this->assertSame($expected, $fisier->downloadName());

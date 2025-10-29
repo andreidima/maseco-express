@@ -11,35 +11,81 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class MasiniDocumentFisierController extends Controller
 {
-    public function store(Request $request, Masina $masina, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
+    private const STORAGE_DISK = MasinaDocumentFisier::STORAGE_DISK;
+    private const STORAGE_DIRECTORY = MasinaDocumentFisier::STORAGE_DIRECTORY;
+
+    public function store(Request $request, Masina $masini_mementouri, MasinaDocument|string|int $document): JsonResponse|RedirectResponse
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id, 404);
 
-        $validated = $request->validate([
-            'fisier' => ['required', 'file', 'mimes:pdf', 'max:51200'],
+        $files = $request->file('fisier');
+
+        if (is_array($files)) {
+            $files = array_values(array_filter($files));
+        } elseif ($files !== null) {
+            $files = [$files];
+        } else {
+            $files = [];
+        }
+
+        $validator = Validator::make([
+            'fisier' => $files,
+        ], [
+            'fisier' => ['required', 'array', 'min:1'],
+            'fisier.*' => ['file', 'mimes:pdf', 'max:51200'],
         ]);
 
-        $path = $validated['fisier']->store('masini-documente/' . $document->id, 'public');
+        if ($validator->fails()) {
+            if ($request->expectsJson()) {
+                throw new ValidationException($validator);
+            }
 
-        $document->fisiere()->create([
-            'cale' => $path,
-            'nume_fisier' => basename($path),
-            'nume_original' => $validated['fisier']->getClientOriginalName(),
-            'mime_type' => $validated['fisier']->getMimeType(),
-            'dimensiune' => $validated['fisier']->getSize(),
-        ]);
+            return Redirect::route('masini-mementouri.documente.edit', [
+                'masini_mementouri' => $masina->getRouteKey(),
+                'document' => MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+            ])
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $files = $validator->validated();
+        $files = $files['fisier'] ?? [];
+
+        $storedCount = 0;
+
+        foreach ($files as $file) {
+            $path = $file->store(self::STORAGE_DIRECTORY . '/' . $document->id, self::STORAGE_DISK);
+
+            $document->fisiere()->create([
+                'cale' => $path,
+                'nume_fisier' => basename($path),
+                'nume_original' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'dimensiune' => $file->getSize(),
+            ]);
+
+            $storedCount++;
+        }
+
+        $message = $storedCount === 1
+            ? __('Fișierul a fost încărcat.')
+            : __('Fișierele au fost încărcate.');
 
         if ($request->expectsJson()) {
             $document->load('fisiere');
 
             return response()->json([
                 'status' => 'ok',
-                'message' => __('Fișierul a fost încărcat.'),
+                'message' => $message,
                 'files_html' => view('masini-mementouri.partials.document-files-list', [
                     'masina' => $masina,
                     'document' => $document,
@@ -47,20 +93,23 @@ class MasiniDocumentFisierController extends Controller
             ]);
         }
 
-        $routeDocumentParam = MasinaDocument::buildRouteKey($document->document_type, $document->tara);
-
-        return Redirect::route('masini-mementouri.documente.edit', [$masina, $routeDocumentParam])
-            ->with('status', 'Fișierul a fost încărcat.');
+        return Redirect::route('masini-mementouri.documente.edit', [
+            'masini_mementouri' => $masina->getRouteKey(),
+            'document' => MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ])
+            ->with('status', $message);
     }
 
-    public function destroy(Request $request, Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier): JsonResponse|RedirectResponse
+    public function destroy(Request $request, Masina $masini_mementouri, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier): JsonResponse|RedirectResponse
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
 
         if ($fisier->cale) {
-            Storage::disk('public')->delete($fisier->cale);
+            Storage::disk(self::STORAGE_DISK)->delete($fisier->cale);
         }
 
         $fisier->delete();
@@ -81,8 +130,10 @@ class MasiniDocumentFisierController extends Controller
         return Redirect::back()->with('status', 'Fișierul a fost șters.');
     }
 
-    public function download(Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
+    public function download(Masina $masini_mementouri, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
@@ -93,15 +144,17 @@ class MasiniDocumentFisierController extends Controller
             $headers['Content-Type'] = $mimeType;
         }
 
-        return Storage::disk('public')->download(
+        return Storage::disk(self::STORAGE_DISK)->download(
             $fisier->cale,
             $fisier->downloadName(),
             $headers
         );
     }
 
-    public function preview(Masina $masina, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
+    public function preview(Masina $masini_mementouri, MasinaDocument|string|int $document, MasinaDocumentFisier $fisier)
     {
+        $masina = $masini_mementouri;
+
         $document = $this->resolveDocument($masina, $document);
 
         abort_unless($document->masina_id === $masina->id && $fisier->document_id === $document->id, 404);
@@ -114,7 +167,7 @@ class MasiniDocumentFisierController extends Controller
             $headers['Content-Type'] = $mimeType;
         }
 
-        return Storage::disk('public')->response(
+        return Storage::disk(self::STORAGE_DISK)->response(
             $fisier->cale,
             $fisier->downloadName(),
             $headers
