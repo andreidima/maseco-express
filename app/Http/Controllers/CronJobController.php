@@ -311,9 +311,19 @@ class CronJobController extends Controller
             }
 
             $thresholds = collect(MasinaDocument::notificationThresholds())->sortKeys();
+            $lowerThresholdAlreadyTriggered = false;
 
             foreach ($thresholds as $threshold => $column) {
-                if ($days <= $threshold && !$document->{$column}) {
+                if ($document->{$column}) {
+                    $lowerThresholdAlreadyTriggered = true;
+                    continue;
+                }
+
+                if ($lowerThresholdAlreadyTriggered) {
+                    break;
+                }
+
+                if ($days <= $threshold) {
                     $recipients = collect([
                         $document->email_notificare,
                         optional($document->masina->memento)->email_notificari,
