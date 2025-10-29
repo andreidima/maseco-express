@@ -52,18 +52,20 @@
         </div>
         <div class="col-xl-6 col-lg-5">
             <div class="p-2 px-lg-3 border border-secondary-subtle rounded-4 bg-body-tertiary h-100">
-                <p class="mb-2 text-uppercase small fw-semibold text-muted">Legendă culori</p>
-                <ul class="list-inline small mb-0 d-flex flex-wrap gap-2">
-                    <li class="list-inline-item mb-1">
-                        <span class="document-legend-pill bg-danger text-white">Expirat / ≤ 1 zi</span>
-                    </li>
-                    <li class="list-inline-item mb-1">
-                        <span class="document-legend-pill bg-warning">≤ 30 zile</span>
-                    </li>
-                    <li class="list-inline-item mb-1">
-                        <span class="document-legend-pill bg-success text-white">≤ 60 zile</span>
-                    </li>
-                </ul>
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="text-uppercase small fw-semibold text-muted">Legendă culori</span>
+                    <ul class="list-inline small mb-0 d-flex flex-wrap gap-2 align-items-center">
+                        <li class="list-inline-item mb-1">
+                            <span class="document-legend-pill bg-danger text-white">Expirat / ≤ 1 zi</span>
+                        </li>
+                        <li class="list-inline-item mb-1">
+                            <span class="document-legend-pill bg-warning">≤ 30 zile</span>
+                        </li>
+                        <li class="list-inline-item mb-1">
+                            <span class="document-legend-pill bg-success text-white">≤ 60 zile</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
         <div class="col-xl-3 col-lg-3 text-lg-end">
