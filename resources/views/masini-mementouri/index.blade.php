@@ -48,15 +48,13 @@
 
         @php($statusMessage = session('status') ?? session('success'))
 
-        @if ($statusMessage)
+        @if (filled($statusMessage))
             <div class="alert alert-success border border-success-subtle rounded-4 mx-3">
                 {{ $statusMessage }}
             </div>
         @endif
 
-        @php
-            $columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1;
-        @endphp
+        @php($columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1)
 
         <div class="table-responsive rounded">
             <table class="table table-striped table-hover align-middle mb-0">
