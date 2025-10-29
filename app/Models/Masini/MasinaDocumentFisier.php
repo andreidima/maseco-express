@@ -4,11 +4,15 @@ namespace App\Models\Masini;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class MasinaDocumentFisier extends Model
 {
     use HasFactory;
+
+    public const STORAGE_DISK = 'local';
+    public const STORAGE_DIRECTORY = 'masini-mementouri-documente';
 
     protected $table = 'masini_documente_fisiere';
 
@@ -96,5 +100,16 @@ class MasinaDocumentFisier extends Model
         }
 
         return 'fa-file-lines text-secondary';
+    }
+
+    protected static function booted(): void
+    {
+        static::deleting(function (MasinaDocumentFisier $fisier) {
+            if (!$fisier->cale) {
+                return;
+            }
+
+            Storage::disk(self::STORAGE_DISK)->delete($fisier->cale);
+        });
     }
 }
