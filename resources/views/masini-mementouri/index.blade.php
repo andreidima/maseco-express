@@ -21,22 +21,54 @@
 
         .document-cell-link--empty .document-cell {
             background-color: transparent !important;
-            border: 1px dashed var(--bs-primary);
+            border: none;
             color: var(--bs-primary) !important;
             text-decoration: underline;
+        }
+
+        .document-cell.bg-warning {
+            color: #000 !important;
+        }
+
+        .document-legend-pill {
+            border-radius: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 140px;
+            padding: 0.35rem 0.75rem;
+            font-weight: 600;
         }
     </style>
 @endpush
 
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
-    <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-        <div class="col-lg-4">
+    <div class="row card-header align-items-center gy-3" style="border-radius: 40px 40px 0px 0px;">
+        <div class="col-xl-3 col-lg-4">
             <span class="badge culoare1 fs-5">
                 <i class="fa-solid fa-car me-1"></i>Mementouri mașini
             </span>
         </div>
-        <div class="col-lg-8 text-end">
+        <div class="col-xl-6 col-lg-5">
+            <div class="p-2 px-lg-3 border border-secondary-subtle rounded-4 bg-body-tertiary h-100">
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <span class="text-uppercase small fw-semibold text-muted">Legendă culori</span>
+                    <ul class="list-inline small mb-0 d-flex flex-wrap gap-2 align-items-center">
+                        <li class="list-inline-item mb-1">
+                            <span class="document-legend-pill bg-danger text-white">Expirat / ≤ 1 zi</span>
+                        </li>
+                        <li class="list-inline-item mb-1">
+                            <span class="document-legend-pill bg-warning">≤ 30 zile</span>
+                        </li>
+                        <li class="list-inline-item mb-1">
+                            <span class="document-legend-pill bg-success text-white">≤ 60 zile</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-lg-3 text-lg-end">
             <button type="button" class="btn btn-primary border border-dark rounded-3" data-action="add-masina">
                 <i class="fa-solid fa-plus me-1"></i>Adaugă mașină
             </button>
@@ -72,7 +104,7 @@
                         @foreach ($vignetteCountries as $code => $label)
                             <th class="text-center">Vignetă {{ $label }}</th>
                         @endforeach
-                        <th class="text-end">Acțiuni</th>
+                        <th class="text-end">Acț.</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -91,7 +123,7 @@
                             @foreach ($gridDocumentTypes as $type => $label)
                                 @php
                                     $document = $documents->get($type);
-                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? 'N/A';
+                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? '—';
                                     $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
                                     $isEmpty = !$document?->data_expirare;
                                     $ariaLabel = "Actualizează {$label} pentru {$masina->numar_inmatriculare}";
@@ -111,7 +143,7 @@
                                 @php
                                     $documentKey = \App\Models\Masini\MasinaDocument::TYPE_VIGNETA . ':' . $code;
                                     $document = $documents->get($documentKey);
-                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? 'N/A';
+                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? '—';
                                     $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
                                     $isEmpty = !$document?->data_expirare;
                                     $ariaLabel = "Actualizează Vignetă {$label} pentru {$masina->numar_inmatriculare}";
@@ -132,8 +164,10 @@
                                     <button type="button" class="btn btn-sm btn-outline-danger border border-dark rounded-3"
                                             data-bs-toggle="modal" data-bs-target="#deleteMasinaModal"
                                             data-delete-url="{{ route('masini-mementouri.destroy', $masina) }}"
-                                            data-masina-name="{{ $masina->numar_inmatriculare }}">
-                                        <i class="fa-solid fa-trash me-1"></i>Șterge
+                                            data-masina-name="{{ $masina->numar_inmatriculare }}"
+                                            aria-label="Șterge {{ $masina->numar_inmatriculare }}"
+                                            title="Șterge">
+                                        <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </div>
                             </td>
@@ -170,6 +204,14 @@
                     <div class="col-md-6">
                         <label class="form-label" for="modal_descriere">Descriere</label>
                         <input type="text" class="form-control rounded-3" id="modal_descriere" name="descriere">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="modal_marca_masina">Marca mașină</label>
+                        <input type="text" class="form-control rounded-3" id="modal_marca_masina" name="marca_masina">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="modal_serie_sasiu">Serie șasiu</label>
+                        <input type="text" class="form-control rounded-3" id="modal_serie_sasiu" name="serie_sasiu">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label" for="modal_email_notificari">Email notificări</label>
@@ -237,6 +279,8 @@
                 const inputs = {
                     numar_inmatriculare: form.querySelector('input[name="numar_inmatriculare"]'),
                     descriere: form.querySelector('input[name="descriere"]'),
+                    marca_masina: form.querySelector('input[name="marca_masina"]'),
+                    serie_sasiu: form.querySelector('input[name="serie_sasiu"]'),
                     email_notificari: form.querySelector('input[name="email_notificari"]'),
                     observatii: form.querySelector('textarea[name="observatii"]'),
                 };
@@ -254,6 +298,8 @@
                 const fillForm = (values = {}) => {
                     inputs.numar_inmatriculare.value = values.numar_inmatriculare ?? '';
                     inputs.descriere.value = values.descriere ?? '';
+                    inputs.marca_masina.value = values.marca_masina ?? '';
+                    inputs.serie_sasiu.value = values.serie_sasiu ?? '';
                     inputs.email_notificari.value = values.email_notificari ?? defaultEmail;
                     inputs.observatii.value = values.observatii ?? '';
                 };
@@ -305,6 +351,8 @@
                 const oldValues = {
                     numar_inmatriculare: @json(old('numar_inmatriculare')),
                     descriere: @json(old('descriere')),
+                    marca_masina: @json(old('marca_masina')),
+                    serie_sasiu: @json(old('serie_sasiu')),
                     email_notificari: @json(old('email_notificari')),
                     observatii: @json(old('observatii')),
                 };
