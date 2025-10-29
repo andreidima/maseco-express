@@ -56,7 +56,9 @@
             </div>
         @endif
 
-        @php($columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1)
+        @php
+            ($columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1)
+        @endphp
 
         <div class="table-responsive rounded">
             <table class="table table-striped table-hover align-middle mb-0">
