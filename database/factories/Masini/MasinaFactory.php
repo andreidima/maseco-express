@@ -17,6 +17,8 @@ class MasinaFactory extends Factory
         return [
             'numar_inmatriculare' => strtoupper($this->faker->bothify('??##???')),
             'descriere' => $this->faker->optional()->sentence(3),
+            'marca_masina' => $this->faker->optional()->company(),
+            'serie_sasiu' => $this->faker->optional()->regexify('[A-HJ-NPR-Z0-9]{17}'),
         ];
     }
 }
