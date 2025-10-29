@@ -15,97 +15,13 @@
         </div>
     </div>
 
-    <div class="card-body px-0 py-3">
-        @include('errors')
-
+    <div class="card-body px-0 py-4">
         <div class="mx-3">
-            <div class="row g-3">
-                @forelse ($masina->documente as $document)
-                    @php
-                        $labelKey = $document->document_type . ($document->tara ? ':' . $document->tara : '');
-                        $label = $uploadDocumentLabels[$labelKey] ?? \Illuminate\Support\Str::of($document->document_type)->headline();
-                    @endphp
-                    <div class="col-lg-6">
-                        <div class="card h-100 border border-secondary-subtle rounded-4"
-                             data-document-wrapper
-                             data-document-id="{{ $document->id }}"
-                             data-empty-label="Fără dată"
-                             data-color-holder
-                             data-base-class="card h-100 border border-secondary-subtle rounded-4">
-                            <div class="card-header d-flex justify-content-between align-items-center rounded-4">
-                                <span class="fw-semibold">{{ $label }}</span>
-                                <span class="badge bg-light text-dark border"
-                                      data-document-badge
-                                      data-empty-label="Fără dată">{{ optional($document->data_expirare)->isoFormat('DD.MM.YYYY') ?? 'Fără dată' }}</span>
-                            </div>
-                            <div class="card-body">
-                                <form method="POST"
-                                      action="{{ route('masini-mementouri.documente.update', [$masina, $document]) }}"
-                                      class="row g-3 mb-3"
-                                      data-document-update>
-                                    @csrf
-                                    @method('PATCH')
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="data_expirare_{{ $document->id }}">Dată expirare</label>
-                                        <input type="date" class="form-control rounded-3" id="data_expirare_{{ $document->id }}" name="data_expirare"
-                                               value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="email_notificare_{{ $document->id }}">Email alertă</label>
-                                        <input type="email" class="form-control rounded-3" id="email_notificare_{{ $document->id }}" name="email_notificare"
-                                               value="{{ old('email_notificare', $document->email_notificare) }}">
-                                    </div>
-                                    <div class="col-12 text-end">
-                                        <button type="submit" class="btn btn-primary border border-dark rounded-3">
-                                            <i class="fa-solid fa-floppy-disk me-1"></i>Salvează documentul
-                                        </button>
-                                    </div>
-                                </form>
-
-                                <form method="POST"
-                                      action="{{ route('masini-mementouri.documente.fisiere.store', [$masina, $document]) }}"
-                                      enctype="multipart/form-data"
-                                      class="row g-2 align-items-end"
-                                      data-document-upload>
-                                    @csrf
-                                    <div class="col-md-8">
-                                        <label class="form-label" for="fisier_{{ $document->id }}">Încarcă fișier (PDF)</label>
-                                        <input type="file" class="form-control rounded-3" id="fisier_{{ $document->id }}" name="fisier" accept="application/pdf" required>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button type="submit" class="btn btn-success text-white border border-dark w-100 rounded-3">
-                                            <i class="fa-solid fa-upload me-1"></i>Încarcă
-                                        </button>
-                                    </div>
-                                </form>
-
-                                <hr>
-
-                                <div data-document-files>
-                                    @include('masini-mementouri.partials.document-files-list', ['masina' => $masina, 'document' => $document])
-                                </div>
-
-                                <div class="small mt-3" data-feedback-target hidden></div>
-                            </div>
-                        </div>
-                    </div>
-                @empty
-                    <div class="col-12">
-                        <div class="alert alert-info rounded-4 border border-info-subtle">
-                            Nu există documente definite pentru această mașină.
-                        </div>
-                    </div>
-                @endforelse
+            <div class="alert alert-info border border-info-subtle rounded-4">
+                Administrarea datelor și a documentelor pentru această mașină se face din pagina principală a mementourilor,
+                folosind link-urile din tabel pentru fiecare tip de document.
             </div>
         </div>
-</div>
+    </div>
 </div>
 @endsection
-
-@include('masini-mementouri.partials.document-form-scripts')
-
-@push('page-scripts')
-    <script>
-        window.MasiniMementouriDocuments?.initOnLoad();
-    </script>
-@endpush

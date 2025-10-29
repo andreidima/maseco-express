@@ -11,9 +11,23 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
 
 class MasiniDocumentController extends Controller
 {
+    public function edit(Masina $masina, MasinaDocument $document): View
+    {
+        abort_unless($document->masina_id === $masina->id, 404);
+
+        $document->loadMissing('fisiere');
+
+        return view('masini-mementouri.document-edit', [
+            'masina' => $masina,
+            'document' => $document,
+            'documentLabel' => $document->label(),
+        ]);
+    }
+
     public function update(Request $request, Masina $masina, MasinaDocument $document): JsonResponse|RedirectResponse
     {
         abort_unless($document->masina_id === $masina->id, 404);
