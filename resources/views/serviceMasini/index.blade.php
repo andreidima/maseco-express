@@ -94,7 +94,8 @@
                             <span class="fw-semibold"><i class="fa-solid fa-car-side me-1"></i>Mașini</span>
                         </div>
                         <div class="card-body">
-                            <div class="list-group mb-4" style="max-height: 320px; overflow-y: auto;">
+                            <div id="service-cars-list" class="list-group mb-4"
+                                style="max-height: 320px; overflow-y: auto;">
                                 @forelse ($masini as $masina)
                                     @php
                                         $masinaQuery = $queryParams;
@@ -378,6 +379,17 @@
             });
 
             toggleEntryFields();
+
+            const carList = document.getElementById('service-cars-list');
+            const activeCar = carList?.querySelector('.list-group-item.active');
+
+            if (carList && activeCar) {
+                const containerRect = carList.getBoundingClientRect();
+                const activeRect = activeCar.getBoundingClientRect();
+                const offsetTop = activeRect.top - containerRect.top + carList.scrollTop;
+
+                carList.scrollTo({ top: Math.max(0, offsetTop) });
+            }
         });
     </script>
 @endpush
