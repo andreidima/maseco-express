@@ -108,21 +108,35 @@
                             @foreach ($gridDocumentTypes as $type => $label)
                                 @php
                                     $document = $documents->get($type);
+                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? 'N/A';
+                                    $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
+                                    $ariaLabel = "Editează {$label} pentru {$masina->numar_inmatriculare}";
                                 @endphp
                                 <td class="text-center">
-                                    @if ($document)
-                                        @include('masini-mementouri.partials.document-cell', ['masina' => $masina, 'document' => $document])
-                                    @endif
+                                    <a href="{{ route('masini-mementouri.edit', $masina) }}"
+                                       class="d-inline-flex w-100 justify-content-center text-decoration-none text-reset"
+                                       aria-label="{{ $ariaLabel }}">
+                                        <span class="document-cell rounded-3 px-2 py-2 text-center d-inline-flex justify-content-center align-items-center w-100 {{ $colorClass }}">
+                                            {{ $displayDate }}
+                                        </span>
+                                    </a>
                                 </td>
                             @endforeach
                             @foreach ($vignetteCountries as $code => $label)
                                 @php
                                     $document = $documents->get(\App\Models\Masini\MasinaDocument::TYPE_VIGNETA . ':' . $code);
+                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? 'N/A';
+                                    $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
+                                    $ariaLabel = "Editează Vignetă {$label} pentru {$masina->numar_inmatriculare}";
                                 @endphp
                                 <td class="text-center">
-                                    @if ($document)
-                                        @include('masini-mementouri.partials.document-cell', ['masina' => $masina, 'document' => $document])
-                                    @endif
+                                    <a href="{{ route('masini-mementouri.edit', $masina) }}"
+                                       class="d-inline-flex w-100 justify-content-center text-decoration-none text-reset"
+                                       aria-label="{{ $ariaLabel }}">
+                                        <span class="document-cell rounded-3 px-2 py-2 text-center d-inline-flex justify-content-center align-items-center w-100 {{ $colorClass }}">
+                                            {{ $displayDate }}
+                                        </span>
+                                    </a>
                                 </td>
                             @endforeach
                             <td class="text-center">
