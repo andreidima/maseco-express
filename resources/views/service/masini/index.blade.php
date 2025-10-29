@@ -946,13 +946,20 @@
                     const listStyles = window.getComputedStyle(carList);
                     const itemStyles = window.getComputedStyle(activeCar);
                     const paddingTop = parseFloat(listStyles.paddingTop) || 0;
+                    const borderTop = parseFloat(listStyles.borderTopWidth) || 0;
                     const marginTop = parseFloat(itemStyles.marginTop) || 0;
                     const marginBottom = parseFloat(itemStyles.marginBottom) || 0;
+                    const buttonHeight = activeCar.offsetHeight || activeCar.getBoundingClientRect().height;
                     const maxScrollTop = Math.max(0, carList.scrollHeight - carList.clientHeight);
-                    const desiredTop = activeCar.offsetTop - paddingTop - marginTop;
-                    const activeBottom = activeCar.offsetTop + activeCar.offsetHeight + marginBottom;
+                    const desiredTop = activeCar.offsetTop - paddingTop - borderTop - marginTop;
+                    const activeBottom = activeCar.offsetTop + buttonHeight + marginBottom;
+                    const extraSpace = Math.max(0, buttonHeight + marginTop);
 
-                    let targetScrollTop = Math.max(0, Math.min(desiredTop, maxScrollTop));
+                    let targetScrollTop = Math.max(0, Math.min(desiredTop - extraSpace, maxScrollTop));
+
+                    if (targetScrollTop + paddingTop + borderTop + marginTop > activeCar.offsetTop) {
+                        targetScrollTop = Math.max(0, activeCar.offsetTop - paddingTop - borderTop - marginTop);
+                    }
 
                     if (targetScrollTop + carList.clientHeight < activeBottom) {
                         targetScrollTop = Math.min(
