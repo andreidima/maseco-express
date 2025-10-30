@@ -26,29 +26,18 @@ class MasiniMementoController extends Controller
         $gridDocumentTypes = MasinaDocument::gridDocumentTypes();
         $vignetteCountries = MasinaDocument::vignetteCountries();
 
-        $masiniModalData = $masini
-            ->mapWithKeys(function (Masina $masina) {
-                return [
-                    $masina->id => [
-                        'id' => $masina->id,
-                        'numar_inmatriculare' => $masina->numar_inmatriculare,
-                        'descriere' => $masina->descriere,
-                        'marca_masina' => $masina->marca_masina,
-                        'serie_sasiu' => $masina->serie_sasiu,
-                        'email_notificari' => optional($masina->memento)->email_notificari,
-                        'observatii' => optional($masina->memento)->observatii,
-                        'update_url' => route('masini-mementouri.update', $masina),
-                    ],
-                ];
-            })
-            ->toArray();
-
         return view('masini-mementouri.index', compact(
             'masini',
             'gridDocumentTypes',
-            'vignetteCountries',
-            'masiniModalData'
+            'vignetteCountries'
         ));
+    }
+
+    public function create(): View
+    {
+        return view('masini-mementouri.create', [
+            'defaultEmail' => 'masecoexpres@gmail.com',
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
@@ -71,7 +60,13 @@ class MasiniMementoController extends Controller
 
         $masina->memento?->update(Arr::only($validated, ['email_notificari', 'observatii']));
 
-        return Redirect::route('masini-mementouri.index')->with('status', 'Mașina a fost adăugată cu succes.');
+        $redirect = $request->input('redirect');
+
+        if ($redirect === 'index') {
+            return Redirect::route('masini-mementouri.index')->with('status', 'Mașina a fost adăugată cu succes.');
+        }
+
+        return Redirect::route('masini-mementouri.show', $masina)->with('status', 'Mașina a fost adăugată cu succes.');
     }
 
     public function show(Masina $masini_mementouri): View
