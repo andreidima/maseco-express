@@ -1,4 +1,6 @@
-@php($files = $fisiere ?? $masina->fisiereGenerale)
+@php
+    $files = $fisiere ?? $masina->fisiereGenerale;
+@endphp
 
 <ul class="list-unstyled mb-0">
     @forelse ($files as $fisier)
