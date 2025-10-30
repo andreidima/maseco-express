@@ -16,11 +16,22 @@
     </div>
 
     <div class="card-body px-0 py-4">
-        <div class="mx-3">
+        <div class="mx-3 mb-3">
+            @include('errors')
+        </div>
+
+        <div class="mx-3 mb-3">
             <div class="alert alert-info border border-info-subtle rounded-4">
                 Administrarea datelor și a documentelor pentru această mașină se face din pagina principală a mementourilor,
                 folosind link-urile din tabel pentru fiecare tip de document.
             </div>
+        </div>
+
+        <div class="mx-3">
+            @include('masini-mementouri.partials.general-files-section', [
+                'masina' => $masina,
+                'uploadInputId' => 'fisier_general_edit',
+            ])
         </div>
     </div>
 </div>
