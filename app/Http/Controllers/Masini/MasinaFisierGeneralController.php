@@ -41,22 +41,40 @@ class MasinaFisierGeneralController extends Controller
     {
         $masina = $masini_mementouri;
 
-        $file = $request->file('fisier');
+        $files = $request->file('fisier', []);
+
+        if (! is_array($files)) {
+            $files = [$files];
+        }
 
         $directory = MasinaFisierGeneral::storageDirectoryForMasina($masina->id);
-        $path = $file->store($directory, self::STORAGE_DISK);
+        $uploadedCount = 0;
 
-        $masina->fisiereGenerale()->create([
-            'cale' => $path,
-            'nume_original' => $file->getClientOriginalName(),
-            'mime_type' => $file->getMimeType(),
-            'dimensiune' => $file->getSize(),
-            'uploaded_by_id' => $request->user()?->id,
-            'uploaded_by_name' => $request->user()?->name,
-            'uploaded_by_email' => $request->user()?->email,
-        ]);
+        foreach ($files as $file) {
+            if (! $file) {
+                continue;
+            }
 
-        $message = __('Fișierul a fost încărcat.');
+            $path = $file->store($directory, self::STORAGE_DISK);
+
+            $masina->fisiereGenerale()->create([
+                'cale' => $path,
+                'nume_original' => $file->getClientOriginalName(),
+                'mime_type' => $file->getMimeType(),
+                'dimensiune' => $file->getSize(),
+                'uploaded_by_id' => $request->user()?->id,
+                'uploaded_by_name' => $request->user()?->name,
+                'uploaded_by_email' => $request->user()?->email,
+            ]);
+
+            $uploadedCount++;
+        }
+
+        $message = match (true) {
+            $uploadedCount > 1 => __('Fișierele au fost încărcate.'),
+            $uploadedCount === 1 => __('Fișierul a fost încărcat.'),
+            default => __('Nu au fost încărcate fișiere.'),
+        };
 
         if ($request->expectsJson()) {
             $masina->load('fisiereGenerale');
