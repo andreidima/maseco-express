@@ -62,6 +62,7 @@ class MasinaDocumentTest extends TestCase
         return [
             'itp' => [MasinaDocument::TYPE_ITP, null, 'ITP'],
             'vignette known country' => [MasinaDocument::TYPE_VIGNETA, 'hu', 'Vignetă HU'],
+            'vignette brennero' => [MasinaDocument::TYPE_VIGNETA, 'brennero', 'Brennero'],
             'vignette unknown country' => [MasinaDocument::TYPE_VIGNETA, 'de', 'Vignetă DE'],
             'talon' => [MasinaDocument::TYPE_TALON, null, 'Talon'],
             'fallback' => ['neidentificat', null, 'Neidentificat'],

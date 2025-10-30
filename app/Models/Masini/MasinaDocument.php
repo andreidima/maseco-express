@@ -158,6 +158,24 @@ class MasinaDocument extends Model
         ];
     }
 
+    public static function vignetteDisplayLabel(?string $countryCode): string
+    {
+        $countryCode = $countryCode !== null ? strtolower($countryCode) : null;
+        $countries = self::vignetteCountries();
+
+        $suffix = strtoupper((string) $countryCode);
+
+        if ($countryCode !== null && array_key_exists($countryCode, $countries)) {
+            $suffix = $countries[$countryCode];
+        }
+
+        if ($countryCode === 'brennero') {
+            return $suffix !== '' ? $suffix : 'Brennero';
+        }
+
+        return 'Vignetă ' . $suffix;
+    }
+
     public static function uploadDocumentLabels(): array
     {
         $labels = [
@@ -168,8 +186,8 @@ class MasinaDocument extends Model
             self::TYPE_ASIGURARE_CMR => 'Asigurare CMR',
         ];
 
-        foreach (self::vignetteCountries() as $code => $label) {
-            $labels[self::TYPE_VIGNETA . ':' . $code] = 'Vignetă ' . $label;
+        foreach (self::vignetteCountries() as $code => $_label) {
+            $labels[self::TYPE_VIGNETA . ':' . $code] = self::vignetteDisplayLabel($code);
         }
 
         return $labels;
@@ -247,10 +265,7 @@ class MasinaDocument extends Model
     public function label(): string
     {
         if ($this->document_type === self::TYPE_VIGNETA) {
-            $countries = self::vignetteCountries();
-            $suffix = $countries[$this->tara] ?? strtoupper((string) $this->tara);
-
-            return 'Vignetă ' . $suffix;
+            return self::vignetteDisplayLabel($this->tara);
         }
 
         return match ($this->document_type) {
