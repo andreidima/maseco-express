@@ -28,6 +28,11 @@ class Masina extends Model
         return $this->hasMany(MasinaDocument::class);
     }
 
+    public function fisiereGenerale()
+    {
+        return $this->hasMany(MasinaFisierGeneral::class, 'masina_id');
+    }
+
     protected static function booted(): void
     {
         static::created(function (Masina $masina) {
@@ -37,6 +42,7 @@ class Masina extends Model
 
         static::deleting(function (Masina $masina) {
             $masina->documente->each->delete();
+            $masina->fisiereGenerale->each->delete();
         });
     }
 
