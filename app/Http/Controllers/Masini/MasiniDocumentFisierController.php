@@ -101,6 +101,7 @@ class MasiniDocumentFisierController extends Controller
         if ($shouldResetNotifications) {
             $document->notificare_60_trimisa = false;
             $document->notificare_30_trimisa = false;
+            $document->notificare_15_trimisa = false;
             $document->notificare_1_trimisa = false;
         }
 

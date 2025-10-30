@@ -26,6 +26,11 @@
             text-decoration: underline;
         }
 
+        .bg-expiring-15 {
+            background-color: #fd7e14 !important;
+            color: #fff !important;
+        }
+
         .document-cell.bg-warning {
             color: #000 !important;
         }
@@ -57,6 +62,9 @@
                     <ul class="list-inline small mb-0 d-flex flex-wrap gap-2 align-items-center">
                         <li class="list-inline-item mb-1">
                             <span class="document-legend-pill bg-danger text-white">Expirat / ≤ 1 zi</span>
+                        </li>
+                        <li class="list-inline-item mb-1">
+                            <span class="document-legend-pill bg-expiring-15 text-white">≤ 15 zile</span>
                         </li>
                         <li class="list-inline-item mb-1">
                             <span class="document-legend-pill bg-warning">≤ 30 zile</span>
