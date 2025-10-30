@@ -59,6 +59,13 @@
             </form>
         </div>
 
+        <div class="mx-3 mb-4">
+            @include('masini-mementouri.partials.general-files-section', [
+                'masina' => $masina,
+                'uploadInputId' => 'fisier_general_show',
+            ])
+        </div>
+
         <div class="mx-3">
             <h5 class="mb-3">Documente</h5>
             <div class="row g-3">
