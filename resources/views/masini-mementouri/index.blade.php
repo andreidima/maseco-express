@@ -88,7 +88,9 @@
             </div>
         @endif
 
-        @php($columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1)
+        @php
+            $columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1;
+        @endphp
 
         <div class="table-responsive rounded">
             <table class="table table-striped table-hover align-middle table-sm mb-0">
@@ -100,7 +102,9 @@
                             <th class="text-center">{{ $label }}</th>
                         @endforeach
                         @foreach ($vignetteCountries as $code => $_label)
-                            @php($displayLabel = \App\Models\Masini\MasinaDocument::vignetteDisplayLabel($code))
+                            @php
+                                $displayLabel = \App\Models\Masini\MasinaDocument::vignetteDisplayLabel($code);
+                            @endphp
                             <th class="text-center">{{ $displayLabel }}</th>
                         @endforeach
                         <th class="text-end">Acț.</th>
