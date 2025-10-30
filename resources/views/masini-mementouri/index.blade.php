@@ -88,9 +88,7 @@
             </div>
         @endif
 
-        @php
-            ($columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1)
-        @endphp
+        @php($columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1)
 
         <div class="table-responsive rounded">
             <table class="table table-striped table-hover align-middle table-sm mb-0">
@@ -101,8 +99,9 @@
                         @foreach ($gridDocumentTypes as $label)
                             <th class="text-center">{{ $label }}</th>
                         @endforeach
-                        @foreach ($vignetteCountries as $code => $label)
-                            <th class="text-center">Vignetă {{ $label }}</th>
+                        @foreach ($vignetteCountries as $code => $_label)
+                            @php($displayLabel = \App\Models\Masini\MasinaDocument::vignetteDisplayLabel($code))
+                            <th class="text-center">{{ $displayLabel }}</th>
                         @endforeach
                         <th class="text-end">Acț.</th>
                     </tr>
@@ -139,14 +138,15 @@
                                     </a>
                                 </td>
                             @endforeach
-                            @foreach ($vignetteCountries as $code => $label)
+                            @foreach ($vignetteCountries as $code => $_label)
                                 @php
                                     $documentKey = \App\Models\Masini\MasinaDocument::TYPE_VIGNETA . ':' . $code;
                                     $document = $documents->get($documentKey);
                                     $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? '—';
                                     $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
                                     $isEmpty = !$document?->data_expirare;
-                                    $ariaLabel = "Actualizează Vignetă {$label} pentru {$masina->numar_inmatriculare}";
+                                    $displayLabel = \App\Models\Masini\MasinaDocument::vignetteDisplayLabel($code);
+                                    $ariaLabel = "Actualizează {$displayLabel} pentru {$masina->numar_inmatriculare}";
                                     $routeDocumentParam = $document?->getRouteKey() ?? \App\Models\Masini\MasinaDocument::buildRouteKey(\App\Models\Masini\MasinaDocument::TYPE_VIGNETA, $code);
                                 @endphp
                                 <td class="text-center">
