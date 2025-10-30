@@ -14,8 +14,8 @@ class StoreMasinaFisierGeneralRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'fisier' => [
-                'required',
+            'fisier' => ['required', 'array', 'min:1'],
+            'fisier.*' => [
                 'file',
                 'mimes:pdf,jpg,jpeg,png,gif,webp,bmp,svg,txt,csv,doc,docx,xls,xlsx,ppt,pptx',
                 'max:51200',
@@ -27,6 +27,7 @@ class StoreMasinaFisierGeneralRequest extends FormRequest
     {
         return [
             'fisier' => __('fișier'),
+            'fisier.*' => __('fișier'),
         ];
     }
 }
