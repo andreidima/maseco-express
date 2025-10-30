@@ -11,8 +11,8 @@ class MasinaFisierGeneral extends Model
 {
     use HasFactory;
 
-    public const STORAGE_DISK = 'local';
-    public const STORAGE_DIRECTORY = 'masini-fisiere-generale';
+    public const STORAGE_DISK = 'public';
+    public const STORAGE_DIRECTORY = 'masini';
 
     protected $table = 'masini_fisiere_generale';
 
@@ -41,6 +41,20 @@ class MasinaFisierGeneral extends Model
         return $name === '' ? 'document' : $name;
     }
 
+    public static function storageDisk(): string
+    {
+        return static::STORAGE_DISK;
+    }
+
+    public static function storageDirectoryForMasina(int $masinaId): string
+    {
+        $baseDirectory = trim(static::STORAGE_DIRECTORY, '/');
+
+        $prefix = $baseDirectory === '' ? '' : $baseDirectory . '/';
+
+        return $prefix . $masinaId . '/generale';
+    }
+
     public function guessMimeType(): ?string
     {
         if (is_string($this->mime_type) && $this->mime_type !== '') {
@@ -49,7 +63,7 @@ class MasinaFisierGeneral extends Model
 
         $extension = strtolower(pathinfo((string) $this->nume_original ?: (string) $this->cale, PATHINFO_EXTENSION));
 
-        return match ($extension) {
+        $extensionMatch = match ($extension) {
             'pdf' => 'application/pdf',
             'png' => 'image/png',
             'jpg', 'jpeg' => 'image/jpeg',
@@ -67,6 +81,24 @@ class MasinaFisierGeneral extends Model
             'pptx' => 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
             default => null,
         };
+
+        if ($extensionMatch !== null) {
+            return $extensionMatch;
+        }
+
+        if ($this->cale) {
+            $disk = Storage::disk(static::storageDisk());
+
+            if ($disk->exists($this->cale)) {
+                $storageMimeType = $disk->mimeType($this->cale);
+
+                if (is_string($storageMimeType) && $storageMimeType !== '') {
+                    return $storageMimeType;
+                }
+            }
+        }
+
+        return null;
     }
 
     public function isPreviewable(): bool
@@ -128,7 +160,7 @@ class MasinaFisierGeneral extends Model
                 return;
             }
 
-            Storage::disk(self::STORAGE_DISK)->delete($fisier->cale);
+            Storage::disk(static::storageDisk())->delete($fisier->cale);
         });
     }
 }

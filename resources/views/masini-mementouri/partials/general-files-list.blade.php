@@ -2,6 +2,11 @@
 
 <ul class="list-unstyled mb-0">
     @forelse ($files as $fisier)
+        @php
+            $previewRoute = route('masini-mementouri.fisiere-generale.preview', [$masina, $fisier]);
+            $downloadRoute = route('masini-mementouri.fisiere-generale.download', [$masina, $fisier]);
+            $deleteRoute = route('masini-mementouri.fisiere-generale.destroy', [$masina, $fisier]);
+        @endphp
         <li class="d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center py-2 border-bottom">
             <div class="me-md-3">
                 <i class="fa-solid {{ $fisier->iconClass() }} me-2"></i>
@@ -21,7 +26,13 @@
             </div>
             <div class="d-flex align-items-center gap-2">
                 <div class="btn-group btn-group-sm" role="group">
-                    <a href="{{ route('masini-mementouri.fisiere-generale.download', [$masina, $fisier]) }}"
+                    @if ($fisier->isPreviewable())
+                        <a href="{{ $previewRoute }}" class="btn btn-outline-primary border" target="_blank" rel="noopener" title="{{ __('Previzualizează fișierul') }}">
+                            <i class="fa-solid fa-eye me-1"></i>
+                            <span class="d-none d-sm-inline">{{ __('Previzualizează') }}</span>
+                        </a>
+                    @endif
+                    <a href="{{ $downloadRoute }}"
                        class="btn btn-outline-secondary border"
                        download="{{ $fisier->downloadName() }}"
                        title="{{ __('Descarcă fișierul') }}">
@@ -29,7 +40,7 @@
                         <span class="d-none d-sm-inline">{{ __('Descarcă') }}</span>
                     </a>
                 </div>
-                <form method="POST" action="{{ route('masini-mementouri.fisiere-generale.destroy', [$masina, $fisier]) }}"
+                <form method="POST" action="{{ $deleteRoute }}"
                       onsubmit="return confirm('{{ __('Ștergi fișierul?') }}');">
                     @csrf
                     @method('DELETE')

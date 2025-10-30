@@ -16,7 +16,6 @@ use Illuminate\View\View;
 class MasinaFisierGeneralController extends Controller
 {
     private const STORAGE_DISK = MasinaFisierGeneral::STORAGE_DISK;
-    private const STORAGE_DIRECTORY = MasinaFisierGeneral::STORAGE_DIRECTORY;
 
     public function index(Request $request, Masina $masini_mementouri): View|JsonResponse
     {
@@ -44,7 +43,8 @@ class MasinaFisierGeneralController extends Controller
 
         $file = $request->file('fisier');
 
-        $path = $file->store(self::STORAGE_DIRECTORY . '/' . $masina->id, self::STORAGE_DISK);
+        $directory = MasinaFisierGeneral::storageDirectoryForMasina($masina->id);
+        $path = $file->store($directory, self::STORAGE_DISK);
 
         $masina->fisiereGenerale()->create([
             'cale' => $path,
@@ -80,13 +80,41 @@ class MasinaFisierGeneralController extends Controller
 
         abort_unless($fisier->masina_id === $masina->id, 404);
 
+        $disk = Storage::disk(self::STORAGE_DISK);
+
+        abort_unless($disk->exists($fisier->cale), 404);
+
         $headers = [];
 
         if ($mimeType = $fisier->guessMimeType()) {
             $headers['Content-Type'] = $mimeType;
         }
 
-        return Storage::disk(self::STORAGE_DISK)->download(
+        return $disk->download(
+            $fisier->cale,
+            $fisier->downloadName(),
+            $headers
+        );
+    }
+
+    public function preview(Masina $masini_mementouri, MasinaFisierGeneral $fisier)
+    {
+        $masina = $masini_mementouri;
+
+        abort_unless($fisier->masina_id === $masina->id, 404);
+        abort_unless($fisier->isPreviewable(), 404);
+
+        $disk = Storage::disk(self::STORAGE_DISK);
+
+        abort_unless($disk->exists($fisier->cale), 404);
+
+        $headers = [];
+
+        if ($mimeType = $fisier->guessMimeType()) {
+            $headers['Content-Type'] = $mimeType;
+        }
+
+        return $disk->response(
             $fisier->cale,
             $fisier->downloadName(),
             $headers
