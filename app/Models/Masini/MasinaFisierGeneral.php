@@ -11,8 +11,8 @@ class MasinaFisierGeneral extends Model
 {
     use HasFactory;
 
-    public const STORAGE_DISK = 'public';
-    public const STORAGE_DIRECTORY = 'masini';
+    public const STORAGE_DISK = 'local';
+    public const STORAGE_DIRECTORY = 'masini-fisiere-generale';
 
     protected $table = 'masini_fisiere_generale';
 
