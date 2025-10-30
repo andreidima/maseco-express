@@ -61,7 +61,7 @@
 
                 <div class="col-12">
                     <div class="alert alert-info border border-info-subtle rounded-4">
-                        După salvare vei fi redirecționat către pagina dedicată mașinii pentru a gestiona documentele și fișierele.
+                        După salvare vei fi redirecționat către pagina dedicată mașinii de unde poți gestiona și fișierele
                     </div>
                 </div>
 

@@ -16,7 +16,15 @@
     </div>
 
     <div class="card-body px-0 py-3">
-        @include('errors')
+        @include('errors', ['showSessionAlerts' => false])
+
+        @php($statusMessage = session('status') ?? session('success'))
+
+        @if ($statusMessage)
+            <div class="alert alert-success border border-success-subtle rounded-4 mx-3 mb-4">
+                {{ $statusMessage }}
+            </div>
+        @endif
 
         <div class="mx-3">
             @include('masini-mementouri.partials.general-files-section', [
