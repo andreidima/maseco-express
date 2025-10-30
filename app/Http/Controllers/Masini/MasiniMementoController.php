@@ -74,11 +74,8 @@ class MasiniMementoController extends Controller
         $masini_mementouri->syncDefaultDocuments();
         $masini_mementouri->loadMissing(['memento', 'documente.fisiere']);
 
-        $uploadDocumentLabels = MasinaDocument::uploadDocumentLabels();
-
         return view('masini-mementouri.show', [
             'masina' => $masini_mementouri,
-            'uploadDocumentLabels' => $uploadDocumentLabels,
         ]);
     }
 
