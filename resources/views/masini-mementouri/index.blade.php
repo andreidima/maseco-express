@@ -26,6 +26,11 @@
             text-decoration: underline;
         }
 
+        .bg-expiring-15 {
+            background-color: #fd7e14 !important;
+            color: #fff !important;
+        }
+
         .document-cell.bg-warning {
             color: #000 !important;
         }
