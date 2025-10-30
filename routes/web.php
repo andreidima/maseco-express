@@ -247,6 +247,8 @@ Route::middleware(['auth'])->group(function () {
                 ->name('masini-mementouri.fisiere-generale.destroy');
             Route::get('masini-mementouri/{masini_mementouri}/fisiere-generale/{fisier}', [MasinaFisierGeneralController::class, 'download'])
                 ->name('masini-mementouri.fisiere-generale.download');
+            Route::get('masini-mementouri/{masini_mementouri}/fisiere-generale/{fisier}/preview', [MasinaFisierGeneralController::class, 'preview'])
+                ->name('masini-mementouri.fisiere-generale.preview');
         });
     });
 
