@@ -84,3 +84,8 @@
     outline: 2px solid currentColor;
     outline-offset: 2px;
 }
+
+.bg-expiring-15 {
+    background-color: #fd7e14 !important;
+    color: #fff !important;
+}

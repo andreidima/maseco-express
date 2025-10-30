@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email_notificare')->nullable();
             $table->boolean('notificare_60_trimisa')->default(false);
             $table->boolean('notificare_30_trimisa')->default(false);
+            $table->boolean('notificare_15_trimisa')->default(false);
             $table->boolean('notificare_1_trimisa')->default(false);
             $table->timestamps();
 
