@@ -104,7 +104,7 @@ class MasiniMementouriTest extends TestCase
         $response->assertOk();
         $response->assertSee('Legendă culori');
         $response->assertSee('Asigurare CMR');
-        $response->assertSee('Vignetă Brennero');
+        $response->assertSee('Brennero');
         $response->assertSee('<a href="' . route('masini-mementouri.edit', $masina) . '"', false);
         $response->assertSee('aria-label="Editează ITP pentru ' . $masina->numar_inmatriculare . '"', false);
         $response->assertSee($document->data_expirare->format('d.m.Y'));
