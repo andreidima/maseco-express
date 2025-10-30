@@ -28,7 +28,8 @@ class MasinaDocumentTest extends TestCase
             'missing date' => [null, 'bg-secondary-subtle'],
             'expired date' => ['2024-04-30', 'bg-danger text-white'],
             'expires in 1 day' => ['2024-05-02', 'bg-danger text-white'],
-            'expires in 15 days' => ['2024-05-16', 'bg-warning'],
+            'expires in 10 days' => ['2024-05-11', 'bg-expiring-15 text-white'],
+            'expires in 20 days' => ['2024-05-21', 'bg-warning'],
             'expires in 45 days' => ['2024-06-15', 'bg-success text-white'],
             'long term' => ['2024-07-15', ''],
         ];

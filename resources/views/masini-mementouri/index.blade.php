@@ -59,6 +59,9 @@
                             <span class="document-legend-pill bg-danger text-white">Expirat / ≤ 1 zi</span>
                         </li>
                         <li class="list-inline-item mb-1">
+                            <span class="document-legend-pill bg-expiring-15 text-white">≤ 15 zile</span>
+                        </li>
+                        <li class="list-inline-item mb-1">
                             <span class="document-legend-pill bg-warning">≤ 30 zile</span>
                         </li>
                         <li class="list-inline-item mb-1">

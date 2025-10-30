@@ -89,6 +89,7 @@ return new class extends Migration
                         'email_notificare' => null,
                         'notificare_60_trimisa' => false,
                         'notificare_30_trimisa' => false,
+                        'notificare_15_trimisa' => false,
                         'notificare_1_trimisa' => false,
                         'created_at' => $timestamp,
                         'updated_at' => $timestamp,

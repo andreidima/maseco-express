@@ -150,6 +150,7 @@ class MasiniMementouriTest extends TestCase
             'data_expirare' => Carbon::now()->addDays(120)->toDateString(),
             'notificare_60_trimisa' => true,
             'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
             'notificare_1_trimisa' => true,
         ]);
 
@@ -178,6 +179,7 @@ class MasiniMementouriTest extends TestCase
         $this->assertEquals(Carbon::parse($payload['data_expirare'])->toDateString(), optional($document->data_expirare)->toDateString());
         $this->assertFalse($document->notificare_60_trimisa);
         $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
         $this->assertFalse($document->notificare_1_trimisa);
 
         $this->assertSame($document->colorClass(), $response->json('color_class'));
@@ -200,6 +202,7 @@ class MasiniMementouriTest extends TestCase
             'data_expirare' => $existingDate,
             'notificare_60_trimisa' => true,
             'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
             'notificare_1_trimisa' => true,
         ]);
 
@@ -217,6 +220,7 @@ class MasiniMementouriTest extends TestCase
         $this->assertSame($existingDate, optional($document->data_expirare)->toDateString());
         $this->assertTrue($document->notificare_60_trimisa);
         $this->assertTrue($document->notificare_30_trimisa);
+        $this->assertTrue($document->notificare_15_trimisa);
         $this->assertTrue($document->notificare_1_trimisa);
     }
 
@@ -232,6 +236,7 @@ class MasiniMementouriTest extends TestCase
             'data_expirare' => Carbon::now()->addDays(30)->toDateString(),
             'notificare_60_trimisa' => true,
             'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
             'notificare_1_trimisa' => true,
         ]);
 
@@ -254,6 +259,7 @@ class MasiniMementouriTest extends TestCase
         $this->assertNull($document->data_expirare);
         $this->assertFalse($document->notificare_60_trimisa);
         $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
         $this->assertFalse($document->notificare_1_trimisa);
     }
 
@@ -296,6 +302,7 @@ class MasiniMementouriTest extends TestCase
             'email_notificare' => 'old-alert@example.com',
             'notificare_60_trimisa' => true,
             'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
             'notificare_1_trimisa' => true,
         ]);
 
@@ -318,6 +325,7 @@ class MasiniMementouriTest extends TestCase
         $this->assertSame('alerts@example.com', $document->email_notificare);
         $this->assertFalse($document->notificare_60_trimisa);
         $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
         $this->assertFalse($document->notificare_1_trimisa);
     }
 
@@ -427,6 +435,7 @@ class MasiniMementouriTest extends TestCase
             'data_expirare' => Carbon::now()->addDays(5)->toDateString(),
             'notificare_60_trimisa' => true,
             'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
             'notificare_1_trimisa' => true,
         ]);
 
@@ -451,6 +460,7 @@ class MasiniMementouriTest extends TestCase
         $this->assertSame($newDate, optional($document->data_expirare)->toDateString());
         $this->assertFalse($document->notificare_60_trimisa);
         $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
         $this->assertFalse($document->notificare_1_trimisa);
 
         Storage::disk(MasinaDocumentFisier::STORAGE_DISK)->assertExists(
@@ -675,6 +685,37 @@ class MasiniMementouriTest extends TestCase
         $document->refresh();
         $this->assertTrue($document->notificare_60_trimisa);
         $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+    }
+
+    public function test_cron_job_sends_15_day_alert(): void
+    {
+        Mail::fake();
+        Carbon::setTestNow(Carbon::create(2025, 3, 24));
+        config(['variabile.cron_job_key' => 'test-key']);
+
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B15DAY']);
+        $masina->memento->update(['email_notificari' => 'alerta@example.com']);
+        $document = $masina->documente()->where('document_type', MasinaDocument::TYPE_ITP)->first();
+        $document->update(['data_expirare' => Carbon::now()->addDays(15)]);
+
+        $controller = app(CronJobController::class);
+
+        ob_start();
+        $controller->trimiteMementoAlerte('test-key');
+        ob_end_clean();
+
+        Mail::assertSent(MementoAlerta::class, 1);
+        Mail::assertSent(MementoAlerta::class, function (MementoAlerta $mail) use ($masina) {
+            return str_contains($mail->subiect, $masina->numar_inmatriculare)
+                && str_contains($mail->mesaj, 'Prag alertă: 15 zile');
+        });
+
+        $document->refresh();
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertTrue($document->notificare_15_trimisa);
         $this->assertFalse($document->notificare_1_trimisa);
     }
 
@@ -700,6 +741,7 @@ class MasiniMementouriTest extends TestCase
         $document->refresh();
         $this->assertFalse($document->notificare_60_trimisa);
         $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
         $this->assertTrue($document->notificare_1_trimisa);
 
         Mail::fake();
@@ -714,6 +756,7 @@ class MasiniMementouriTest extends TestCase
         $document->refresh();
         $this->assertFalse($document->notificare_60_trimisa);
         $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
         $this->assertTrue($document->notificare_1_trimisa);
     }
 

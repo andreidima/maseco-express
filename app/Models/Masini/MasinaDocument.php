@@ -32,6 +32,7 @@ class MasinaDocument extends Model
         'data_expirare' => 'date',
         'notificare_60_trimisa' => 'boolean',
         'notificare_30_trimisa' => 'boolean',
+        'notificare_15_trimisa' => 'boolean',
         'notificare_1_trimisa' => 'boolean',
     ];
 
@@ -209,6 +210,10 @@ class MasinaDocument extends Model
             return 'bg-danger text-white';
         }
 
+        if ($diff <= 15) {
+            return 'bg-expiring-15 text-white';
+        }
+
         if ($diff <= 30) {
             return 'bg-warning';
         }
@@ -234,6 +239,7 @@ class MasinaDocument extends Model
         return [
             60 => 'notificare_60_trimisa',
             30 => 'notificare_30_trimisa',
+            15 => 'notificare_15_trimisa',
             1 => 'notificare_1_trimisa',
         ];
     }
@@ -243,6 +249,7 @@ class MasinaDocument extends Model
         $this->forceFill([
             'notificare_60_trimisa' => false,
             'notificare_30_trimisa' => false,
+            'notificare_15_trimisa' => false,
             'notificare_1_trimisa' => false,
         ])->saveQuietly();
     }
