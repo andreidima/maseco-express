@@ -5,12 +5,14 @@ namespace App\Providers;
 use App\Models\Masini\Masina;
 use App\Models\Masini\MasinaDocument;
 use App\Models\Masini\MasinaDocumentFisier;
+use App\Models\Masini\MasinaFisierGeneral;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -50,10 +52,16 @@ class RouteServiceProvider extends ServiceProvider
         });
 
         Route::bind('fisier', function ($value, $route) {
+            $routeName = $route?->getName();
+
+            if (is_string($routeName) && Str::startsWith($routeName, 'masini-mementouri.fisiere-generale.')) {
+                return MasinaFisierGeneral::query()->findOrFail($value);
+            }
+
             $documentParameter = $route?->parameter('document');
             $masinaParameter = $route?->parameter('masini_mementouri');
 
-            if (! $documentParameter instanceof MasinaDocument) {
+            if ($documentParameter !== null && ! $documentParameter instanceof MasinaDocument) {
                 if ($masinaParameter instanceof Masina) {
                     $documentParameter = MasinaDocument::resolveForMasina($masinaParameter, $documentParameter);
                 } elseif ($masinaParameter !== null) {
