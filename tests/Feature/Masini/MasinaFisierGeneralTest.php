@@ -6,6 +6,7 @@ use App\Http\Middleware\EnsurePermission;
 use App\Http\Middleware\VerifyCsrfToken;
 use App\Models\Masini\Masina;
 use App\Models\Masini\MasinaFisierGeneral;
+use App\Models\Permission;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -208,5 +209,174 @@ class MasinaFisierGeneralTest extends TestCase
 
         Storage::disk(MasinaFisierGeneral::storageDisk())->assertMissing($path);
         $this->assertDatabaseMissing('masini_fisiere_generale', ['id' => $fisier->id]);
+    }
+
+    public function test_general_files_index_respects_mementouri_permission(): void
+    {
+        Storage::fake(MasinaFisierGeneral::storageDisk());
+
+        $this->withMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+
+        $path = MasinaFisierGeneral::storageDirectoryForMasina($masina->id) . '/atestat.pdf';
+        Storage::disk(MasinaFisierGeneral::storageDisk())->put($path, 'PDF content');
+
+        $fisier = $masina->fisiereGenerale()->create([
+            'cale' => $path,
+            'nume_original' => 'atestat.pdf',
+            'mime_type' => 'application/pdf',
+            'dimensiune' => 123,
+        ]);
+
+        $responseWithoutPermission = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.fisiere-generale.index', $masina));
+
+        $responseWithoutPermission->assertForbidden();
+
+        $permission = $this->createMementouriPermission();
+        $user->syncPermissions([$permission->id]);
+
+        $responseWithPermission = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.fisiere-generale.index', $masina));
+
+        $responseWithPermission->assertOk();
+        $responseWithPermission->assertSee($fisier->nume_original);
+    }
+
+    public function test_general_file_upload_requires_mementouri_permission(): void
+    {
+        Storage::fake(MasinaFisierGeneral::storageDisk());
+
+        $this->withMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+
+        $file = UploadedFile::fake()->create('atestat.pdf', 256, 'application/pdf');
+
+        $responseWithoutPermission = $this
+            ->actingAs($user)
+            ->post(route('masini-mementouri.fisiere-generale.store', $masina), [
+                'fisier' => $file,
+            ]);
+
+        $responseWithoutPermission->assertForbidden();
+
+        Storage::disk(MasinaFisierGeneral::storageDisk())->assertMissing(
+            MasinaFisierGeneral::storageDirectoryForMasina($masina->id) . '/atestat.pdf'
+        );
+        $this->assertDatabaseCount('masini_fisiere_generale', 0);
+
+        $permission = $this->createMementouriPermission();
+        $user->syncPermissions([$permission->id]);
+
+        $responseWithPermission = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.fisiere-generale.index', $masina))
+            ->post(route('masini-mementouri.fisiere-generale.store', $masina), [
+                'fisier' => UploadedFile::fake()->create('atestat.pdf', 256, 'application/pdf'),
+            ]);
+
+        $responseWithPermission->assertRedirect();
+        $responseWithPermission->assertSessionHas('status', __('Fișierul a fost încărcat.'));
+
+        $fisier = $masina->fisiereGenerale()->first();
+
+        $this->assertNotNull($fisier);
+        Storage::disk(MasinaFisierGeneral::storageDisk())->assertExists($fisier->cale);
+    }
+
+    public function test_general_file_download_requires_mementouri_permission(): void
+    {
+        Storage::fake(MasinaFisierGeneral::storageDisk());
+
+        $this->withMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+
+        $path = MasinaFisierGeneral::storageDirectoryForMasina($masina->id) . '/atestat.pdf';
+        Storage::disk(MasinaFisierGeneral::storageDisk())->put($path, '%PDF-1.4');
+
+        $fisier = $masina->fisiereGenerale()->create([
+            'cale' => $path,
+            'nume_original' => 'atestat.pdf',
+            'mime_type' => 'application/pdf',
+            'dimensiune' => 123,
+        ]);
+
+        $responseWithoutPermission = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.fisiere-generale.download', [$masina, $fisier]));
+
+        $responseWithoutPermission->assertForbidden();
+
+        $permission = $this->createMementouriPermission();
+        $user->syncPermissions([$permission->id]);
+
+        $responseWithPermission = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.fisiere-generale.download', [$masina, $fisier]));
+
+        $responseWithPermission->assertOk();
+        $responseWithPermission->assertHeader('Content-Type', 'application/pdf');
+    }
+
+    public function test_general_file_deletion_requires_mementouri_permission(): void
+    {
+        Storage::fake(MasinaFisierGeneral::storageDisk());
+
+        $this->withMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+
+        $path = MasinaFisierGeneral::storageDirectoryForMasina($masina->id) . '/atestat.pdf';
+        Storage::disk(MasinaFisierGeneral::storageDisk())->put($path, 'PDF content');
+
+        $fisier = $masina->fisiereGenerale()->create([
+            'cale' => $path,
+            'nume_original' => 'atestat.pdf',
+            'mime_type' => 'application/pdf',
+            'dimensiune' => 64,
+        ]);
+
+        $responseWithoutPermission = $this
+            ->actingAs($user)
+            ->delete(route('masini-mementouri.fisiere-generale.destroy', [$masina, $fisier]));
+
+        $responseWithoutPermission->assertForbidden();
+
+        Storage::disk(MasinaFisierGeneral::storageDisk())->assertExists($path);
+        $this->assertDatabaseHas('masini_fisiere_generale', ['id' => $fisier->id]);
+
+        $permission = $this->createMementouriPermission();
+        $user->syncPermissions([$permission->id]);
+
+        $responseWithPermission = $this
+            ->actingAs($user)
+            ->delete(route('masini-mementouri.fisiere-generale.destroy', [$masina, $fisier]));
+
+        $responseWithPermission->assertRedirect();
+        $responseWithPermission->assertSessionHas('status', __('Fișierul a fost șters.'));
+
+        Storage::disk(MasinaFisierGeneral::storageDisk())->assertMissing($path);
+        $this->assertDatabaseMissing('masini_fisiere_generale', ['id' => $fisier->id]);
+    }
+
+    protected function createMementouriPermission(): Permission
+    {
+        return Permission::query()->firstOrCreate(
+            ['slug' => 'mementouri'],
+            [
+                'name' => 'Mementouri',
+                'module' => 'mementouri',
+                'description' => 'Acces la modulele de mementouri',
+            ]
+        );
     }
 }
