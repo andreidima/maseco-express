@@ -27,6 +27,7 @@ use App\Http\Controllers\FlotaStatusController;
 use App\Http\Controllers\FlotaStatusInformatieController;
 use App\Http\Controllers\FlotaStatusCController;
 use App\Http\Controllers\MasinaValabilitatiController;
+use App\Http\Controllers\Masini\MasinaFisierGeneralController;
 use App\Http\Controllers\Masini\MasiniDocumentController;
 use App\Http\Controllers\Masini\MasiniDocumentFisierController;
 use App\Http\Controllers\Masini\MasiniMementoController;
@@ -238,6 +239,14 @@ Route::middleware(['auth'])->group(function () {
                 ->name('masini-mementouri.documente.fisiere.download');
             Route::get('masini-mementouri/{masini_mementouri}/documente/{document}/fisiere/{fisier}/preview', [MasiniDocumentFisierController::class, 'preview'])
                 ->name('masini-mementouri.documente.fisiere.preview');
+            Route::get('masini-mementouri/{masini_mementouri}/fisiere-generale', [MasinaFisierGeneralController::class, 'index'])
+                ->name('masini-mementouri.fisiere-generale.index');
+            Route::post('masini-mementouri/{masini_mementouri}/fisiere-generale', [MasinaFisierGeneralController::class, 'store'])
+                ->name('masini-mementouri.fisiere-generale.store');
+            Route::delete('masini-mementouri/{masini_mementouri}/fisiere-generale/{fisier}', [MasinaFisierGeneralController::class, 'destroy'])
+                ->name('masini-mementouri.fisiere-generale.destroy');
+            Route::get('masini-mementouri/{masini_mementouri}/fisiere-generale/{fisier}', [MasinaFisierGeneralController::class, 'download'])
+                ->name('masini-mementouri.fisiere-generale.download');
         });
     });
 
