@@ -18,6 +18,12 @@
     <div class="card-body px-0 py-3">
         @include('errors')
 
+        @if (session('status'))
+            <div class="alert alert-success border border-success-subtle rounded-4 mx-3 mb-4">
+                {{ session('status') }}
+            </div>
+        @endif
+
         <div class="mx-3 mb-4">
             <form method="POST" action="{{ route('masini-mementouri.update', $masina) }}" class="row g-3">
                 @csrf

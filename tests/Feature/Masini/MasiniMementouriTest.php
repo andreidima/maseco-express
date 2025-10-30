@@ -49,15 +49,16 @@ class MasiniMementouriTest extends TestCase
             ->actingAs($user)
             ->post(route('masini-mementouri.store'), $payload);
 
-        $response->assertRedirect(route('masini-mementouri.index'));
+        $masina = Masina::where('numar_inmatriculare', 'B11NEW')->first();
+        $this->assertNotNull($masina);
+
+        $response->assertRedirect(route('masini-mementouri.show', $masina));
         $this->assertDatabaseHas('masini', [
             'numar_inmatriculare' => 'B11NEW',
             'marca_masina' => 'Volvo',
             'serie_sasiu' => 'YS2R4X20005399401',
         ]);
 
-        $masina = Masina::where('numar_inmatriculare', 'B11NEW')->first();
-        $this->assertNotNull($masina);
         $this->assertEquals('Note inițiale', optional($masina->memento)->observatii);
         $this->assertEquals('test@example.com', optional($masina->memento)->email_notificari);
 
@@ -85,6 +86,32 @@ class MasiniMementouriTest extends TestCase
         $this->assertSame('Actualizat', optional($masina->memento)->observatii);
     }
 
+    public function test_update_redirects_to_show_when_no_redirect_is_provided(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create([
+            'numar_inmatriculare' => 'CT88SHOW',
+            'descriere' => 'Test',
+        ]);
+
+        $payload = [
+            'numar_inmatriculare' => 'CT88SHOW',
+            'descriere' => 'Actualizată',
+            'marca_masina' => $masina->marca_masina,
+            'serie_sasiu' => $masina->serie_sasiu,
+            'email_notificari' => 'redirect@example.com',
+            'observatii' => 'Observații redirect',
+        ];
+
+        $response = $this
+            ->actingAs($user)
+            ->put(route('masini-mementouri.update', $masina), $payload);
+
+        $response->assertRedirect(route('masini-mementouri.show', $masina));
+    }
+
     public function test_index_document_date_links_to_edit_page(): void
     {
         $this->withoutMiddleware([EnsurePermission::class]);
@@ -105,7 +132,8 @@ class MasiniMementouriTest extends TestCase
         $response->assertSee('Legendă culori');
         $response->assertSee('Asigurare CMR');
         $response->assertSee('Brennero');
-        $response->assertSee('<a href="' . route('masini-mementouri.edit', $masina) . '"', false);
+        $response->assertSee('<a href="' . route('masini-mementouri.show', $masina) . '"', false);
+        $response->assertSee('<a href="' . route('masini-mementouri.create') . '"', false);
         $response->assertSee('aria-label="Editează ITP pentru ' . $masina->numar_inmatriculare . '"', false);
         $response->assertSee($document->data_expirare->format('d.m.Y'));
     }
