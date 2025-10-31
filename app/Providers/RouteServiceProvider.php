@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\FacturiFurnizori\FacturaFurnizor;
+use App\Models\FacturiFurnizori\PlataCalup;
 use App\Models\Masini\Masina;
 use App\Models\Masini\MasinaDocument;
 use App\Models\Masini\MasinaDocumentFisier;
@@ -54,8 +56,38 @@ class RouteServiceProvider extends ServiceProvider
         Route::bind('fisier', function ($value, $route) {
             $routeName = $route?->getName();
 
-            if (is_string($routeName) && Str::startsWith($routeName, 'masini-mementouri.fisiere-generale.')) {
-                return MasinaFisierGeneral::query()->findOrFail($value);
+            if (is_string($routeName)) {
+                if (Str::startsWith($routeName, 'facturi-furnizori.facturi.fisiere.')) {
+                    $facturaParameter = $route?->parameter('factura');
+
+                    if (! $facturaParameter instanceof FacturaFurnizor) {
+                        if ($facturaParameter === null) {
+                            throw (new ModelNotFoundException())->setModel(FacturaFurnizor::class);
+                        }
+
+                        $facturaParameter = FacturaFurnizor::query()->whereKey($facturaParameter)->firstOrFail();
+                    }
+
+                    return $facturaParameter->fisiere()->whereKey($value)->firstOrFail();
+                }
+
+                if (Str::startsWith($routeName, 'facturi-furnizori.plati-calupuri.')) {
+                    $calupParameter = $route?->parameter('plataCalup');
+
+                    if (! $calupParameter instanceof PlataCalup) {
+                        if ($calupParameter === null) {
+                            throw (new ModelNotFoundException())->setModel(PlataCalup::class);
+                        }
+
+                        $calupParameter = PlataCalup::query()->whereKey($calupParameter)->firstOrFail();
+                    }
+
+                    return $calupParameter->fisiere()->whereKey($value)->firstOrFail();
+                }
+
+                if (Str::startsWith($routeName, 'masini-mementouri.fisiere-generale.')) {
+                    return MasinaFisierGeneral::query()->findOrFail($value);
+                }
             }
 
             $documentParameter = $route?->parameter('document');

@@ -126,14 +126,40 @@
                                         <td>{{ $factura->data_scadenta?->format('d.m.Y') }}</td>
                                         <td class="text-end">{{ number_format($factura->suma, 2) }} {{ $factura->moneda }}</td>
                                         <td class="text-end">
-                                            <button
-                                                type="button"
-                                                class="badge bg-danger text-white border-0 rounded-3 px-3 py-2"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#detaseazaFacturaModal{{ $factura->id }}"
-                                            >
-                                                Elimină
-                                            </button>
+                                            <div class="d-flex flex-wrap justify-content-end gap-2">
+                                                @foreach ($factura->fisiere as $fisier)
+                                                    @php
+                                                        $fileLabel = $fisier->nume_original ?: basename($fisier->cale ?? '');
+                                                    @endphp
+                                                    @if ($fisier->isPreviewable())
+                                                        <a
+                                                            href="{{ route('facturi-furnizori.facturi.fisiere.vizualizeaza', [$factura, $fisier]) }}"
+                                                            class="btn btn-sm btn-outline-success border border-success"
+                                                            target="_blank"
+                                                            rel="noopener"
+                                                            title="Deschide {{ $fileLabel }}"
+                                                        >
+                                                            <i class="fa-solid fa-up-right-from-square"></i>
+                                                        </a>
+                                                    @else
+                                                        <a
+                                                            href="{{ route('facturi-furnizori.facturi.fisiere.descarca', [$factura, $fisier]) }}"
+                                                            class="btn btn-sm btn-outline-primary border border-primary"
+                                                            title="Descarcă {{ $fileLabel }}"
+                                                        >
+                                                            <i class="fa-solid fa-download"></i>
+                                                        </a>
+                                                    @endif
+                                                @endforeach
+                                                <button
+                                                    type="button"
+                                                    class="badge bg-danger text-white border-0 rounded-3 px-3 py-2"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#detaseazaFacturaModal{{ $factura->id }}"
+                                                >
+                                                    Elimină
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -221,8 +247,30 @@
                 @else
                     <form action="{{ route('facturi-furnizori.plati-calupuri.atasare-facturi', $calup) }}" method="POST" id="attach-form">
                         @csrf
+                        <div class="row g-2 mb-3">
+                            <div class="col-md-6">
+                                <label for="attach-filter-furnizor" class="form-label mb-1 small text-muted">Filtrează după furnizor</label>
+                                <input
+                                    type="text"
+                                    id="attach-filter-furnizor"
+                                    class="form-control form-control-sm border border-dark"
+                                    placeholder="Caută furnizor"
+                                    autocomplete="off"
+                                >
+                            </div>
+                            <div class="col-md-6">
+                                <label for="attach-filter-numar" class="form-label mb-1 small text-muted">Filtrează după număr factură</label>
+                                <input
+                                    type="text"
+                                    id="attach-filter-numar"
+                                    class="form-control form-control-sm border border-dark"
+                                    placeholder="Caută număr factură"
+                                    autocomplete="off"
+                                >
+                            </div>
+                        </div>
                         <div class="table-responsive" style="max-height: 350px; overflow-y: auto;">
-                            <table class="table table-sm table-hover align-middle mb-0">
+                            <table class="table table-sm table-hover align-middle mb-0" id="attach-table">
                                 <thead class="text-white rounded culoare2">
                                     <tr>
                                         <th class="text-center" style="width: 50px;">
@@ -237,7 +285,11 @@
                                 </thead>
                                 <tbody>
                                     @foreach ($facturiDisponibile as $facturaDisponibila)
-                                        <tr>
+                                        <tr
+                                            class="attach-row"
+                                            data-furnizor="{{ \Illuminate\Support\Str::lower($facturaDisponibila->denumire_furnizor ?? '') }}"
+                                            data-numar="{{ \Illuminate\Support\Str::lower($facturaDisponibila->numar_factura ?? '') }}"
+                                        >
                                             <td class="text-center">
                                                 <input type="checkbox" name="facturi[]" value="{{ $facturaDisponibila->id }}" class="attach-checkbox">
                                             </td>
@@ -248,6 +300,9 @@
                                             <td>{{ $facturaDisponibila->moneda }}</td>
                                         </tr>
                                     @endforeach
+                                    <tr id="attach-empty-state" class="d-none">
+                                        <td colspan="6" class="text-center text-muted">Nu există facturi care corespund filtrelor.</td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
@@ -267,31 +322,128 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const toggleAll = document.getElementById('attach-toggle-all');
-        const checkboxes = Array.from(document.querySelectorAll('.attach-checkbox'));
         const counter = document.getElementById('attach-counter');
+        const filterFurnizor = document.getElementById('attach-filter-furnizor');
+        const filterNumar = document.getElementById('attach-filter-numar');
+        const rows = Array.from(document.querySelectorAll('.attach-row'));
+        const emptyStateRow = document.getElementById('attach-empty-state');
 
         const updateCounter = () => {
             if (!counter) {
                 return;
             }
-            const total = checkboxes.filter(checkbox => checkbox.checked).length;
+
+            const total = rows.reduce((sum, row) => {
+                const checkbox = row.querySelector('.attach-checkbox');
+
+                if (checkbox && checkbox.checked) {
+                    return sum + 1;
+                }
+
+                return sum;
+            }, 0);
+
             counter.textContent = `Selectate: ${total}`;
+        };
+
+        const updateToggleAllState = () => {
+            if (!toggleAll) {
+                return;
+            }
+
+            const visibleCheckboxes = rows
+                .filter(row => !row.classList.contains('d-none'))
+                .map(row => row.querySelector('.attach-checkbox'))
+                .filter(Boolean);
+
+            if (visibleCheckboxes.length === 0) {
+                toggleAll.checked = false;
+                toggleAll.indeterminate = false;
+                toggleAll.disabled = true;
+
+                return;
+            }
+
+            toggleAll.disabled = false;
+
+            const allChecked = visibleCheckboxes.every(checkbox => checkbox.checked);
+            const someChecked = visibleCheckboxes.some(checkbox => checkbox.checked);
+
+            toggleAll.checked = allChecked;
+            toggleAll.indeterminate = !allChecked && someChecked;
+        };
+
+        const applyFilters = () => {
+            const supplierTerm = (filterFurnizor?.value || '').trim().toLowerCase();
+            const numberTerm = (filterNumar?.value || '').trim().toLowerCase();
+            let visibleCount = 0;
+
+            rows.forEach(row => {
+                const furnizor = row.dataset.furnizor || '';
+                const numar = row.dataset.numar || '';
+                const matchesSupplier = !supplierTerm || furnizor.includes(supplierTerm);
+                const matchesNumber = !numberTerm || numar.includes(numberTerm);
+
+                if (matchesSupplier && matchesNumber) {
+                    row.classList.remove('d-none');
+                    visibleCount += 1;
+                } else {
+                    row.classList.add('d-none');
+                    const checkbox = row.querySelector('.attach-checkbox');
+
+                    if (checkbox && checkbox.checked) {
+                        checkbox.checked = false;
+                    }
+                }
+            });
+
+            if (emptyStateRow) {
+                emptyStateRow.classList.toggle('d-none', visibleCount > 0);
+            }
+
+            updateCounter();
+            updateToggleAllState();
         };
 
         if (toggleAll) {
             toggleAll.addEventListener('change', () => {
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = toggleAll.checked;
+                rows.forEach(row => {
+                    if (row.classList.contains('d-none')) {
+                        return;
+                    }
+
+                    const checkbox = row.querySelector('.attach-checkbox');
+
+                    if (checkbox) {
+                        checkbox.checked = toggleAll.checked;
+                    }
                 });
+
                 updateCounter();
+                updateToggleAllState();
             });
         }
 
-        checkboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', updateCounter);
+        rows.forEach(row => {
+            const checkbox = row.querySelector('.attach-checkbox');
+
+            if (checkbox) {
+                checkbox.addEventListener('change', () => {
+                    updateCounter();
+                    updateToggleAllState();
+                });
+            }
         });
 
-        updateCounter();
+        if (filterFurnizor) {
+            filterFurnizor.addEventListener('input', applyFilters);
+        }
+
+        if (filterNumar) {
+            filterNumar.addEventListener('input', applyFilters);
+        }
+
+        applyFilters();
     });
 </script>
 @endsection
