@@ -185,6 +185,7 @@
                                     <thead class="bg-light">
                                         <tr>
                                             <th>Furnizor</th>
+                                            <th>Cont IBAN</th>
                                             <th class="text-end">Totaluri</th>
                                         </tr>
                                     </thead>
@@ -192,6 +193,7 @@
                                         @foreach ($totaluriFacturiCalupPeFurnizor as $subtotal)
                                             <tr>
                                                 <td class="fw-semibold">{{ $subtotal['furnizor'] }}</td>
+                                                <td>{{ $subtotal['cont_iban'] ?? '—' }}</td>
                                                 <td class="text-end">
                                                     @foreach ($subtotal['totals'] as $moneda => $total)
                                                         <div>{{ number_format($total, 2) }} {{ $moneda }}</div>
