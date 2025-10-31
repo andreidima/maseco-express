@@ -133,10 +133,12 @@ class PlataCalupController extends Controller
             ->map(function ($facturi) {
                 /** @var \Illuminate\Support\Collection<int, FacturaFurnizor> $facturi */
                 $primul = $facturi->first();
+                $facturaCuIban = $facturi->firstWhere(fn (FacturaFurnizor $factura) => filled($factura->cont_iban));
 
                 return [
                     'furnizor_id' => $primul->furnizor_id ?? null,
                     'furnizor' => $primul->denumire_furnizor,
+                    'cont_iban' => $facturaCuIban?->cont_iban,
                     'totals' => $facturi
                         ->groupBy(fn (FacturaFurnizor $factura) => $factura->moneda)
                         ->map(fn ($facturiMoneda) => $facturiMoneda->sum('suma'))
