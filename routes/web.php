@@ -147,6 +147,9 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware('permission:documente-word')->group(function () {
+        Route::post('/documente-word/images', [DocumentWordController::class, 'uploadImage'])
+            ->name('documente-word.images');
+
         Route::resource('/documente-word', DocumentWordController::class)
             ->only(['index', 'show', 'create', 'store', 'edit', 'update'])
             ->parameters(['documente-word' => 'documentWord']);
