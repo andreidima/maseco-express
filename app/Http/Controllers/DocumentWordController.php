@@ -130,6 +130,8 @@ class DocumentWordController extends Controller
 
         $data = $request->validated();
 
+        $existingImagePaths = $this->extractImagePaths($documentWord->continut);
+
         if (! $request->user()?->hasPermission('documente-word-manage')) {
             $data['nivel_acces'] = 2;
         }
@@ -139,6 +141,11 @@ class DocumentWordController extends Controller
         $data['locked_at'] = null;
 
         $documentWord->update($data);
+
+        $updatedImagePaths = $this->extractImagePaths($data['continut'] ?? null);
+        $pathsToDelete = array_diff($existingImagePaths, $updatedImagePaths);
+
+        $this->deleteImagesFromDisk($pathsToDelete);
 
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost modificat cu succes!');
     }
@@ -154,7 +161,11 @@ class DocumentWordController extends Controller
         // This will throw an authorization exception if the user is not allowed
         $this->authorize('delete', $documentWord);
 
+        $imagePaths = $this->extractImagePaths($documentWord->continut);
+
         $documentWord->delete();
+
+        $this->deleteImagesFromDisk($imagePaths);
 
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost șters cu succes!');
     }
@@ -206,5 +217,98 @@ class DocumentWordController extends Controller
         }
 
         return $disk->response($path);
+    }
+
+    /**
+     * @param  array<int, string>  $paths
+     */
+    private function deleteImagesFromDisk(array $paths): void
+    {
+        if (empty($paths)) {
+            return;
+        }
+
+        $disk = Storage::disk('documente_word_images');
+
+        foreach (array_unique(array_filter($paths, fn ($path) => is_string($path) && $path !== '')) as $path) {
+            $disk->delete($path);
+        }
+    }
+
+    private function extractImagePaths(?string $content): array
+    {
+        if (blank($content)) {
+            return [];
+        }
+
+        try {
+            $document = json_decode($content, true, 512, JSON_THROW_ON_ERROR);
+        } catch (\Throwable $exception) {
+            return [];
+        }
+
+        $paths = [];
+
+        $this->gatherImagePaths($document, $paths);
+
+        return array_values(array_unique($paths));
+    }
+
+    private function gatherImagePaths(mixed $node, array &$paths): void
+    {
+        if (! is_array($node)) {
+            return;
+        }
+
+        if (($node['type'] ?? null) === 'image') {
+            $path = $this->resolveImagePathFromNode($node);
+
+            if ($path !== null) {
+                $paths[] = $path;
+            }
+        }
+
+        if (isset($node['content']) && is_array($node['content'])) {
+            foreach ($node['content'] as $child) {
+                $this->gatherImagePaths($child, $paths);
+            }
+        }
+    }
+
+    private function resolveImagePathFromNode(array $node): ?string
+    {
+        $attributes = $node['attrs'] ?? [];
+
+        if (! is_array($attributes)) {
+            return null;
+        }
+
+        $path = $attributes['path'] ?? null;
+
+        if (is_string($path) && $path !== '') {
+            return $path;
+        }
+
+        $src = $attributes['src'] ?? null;
+
+        if (! is_string($src) || $src === '') {
+            return null;
+        }
+
+        $parsedPath = parse_url($src, PHP_URL_PATH) ?? '';
+
+        if (! is_string($parsedPath) || $parsedPath === '') {
+            return null;
+        }
+
+        $prefix = '/documente-word/images/';
+
+        if (! str_starts_with($parsedPath, $prefix)) {
+            return null;
+        }
+
+        $relativePath = rawurldecode(substr($parsedPath, strlen($prefix)));
+
+        return $relativePath !== '' ? $relativePath : null;
     }
 }

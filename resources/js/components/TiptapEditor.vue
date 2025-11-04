@@ -81,6 +81,15 @@
                 >
                     <i class="fa-solid fa-image"></i>
                 </button>
+                <button
+                    type="button"
+                    class="btn"
+                    @click="resizeSelectedImage"
+                    :disabled="!isImageSelected"
+                    title="Redimensionează imagine"
+                >
+                    <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                </button>
             </div>
 
             <!-- Table Controls -->
@@ -201,6 +210,7 @@
 
 <script>
 import { Editor, EditorContent } from '@tiptap/vue-3';
+import { mergeAttributes } from '@tiptap/core';
 import FloatingMenu from '@tiptap/extension-floating-menu';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
@@ -215,6 +225,57 @@ import TableRow from '@tiptap/extension-table-row';
 import Image from '@tiptap/extension-image';
 
 import { mergeCells, splitCell} from 'prosemirror-tables';
+
+const CustomImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      path: {
+        default: null,
+        parseHTML: (element) => element.getAttribute('data-image-path') || null,
+      },
+      width: {
+        default: null,
+        parseHTML: (element) =>
+          element.getAttribute('data-width') || element.style.width || element.getAttribute('width') || null,
+      },
+      height: {
+        default: null,
+        parseHTML: (element) =>
+          element.getAttribute('data-height') || element.style.height || element.getAttribute('height') || null,
+      },
+    };
+  },
+  renderHTML({ HTMLAttributes }) {
+    const { path, width, height, style, ...rest } = HTMLAttributes;
+    const attributes = { ...rest };
+    const styleSegments = [];
+
+    if (style) {
+      styleSegments.push(style);
+    }
+
+    if (path) {
+      attributes['data-image-path'] = path;
+    }
+
+    if (width) {
+      attributes['data-width'] = width;
+      styleSegments.push(`width: ${width};`);
+    }
+
+    if (height) {
+      attributes['data-height'] = height;
+      styleSegments.push(`height: ${height};`);
+    }
+
+    if (styleSegments.length) {
+      attributes.style = styleSegments.join(' ');
+    }
+
+    return ['img', mergeAttributes(this.options.HTMLAttributes, attributes)];
+  },
+});
 
 export default {
   components: { EditorContent },
@@ -307,6 +368,9 @@ export default {
     isStrikeActive() {
       return this.editor?.isActive('strike');
     },
+    isImageSelected() {
+      return this.editor?.isActive('image');
+    },
     isUploading() {
       return this.activeUploads > 0;
     },
@@ -375,7 +439,7 @@ export default {
           },
         }),
         Color,
-        Image,
+        CustomImage,
         StarterKit.configure({
             bold: true,
             italic: true,
@@ -432,6 +496,8 @@ export default {
       container.addEventListener('dragover', this.boundDragOverHandler);
       container.addEventListener('drop', this.boundDropHandler);
     }
+
+    this.hydrateImagePathsFromSrc();
   },
   beforeUnmount() {
     const container = this.$refs.editorContainer;
@@ -542,6 +608,54 @@ export default {
     triggerImageUpload() {
       this.$refs.imageInput?.click();
     },
+    resizeSelectedImage() {
+      if (!this.editor?.isActive('image')) {
+        return;
+      }
+
+      const currentAttributes = this.editor.getAttributes('image') || {};
+      const currentWidth = currentAttributes.width || '';
+      const currentHeight = currentAttributes.height || '';
+
+      const widthInput = window.prompt(
+        'Introduceți lățimea imaginii (de ex. 300px sau 50%)',
+        currentWidth,
+      );
+
+      if (widthInput === null) {
+        return;
+      }
+
+      const trimmedWidth = widthInput.trim();
+
+      const heightInput = window.prompt(
+        'Introduceți înălțimea imaginii (opțional)',
+        currentHeight,
+      );
+
+      if (heightInput === null) {
+        this.editor
+          .chain()
+          .focus()
+          .updateAttributes('image', {
+            width: trimmedWidth || null,
+          })
+          .run();
+
+        return;
+      }
+
+      const trimmedHeight = heightInput.trim();
+
+      this.editor
+        .chain()
+        .focus()
+        .updateAttributes('image', {
+          width: trimmedWidth || null,
+          height: trimmedHeight || null,
+        })
+        .run();
+    },
     handleFileChange(event) {
       const files = event.target.files;
       if (files?.length) {
@@ -585,6 +699,7 @@ export default {
           src: payload.url,
           alt: payload.original_name || file.name || '',
           title: payload.original_name || file.name || '',
+          path: payload.path || null,
         };
 
         const chain = this.editor.chain().focus();
@@ -652,6 +767,74 @@ export default {
     },
     isImageFile(file) {
       return file && file.type.startsWith('image/');
+    },
+    hydrateImagePathsFromSrc() {
+      if (!this.editor) {
+        return;
+      }
+
+      const { state, view } = this.editor;
+      let transaction = state.tr;
+      let changed = false;
+
+      state.doc.descendants((node, pos) => {
+        if (node.type.name !== 'image') {
+          return;
+        }
+
+        const attrs = node.attrs || {};
+
+        if (attrs.path) {
+          return;
+        }
+
+        const derivedPath = this.extractImagePathFromUrl(attrs.src);
+
+        if (!derivedPath) {
+          return;
+        }
+
+        transaction = transaction.setNodeMarkup(pos, undefined, {
+          ...attrs,
+          path: derivedPath,
+        });
+        changed = true;
+      });
+
+      if (changed) {
+        view.dispatch(transaction);
+      }
+    },
+    extractImagePathFromUrl(url) {
+      if (!url) {
+        return null;
+      }
+
+      const prefix = '/documente-word/images/';
+
+      try {
+        const parsed = new URL(url, window.location.origin);
+        if (parsed.pathname && parsed.pathname.startsWith(prefix)) {
+          const decoded = decodeURIComponent(parsed.pathname.slice(prefix.length));
+          return decoded || null;
+        }
+      } catch (error) {
+        // Ignore parsing errors and fallback to manual checks below
+      }
+
+      if (url.startsWith(prefix)) {
+        const decoded = decodeURIComponent(url.slice(prefix.length));
+        return decoded || null;
+      }
+
+      const relativePrefix = 'documente-word/images/';
+
+      if (url.startsWith(relativePrefix)) {
+        const decoded = decodeURIComponent(url.slice(relativePrefix.length));
+        return decoded || null;
+      }
+
+      return null;
     },
   },
 };
