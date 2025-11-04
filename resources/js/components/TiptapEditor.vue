@@ -70,6 +70,28 @@
                 <button type="button" @click="unsetLink" title="Unset link"><i class="fa-solid fa-link-slash"></i></button>
             </div>
 
+            <!-- Images -->
+            <div class="btn-group me-3" role="group">
+                <button
+                    type="button"
+                    class="btn"
+                    @click="triggerImageUpload"
+                    :disabled="isUploading"
+                    title="Încarcă imagine"
+                >
+                    <i class="fa-solid fa-image"></i>
+                </button>
+                <button
+                    type="button"
+                    class="btn"
+                    @click="resizeSelectedImage"
+                    :disabled="!isImageSelected"
+                    title="Redimensionează imagine"
+                >
+                    <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                </button>
+            </div>
+
             <!-- Table Controls -->
             <!-- <div class="btn-group me-3">
                 <button type="button" class="btn dropdown-toggle" data-bs-toggle="dropdown">
@@ -136,7 +158,11 @@
 
 
     <!-- Tiptap Editor -->
-    <div class="editor-container border rounded p-2 bg-white" :style="{ height: height }">
+    <div
+      ref="editorContainer"
+      class="editor-container border rounded p-2 bg-white"
+      :style="{ height: height }"
+    >
       <editor-content :editor="editor" />
 
       <!-- Floating Menu for Tables -->
@@ -170,11 +196,21 @@
       :name="inputname"
       :value="editorContent"
     />
+
+    <!-- Hidden file input for image uploads -->
+    <input
+      ref="imageInput"
+      type="file"
+      class="d-none"
+      accept="image/*"
+      @change="handleFileChange"
+    />
   </div>
 </template>
 
 <script>
 import { Editor, EditorContent } from '@tiptap/vue-3';
+import { mergeAttributes } from '@tiptap/core';
 import FloatingMenu from '@tiptap/extension-floating-menu';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
@@ -186,8 +222,60 @@ import Table from '@tiptap/extension-table';
 import TableCell from '@tiptap/extension-table-cell';
 import TableHeader from '@tiptap/extension-table-header';
 import TableRow from '@tiptap/extension-table-row';
+import Image from '@tiptap/extension-image';
 
 import { mergeCells, splitCell} from 'prosemirror-tables';
+
+const CustomImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      path: {
+        default: null,
+        parseHTML: (element) => element.getAttribute('data-image-path') || null,
+      },
+      width: {
+        default: null,
+        parseHTML: (element) =>
+          element.getAttribute('data-width') || element.style.width || element.getAttribute('width') || null,
+      },
+      height: {
+        default: null,
+        parseHTML: (element) =>
+          element.getAttribute('data-height') || element.style.height || element.getAttribute('height') || null,
+      },
+    };
+  },
+  renderHTML({ HTMLAttributes }) {
+    const { path, width, height, style, ...rest } = HTMLAttributes;
+    const attributes = { ...rest };
+    const styleSegments = [];
+
+    if (style) {
+      styleSegments.push(style);
+    }
+
+    if (path) {
+      attributes['data-image-path'] = path;
+    }
+
+    if (width) {
+      attributes['data-width'] = width;
+      styleSegments.push(`width: ${width};`);
+    }
+
+    if (height) {
+      attributes['data-height'] = height;
+      styleSegments.push(`height: ${height};`);
+    }
+
+    if (styleSegments.length) {
+      attributes.style = styleSegments.join(' ');
+    }
+
+    return ['img', mergeAttributes(this.options.HTMLAttributes, attributes)];
+  },
+});
 
 export default {
   components: { EditorContent },
@@ -204,12 +292,27 @@ export default {
         type: String,
         default: '400px', // Default editor height
     },
+    uploadUrl: {
+      type: String,
+      required: true,
+    },
+    uploadHeaders: {
+      type: Object,
+      default: () => ({}),
+    },
+    uploadFieldName: {
+      type: String,
+      default: 'image',
+    },
   },
   data() {
     return {
         editor: null,
         textColor: '#000000',
         isFullscreen: false,
+        activeUploads: 0,
+        boundDragOverHandler: null,
+        boundDropHandler: null,
     };
   },
   computed: {
@@ -265,6 +368,28 @@ export default {
     isStrikeActive() {
       return this.editor?.isActive('strike');
     },
+    isImageSelected() {
+      return this.editor?.isActive('image');
+    },
+    isUploading() {
+      return this.activeUploads > 0;
+    },
+    uploadRequestHeaders() {
+      const headers = {
+        Accept: 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        ...(this.uploadHeaders || {}),
+      };
+
+      if (!headers['X-CSRF-TOKEN']) {
+        const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+        if (token) {
+          headers['X-CSRF-TOKEN'] = token;
+        }
+      }
+
+      return headers;
+    },
   },
   mounted() {
     let initialContent;
@@ -314,6 +439,7 @@ export default {
           },
         }),
         Color,
+        CustomImage,
         StarterKit.configure({
             bold: true,
             italic: true,
@@ -362,8 +488,27 @@ export default {
     this.editor.on('selectionUpdate', () => {
       this.$forceUpdate();
     });
+
+    const container = this.$refs.editorContainer;
+    if (container) {
+      this.boundDragOverHandler = this.handleEditorDragOver.bind(this);
+      this.boundDropHandler = this.handleEditorDrop.bind(this);
+      container.addEventListener('dragover', this.boundDragOverHandler);
+      container.addEventListener('drop', this.boundDropHandler);
+    }
+
+    this.hydrateImagePathsFromSrc();
   },
   beforeUnmount() {
+    const container = this.$refs.editorContainer;
+    if (container) {
+      if (this.boundDragOverHandler) {
+        container.removeEventListener('dragover', this.boundDragOverHandler);
+      }
+      if (this.boundDropHandler) {
+        container.removeEventListener('drop', this.boundDropHandler);
+      }
+    }
     this.editor.destroy();
   },
   methods: {
@@ -459,6 +604,237 @@ export default {
     },
     splitCell() {
       this.editor.chain().focus().splitCell().run();
+    },
+    triggerImageUpload() {
+      this.$refs.imageInput?.click();
+    },
+    resizeSelectedImage() {
+      if (!this.editor?.isActive('image')) {
+        return;
+      }
+
+      const currentAttributes = this.editor.getAttributes('image') || {};
+      const currentWidth = currentAttributes.width || '';
+      const currentHeight = currentAttributes.height || '';
+
+      const widthInput = window.prompt(
+        'Introduceți lățimea imaginii (de ex. 300px sau 50%)',
+        currentWidth,
+      );
+
+      if (widthInput === null) {
+        return;
+      }
+
+      const trimmedWidth = widthInput.trim();
+
+      const heightInput = window.prompt(
+        'Introduceți înălțimea imaginii (opțional)',
+        currentHeight,
+      );
+
+      if (heightInput === null) {
+        this.editor
+          .chain()
+          .focus()
+          .updateAttributes('image', {
+            width: trimmedWidth || null,
+          })
+          .run();
+
+        return;
+      }
+
+      const trimmedHeight = heightInput.trim();
+
+      this.editor
+        .chain()
+        .focus()
+        .updateAttributes('image', {
+          width: trimmedWidth || null,
+          height: trimmedHeight || null,
+        })
+        .run();
+    },
+    handleFileChange(event) {
+      const files = event.target.files;
+      if (files?.length) {
+        this.processImageFiles(files);
+      }
+      event.target.value = '';
+    },
+    async processImageFiles(fileList, position = null) {
+      if (!this.editor) {
+        return;
+      }
+
+      const files = Array.from(fileList || []).filter((file) => this.isImageFile(file));
+      if (!files.length) {
+        return;
+      }
+
+      let insertionPoint = typeof position === 'number' ? position : null;
+
+      for (const file of files) {
+        await this.uploadAndInsertImage(file, insertionPoint);
+        if (typeof insertionPoint === 'number') {
+          insertionPoint = this.editor.state.selection.to;
+        }
+      }
+    },
+    async uploadAndInsertImage(file, position = null) {
+      if (!file || !this.editor) {
+        return;
+      }
+
+      this.activeUploads += 1;
+
+      try {
+        const payload = await this.uploadImage(file);
+        if (!payload?.url) {
+          return;
+        }
+
+        const imageAttrs = {
+          src: payload.url,
+          alt: payload.original_name || file.name || '',
+          title: payload.original_name || file.name || '',
+          path: payload.path || null,
+        };
+
+        const chain = this.editor.chain().focus();
+
+        if (typeof position === 'number') {
+          chain.insertContentAt(position, {
+            type: 'image',
+            attrs: imageAttrs,
+          });
+        } else {
+          chain.setImage(imageAttrs);
+        }
+
+        chain.run();
+      } catch (error) {
+        console.error('Failed to upload image', error);
+      } finally {
+        this.activeUploads = Math.max(0, this.activeUploads - 1);
+      }
+    },
+    async uploadImage(file) {
+      if (!this.uploadUrl) {
+        throw new Error('Upload URL is not configured');
+      }
+
+      const formData = new FormData();
+      formData.append(this.uploadFieldName, file);
+
+      const response = await fetch(this.uploadUrl, {
+        method: 'POST',
+        headers: this.uploadRequestHeaders,
+        body: formData,
+        credentials: 'same-origin',
+      });
+
+      if (!response.ok) {
+        throw new Error(`Upload failed with status ${response.status}`);
+      }
+
+      return await response.json();
+    },
+    handleEditorDragOver(event) {
+      if (event.dataTransfer?.types?.includes('Files')) {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+      }
+    },
+    async handleEditorDrop(event) {
+      if (!event.dataTransfer?.files?.length) {
+        return;
+      }
+
+      const imageFiles = Array.from(event.dataTransfer.files).some((file) => this.isImageFile(file));
+      if (!imageFiles) {
+        return;
+      }
+
+      event.preventDefault();
+
+      const { clientX, clientY } = event;
+      const coords = this.editor?.view?.posAtCoords({ left: clientX, top: clientY });
+      const position = coords?.pos ?? null;
+
+      await this.processImageFiles(event.dataTransfer.files, position);
+    },
+    isImageFile(file) {
+      return file && file.type.startsWith('image/');
+    },
+    hydrateImagePathsFromSrc() {
+      if (!this.editor) {
+        return;
+      }
+
+      const { state, view } = this.editor;
+      let transaction = state.tr;
+      let changed = false;
+
+      state.doc.descendants((node, pos) => {
+        if (node.type.name !== 'image') {
+          return;
+        }
+
+        const attrs = node.attrs || {};
+
+        if (attrs.path) {
+          return;
+        }
+
+        const derivedPath = this.extractImagePathFromUrl(attrs.src);
+
+        if (!derivedPath) {
+          return;
+        }
+
+        transaction = transaction.setNodeMarkup(pos, undefined, {
+          ...attrs,
+          path: derivedPath,
+        });
+        changed = true;
+      });
+
+      if (changed) {
+        view.dispatch(transaction);
+      }
+    },
+    extractImagePathFromUrl(url) {
+      if (!url) {
+        return null;
+      }
+
+      const prefix = '/documente-word/images/';
+
+      try {
+        const parsed = new URL(url, window.location.origin);
+        if (parsed.pathname && parsed.pathname.startsWith(prefix)) {
+          const decoded = decodeURIComponent(parsed.pathname.slice(prefix.length));
+          return decoded || null;
+        }
+      } catch (error) {
+        // Ignore parsing errors and fallback to manual checks below
+      }
+
+      if (url.startsWith(prefix)) {
+        const decoded = decodeURIComponent(url.slice(prefix.length));
+        return decoded || null;
+      }
+
+      const relativePrefix = 'documente-word/images/';
+
+      if (url.startsWith(relativePrefix)) {
+        const decoded = decodeURIComponent(url.slice(relativePrefix.length));
+        return decoded || null;
+      }
+
+      return null;
     },
   },
 };
