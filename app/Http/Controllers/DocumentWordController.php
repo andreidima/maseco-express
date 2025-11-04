@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 use App\Http\Requests\DocumentWordRequest;
 use PDF; // Barryvdh\DomPDF\Facade
@@ -168,5 +170,41 @@ class DocumentWordController extends Controller
         ]);
 
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost deblocat cu succes!');
+    }
+
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $this->authorize('create', DocumentWord::class);
+
+        $request->validate([
+            'image' => ['required', 'image', 'max:5120'],
+        ]);
+
+        $file = $request->file('image');
+        $path = $file->store('', 'documente_word_images');
+
+        return response()->json([
+            'url' => route('documente-word.images.show', ['path' => $path], false),
+            'path' => $path,
+            'disk' => 'documente_word_images',
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'size' => $file->getSize(),
+        ], 201);
+    }
+
+    public function showImage(string $path)
+    {
+        $path = rawurldecode($path);
+
+        abort_if(str_contains($path, '..'), 404);
+
+        $disk = Storage::disk('documente_word_images');
+
+        if (! $disk->exists($path)) {
+            abort(404);
+        }
+
+        return $disk->response($path);
     }
 }
