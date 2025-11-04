@@ -181,15 +181,30 @@ class DocumentWordController extends Controller
         ]);
 
         $file = $request->file('image');
-        $path = $file->store('documente-word/images', 'public');
+        $path = $file->store('', 'documente_word_images');
 
         return response()->json([
-            'url' => Storage::disk('public')->url($path),
+            'url' => route('documente-word.images.show', ['path' => $path], false),
             'path' => $path,
-            'disk' => 'public',
+            'disk' => 'documente_word_images',
             'original_name' => $file->getClientOriginalName(),
             'mime_type' => $file->getClientMimeType(),
             'size' => $file->getSize(),
         ], 201);
+    }
+
+    public function showImage(string $path)
+    {
+        $path = rawurldecode($path);
+
+        abort_if(str_contains($path, '..'), 404);
+
+        $disk = Storage::disk('documente_word_images');
+
+        if (! $disk->exists($path)) {
+            abort(404);
+        }
+
+        return $disk->response($path);
     }
 }

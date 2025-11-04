@@ -16,7 +16,7 @@ class DocumentWordImageTest extends TestCase
 
     public function test_authorized_user_can_upload_image_for_document_word(): void
     {
-        Storage::fake('public');
+        Storage::fake('documente_word_images');
 
         $user = $this->createUserWithRoles('documente-word-operator');
 
@@ -36,12 +36,15 @@ class DocumentWordImageTest extends TestCase
 
         $path = $response->json('path');
         $this->assertNotEmpty($path);
-        Storage::disk('public')->assertExists($path);
+        $response->assertJsonPath('url', route('documente-word.images.show', ['path' => $path], false));
+        Storage::disk('documente_word_images')->assertExists($path);
+        $this->get(route('documente-word.images.show', ['path' => $path]))
+            ->assertOk();
     }
 
     public function test_unauthorized_user_cannot_upload_document_word_images(): void
     {
-        Storage::fake('public');
+        Storage::fake('documente_word_images');
 
         $user = $this->createUserWithRoles('mecanic');
 
