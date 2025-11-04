@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 use App\Http\Requests\DocumentWordRequest;
 use PDF; // Barryvdh\DomPDF\Facade
@@ -168,5 +170,26 @@ class DocumentWordController extends Controller
         ]);
 
         return redirect($request->session()->get('documentWordReturnUrl') ?? ('/documente-word'))->with('status', 'Documentul word „' . ($documentWord->nume ?? '') . '” a fost deblocat cu succes!');
+    }
+
+    public function uploadImage(Request $request): JsonResponse
+    {
+        $this->authorize('create', DocumentWord::class);
+
+        $request->validate([
+            'image' => ['required', 'image', 'max:5120'],
+        ]);
+
+        $file = $request->file('image');
+        $path = $file->store('documente-word/images', 'public');
+
+        return response()->json([
+            'url' => Storage::disk('public')->url($path),
+            'path' => $path,
+            'disk' => 'public',
+            'original_name' => $file->getClientOriginalName(),
+            'mime_type' => $file->getClientMimeType(),
+            'size' => $file->getSize(),
+        ], 201);
     }
 }

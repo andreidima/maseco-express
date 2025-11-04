@@ -31,6 +31,8 @@
                         :inputvalue='@json(old('continut', $documentWord->continut ?? ''))'
                         inputname="continut"
                         height="600px"
+                        upload-url="{{ route('documente-word.images') }}"
+                        :upload-headers='@json(['X-CSRF-TOKEN' => csrf_token()])'
                     ></tiptap-editor>
                 </div>
                 <!-- PRINT-AREA end -->
