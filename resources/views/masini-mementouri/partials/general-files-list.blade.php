@@ -14,13 +14,7 @@
             $details = [number_format(($fisier->dimensiune ?? 0) / 1024, 1) . ' KB'];
 
             if ($fisier->uploaded_by_name) {
-                $uploadedBy = $fisier->uploaded_by_name;
-
-                if ($fisier->uploaded_by_email) {
-                    $uploadedBy .= ' <' . $fisier->uploaded_by_email . '>';
-                }
-
-                $details[] = $uploadedBy;
+                $details[] = $fisier->uploaded_by_name;
             }
 
             if ($fisier->created_at) {
