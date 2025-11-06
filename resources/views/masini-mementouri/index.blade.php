@@ -133,9 +133,11 @@
                             @foreach ($gridDocumentTypes as $type => $label)
                                 @php
                                     $document = $documents->get($type);
-                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? '—';
+                                    $readableDate = $document ? $document->readableExpiryDate() : '—';
                                     $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
-                                    $isEmpty = !$document?->data_expirare;
+                                    $hasExpiry = $document?->hasExpiryDate() ?? false;
+                                    $isWithoutExpiry = $document?->isWithoutExpiry() ?? false;
+                                    $isEmpty = !$document || (!$hasExpiry && !$isWithoutExpiry);
                                     $ariaLabel = "Actualizează {$label} pentru {$masina->numar_inmatriculare}";
                                     $routeDocumentParam = $document?->getRouteKey() ?? \App\Models\Masini\MasinaDocument::buildRouteKey($type);
                                 @endphp
@@ -144,7 +146,7 @@
                                        class="document-cell-link d-inline-flex w-100 justify-content-center {{ $isEmpty ? 'document-cell-link--empty' : '' }}"
                                        aria-label="{{ $ariaLabel }}">
                                         <span class="document-cell px-2 py-1 w-100 {{ $colorClass }}">
-                                            {{ $displayDate }}
+                                            {{ $readableDate }}
                                         </span>
                                     </a>
                                 </td>
@@ -153,9 +155,11 @@
                                 @php
                                     $documentKey = \App\Models\Masini\MasinaDocument::TYPE_VIGNETA . ':' . $code;
                                     $document = $documents->get($documentKey);
-                                    $displayDate = optional($document?->data_expirare)->format('d.m.Y') ?? '—';
+                                    $readableDate = $document ? $document->readableExpiryDate() : '—';
                                     $colorClass = $document?->colorClass() ?? 'bg-secondary-subtle text-body-secondary';
-                                    $isEmpty = !$document?->data_expirare;
+                                    $hasExpiry = $document?->hasExpiryDate() ?? false;
+                                    $isWithoutExpiry = $document?->isWithoutExpiry() ?? false;
+                                    $isEmpty = !$document || (!$hasExpiry && !$isWithoutExpiry);
                                     $displayLabel = \App\Models\Masini\MasinaDocument::vignetteDisplayLabel($code);
                                     $ariaLabel = "Actualizează {$displayLabel} pentru {$masina->numar_inmatriculare}";
                                     $routeDocumentParam = $document?->getRouteKey() ?? \App\Models\Masini\MasinaDocument::buildRouteKey(\App\Models\Masini\MasinaDocument::TYPE_VIGNETA, $code);
@@ -165,7 +169,7 @@
                                        class="document-cell-link d-inline-flex w-100 justify-content-center {{ $isEmpty ? 'document-cell-link--empty' : '' }}"
                                        aria-label="{{ $ariaLabel }}">
                                         <span class="document-cell px-2 py-1 w-100 {{ $colorClass }}">
-                                            {{ $displayDate }}
+                                            {{ $readableDate }}
                                         </span>
                                     </a>
                                 </td>

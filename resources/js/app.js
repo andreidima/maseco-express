@@ -7,6 +7,7 @@
 import './bootstrap';
 
 import '../sass/app.scss'
+import '../css/app.css'
 import '../css/andrei.css'
 
 
@@ -1138,6 +1139,298 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Optional: stop timer when navigating away
     window.addEventListener('beforeunload', () => { if (timerId) clearTimeout(timerId); });
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const initializeNoExpiryControls = (container, { autoSync = true } = {}) => {
+        if (!container) {
+            return { checkbox: null, dateInput: null, hiddenInput: null, syncState: () => {} };
+        }
+
+        const checkbox = container.querySelector('[data-no-expiry-toggle]');
+        const dateInput = container.querySelector('[data-date-input]');
+        const hiddenInput = container.querySelector('[data-no-expiry-hidden]');
+
+        if (!checkbox || !dateInput) {
+            return { checkbox: null, dateInput: null, hiddenInput: null, syncState: () => {} };
+        }
+
+        const syncState = () => {
+            const checked = checkbox.checked;
+            dateInput.disabled = checked;
+
+            if (checked) {
+                dateInput.value = '';
+            }
+
+            if (hiddenInput) {
+                hiddenInput.value = checked ? '1' : '0';
+            }
+        };
+
+        if (autoSync) {
+            checkbox.addEventListener('change', syncState);
+        }
+
+        syncState();
+
+        return { checkbox, dateInput, hiddenInput, syncState };
+    };
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? null;
+
+    document.querySelectorAll('[data-document-update]').forEach((form) => {
+        const wrapper = form.closest('[data-document-wrapper]');
+        const colorHolder = wrapper?.querySelector('[data-color-holder]') ?? wrapper;
+        const baseClass = wrapper?.dataset.baseClass ?? (colorHolder?.className ?? '');
+        const emptyLabel = wrapper?.dataset.emptyLabel ?? '—';
+        const noExpiryLabel = wrapper?.dataset.noExpiryLabel ?? 'FĂRĂ';
+
+        const dateText = form.querySelector('[data-date-text]');
+        const editTrigger = form.querySelector('[data-edit-trigger]');
+        const editControls = form.querySelector('[data-edit-controls]');
+        const cancelButton = form.querySelector('[data-cancel-edit]');
+        const saveButton = form.querySelector('[data-save-trigger]');
+        const feedbackTarget = form.querySelector('[data-feedback-target]');
+
+        const { checkbox, dateInput, syncState } = initializeNoExpiryControls(
+            form.querySelector('[data-no-expiry-container]'),
+            { autoSync: false }
+        );
+
+        if (checkbox) {
+            checkbox.addEventListener('change', () => {
+                syncState();
+                if (form.dataset.autoSubmit === 'true') {
+                    submitForm();
+                }
+            });
+        }
+
+        if (dateInput && form.dataset.autoSubmit === 'true') {
+            dateInput.addEventListener('change', () => submitForm());
+        }
+
+        const clearFeedback = () => {
+            if (!feedbackTarget) {
+                return;
+            }
+
+            feedbackTarget.hidden = true;
+            feedbackTarget.textContent = '';
+            feedbackTarget.classList.remove('text-danger', 'text-success');
+        };
+
+        const showFeedback = (message, type = 'success') => {
+            if (!feedbackTarget || !message) {
+                return;
+            }
+
+            feedbackTarget.hidden = false;
+            feedbackTarget.textContent = message;
+            feedbackTarget.classList.toggle('text-danger', type === 'error');
+            feedbackTarget.classList.toggle('text-success', type !== 'error');
+        };
+
+        let isEditing = false;
+        let isSubmitting = false;
+        let originalDateValue = dateInput?.value ?? '';
+        let originalNoExpiry = checkbox?.checked ?? false;
+
+        const rememberOriginalValues = () => {
+            originalDateValue = dateInput?.value ?? '';
+            originalNoExpiry = checkbox?.checked ?? false;
+        };
+
+        const setEditing = (state) => {
+            isEditing = state;
+
+            if (editControls) {
+                editControls.classList.toggle('visually-hidden', !state);
+            }
+
+            if (dateText) {
+                dateText.classList.toggle('visually-hidden', state);
+            }
+
+            if (editTrigger) {
+                editTrigger.classList.toggle('d-none', state);
+                editTrigger.setAttribute('aria-expanded', state ? 'true' : 'false');
+            }
+        };
+
+        const resetToOriginal = () => {
+            if (dateInput) {
+                dateInput.value = originalDateValue;
+            }
+
+            if (checkbox) {
+                checkbox.checked = originalNoExpiry;
+            }
+
+            syncState();
+        };
+
+        const updateColorClass = (colorClass) => {
+            if (!colorHolder) {
+                return;
+            }
+
+            const composed = [baseClass, colorClass ?? ''].filter(Boolean).join(' ').trim();
+            colorHolder.className = composed;
+        };
+
+        const submitForm = async () => {
+            if (isSubmitting) {
+                return;
+            }
+
+            isSubmitting = true;
+
+            const formData = new FormData(form);
+
+            if (checkbox) {
+                formData.set('fara_expirare', checkbox.checked ? '1' : '0');
+                if (checkbox.checked) {
+                    formData.set('data_expirare', '');
+                }
+            }
+
+            if (csrfToken && !formData.has('_token')) {
+                formData.set('_token', csrfToken);
+            }
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    credentials: 'same-origin',
+                    body: formData,
+                });
+
+                if (response.status === 422) {
+                    const data = await response.json().catch(() => ({}));
+                    const errors = data.errors ?? {};
+                    const firstError = Object.values(errors)[0]?.[0] ?? 'Date invalide.';
+                    showFeedback(firstError, 'error');
+                    return;
+                }
+
+                if (!response.ok) {
+                    throw new Error('Request failed');
+                }
+
+                const payload = await response.json();
+
+                const readableDate = payload.readable_date ?? '';
+                const formattedDate = payload.formatted_date ?? '';
+                const faraExpirare = Boolean(payload.fara_expirare);
+
+                if (dateText) {
+                    let displayValue = readableDate;
+
+                    if (!displayValue) {
+                        displayValue = faraExpirare ? noExpiryLabel : emptyLabel;
+                    }
+
+                    dateText.textContent = displayValue;
+                }
+
+                if (dateInput) {
+                    dateInput.value = formattedDate;
+                }
+
+                if (checkbox) {
+                    checkbox.checked = faraExpirare;
+                }
+
+                syncState();
+                rememberOriginalValues();
+                updateColorClass(payload.color_class ?? '');
+
+                if (payload.message) {
+                    showFeedback(payload.message, 'success');
+                } else {
+                    clearFeedback();
+                }
+
+                setEditing(false);
+            } catch (error) {
+                console.error('Document update failed', error);
+                showFeedback('A apărut o eroare. Reîncearcă.', 'error');
+            } finally {
+                isSubmitting = false;
+            }
+        };
+
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+            submitForm();
+        });
+
+        if (saveButton) {
+            saveButton.addEventListener('click', (event) => {
+                event.preventDefault();
+                submitForm();
+            });
+        }
+
+        if (cancelButton) {
+            cancelButton.addEventListener('click', (event) => {
+                event.preventDefault();
+
+                if (isSubmitting) {
+                    return;
+                }
+
+                resetToOriginal();
+                clearFeedback();
+                setEditing(false);
+            });
+        }
+
+        if (editTrigger) {
+            editTrigger.addEventListener('click', () => {
+                if (isEditing) {
+                    resetToOriginal();
+                    clearFeedback();
+                    setEditing(false);
+                    return;
+                }
+
+                rememberOriginalValues();
+                clearFeedback();
+                setEditing(true);
+
+                if (checkbox?.checked) {
+                    checkbox.focus();
+                } else if (dateInput) {
+                    dateInput.focus();
+
+                    if (typeof dateInput.showPicker === 'function') {
+                        try {
+                            dateInput.showPicker();
+                        } catch (error) {
+                            // Ignore showPicker errors in unsupported browsers
+                        }
+                    }
+                }
+            });
+        }
+
+        setEditing(false);
+    });
+
+    document.querySelectorAll('[data-no-expiry-container]').forEach((container) => {
+        if (container.closest('[data-document-update]')) {
+            return;
+        }
+
+        initializeNoExpiryControls(container);
+    });
 });
 
 document.addEventListener('DOMContentLoaded', () => {
