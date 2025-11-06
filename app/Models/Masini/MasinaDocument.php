@@ -26,6 +26,7 @@ class MasinaDocument extends Model
         'tara',
         'data_expirare',
         'email_notificare',
+        'fara_expirare',
     ];
 
     protected $casts = [
@@ -34,6 +35,7 @@ class MasinaDocument extends Model
         'notificare_30_trimisa' => 'boolean',
         'notificare_15_trimisa' => 'boolean',
         'notificare_1_trimisa' => 'boolean',
+        'fara_expirare' => 'boolean',
     ];
 
     public function masina()
@@ -196,7 +198,11 @@ class MasinaDocument extends Model
 
     public function colorClass(): string
     {
-        if (!$this->data_expirare) {
+        if ($this->isWithoutExpiry()) {
+            return 'bg-secondary-subtle';
+        }
+
+        if (!$this->hasExpiryDate()) {
             return 'bg-secondary-subtle';
         }
 
@@ -227,11 +233,39 @@ class MasinaDocument extends Model
 
     public function daysUntilExpiry(): ?int
     {
-        if (!$this->data_expirare) {
+        if (!$this->hasExpiryDate()) {
             return null;
         }
 
         return Carbon::now()->startOfDay()->diffInDays($this->data_expirare, false);
+    }
+
+    public function hasExpiryDate(): bool
+    {
+        return !$this->fara_expirare && $this->data_expirare !== null;
+    }
+
+    public function isWithoutExpiry(): bool
+    {
+        return (bool) $this->fara_expirare;
+    }
+
+    public function formattedExpiryDate(): ?string
+    {
+        if (!$this->hasExpiryDate()) {
+            return null;
+        }
+
+        return $this->data_expirare?->format('Y-m-d');
+    }
+
+    public function readableExpiryDate(): string
+    {
+        if ($this->isWithoutExpiry()) {
+            return 'FĂRĂ';
+        }
+
+        return $this->data_expirare?->format('d.m.Y') ?? '—';
     }
 
     public static function notificationThresholds(): array
