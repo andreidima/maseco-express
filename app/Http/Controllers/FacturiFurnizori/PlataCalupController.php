@@ -109,13 +109,13 @@ class PlataCalupController extends Controller
         $plataCalup->load([
             'facturi' => fn ($query) => $query
                 ->with('fisiere')
+                ->orderByRaw('denumire_furnizor IS NULL')
+                ->orderBy('denumire_furnizor')
                 ->orderByRaw('data_scadenta IS NULL')
                 ->orderBy('data_scadenta'),
         ]);
 
-        $facturiCalup = $plataCalup->facturi
-            ->sortBy(fn (FacturaFurnizor $factura) => $factura->data_scadenta?->timestamp ?? PHP_INT_MAX)
-            ->values();
+        $facturiCalup = $plataCalup->facturi->values();
 
         $facturiCalup->load('fisiere');
 
