@@ -594,6 +594,56 @@ class MasiniMementouriTest extends TestCase
         );
     }
 
+    public function test_document_file_upload_can_mark_document_without_expiry(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake(MasinaDocumentFisier::STORAGE_DISK);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'data_expirare' => Carbon::now()->addDays(25)->toDateString(),
+            'fara_expirare' => false,
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $file = UploadedFile::fake()->create('atestat.pdf', 128, 'application/pdf');
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
+            ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), [
+                'data_expirare' => '',
+                'fara_expirare' => '1',
+                'fisier' => [$file],
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
+        $response->assertSessionHas('status', 'Fișierul a fost încărcat.');
+
+        $document->refresh();
+
+        $this->assertTrue($document->isWithoutExpiry());
+        $this->assertNull($document->data_expirare);
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+
+        Storage::disk(MasinaDocumentFisier::STORAGE_DISK)->assertExists(
+            MasinaDocumentFisier::STORAGE_DIRECTORY . '/' . $document->id . '/' . $file->hashName()
+        );
+    }
+
     public function test_document_file_upload_via_standard_form_redirects_to_edit_page(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
