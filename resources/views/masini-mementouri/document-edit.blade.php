@@ -42,9 +42,6 @@
                                   enctype="multipart/form-data">
                                 @csrf
 
-                                @php
-                                    $faraExpirare = old('fara_expirare', $document->fara_expirare) ? true : false;
-                                @endphp
                                 <div class="mb-3" data-no-expiry-container>
                                     <label class="form-label" for="data_expirare">Dată expirare</label>
                                     <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -53,6 +50,7 @@
                                                name="data_expirare"
                                                class="form-control rounded-3"
                                                value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}"
+                                               @disabled(old('fara_expirare', $document->fara_expirare))
                                                data-date-input>
                                         <div class="form-check mb-0">
                                             <input type="hidden" name="fara_expirare" value="0" data-no-expiry-hidden>
@@ -61,7 +59,7 @@
                                                    id="fara_expirare"
                                                    name="fara_expirare"
                                                    value="1"
-                                                   {{ $faraExpirare ? 'checked' : '' }}
+                                                   @checked(old('fara_expirare', $document->fara_expirare))
                                                    data-no-expiry-toggle>
                                             <label class="form-check-label" for="fara_expirare">Fără expirare</label>
                                         </div>
