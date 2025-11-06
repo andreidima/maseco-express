@@ -185,7 +185,7 @@ class MasiniMementouriTest extends TestCase
         $this->assertSame($document->colorClass(), $response->json('color_class'));
         $this->assertSame($document->daysUntilExpiry(), $response->json('days_until_expiry'));
         $this->assertSame($document->data_expirare?->format('Y-m-d'), $response->json('formatted_date'));
-        $this->assertSame($document->data_expirare?->format('d.m.Y'), $response->json('readable_date'));
+        $this->assertSame($document->readableExpiryDate(), $response->json('readable_date'));
     }
 
     public function test_document_inline_update_preserves_notifications_when_date_is_unchanged(): void
@@ -250,7 +250,7 @@ class MasiniMementouriTest extends TestCase
         $response->assertJson([
             'status' => 'ok',
             'formatted_date' => null,
-            'readable_date' => null,
+            'readable_date' => '—',
             'color_class' => 'bg-secondary-subtle',
         ]);
 
@@ -261,6 +261,92 @@ class MasiniMementouriTest extends TestCase
         $this->assertFalse($document->notificare_30_trimisa);
         $this->assertFalse($document->notificare_15_trimisa);
         $this->assertFalse($document->notificare_1_trimisa);
+    }
+
+    public function test_document_inline_update_can_mark_document_without_expiry(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->where('document_type', MasinaDocument::TYPE_VIGNETA)->first();
+
+        $document->update([
+            'data_expirare' => Carbon::now()->addDays(12)->toDateString(),
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patchJson(route('masini-mementouri.documente.update', [$masina, $document]), [
+                'fara_expirare' => true,
+            ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'status' => 'ok',
+            'formatted_date' => null,
+            'readable_date' => 'FĂRĂ',
+            'fara_expirare' => true,
+        ]);
+
+        $document->refresh();
+
+        $this->assertTrue($document->isWithoutExpiry());
+        $this->assertNull($document->data_expirare);
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+        $this->assertSame($document->colorClass(), $response->json('color_class'));
+    }
+
+    public function test_document_inline_update_can_restore_expiry_after_marking_without_expiry(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->where('document_type', MasinaDocument::TYPE_ITP)->first();
+
+        $document->update([
+            'fara_expirare' => true,
+            'data_expirare' => null,
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $newDate = Carbon::now()->addDays(45)->toDateString();
+
+        $response = $this
+            ->actingAs($user)
+            ->patchJson(route('masini-mementouri.documente.update', [$masina, $document]), [
+                'fara_expirare' => false,
+                'data_expirare' => $newDate,
+            ]);
+
+        $response->assertOk();
+        $response->assertJson([
+            'status' => 'ok',
+            'formatted_date' => $newDate,
+            'readable_date' => Carbon::parse($newDate)->format('d.m.Y'),
+            'fara_expirare' => false,
+        ]);
+
+        $document->refresh();
+
+        $this->assertFalse($document->isWithoutExpiry());
+        $this->assertSame($newDate, optional($document->data_expirare)->toDateString());
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+        $this->assertSame($document->colorClass(), $response->json('color_class'));
     }
 
     public function test_document_inline_update_handles_invalid_payloads(): void
@@ -323,6 +409,46 @@ class MasiniMementouriTest extends TestCase
 
         $this->assertSame($newDate, optional($document->data_expirare)->toDateString());
         $this->assertSame('alerts@example.com', $document->email_notificare);
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+    }
+
+    public function test_document_update_via_standard_form_can_mark_document_without_expiry(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B90FARA']);
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'data_expirare' => Carbon::now()->addDays(20)->toDateString(),
+            'email_notificare' => 'initial@example.com',
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.edit', $masina))
+            ->patch(route('masini-mementouri.documente.update', [$masina, $document]), [
+                'data_expirare' => '',
+                'fara_expirare' => '1',
+                'email_notificare' => 'final@example.com',
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.edit', $masina));
+        $response->assertSessionHas('status', 'Documentul a fost actualizat.');
+
+        $document->refresh();
+
+        $this->assertTrue($document->isWithoutExpiry());
+        $this->assertNull($document->data_expirare);
+        $this->assertSame('final@example.com', $document->email_notificare);
         $this->assertFalse($document->notificare_60_trimisa);
         $this->assertFalse($document->notificare_30_trimisa);
         $this->assertFalse($document->notificare_15_trimisa);
@@ -458,6 +584,56 @@ class MasiniMementouriTest extends TestCase
 
         $document->refresh();
         $this->assertSame($newDate, optional($document->data_expirare)->toDateString());
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+
+        Storage::disk(MasinaDocumentFisier::STORAGE_DISK)->assertExists(
+            MasinaDocumentFisier::STORAGE_DIRECTORY . '/' . $document->id . '/' . $file->hashName()
+        );
+    }
+
+    public function test_document_file_upload_can_mark_document_without_expiry(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake(MasinaDocumentFisier::STORAGE_DISK);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'data_expirare' => Carbon::now()->addDays(25)->toDateString(),
+            'fara_expirare' => false,
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $file = UploadedFile::fake()->create('atestat.pdf', 128, 'application/pdf');
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
+            ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), [
+                'data_expirare' => '',
+                'fara_expirare' => '1',
+                'fisier' => [$file],
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
+        $response->assertSessionHas('status', 'Fișierul a fost încărcat.');
+
+        $document->refresh();
+
+        $this->assertTrue($document->isWithoutExpiry());
+        $this->assertNull($document->data_expirare);
         $this->assertFalse($document->notificare_60_trimisa);
         $this->assertFalse($document->notificare_30_trimisa);
         $this->assertFalse($document->notificare_15_trimisa);

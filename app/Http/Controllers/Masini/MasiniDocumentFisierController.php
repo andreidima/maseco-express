@@ -41,9 +41,12 @@ class MasiniDocumentFisierController extends Controller
         $dateProvided = $request->has('data_expirare');
         $rawDate = $dateProvided ? $request->input('data_expirare') : null;
         $normalizedDate = $rawDate === '' ? null : $rawDate;
+        $rawNoExpiry = $request->input('fara_expirare');
+        $incomingNoExpiry = filter_var($rawNoExpiry, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
 
         $payload = [
             'fisier' => $files,
+            'fara_expirare' => $rawNoExpiry,
         ];
 
         if ($dateProvided) {
@@ -54,15 +57,20 @@ class MasiniDocumentFisierController extends Controller
             'fisier' => ['required', 'array', 'min:1'],
             'fisier.*' => ['file', 'mimes:pdf', 'max:51200'],
             'data_expirare' => ['nullable', 'date'],
+            'fara_expirare' => ['nullable', 'boolean'],
         ]);
 
-        $validator->after(function ($validator) use ($document, $dateProvided, $normalizedDate, $files) {
-            if (!$dateProvided) {
+        $validator->after(function ($validator) use ($document, $dateProvided, $normalizedDate, $files, $incomingNoExpiry) {
+            if (!$dateProvided && !$incomingNoExpiry && !$document->fara_expirare) {
                 return;
             }
 
             $currentDate = optional($document->data_expirare)->format('Y-m-d');
             $incomingDate = $normalizedDate ? Carbon::parse($normalizedDate)->format('Y-m-d') : null;
+
+            if ($incomingNoExpiry) {
+                $incomingDate = null;
+            }
 
             if ($incomingDate !== $currentDate && count($files) === 0) {
                 $validator->errors()->add('data_expirare', __('Pentru a modifica data expirării este necesar să atașezi cel puțin un fișier.'));
@@ -86,15 +94,40 @@ class MasiniDocumentFisierController extends Controller
         $files = $validated['fisier'] ?? [];
 
         $shouldResetNotifications = false;
+        $currentDate = $document->data_expirare ? $document->data_expirare->copy()->startOfDay() : null;
+        $faraExpirare = array_key_exists('fara_expirare', $validated)
+            ? (bool) $validated['fara_expirare']
+            : (bool) $document->fara_expirare;
 
-        if ($dateProvided) {
-            $incomingDate = $normalizedDate ? Carbon::parse($normalizedDate)->startOfDay() : null;
-            $currentDate = $document->data_expirare ? $document->data_expirare->copy()->startOfDay() : null;
+        $incomingDate = $currentDate;
 
-            if (($incomingDate?->ne($currentDate) ?? ($currentDate !== null))) {
+        if ($faraExpirare) {
+            $incomingDate = null;
+        } elseif (array_key_exists('data_expirare', $validated)) {
+            $incomingDate = $validated['data_expirare']
+                ? Carbon::parse($validated['data_expirare'])->startOfDay()
+                : null;
+        }
+
+        if ($faraExpirare !== (bool) $document->fara_expirare) {
+            $shouldResetNotifications = true;
+        }
+
+        if (!$faraExpirare && array_key_exists('data_expirare', $validated)) {
+            if ($incomingDate?->ne($currentDate) ?? $currentDate !== null) {
                 $shouldResetNotifications = true;
             }
+        }
 
+        if ($faraExpirare && $currentDate !== null) {
+            $shouldResetNotifications = true;
+        }
+
+        $document->fara_expirare = $faraExpirare;
+
+        if ($faraExpirare) {
+            $document->data_expirare = null;
+        } elseif (array_key_exists('data_expirare', $validated)) {
             $document->data_expirare = $incomingDate?->toDateString();
         }
 
@@ -105,7 +138,7 @@ class MasiniDocumentFisierController extends Controller
             $document->notificare_1_trimisa = false;
         }
 
-        if ($dateProvided && ($document->isDirty('data_expirare') || $shouldResetNotifications)) {
+        if ($document->isDirty(['data_expirare', 'fara_expirare']) || $shouldResetNotifications) {
             $document->save();
         }
 
