@@ -644,6 +644,41 @@ class MasiniMementouriTest extends TestCase
         );
     }
 
+    public function test_document_file_upload_can_mark_document_without_expiry_without_files(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake(MasinaDocumentFisier::STORAGE_DISK);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'data_expirare' => Carbon::now()->addDays(25)->toDateString(),
+            'fara_expirare' => false,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
+            ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), [
+                'data_expirare' => '',
+                'fara_expirare' => '1',
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
+        $response->assertSessionHas('status', 'Documentul a fost actualizat.');
+
+        $document->refresh();
+
+        $this->assertTrue($document->isWithoutExpiry());
+        $this->assertNull($document->data_expirare);
+    }
+
     public function test_document_file_upload_via_standard_form_redirects_to_edit_page(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
