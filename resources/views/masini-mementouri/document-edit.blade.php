@@ -82,6 +82,26 @@
                                     </button>
                                 </div>
                             </form>
+
+                            <div class="border-top pt-3 mt-4">
+                                @if ($document->fara_expirare)
+                                    <div class="alert alert-info border border-info-subtle rounded-4 mb-0">
+                                        Documentul este marcat fără expirare.
+                                    </div>
+                                @else
+                                    <form method="POST"
+                                          action="{{ route('masini-mementouri.documente.update', [$masina, $document]) }}"
+                                          class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="fara_expirare" value="1">
+                                        <span class="text-muted">Nu este nevoie de fișier pentru a marca documentul fără expirare.</span>
+                                        <button type="submit" class="btn btn-outline-primary border border-dark rounded-3">
+                                            <i class="fa-solid fa-infinity me-1"></i>Fără expirare
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>
