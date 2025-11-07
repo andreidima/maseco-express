@@ -45,11 +45,27 @@
             font-weight: 600;
         }
 
+        /* Let the wrapper scroll vertically, not hide it */
+        .table-responsive.table-sticky {
+            /* Bootstrap sets overflow-y: hidden; override it */
+            overflow-y: auto;
+            /* keep horizontal responsiveness */
+            overflow-x: auto;
+            /* pick a height you like */
+            max-height: 65vh;
+        }
+
+        /* Make the header actually sticky */
         .masini-mementouri-table thead th {
             position: sticky;
-            top: 0;
-            z-index: 2;
-            background-color: inherit;
+            top: 0;            /* adjust if you have a fixed navbar */
+            z-index: 5;        /* above row backgrounds */
+            background-color: inherit; /* use the thead’s bg (your .culoare2) */
+        }
+
+        /* Ensure the thead really has a solid bg to inherit */
+        .masini-mementouri-table thead {
+            background-color: inherit; /* if .culoare2 sets a bg, this is fine */
         }
     </style>
 @endpush
@@ -107,10 +123,10 @@
             $columnCount = 2 + count($gridDocumentTypes) + count($vignetteCountries) + 1;
         @endphp
 
-        <div class="table-responsive rounded">
+        <div class="table-responsive rounded table-sticky">
             <table class="table table-striped table-hover align-middle table-sm mb-0 masini-mementouri-table">
-                <thead class="text-white rounded culoare2">
-                    <tr>
+                <thead class="text-white rounded">
+                    <tr class="culoare2">
                         <th>#</th>
                         <th>Număr auto</th>
                         @foreach ($gridDocumentTypes as $label)
