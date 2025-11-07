@@ -42,7 +42,7 @@
                                   enctype="multipart/form-data">
                                 @csrf
 
-                                <div class="mb-3">
+                                <div class="mb-3" data-no-expiry-container>
                                     <label class="form-label" for="data_expirare">Dată expirare</label>
                                     <div class="d-flex align-items-center gap-3 flex-wrap">
                                         <input type="date"
