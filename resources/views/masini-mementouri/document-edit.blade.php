@@ -35,8 +35,26 @@
                     <div class="card border border-secondary-subtle rounded-4 h-100">
                         <div class="card-header rounded-4 d-flex justify-content-between align-items-center">
                             <span class="fw-semibold">Actualizează documentul</span>
+                            @if (! $document->fara_expirare)
+                                <form method="POST"
+                                      action="{{ route('masini-mementouri.documente.update', [$masina, $document]) }}"
+                                      class="mb-0">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="fara_expirare" value="1">
+                                    <button type="submit" class="btn btn-outline-primary border border-dark rounded-3">
+                                        <i class="fa-solid fa-infinity me-1"></i>Fără expirare
+                                    </button>
+                                </form>
+                            @endif
                         </div>
                         <div class="card-body">
+                            @if ($document->fara_expirare)
+                                <div class="alert alert-info border border-info-subtle rounded-4 mb-4">
+                                    Documentul este marcat fără expirare.
+                                </div>
+                            @endif
+
                             <form method="POST"
                                   action="{{ route('masini-mementouri.documente.fisiere.store', [$masina, $document]) }}"
                                   enctype="multipart/form-data">

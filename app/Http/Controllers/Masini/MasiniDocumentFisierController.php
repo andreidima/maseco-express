@@ -54,8 +54,6 @@ class MasiniDocumentFisierController extends Controller
 
         $shouldRelaxFileRequirement = $incomingNoExpiry && count($files) === 0;
 
-        $shouldRelaxFileRequirement = $incomingNoExpiry && count($files) === 0;
-
         $payload = [
             'fisier' => $shouldRelaxFileRequirement ? null : $files,
             'fara_expirare' => $incomingNoExpiry,
