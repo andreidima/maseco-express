@@ -44,6 +44,13 @@
             padding: 0.35rem 0.75rem;
             font-weight: 600;
         }
+
+        .masini-mementouri-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background-color: inherit;
+        }
     </style>
 @endpush
 
@@ -101,7 +108,7 @@
         @endphp
 
         <div class="table-responsive rounded">
-            <table class="table table-striped table-hover align-middle table-sm mb-0">
+            <table class="table table-striped table-hover align-middle table-sm mb-0 masini-mementouri-table">
                 <thead class="text-white rounded culoare2">
                     <tr>
                         <th>#</th>
