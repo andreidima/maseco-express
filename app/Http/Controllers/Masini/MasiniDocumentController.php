@@ -40,23 +40,45 @@ class MasiniDocumentController extends Controller
 
         abort_unless($document->masina_id === $masina->id, 404);
 
+        if ($request->boolean('fara_expirare')) {
+            $request->merge(['data_expirare' => null]);
+        }
+
         $validated = $request->validate([
             'data_expirare' => ['nullable', 'date'],
             'email_notificare' => ['nullable', 'email:rfc'],
+            'fara_expirare' => ['sometimes', 'boolean'],
         ]);
 
+        $currentDate = $document->data_expirare ? $document->data_expirare->copy()->startOfDay() : null;
         $shouldResetNotifications = false;
 
-        if (array_key_exists('data_expirare', $validated)) {
-            $incomingDate = $validated['data_expirare'] ? Carbon::parse($validated['data_expirare'])->startOfDay() : null;
-            $currentDate = $document->data_expirare ? $document->data_expirare->copy()->startOfDay() : null;
+        $faraExpirare = (bool) ($validated['fara_expirare'] ?? $document->fara_expirare);
+        $validated['fara_expirare'] = $faraExpirare;
 
+        $incomingDate = null;
+
+        if (!$faraExpirare && array_key_exists('data_expirare', $validated)) {
+            $incomingDate = $validated['data_expirare']
+                ? Carbon::parse($validated['data_expirare'])->startOfDay()
+                : null;
+        }
+
+        if ($faraExpirare) {
+            $validated['data_expirare'] = null;
+        }
+
+        if ($faraExpirare !== (bool) $document->fara_expirare) {
+            $shouldResetNotifications = true;
+        }
+
+        if (!$faraExpirare && array_key_exists('data_expirare', $validated)) {
             if ($incomingDate?->ne($currentDate) ?? $currentDate !== null) {
                 $shouldResetNotifications = true;
             }
         }
 
-        $document->fill(Arr::only($validated, ['data_expirare', 'email_notificare']));
+        $document->fill(Arr::only($validated, ['data_expirare', 'email_notificare', 'fara_expirare']));
 
         if ($shouldResetNotifications) {
             $document->notificare_60_trimisa = false;
@@ -74,8 +96,9 @@ class MasiniDocumentController extends Controller
                 'status' => 'ok',
                 'color_class' => $document->colorClass(),
                 'days_until_expiry' => $document->daysUntilExpiry(),
-                'formatted_date' => $document->data_expirare?->format('Y-m-d'),
-                'readable_date' => $document->data_expirare?->format('d.m.Y'),
+                'formatted_date' => $document->formattedExpiryDate(),
+                'readable_date' => $document->readableExpiryDate(),
+                'fara_expirare' => $document->isWithoutExpiry(),
                 'message' => __('Modificarea a fost salvată.'),
             ]);
         }

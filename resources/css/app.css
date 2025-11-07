@@ -85,6 +85,18 @@
     outline-offset: 2px;
 }
 
+.document-inline-controls {
+    width: 100%;
+}
+
+.document-inline-controls .form-control {
+    min-width: 150px;
+}
+
+.document-inline-controls .form-check-label {
+    white-space: nowrap;
+}
+
 .bg-expiring-15 {
     background-color: #fd7e14 !important;
     color: #fff !important;

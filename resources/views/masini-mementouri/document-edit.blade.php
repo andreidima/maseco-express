@@ -44,11 +44,22 @@
 
                                 <div class="mb-3">
                                     <label class="form-label" for="data_expirare">Dată expirare</label>
-                                    <input type="date"
-                                           id="data_expirare"
-                                           name="data_expirare"
-                                           class="form-control rounded-3"
-                                           value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}">
+                                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                                        <input type="date"
+                                               id="data_expirare"
+                                               name="data_expirare"
+                                               class="form-control rounded-3"
+                                               value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}">
+                                        <div class="form-check mb-0">
+                                            <input type="checkbox"
+                                                   class="form-check-input"
+                                                   id="fara_expirare"
+                                                   name="fara_expirare"
+                                                   value="1"
+                                                   @checked(old('fara_expirare', $document->fara_expirare))>
+                                            <label class="form-check-label" for="fara_expirare">Fără expirare</label>
+                                        </div>
+                                    </div>
                                     <small class="text-muted">Modificarea datei necesită încărcarea unui fișier în același timp.</small>
                                 </div>
 
