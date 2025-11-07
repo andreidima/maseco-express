@@ -42,28 +42,13 @@
                                   enctype="multipart/form-data">
                                 @csrf
 
-                                <div class="mb-3" data-no-expiry-container>
-                                    <div class="row g-3 align-items-end">
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label" for="data_expirare">Dată expirare</label>
-                                            <input type="date"
-                                                   id="data_expirare"
-                                                   name="data_expirare"
-                                                   class="form-control rounded-3"
-                                                   value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}">
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <div class="form-check d-flex align-items-center gap-2 mb-0">
-                                                <input type="checkbox"
-                                                       class="form-check-input"
-                                                       id="fara_expirare"
-                                                       name="fara_expirare"
-                                                       value="1"
-                                                       @checked(old('fara_expirare', $document->fara_expirare))>
-                                                <label class="form-check-label" for="fara_expirare">Fără expirare</label>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <div class="mb-3">
+                                    <label class="form-label" for="data_expirare">Dată expirare</label>
+                                    <input type="date"
+                                           id="data_expirare"
+                                           name="data_expirare"
+                                           class="form-control rounded-3"
+                                           value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}">
                                     <small class="text-muted">Modificarea datei necesită încărcarea unui fișier în același timp.</small>
                                 </div>
 
@@ -79,6 +64,26 @@
                                     </button>
                                 </div>
                             </form>
+
+                            <div class="border-top pt-3 mt-4">
+                                @if ($document->fara_expirare)
+                                    <div class="alert alert-info border border-info-subtle rounded-4 mb-0">
+                                        Documentul este marcat fără expirare.
+                                    </div>
+                                @else
+                                    <form method="POST"
+                                          action="{{ route('masini-mementouri.documente.update', [$masina, $document]) }}"
+                                          class="d-flex flex-column flex-sm-row gap-2 align-items-sm-center">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="fara_expirare" value="1">
+                                        <span class="text-muted">Nu este nevoie de fișier pentru a marca documentul fără expirare.</span>
+                                        <button type="submit" class="btn btn-outline-primary border border-dark rounded-3">
+                                            <i class="fa-solid fa-infinity me-1"></i>Fără expirare
+                                        </button>
+                                    </form>
+                                @endif
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -42,13 +42,23 @@ class MasiniDocumentFisierController extends Controller
         $rawDate = $dateProvided ? $request->input('data_expirare') : null;
         $normalizedDate = $rawDate === '' ? null : $rawDate;
         $rawNoExpiry = $request->input('fara_expirare');
-        $incomingNoExpiry = filter_var($rawNoExpiry, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+        $incomingNoExpiry = (bool) $document->fara_expirare;
+
+        if ($rawNoExpiry !== null) {
+            $incomingNoExpiry = filter_var($rawNoExpiry, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
+        }
+
+        if ($normalizedDate !== null) {
+            $incomingNoExpiry = false;
+        }
+
+        $shouldRelaxFileRequirement = $incomingNoExpiry && count($files) === 0;
 
         $shouldRelaxFileRequirement = $incomingNoExpiry && count($files) === 0;
 
         $payload = [
             'fisier' => $shouldRelaxFileRequirement ? null : $files,
-            'fara_expirare' => $rawNoExpiry,
+            'fara_expirare' => $incomingNoExpiry,
         ];
 
         if ($dateProvided) {
@@ -102,6 +112,10 @@ class MasiniDocumentFisierController extends Controller
 
         $validated = $validator->validated();
         $files = $validated['fisier'] ?? [];
+
+        if (!is_array($files)) {
+            $files = [];
+        }
 
         $shouldResetNotifications = false;
         $currentDate = $document->data_expirare ? $document->data_expirare->copy()->startOfDay() : null;
