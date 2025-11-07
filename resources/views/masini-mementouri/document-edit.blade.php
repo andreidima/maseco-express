@@ -70,7 +70,7 @@
                                 <div class="mb-3">
                                     <label class="form-label" for="fisier">Selectează fișiere (PDF)</label>
                                     <input type="file" id="fisier" name="fisier[]" class="form-control rounded-3"
-                                           accept="application/pdf" multiple required>
+                                           accept="application/pdf" multiple>
                                 </div>
 
                                 <div class="text-end">

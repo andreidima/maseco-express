@@ -44,8 +44,10 @@ class MasiniDocumentFisierController extends Controller
         $rawNoExpiry = $request->input('fara_expirare');
         $incomingNoExpiry = filter_var($rawNoExpiry, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) ?? false;
 
+        $shouldRelaxFileRequirement = $incomingNoExpiry && count($files) === 0;
+
         $payload = [
-            'fisier' => $files,
+            'fisier' => $shouldRelaxFileRequirement ? null : $files,
             'fara_expirare' => $rawNoExpiry,
         ];
 
@@ -54,23 +56,31 @@ class MasiniDocumentFisierController extends Controller
         }
 
         $validator = Validator::make($payload, [
-            'fisier' => ['required', 'array', 'min:1'],
+            'fisier' => ['nullable', 'array'],
             'fisier.*' => ['file', 'mimes:pdf', 'max:51200'],
             'data_expirare' => ['nullable', 'date'],
             'fara_expirare' => ['nullable', 'boolean'],
         ]);
 
         $validator->after(function ($validator) use ($document, $dateProvided, $normalizedDate, $files, $incomingNoExpiry) {
-            if (!$dateProvided && !$incomingNoExpiry && !$document->fara_expirare) {
+            if ($incomingNoExpiry) {
+                return;
+            }
+
+            if (count($files) === 0) {
+                $validator->errors()->add('fisier', __('Te rugăm să încarci cel puțin un fișier.'));
+
+                if (!$dateProvided && !$document->fara_expirare) {
+                    return;
+                }
+            }
+
+            if (!$dateProvided && !$document->fara_expirare) {
                 return;
             }
 
             $currentDate = optional($document->data_expirare)->format('Y-m-d');
             $incomingDate = $normalizedDate ? Carbon::parse($normalizedDate)->format('Y-m-d') : null;
-
-            if ($incomingNoExpiry) {
-                $incomingDate = null;
-            }
 
             if ($incomingDate !== $currentDate && count($files) === 0) {
                 $validator->errors()->add('data_expirare', __('Pentru a modifica data expirării este necesar să atașezi cel puțin un fișier.'));
@@ -158,9 +168,13 @@ class MasiniDocumentFisierController extends Controller
             $storedCount++;
         }
 
-        $message = $storedCount === 1
-            ? __('Fișierul a fost încărcat.')
-            : __('Fișierele au fost încărcate.');
+        if ($storedCount === 0) {
+            $message = __('Documentul a fost actualizat.');
+        } elseif ($storedCount === 1) {
+            $message = __('Fișierul a fost încărcat.');
+        } else {
+            $message = __('Fișierele au fost încărcate.');
+        }
 
         if ($request->expectsJson()) {
             $document->load('fisiere');
