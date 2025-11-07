@@ -43,7 +43,7 @@
                                 @csrf
 
                                 <div class="mb-3" data-no-expiry-container>
-                                    <div class="row g-3 align-items-center">
+                                    <div class="row g-3 align-items-end">
                                         <div class="col-12 col-md-6">
                                             <label class="form-label" for="data_expirare">Dată expirare</label>
                                             <input type="date"
