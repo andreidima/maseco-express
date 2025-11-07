@@ -35,50 +35,59 @@
                     <div class="card border border-secondary-subtle rounded-4 h-100">
                         <div class="card-header rounded-4 d-flex justify-content-between align-items-center">
                             <span class="fw-semibold">Actualizează documentul</span>
+                            <form method="POST"
+                                  action="{{ route('masini-mementouri.documente.update', [$masina, $document]) }}"
+                                  class="mb-0">
+                                @csrf
+                                @method('PATCH')
+
+                                @if ($document->fara_expirare)
+                                    <input type="hidden" name="fara_expirare" value="0">
+                                    <button type="submit" class="btn btn-outline-secondary border border-dark rounded-3">
+                                        <i class="fa-solid fa-rotate-left me-1"></i>Anulează fără expirare
+                                    </button>
+                                @else
+                                    <input type="hidden" name="fara_expirare" value="1">
+                                    <button type="submit" class="btn btn-outline-primary border border-dark rounded-3">
+                                        <i class="fa-solid fa-infinity me-1"></i>Fără expirare
+                                    </button>
+                                @endif
+                            </form>
                         </div>
                         <div class="card-body">
-                            <form method="POST"
-                                  action="{{ route('masini-mementouri.documente.fisiere.store', [$masina, $document]) }}"
-                                  enctype="multipart/form-data">
-                                @csrf
+                            @if ($document->fara_expirare)
+                                <div class="alert alert-info border border-info-subtle rounded-4 mb-0">
+                                    Documentul este marcat fără expirare.
+                                </div>
+                            @else
+                                <form method="POST"
+                                      action="{{ route('masini-mementouri.documente.fisiere.store', [$masina, $document]) }}"
+                                      enctype="multipart/form-data">
+                                    @csrf
 
-                                <div class="mb-3" data-no-expiry-container>
-                                    <div class="row g-3 align-items-end">
-                                        <div class="col-12 col-md-6">
-                                            <label class="form-label" for="data_expirare">Dată expirare</label>
-                                            <input type="date"
-                                                   id="data_expirare"
-                                                   name="data_expirare"
-                                                   class="form-control rounded-3"
-                                                   value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}">
-                                        </div>
-                                        <div class="col-12 col-md-6">
-                                            <div class="form-check d-flex align-items-center gap-2 mb-0">
-                                                <input type="checkbox"
-                                                       class="form-check-input"
-                                                       id="fara_expirare"
-                                                       name="fara_expirare"
-                                                       value="1"
-                                                       @checked(old('fara_expirare', $document->fara_expirare))>
-                                                <label class="form-check-label" for="fara_expirare">Fără expirare</label>
-                                            </div>
-                                        </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="data_expirare">Dată expirare</label>
+                                        <input type="date"
+                                               id="data_expirare"
+                                               name="data_expirare"
+                                               class="form-control rounded-3"
+                                               value="{{ old('data_expirare', optional($document->data_expirare)->format('Y-m-d')) }}">
+                                        <small class="text-muted">Modificarea datei necesită încărcarea unui fișier în același timp.</small>
                                     </div>
-                                    <small class="text-muted">Modificarea datei necesită încărcarea unui fișier în același timp.</small>
-                                </div>
 
-                                <div class="mb-3">
-                                    <label class="form-label" for="fisier">Selectează fișiere (PDF)</label>
-                                    <input type="file" id="fisier" name="fisier[]" class="form-control rounded-3"
-                                           accept="application/pdf" multiple required>
-                                </div>
+                                    <div class="mb-3">
+                                        <label class="form-label" for="fisier">Selectează fișiere (PDF)</label>
+                                        <input type="file" id="fisier" name="fisier[]" class="form-control rounded-3"
+                                               accept="application/pdf" multiple>
+                                    </div>
 
-                                <div class="text-end">
-                                    <button type="submit" class="btn btn-success text-white border border-dark rounded-3">
-                                        <i class="fa-solid fa-floppy-disk me-1"></i>Salvează documentul
-                                    </button>
-                                </div>
-                            </form>
+                                    <div class="text-end">
+                                        <button type="submit" class="btn btn-success text-white border border-dark rounded-3">
+                                            <i class="fa-solid fa-floppy-disk me-1"></i>Salvează documentul
+                                        </button>
+                                    </div>
+                                </form>
+                            @endif
                         </div>
                     </div>
                 </div>

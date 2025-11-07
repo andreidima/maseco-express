@@ -138,6 +138,48 @@ class MasiniMementouriTest extends TestCase
         $response->assertSee($document->data_expirare->format('d.m.Y'));
     }
 
+    public function test_document_edit_page_displays_form_when_document_has_expiry(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B12FORM']);
+        $document = $masina->documente()->first();
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.documente.edit', [$masina, $document]));
+
+        $response->assertOk();
+        $response->assertSee('Fără expirare');
+        $response->assertSee('name="data_expirare"', false);
+        $response->assertSee('Salvează documentul');
+    }
+
+    public function test_document_edit_page_hides_form_when_document_is_without_expiry(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B34FREE']);
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'fara_expirare' => true,
+            'data_expirare' => null,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.documente.edit', [$masina, $document]));
+
+        $response->assertOk();
+        $response->assertSee('Anulează fără expirare');
+        $response->assertSee('Documentul este marcat fără expirare.');
+        $response->assertDontSee('name="data_expirare"', false);
+        $response->assertDontSee('Salvează documentul');
+    }
+
     public function test_document_inline_update_returns_json_and_resets_notifications(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
@@ -594,56 +636,6 @@ class MasiniMementouriTest extends TestCase
         );
     }
 
-    public function test_document_file_upload_can_mark_document_without_expiry(): void
-    {
-        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
-
-        Storage::fake(MasinaDocumentFisier::STORAGE_DISK);
-
-        $user = User::factory()->create();
-        $masina = Masina::factory()->create();
-        $document = $masina->documente()->first();
-
-        $document->update([
-            'data_expirare' => Carbon::now()->addDays(25)->toDateString(),
-            'fara_expirare' => false,
-            'notificare_60_trimisa' => true,
-            'notificare_30_trimisa' => true,
-            'notificare_15_trimisa' => true,
-            'notificare_1_trimisa' => true,
-        ]);
-
-        $file = UploadedFile::fake()->create('atestat.pdf', 128, 'application/pdf');
-
-        $response = $this
-            ->actingAs($user)
-            ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
-            ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), [
-                'data_expirare' => '',
-                'fara_expirare' => '1',
-                'fisier' => [$file],
-            ]);
-
-        $response->assertRedirect(route('masini-mementouri.documente.edit', [
-            $masina,
-            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
-        ]));
-        $response->assertSessionHas('status', 'Fișierul a fost încărcat.');
-
-        $document->refresh();
-
-        $this->assertTrue($document->isWithoutExpiry());
-        $this->assertNull($document->data_expirare);
-        $this->assertFalse($document->notificare_60_trimisa);
-        $this->assertFalse($document->notificare_30_trimisa);
-        $this->assertFalse($document->notificare_15_trimisa);
-        $this->assertFalse($document->notificare_1_trimisa);
-
-        Storage::disk(MasinaDocumentFisier::STORAGE_DISK)->assertExists(
-            MasinaDocumentFisier::STORAGE_DIRECTORY . '/' . $document->id . '/' . $file->hashName()
-        );
-    }
-
     public function test_document_file_upload_via_standard_form_redirects_to_edit_page(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
@@ -675,6 +667,96 @@ class MasiniMementouriTest extends TestCase
             'document_id' => $document->id,
             'nume_original' => $file->getClientOriginalName(),
         ]);
+    }
+
+    public function test_document_update_shortcut_can_mark_document_without_expiry_without_files(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'data_expirare' => Carbon::now()->addDays(30)->toDateString(),
+            'fara_expirare' => false,
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
+            ->patch(route('masini-mementouri.documente.update', [$masina, $document]), [
+                'fara_expirare' => '1',
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
+        $response->assertSessionHas('status', 'Documentul a fost actualizat.');
+
+        $document->refresh();
+
+        $this->assertTrue($document->isWithoutExpiry());
+        $this->assertNull($document->data_expirare);
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+    }
+
+    public function test_document_file_upload_with_new_date_overrides_no_expiry_flag(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
+
+        Storage::fake(MasinaDocumentFisier::STORAGE_DISK);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create();
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'data_expirare' => null,
+            'fara_expirare' => true,
+            'notificare_60_trimisa' => true,
+            'notificare_30_trimisa' => true,
+            'notificare_15_trimisa' => true,
+            'notificare_1_trimisa' => true,
+        ]);
+
+        $newDate = Carbon::now()->addDays(120)->format('Y-m-d');
+        $file = UploadedFile::fake()->create('atestat.pdf', 128, 'application/pdf');
+
+        $response = $this
+            ->actingAs($user)
+            ->from(route('masini-mementouri.documente.edit', [$masina, $document]))
+            ->post(route('masini-mementouri.documente.fisiere.store', [$masina, $document]), [
+                'data_expirare' => $newDate,
+                'fisier' => [$file],
+            ]);
+
+        $response->assertRedirect(route('masini-mementouri.documente.edit', [
+            $masina,
+            MasinaDocument::buildRouteKey($document->document_type, $document->tara),
+        ]));
+        $response->assertSessionHas('status', 'Fișierul a fost încărcat.');
+
+        $document->refresh();
+
+        $this->assertFalse($document->isWithoutExpiry());
+        $this->assertSame($newDate, optional($document->data_expirare)->toDateString());
+        $this->assertFalse($document->notificare_60_trimisa);
+        $this->assertFalse($document->notificare_30_trimisa);
+        $this->assertFalse($document->notificare_15_trimisa);
+        $this->assertFalse($document->notificare_1_trimisa);
+
+        Storage::disk(MasinaDocumentFisier::STORAGE_DISK)->assertExists(
+            MasinaDocumentFisier::STORAGE_DIRECTORY . '/' . $document->id . '/' . $file->hashName()
+        );
     }
 
     public function test_document_file_upload_via_standard_form_handles_multiple_files(): void
