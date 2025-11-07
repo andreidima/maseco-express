@@ -25,20 +25,17 @@
         </span>
 
         <div class="document-inline-controls visually-hidden mt-2" data-edit-controls>
-            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap" data-no-expiry-container>
+            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap">
                 <input type="date" name="data_expirare"
                        class="form-control form-control-sm"
-                       value="{{ $formattedDate }}"
-                       data-date-input>
-                <input type="hidden" name="fara_expirare" value="0" data-no-expiry-hidden>
+                       value="{{ $formattedDate }}">
                 <div class="form-check mb-0">
                     <input type="checkbox"
                            class="form-check-input"
                            id="{{ $noExpiryInputId }}"
                            name="fara_expirare"
                            value="1"
-                           {{ $noExpiry ? 'checked' : '' }}
-                           data-no-expiry-toggle>
+                           {{ $noExpiry ? 'checked' : '' }}>
                     <label class="form-check-label small" for="{{ $noExpiryInputId }}">Fără expirare</label>
                 </div>
             </div>

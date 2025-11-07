@@ -1142,41 +1142,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    const initializeNoExpiryControls = (container, { autoSync = true } = {}) => {
-        if (!container) {
-            return { checkbox: null, dateInput: null, hiddenInput: null, syncState: () => {} };
-        }
-
-        const checkbox = container.querySelector('[data-no-expiry-toggle]');
-        const dateInput = container.querySelector('[data-date-input]');
-        const hiddenInput = container.querySelector('[data-no-expiry-hidden]');
-
-        if (!checkbox || !dateInput) {
-            return { checkbox: null, dateInput: null, hiddenInput: null, syncState: () => {} };
-        }
-
-        const syncState = () => {
-            const checked = checkbox.checked;
-            dateInput.disabled = checked;
-
-            if (checked) {
-                dateInput.value = '';
-            }
-
-            if (hiddenInput) {
-                hiddenInput.value = checked ? '1' : '0';
-            }
-        };
-
-        if (autoSync) {
-            checkbox.addEventListener('change', syncState);
-        }
-
-        syncState();
-
-        return { checkbox, dateInput, hiddenInput, syncState };
-    };
-
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? null;
 
     document.querySelectorAll('[data-document-update]').forEach((form) => {
@@ -1193,14 +1158,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const saveButton = form.querySelector('[data-save-trigger]');
         const feedbackTarget = form.querySelector('[data-feedback-target]');
 
-        const { checkbox, dateInput, syncState } = initializeNoExpiryControls(
-            form.querySelector('[data-no-expiry-container]'),
-            { autoSync: false }
-        );
+        const checkbox = form.querySelector('input[name="fara_expirare"]');
+        const dateInput = form.querySelector('input[name="data_expirare"]');
 
         if (checkbox) {
             checkbox.addEventListener('change', () => {
-                syncState();
                 if (form.dataset.autoSubmit === 'true') {
                     submitForm();
                 }
@@ -1267,8 +1229,6 @@ document.addEventListener('DOMContentLoaded', () => {
             if (checkbox) {
                 checkbox.checked = originalNoExpiry;
             }
-
-            syncState();
         };
 
         const updateColorClass = (colorClass) => {
@@ -1291,9 +1251,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (checkbox) {
                 formData.set('fara_expirare', checkbox.checked ? '1' : '0');
-                if (checkbox.checked) {
-                    formData.set('data_expirare', '');
-                }
             }
 
             if (csrfToken && !formData.has('_token')) {
@@ -1346,8 +1303,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (checkbox) {
                     checkbox.checked = faraExpirare;
                 }
-
-                syncState();
                 rememberOriginalValues();
                 updateColorClass(payload.color_class ?? '');
 
@@ -1422,14 +1377,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         setEditing(false);
-    });
-
-    document.querySelectorAll('[data-no-expiry-container]').forEach((container) => {
-        if (container.closest('[data-document-update]')) {
-            return;
-        }
-
-        initializeNoExpiryControls(container);
     });
 });
 
