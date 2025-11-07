@@ -138,6 +138,48 @@ class MasiniMementouriTest extends TestCase
         $response->assertSee($document->data_expirare->format('d.m.Y'));
     }
 
+    public function test_document_edit_page_displays_form_when_document_has_expiry(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B12FORM']);
+        $document = $masina->documente()->first();
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.documente.edit', [$masina, $document]));
+
+        $response->assertOk();
+        $response->assertSee('Fără expirare');
+        $response->assertSee('name="data_expirare"', false);
+        $response->assertSee('Salvează documentul');
+    }
+
+    public function test_document_edit_page_hides_form_when_document_is_without_expiry(): void
+    {
+        $this->withoutMiddleware([EnsurePermission::class]);
+
+        $user = User::factory()->create();
+        $masina = Masina::factory()->create(['numar_inmatriculare' => 'B34FREE']);
+        $document = $masina->documente()->first();
+
+        $document->update([
+            'fara_expirare' => true,
+            'data_expirare' => null,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->get(route('masini-mementouri.documente.edit', [$masina, $document]));
+
+        $response->assertOk();
+        $response->assertSee('Anulează fără expirare');
+        $response->assertSee('Documentul este marcat fără expirare.');
+        $response->assertDontSee('name="data_expirare"', false);
+        $response->assertDontSee('Salvează documentul');
+    }
+
     public function test_document_inline_update_returns_json_and_resets_notifications(): void
     {
         $this->withoutMiddleware([EnsurePermission::class, VerifyCsrfToken::class]);
