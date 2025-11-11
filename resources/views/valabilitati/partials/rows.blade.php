@@ -29,5 +29,36 @@
                 Expirat de {{ abs($zileRamase) }} zile
             @endif
         </td>
+        <td class="text-end">
+            <div class="d-flex flex-wrap justify-content-end">
+                <div class="ms-1">
+                    <a href="{{ route('valabilitati.show', $valabilitate) }}" class="flex">
+                        <span class="badge bg-success">Vezi</span>
+                    </a>
+                </div>
+                <div class="ms-1">
+                    <a
+                        href="#"
+                        data-bs-toggle="modal"
+                        data-bs-target="#valabilitateEditModal{{ $valabilitate->id }}"
+                        class="flex"
+                        title="Modifică valabilitatea"
+                    >
+                        <span class="badge bg-primary">Modifică</span>
+                    </a>
+                </div>
+                <div class="ms-1">
+                    <a
+                        href="#"
+                        data-bs-toggle="modal"
+                        data-bs-target="#valabilitateDeleteModal{{ $valabilitate->id }}"
+                        class="flex"
+                        title="Șterge valabilitatea"
+                    >
+                        <span class="badge bg-danger">Șterge</span>
+                    </a>
+                </div>
+            </div>
+        </td>
     </tr>
 @endforeach
