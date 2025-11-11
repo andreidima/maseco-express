@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ValabilitateCursaRequest;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
+use App\Support\CountryList;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
@@ -14,7 +15,11 @@ class ValabilitateCursaController extends Controller
     {
         $this->authorize('update', $valabilitate);
 
-        $valabilitate->curse()->create($request->validated());
+        $data = $request->validated();
+
+        $cursa = $valabilitate->curse()->create($data);
+
+        $this->syncUltimaCursa($valabilitate, $cursa, $data['ultima_cursa'] ?? false);
 
         return redirect()
             ->route('valabilitati.show', $valabilitate)
@@ -30,6 +35,8 @@ class ValabilitateCursaController extends Controller
         return view('valabilitati.curse.edit', [
             'valabilitate' => $valabilitate,
             'cursa' => $cursa,
+            'countries' => CountryList::options(),
+            'isFirstTrip' => $this->isFirstTrip($valabilitate, $cursa),
         ]);
     }
 
@@ -39,7 +46,11 @@ class ValabilitateCursaController extends Controller
 
         $this->authorize('update', $valabilitate);
 
-        $cursa->update($request->validated());
+        $data = $request->validated();
+
+        $cursa->update($data);
+
+        $this->syncUltimaCursa($valabilitate, $cursa, $data['ultima_cursa'] ?? false);
 
         return redirect()
             ->route('valabilitati.show', $valabilitate)
@@ -64,5 +75,28 @@ class ValabilitateCursaController extends Controller
         if ($cursa->valabilitate_id !== $valabilitate->getKey()) {
             abort(404);
         }
+    }
+
+    private function isFirstTrip(Valabilitate $valabilitate, ?ValabilitateCursa $ignored = null): bool
+    {
+        $query = $valabilitate->curse();
+
+        if ($ignored) {
+            $query->whereKeyNot($ignored->getKey());
+        }
+
+        return $query->doesntExist();
+    }
+
+    private function syncUltimaCursa(Valabilitate $valabilitate, ValabilitateCursa $cursa, bool $isUltima): void
+    {
+        if (! $isUltima) {
+            return;
+        }
+
+        $valabilitate->curse()
+            ->whereKeyNot($cursa->getKey())
+            ->where('ultima_cursa', true)
+            ->update(['ultima_cursa' => false]);
     }
 }

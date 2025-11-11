@@ -44,6 +44,7 @@ use App\Http\Controllers\Tech\ImpersonationController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\CronJobLogController;
 use App\Http\Controllers\SoferDashboardController;
+use App\Http\Controllers\SoferValabilitateController;
 use App\Http\Controllers\ValabilitateController;
 use App\Http\Controllers\ValabilitateCursaController;
 
@@ -91,6 +92,8 @@ Route::redirect('/', '/acasa');
 Route::middleware(['auth'])->group(function () {
     Route::middleware('role:sofer')->group(function () {
         Route::get('sofer/dashboard', SoferDashboardController::class)->name('sofer.dashboard');
+        Route::get('sofer/valabilitati/{valabilitate}', [SoferValabilitateController::class, 'show'])
+            ->name('sofer.valabilitati.show');
     });
 
     Route::middleware('permission:dashboard')->group(function () {

@@ -23,7 +23,12 @@
                     <form method="POST" action="{{ route('valabilitati.curse.update', [$valabilitate, $cursa]) }}">
                         @csrf
                         @method('PUT')
-                        @include('valabilitati.curse._form', ['cursa' => $cursa])
+                        @include('valabilitati.curse._form', [
+                            'cursa' => $cursa,
+                            'countries' => $countries,
+                            'isFirstTrip' => $isFirstTrip,
+                            'formId' => 'valabilitate-cursa-edit',
+                        ])
                         <div class="d-flex justify-content-end mt-3">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fa-solid fa-save me-1"></i> Salvează cursa

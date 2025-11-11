@@ -1,5 +1,11 @@
 @extends('layouts.app')
 
+@php
+    use App\Support\CountryList;
+
+    $isFirstTrip = $valabilitate->curse->isEmpty();
+@endphp
+
 @section('content')
 <div class="container py-4">
     <div class="mb-3">
@@ -62,9 +68,12 @@
                                 <th>#</th>
                                 <th>Localitate plecare</th>
                                 <th>Localitate sosire</th>
+                                <th>Țara descărcare</th>
                                 <th>Plecare</th>
                                 <th>Sosire</th>
+                                <th>Ora</th>
                                 <th class="text-center">Km bord</th>
+                                <th class="text-center">Ultima cursă</th>
                                 <th>Observații</th>
                                 <th class="text-end">Acțiuni</th>
                             </tr>
@@ -75,9 +84,18 @@
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $cursa->localitate_plecare }}</td>
                                     <td>{{ $cursa->localitate_sosire ?: '—' }}</td>
+                                    <td>{{ CountryList::label($cursa->descarcare_tara) ?? '—' }}</td>
                                     <td>{{ $cursa->plecare_la?->format('d.m.Y H:i') ?: '—' }}</td>
                                     <td>{{ $cursa->sosire_la?->format('d.m.Y H:i') ?: '—' }}</td>
+                                    <td>{{ $cursa->ora ? substr($cursa->ora, 0, 5) : '—' }}</td>
                                     <td class="text-center">{{ $cursa->km_bord ?? '—' }}</td>
+                                    <td class="text-center">
+                                        @if ($cursa->ultima_cursa)
+                                            <span class="badge bg-success">Da</span>
+                                        @else
+                                            <span class="badge bg-secondary">Nu</span>
+                                        @endif
+                                    </td>
                                     <td>{{ $cursa->observatii ?: '—' }}</td>
                                     <td class="text-end">
                                         <a href="{{ route('valabilitati.curse.edit', [$valabilitate, $cursa]) }}"
@@ -105,7 +123,12 @@
                 <h4 class="h6 mb-3">Adaugă cursă nouă</h4>
                 <form method="POST" action="{{ route('valabilitati.curse.store', $valabilitate) }}">
                     @csrf
-                    @include('valabilitati.curse._form', ['cursa' => null])
+                    @include('valabilitati.curse._form', [
+                        'cursa' => null,
+                        'countries' => $countries,
+                        'isFirstTrip' => $isFirstTrip,
+                        'formId' => 'valabilitate-cursa-create',
+                    ])
                     <div class="d-flex justify-content-end mt-3">
                         <button type="submit" class="btn btn-primary">
                             <i class="fa-solid fa-plus me-1"></i> Adaugă cursă
