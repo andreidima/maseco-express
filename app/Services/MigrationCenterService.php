@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
@@ -50,6 +51,18 @@ class MigrationCenterService
     public function runMigrations(): string
     {
         Artisan::call('migrate', ['--force' => true]);
+
+        return Artisan::output();
+    }
+
+    public function runSeeder(?string $seederClass = null): string
+    {
+        $class = $seederClass ?? RolesTableSeeder::class;
+
+        Artisan::call('db:seed', [
+            '--class' => $class,
+            '--force' => true,
+        ]);
 
         return Artisan::output();
     }

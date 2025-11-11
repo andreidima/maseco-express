@@ -20,6 +20,9 @@ class MigrationCenterController extends Controller
             'executionOutput' => $request->session()->get('migration_output'),
             'statusMessage' => $request->session()->get('migration_status'),
             'statusLevel' => $request->session()->get('migration_status_level', 'info'),
+            'seederOutput' => $request->session()->get('seeder_output'),
+            'seederStatus' => $request->session()->get('seeder_status'),
+            'seederStatusLevel' => $request->session()->get('seeder_status_level', 'info'),
         ]);
     }
 
@@ -63,6 +66,29 @@ class MigrationCenterController extends Controller
                 ->with([
                     'migration_status' => 'Migration failed: ' . $exception->getMessage(),
                     'migration_status_level' => 'danger',
+                ]);
+        }
+    }
+
+    public function runSeeder(MigrationCenterService $service): RedirectResponse
+    {
+        try {
+            $output = $service->runSeeder();
+
+            return redirect()
+                ->route('tech.migrations.index')
+                ->with([
+                    'seeder_output' => $output,
+                    'seeder_status' => 'Seeder executed successfully. Review the seeder log below.',
+                    'seeder_status_level' => 'success',
+                ]);
+        } catch (Throwable $exception) {
+            return redirect()
+                ->route('tech.migrations.index')
+                ->with([
+                    'seeder_output' => $exception->getMessage(),
+                    'seeder_status' => 'Seeder execution failed: ' . $exception->getMessage(),
+                    'seeder_status_level' => 'danger',
                 ]);
         }
     }
