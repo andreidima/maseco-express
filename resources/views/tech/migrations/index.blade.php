@@ -17,12 +17,24 @@
                         <i class="fa-solid fa-triangle-exclamation me-1"></i>Run migrations
                     </button>
                 </form>
+                <form action="{{ route('tech.migrations.seed') }}" method="post" onsubmit="return confirm('Run the roles seeder now?');">
+                    @csrf
+                    <button class="btn btn-outline-success" type="submit">
+                        <i class="fa-solid fa-seedling me-1"></i>Run roles seeder
+                    </button>
+                </form>
             </div>
         </div>
 
         @if ($statusMessage)
             <div class="alert alert-{{ $statusLevel }}">
                 {{ $statusMessage }}
+            </div>
+        @endif
+
+        @if ($seederStatus)
+            <div class="alert alert-{{ $seederStatusLevel }}">
+                {{ $seederStatus }}
             </div>
         @endif
 
@@ -48,6 +60,19 @@
                     <pre class="mb-0">{{ $executionOutput }}</pre>
                 @else
                     <p class="mb-0 text-muted">Run the migrations to capture the artisan output.</p>
+                @endif
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Seeder log</strong>
+            </div>
+            <div class="card-body">
+                @if ($seederOutput)
+                    <pre class="mb-0">{{ $seederOutput }}</pre>
+                @else
+                    <p class="mb-0 text-muted">Execute the seeder to capture the artisan output.</p>
                 @endif
             </div>
         </div>
