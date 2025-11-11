@@ -18,7 +18,6 @@ use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FacturaScadentaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RaportController;
-use App\Http\Controllers\Admin\ValabilitatiReportController;
 use App\Http\Controllers\DiverseTesteController;
 use App\Http\Controllers\ComandaFisierInternController;
 use App\Http\Controllers\ComandaIncarcareDocumenteDeCatreTransportatorController;
@@ -349,11 +348,6 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::middleware('permission:rapoarte')->group(function () {
-        Route::get('/rapoarte/valabilitati-curse', [ValabilitatiReportController::class, 'index'])
-            ->name('rapoarte.valabilitati');
-        Route::get('/rapoarte/valabilitati-curse/export/{format}', [ValabilitatiReportController::class, 'export'])
-            ->whereIn('format', ['csv', 'xlsx'])
-            ->name('rapoarte.valabilitati.export');
         Route::get('/rapoarte/incasari-utilizatori', [RaportController::class, 'incasariUtilizatori']);
         Route::get('/rapoarte/documente-transportatori', [RaportController::class, 'documenteTransportatori']);
 
