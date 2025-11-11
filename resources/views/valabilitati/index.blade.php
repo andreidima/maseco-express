@@ -10,26 +10,24 @@
                 </span>
             </span>
         </div>
-        <div class="col-lg-8 mb-0" id="formularValabilitati">
+        <div class="col-lg-10 mb-0" id="formularValabilitati">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
-                <div class="row mb-1 custom-search-form justify-content-center">
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                <div class="row mb-1 custom-search-form justify-content-center align-items-end">
+                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
                         <input type="text" class="form-control rounded-3" id="filter-numar-auto" name="numar_auto" placeholder="Număr auto" value="{{ $filters['numar_auto'] }}">
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
                         <input type="text" class="form-control rounded-3" id="filter-sofer" name="sofer" placeholder="Șofer" value="{{ $filters['sofer'] }}">
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
                         <input type="text" class="form-control rounded-3" id="filter-denumire" name="denumire" placeholder="Denumire" value="{{ $filters['denumire'] }}">
                     </div>
-                </div>
-                <div class="row mb-1 custom-search-form justify-content-center">
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
-                        <label for="filter-interval-start" class="form-label mb-1">Început</label>
+                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                        <label for="filter-interval-start" class="form-label mb-0 ps-3">Început</label>
                         <input type="date" class="form-control rounded-3" id="filter-interval-start" name="interval_start" value="{{ $filters['interval_start'] }}">
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
-                        <label for="filter-interval-end" class="form-label mb-1">Sfârșit</label>
+                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                        <label for="filter-interval-end" class="form-label mb-0 ps-3">Sfârșit</label>
                         <input type="date" class="form-control rounded-3" id="filter-interval-end" name="interval_end" value="{{ $filters['interval_end'] }}">
                     </div>
                 </div>
@@ -47,7 +45,7 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-3 text-lg-end mt-3 mt-lg-0">
+        <div class="col-lg-1 text-lg-end mt-3 mt-lg-0">
             <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
                 <button
                     type="button"
