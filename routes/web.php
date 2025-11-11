@@ -45,6 +45,9 @@ use App\Http\Controllers\Tech\CronJobLogController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\SeederCenterController;
 use App\Http\Controllers\SoferDashboardController;
+use App\Http\Controllers\SoferValabilitateController;
+use App\Http\Controllers\ValabilitateController;
+use App\Http\Controllers\ValabilitateCursaController;
 
 
 /*
@@ -90,6 +93,8 @@ Route::redirect('/', '/acasa');
 Route::middleware(['auth'])->group(function () {
     Route::middleware('role:sofer')->group(function () {
         Route::get('sofer/dashboard', SoferDashboardController::class)->name('sofer.dashboard');
+        Route::get('sofer/valabilitati/{valabilitate}', [SoferValabilitateController::class, 'show'])
+            ->name('sofer.valabilitati.show');
     });
 
     Route::middleware('permission:dashboard')->group(function () {
@@ -324,6 +329,22 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:masini-valabilitati')->group(function () {
         Route::resource('masini-valabilitati', MasinaValabilitatiController::class)
             ->parameters(['masini-valabilitati' => 'masinaValabilitati']);
+    });
+
+    Route::middleware('permission:valabilitati')->group(function () {
+        Route::resource('valabilitati', ValabilitateController::class)
+            ->parameters(['valabilitati' => 'valabilitate']);
+
+        Route::scopeBindings()->group(function () {
+            Route::post('valabilitati/{valabilitate}/curse', [ValabilitateCursaController::class, 'store'])
+                ->name('valabilitati.curse.store');
+            Route::get('valabilitati/{valabilitate}/curse/{cursa}/edit', [ValabilitateCursaController::class, 'edit'])
+                ->name('valabilitati.curse.edit');
+            Route::put('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'update'])
+                ->name('valabilitati.curse.update');
+            Route::delete('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'destroy'])
+                ->name('valabilitati.curse.destroy');
+        });
     });
 
     Route::middleware('permission:rapoarte')->group(function () {

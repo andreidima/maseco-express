@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\MigrationCenterService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Throwable;
 
@@ -20,6 +21,48 @@ class MigrationCenterController extends Controller
             'executionOutput' => $request->session()->get('migration_output'),
             'statusMessage' => $request->session()->get('migration_status'),
             'statusLevel' => $request->session()->get('migration_status_level', 'info'),
+            'seederOutput' => $request->session()->get('seeder_output'),
+            'seederStatus' => $request->session()->get('seeder_status'),
+            'seederStatusLevel' => $request->session()->get('seeder_status_level', 'info'),
+        ]);
+    }
+
+    public function seeders(Request $request, MigrationCenterService $service): View
+    {
+        $availableSeeders = $service->availableSeeders();
+
+        return view('tech.seeders.index', [
+            'seeders' => $availableSeeders,
+            'seederOutput' => $request->session()->get('seeder_output'),
+            'seederStatus' => $request->session()->get('seeder_status'),
+            'seederStatusLevel' => $request->session()->get('seeder_status_level', 'info'),
+            'lastRunSeeder' => $request->session()->get('seeder_last_run'),
+        ]);
+    }
+
+    public function seeders(Request $request, MigrationCenterService $service): View
+    {
+        $availableSeeders = $service->availableSeeders();
+
+        return view('tech.seeders.index', [
+            'seeders' => $availableSeeders,
+            'seederOutput' => $request->session()->get('seeder_output'),
+            'seederStatus' => $request->session()->get('seeder_status'),
+            'seederStatusLevel' => $request->session()->get('seeder_status_level', 'info'),
+            'lastRunSeeder' => $request->session()->get('seeder_last_run'),
+        ]);
+    }
+
+    public function showSeeders(Request $request, MigrationCenterService $service): View
+    {
+        $availableSeeders = $service->availableSeeders();
+
+        return view('tech.seeders.index', [
+            'seeders' => $availableSeeders,
+            'seederOutput' => $request->session()->get('seeder_output'),
+            'seederStatus' => $request->session()->get('seeder_status'),
+            'seederStatusLevel' => $request->session()->get('seeder_status_level', 'info'),
+            'lastRunSeeder' => $request->session()->get('seeder_last_run'),
         ]);
     }
 

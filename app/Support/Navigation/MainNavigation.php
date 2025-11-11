@@ -80,6 +80,13 @@ class MainNavigation
             ],
             ['type' => 'divider'],
             [
+                'permission' => 'valabilitati',
+                'href' => route('valabilitati.index'),
+                'icon' => 'fa-solid fa-calendar-check',
+                'label' => 'Valabilități',
+            ],
+            ['type' => 'divider'],
+            [
                 'permission' => 'comenzi',
                 'href' => '/oferte-curse',
                 'icon' => 'fa-solid fa-truck',

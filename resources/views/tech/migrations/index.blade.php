@@ -29,6 +29,12 @@
             </div>
         @endif
 
+        @if ($seederStatus)
+            <div class="alert alert-{{ $seederStatusLevel }}">
+                {{ $seederStatus }}
+            </div>
+        @endif
+
         <div class="card mb-4">
             <div class="card-header">
                 <strong>Preview output</strong>
@@ -51,6 +57,19 @@
                     <pre class="mb-0">{{ $executionOutput }}</pre>
                 @else
                     <p class="mb-0 text-muted">Run the migrations to capture the artisan output.</p>
+                @endif
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <strong>Seeder log</strong>
+            </div>
+            <div class="card-body">
+                @if ($seederOutput)
+                    <pre class="mb-0">{{ $seederOutput }}</pre>
+                @else
+                    <p class="mb-0 text-muted">Execute the seeder to capture the artisan output.</p>
                 @endif
             </div>
         </div>
