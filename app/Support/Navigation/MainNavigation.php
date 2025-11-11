@@ -84,6 +84,7 @@ class MainNavigation
                 'href' => route('valabilitati.index'),
                 'icon' => 'fa-solid fa-calendar-check',
                 'label' => 'Valabilități',
+                'roles' => ['super-admin', 'admin'],
             ],
             ['type' => 'divider'],
             [
@@ -320,6 +321,10 @@ class MainNavigation
     protected static function filterPrimaryLinks(?User $user): array
     {
         return array_values(array_filter(self::primaryLinks(), function (array $link) use ($user) {
+            if (isset($link['roles']) && ! self::userHasAnyRole($user, (array) $link['roles'])) {
+                return false;
+            }
+
             if (! isset($link['permission'])) {
                 return true;
             }
@@ -331,6 +336,10 @@ class MainNavigation
     protected static function filterDropdownItems(array $items, ?User $user): array
     {
         $filtered = array_values(array_filter($items, function ($item) use ($user) {
+            if (isset($item['roles']) && ! self::userHasAnyRole($user, (array) $item['roles'])) {
+                return false;
+            }
+
             if (($item['type'] ?? 'link') === 'divider') {
                 return true;
             }
@@ -375,5 +384,20 @@ class MainNavigation
         }
 
         return $cleaned;
+    }
+
+    protected static function userHasAnyRole(?User $user, array $roles): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        foreach ($roles as $role) {
+            if ($user->hasRole($role)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
