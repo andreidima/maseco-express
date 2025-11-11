@@ -13,106 +13,36 @@
         </div>
         <div class="col-lg-8 mb-0" id="formularValabilitati">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
-                <div class="row gy-1 gx-4 mb-2 custom-search-form d-flex justify-content-center align-items-end">
-                    <div class="col-lg-2 col-md-6">
-                        <select name="status" id="filter-status" class="form-select bg-white rounded-3">
-                            <option value="toate" @selected($filters['status'] === 'toate')>Toate</option>
-                            <option value="active" @selected($filters['status'] === 'active')>Active ({{ $statusCounts['active'] ?? 0 }})</option>
-                            <option value="expirate" @selected($filters['status'] === 'expirate')>Expirate ({{ $statusCounts['expirate'] ?? 0 }})</option>
-                        </select>
+                <div class="row mb-1 custom-search-form justify-content-center">
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <input type="text" class="form-control rounded-3" id="filter-numar-auto" name="numar_auto" placeholder="Număr auto" value="{{ $filters['numar_auto'] }}">
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-book text-muted" title="Caută după denumire"></i>
-                            <input
-                                type="text"
-                                class="form-control rounded-3 flex-grow-1"
-                                id="filter-denumire"
-                                name="denumire"
-                                placeholder="Denumire valabilitate"
-                                value="{{ $filters['denumire'] }}"
-                                list="filter-denumire-suggestions"
-                                autocomplete="off"
-                            >
-                        </div>
-                        <datalist id="filter-denumire-suggestions">
-                            @foreach ($denumiri as $denumire)
-                                <option value="{{ $denumire }}"></option>
-                            @endforeach
-                        </datalist>
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <input type="text" class="form-control rounded-3" id="filter-sofer" name="sofer" placeholder="Șofer" value="{{ $filters['sofer'] }}">
                     </div>
-                    <div class="col-lg-3 col-md-6">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-user text-muted" title="Caută după șofer"></i>
-                            <input
-                                type="text"
-                                class="form-control rounded-3 flex-grow-1"
-                                id="filter-sofer"
-                                name="sofer"
-                                placeholder="Șofer"
-                                value="{{ $filters['sofer'] }}"
-                                list="filter-sofer-suggestions"
-                                autocomplete="off"
-                            >
-                        </div>
-                        <datalist id="filter-sofer-suggestions">
-                            @foreach ($soferi as $sofer)
-                                <option value="{{ $sofer }}"></option>
-                            @endforeach
-                        </datalist>
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <input type="text" class="form-control rounded-3" id="filter-denumire" name="denumire" placeholder="Denumire" value="{{ $filters['denumire'] }}">
                     </div>
-                    <div class="col-lg-2 col-md-6">
-                        <div class="d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-truck text-muted" title="Caută după număr auto"></i>
-                            <input
-                                type="text"
-                                class="form-control rounded-3 flex-grow-1"
-                                id="filter-numar-auto"
-                                name="numar_auto"
-                                placeholder="Număr auto"
-                                value="{{ $filters['numar_auto'] }}"
-                                list="filter-numar-auto-suggestions"
-                                autocomplete="off"
-                            >
-                        </div>
-                        <datalist id="filter-numar-auto-suggestions">
-                            @foreach ($numereAuto as $numarAuto)
-                                <option value="{{ $numarAuto }}"></option>
-                            @endforeach
-                        </datalist>
+                </div>
+                <div class="row mb-1 custom-search-form justify-content-center">
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <input type="date" class="form-control rounded-3" id="filter-interval-start" name="interval_start" value="{{ $filters['interval_start'] }}">
                     </div>
-                    <div class="col-12 col-sm-6 col-lg-2">
-                        <label for="filter-inceput-de-la" class="form-label ps-2 small text-muted mb-0">Început de la</label>
-                        <input type="date" class="form-control rounded-3" id="filter-inceput-de-la" name="inceput_de_la" value="{{ $filters['inceput_de_la'] }}">
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-2">
-                        <label for="filter-inceput-pana" class="form-label ps-2 small text-muted mb-0">Început până la</label>
-                        <input type="date" class="form-control rounded-3" id="filter-inceput-pana" name="inceput_pana_la" value="{{ $filters['inceput_pana_la'] }}">
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-2">
-                        <label for="filter-sfarsit-de-la" class="form-label ps-2 small text-muted mb-0">Sfârșit de la</label>
-                        <input type="date" class="form-control rounded-3" id="filter-sfarsit-de-la" name="sfarsit_de_la" value="{{ $filters['sfarsit_de_la'] }}">
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-2">
-                        <label for="filter-sfarsit-pana" class="form-label ps-2 small text-muted mb-0">Sfârșit până la</label>
-                        <input type="date" class="form-control rounded-3" id="filter-sfarsit-pana" name="sfarsit_pana_la" value="{{ $filters['sfarsit_pana_la'] }}">
-                    </div>
-                    <div class="col-12 col-sm-6 col-lg-2">
-                        <div class="form-check ps-0 ms-1">
-                            <input class="form-check-input ms-2" type="checkbox" value="1" id="filter-fara-sfarsit" name="fara_sfarsit" @checked($filters['fara_sfarsit'])>
-                            <label class="form-check-label ms-4" for="filter-fara-sfarsit">
-                                Doar fără sfârșit
-                            </label>
-                        </div>
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <input type="date" class="form-control rounded-3" id="filter-interval-end" name="interval_end" value="{{ $filters['interval_end'] }}">
                     </div>
                 </div>
                 <div class="row custom-search-form justify-content-center">
-                    <button class="btn btn-sm btn-primary text-white col-md-4 me-3 border border-dark rounded-3" type="submit">
-                        <i class="fas fa-search text-white me-1"></i>Caută
-                    </button>
-                    <a class="btn btn-sm btn-secondary text-white col-md-4 border border-dark rounded-3" href="{{ route('valabilitati.index') }}" role="button">
-                        <i class="far fa-trash-alt text-white me-1"></i>Resetează
-                    </a>
+                    <div class="col-lg-3 col-md-4 mb-2 mb-md-0">
+                        <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit">
+                            <i class="fas fa-search text-white me-1"></i>Caută
+                        </button>
+                    </div>
+                    <div class="col-lg-3 col-md-4">
+                        <a class="btn btn-sm w-100 btn-secondary text-white border border-dark rounded-3" href="{{ route('valabilitati.index') }}" role="button">
+                            <i class="far fa-trash-alt text-white me-1"></i>Resetează
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
