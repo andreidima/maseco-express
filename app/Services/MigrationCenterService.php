@@ -55,12 +55,31 @@ class MigrationCenterService
         return Artisan::output();
     }
 
-    public function runSeeder(?string $seederClass = null): string
+    public function availableSeeders(): Collection
     {
-        $class = $seederClass ?? RolesTableSeeder::class;
+        $configured = config('tech-seeders.seeders', []);
 
+        return collect($configured)
+            ->map(function (array $metadata, string $class) {
+                return array_merge([
+                    'class' => $class,
+                    'name' => $metadata['name'] ?? class_basename($class),
+                    'description' => $metadata['description'] ?? null,
+                    'tables' => $metadata['tables'] ?? [],
+                    'operations' => $metadata['operations'] ?? [],
+                    'safety' => $metadata['safety'] ?? null,
+                    'recommended' => $metadata['recommended'] ?? null,
+                    'impact' => $metadata['impact'] ?? null,
+                    'estimated_runtime' => $metadata['estimated_runtime'] ?? null,
+                    'notes' => $metadata['notes'] ?? [],
+                ], $metadata);
+            });
+    }
+
+    public function runSeeder(string $seederClass): string
+    {
         Artisan::call('db:seed', [
-            '--class' => $class,
+            '--class' => $seederClass,
             '--force' => true,
         ]);
 

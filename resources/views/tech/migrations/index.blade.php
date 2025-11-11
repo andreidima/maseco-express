@@ -17,12 +17,9 @@
                         <i class="fa-solid fa-triangle-exclamation me-1"></i>Run migrations
                     </button>
                 </form>
-                <form action="{{ route('tech.migrations.seed') }}" method="post" onsubmit="return confirm('Run the roles seeder now?');">
-                    @csrf
-                    <button class="btn btn-outline-success" type="submit">
-                        <i class="fa-solid fa-seedling me-1"></i>Run roles seeder
-                    </button>
-                </form>
+                <a href="{{ route('tech.seeders.index') }}" class="btn btn-outline-success">
+                    <i class="fa-solid fa-seedling me-1"></i>Open seeder control
+                </a>
             </div>
         </div>
 
