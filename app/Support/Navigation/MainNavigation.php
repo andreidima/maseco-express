@@ -154,24 +154,25 @@ class MainNavigation
         $facturiIndexUrl = FacturiIndexFilterState::route();
 
         return [
-            [
-                'permission' => 'mementouri',
-                'href' => '/mementouri/1/mementouri',
-                'icon' => 'fa-solid fa-bell',
-                'label' => 'Mementouri generale',
-            ],
-            [
-                'permission' => 'mementouri',
-                'href' => '/mementouri/2/mementouri',
-                'icon' => 'fa-solid fa-bell',
-                'label' => 'Mementouri rca + copii conforme',
-            ],
-            [
-                'permission' => 'mementouri',
-                'href' => '/mementouri/3/mementouri',
-                'icon' => 'fa-solid fa-bell',
-                'label' => 'Mementouri itp + rovinieta',
-            ],
+            // Hidden temporarily; restore when mementouri pages should reappear.
+            // [
+            //     'permission' => 'mementouri',
+            //     'href' => '/mementouri/1/mementouri',
+            //     'icon' => 'fa-solid fa-bell',
+            //     'label' => 'Mementouri generale',
+            // ],
+            // [
+            //     'permission' => 'mementouri',
+            //     'href' => '/mementouri/2/mementouri',
+            //     'icon' => 'fa-solid fa-bell',
+            //     'label' => 'Mementouri rca + copii conforme',
+            // ],
+            // [
+            //     'permission' => 'mementouri',
+            //     'href' => '/mementouri/3/mementouri',
+            //     'icon' => 'fa-solid fa-bell',
+            //     'label' => 'Mementouri itp + rovinieta',
+            // ],
             [
                 'permission' => 'mementouri',
                 'href' => route('masini-mementouri.index'),
