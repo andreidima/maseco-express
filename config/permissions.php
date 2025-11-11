@@ -119,5 +119,6 @@ return [
             'documente-word-manage',
             'masini-valabilitati',
         ],
+        'sofer' => [],
     ],
 ];
