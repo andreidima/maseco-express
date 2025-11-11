@@ -43,6 +43,7 @@ use App\Http\Controllers\Service\ServiceSheetController;
 use App\Http\Controllers\Tech\ImpersonationController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\CronJobLogController;
+use App\Http\Controllers\SoferDashboardController;
 
 
 /*
@@ -86,6 +87,10 @@ Route::get('oferte-curse', [OfertaCursaController::class, 'index'])->name('ofert
 Route::redirect('/', '/acasa');
 
 Route::middleware(['auth'])->group(function () {
+    Route::middleware('role:sofer')->group(function () {
+        Route::get('sofer/dashboard', SoferDashboardController::class)->name('sofer.dashboard');
+    });
+
     Route::middleware('permission:dashboard')->group(function () {
         Route::view('acasa', 'acasa')->name('dashboard');
         Route::view('various-tests', 'variousTests');

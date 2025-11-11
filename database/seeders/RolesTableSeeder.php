@@ -62,6 +62,14 @@ class RolesTableSeeder extends Seeder
             ]
         );
 
+        $sofer = Role::firstOrCreate(
+            ['slug' => 'sofer'],
+            [
+                'name' => 'Șofer',
+                'description' => 'Acces restrâns la panoul mobil de valabilități.',
+            ]
+        );
+
         $permissions = Permission::all();
         $permissionMap = $permissions->keyBy('module');
         $roleDefaults = collect(config('permissions.role_defaults', []));
@@ -91,6 +99,7 @@ class RolesTableSeeder extends Seeder
         $syncPermissions($mecanic);
         $syncPermissions($documenteWordOperator);
         $syncPermissions($documenteWordAdministrator);
+        $syncPermissions($sofer);
 
         $user = User::find(1);
 

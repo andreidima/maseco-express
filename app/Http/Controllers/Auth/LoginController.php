@@ -40,6 +40,10 @@ class LoginController extends Controller
     {
         $user = Auth::user();
 
+        if ($user && $user->hasRole('sofer')) {
+            return route('sofer.dashboard');
+        }
+
         if ($user && $user->hasPermission('dashboard')) {
             return route('dashboard');
         }
