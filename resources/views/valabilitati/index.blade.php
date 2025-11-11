@@ -7,7 +7,6 @@
             <span class="badge culoare1 fs-5">
                 <span class="d-inline-flex flex-column align-items-start gap-1 lh-1">
                     <span><i class="fa-solid fa-calendar-check me-1"></i>Valabilități</span>
-                    <span class="ms-4">flotă</span>
                 </span>
             </span>
         </div>
@@ -26,9 +25,11 @@
                 </div>
                 <div class="row mb-1 custom-search-form justify-content-center">
                     <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <label for="filter-interval-start" class="form-label mb-1">Început</label>
                         <input type="date" class="form-control rounded-3" id="filter-interval-start" name="interval_start" value="{{ $filters['interval_start'] }}">
                     </div>
                     <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <label for="filter-interval-end" class="form-label mb-1">Sfârșit</label>
                         <input type="date" class="form-control rounded-3" id="filter-interval-end" name="interval_end" value="{{ $filters['interval_end'] }}">
                     </div>
                 </div>
@@ -56,7 +57,6 @@
                 >
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă valabilitate
                 </button>
-                @include('partials.operations-navigation')
             </div>
         </div>
     </div>
