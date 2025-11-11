@@ -1,5 +1,8 @@
 @php
     $moduleDefinitions = collect($moduleDefinitions ?? config('permissions.modules', []));
+    $hiddenRoleSlugs = collect($hiddenRoleSlugs ?? [])
+        ->filter(fn ($slug) => is_string($slug) && $slug !== '')
+        ->values();
     $moduleRoleMatrix = collect($moduleRoleMatrix ?? [])->map(function ($moduleRoles) {
         if ($moduleRoles instanceof \Illuminate\Support\Collection) {
             return $moduleRoles;
@@ -71,6 +74,11 @@
         ->map($normalizeRole)
         ->filter(fn ($role) => is_array($role) && ! empty($role['slug']))
         ->unique('slug')
+        ->reject(function ($role) use ($hiddenRoleSlugs) {
+            $slug = $role['slug'] ?? null;
+
+            return $slug && $hiddenRoleSlugs->contains($slug);
+        })
         ->values();
 
     if ($visibleRoles->isEmpty()) {
@@ -80,6 +88,11 @@
             })
             ->filter(fn ($role) => is_array($role) && ! empty($role['slug']))
             ->unique('slug')
+            ->reject(function ($role) use ($hiddenRoleSlugs) {
+                $slug = $role['slug'] ?? null;
+
+                return $slug && $hiddenRoleSlugs->contains($slug);
+            })
             ->values();
     }
 @endphp

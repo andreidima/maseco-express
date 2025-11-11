@@ -66,7 +66,7 @@ class RolesTableSeeder extends Seeder
             ['slug' => 'sofer'],
             [
                 'name' => 'Șofer',
-                'description' => 'Acces restrâns la panoul mobil de valabilități.',
+                'description' => 'Acces restrâns la cursele unei valabilități.',
             ]
         );
 

@@ -245,7 +245,7 @@ class LoginController extends Controller
 
         $user = User::where($this->username(), $email)->first();
 
-        if ($user && ($user->hasRole('mecanic') || $user->hasRole(4))) {
+        if ($user && ($user->hasRole('mecanic') || $user->hasRole('sofer') || $user->hasRole(4))) {
             return false;
         }
 
