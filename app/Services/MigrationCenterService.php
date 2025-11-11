@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use Database\Seeders\RolesTableSeeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;

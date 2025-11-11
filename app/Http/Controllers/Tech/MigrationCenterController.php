@@ -21,6 +21,9 @@ class MigrationCenterController extends Controller
             'executionOutput' => $request->session()->get('migration_output'),
             'statusMessage' => $request->session()->get('migration_status'),
             'statusLevel' => $request->session()->get('migration_status_level', 'info'),
+            'seederOutput' => $request->session()->get('seeder_output'),
+            'seederStatus' => $request->session()->get('seeder_status'),
+            'seederStatusLevel' => $request->session()->get('seeder_status_level', 'info'),
         ]);
     }
 
