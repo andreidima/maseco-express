@@ -35,6 +35,17 @@ class ValabilitateCursa extends Model
         return $this->belongsTo(Valabilitate::class);
     }
 
+    protected static function booted(): void
+    {
+        static::saved(function (ValabilitateCursa $cursa): void {
+            $cursa->valabilitate?->syncSummary();
+        });
+
+        static::deleted(function (ValabilitateCursa $cursa): void {
+            $cursa->valabilitate?->syncSummary();
+        });
+    }
+
     public static function suggestLocalitati(string $term = '', int $limit = 10): Collection
     {
         $term = trim($term);

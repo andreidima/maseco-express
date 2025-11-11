@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 
+use App\Models\Valabilitate;
+use App\Policies\ValabilitatePolicy;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 
@@ -15,6 +17,7 @@ class AuthServiceProvider extends ServiceProvider
      */
     protected $policies = [
         \App\Models\DocumentWord::class => \App\Policies\DocumentWordPolicy::class,
+        Valabilitate::class => ValabilitatePolicy::class,
     ];
 
     /**
