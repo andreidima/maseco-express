@@ -53,6 +53,19 @@ class MigrationCenterController extends Controller
         ]);
     }
 
+    public function showSeeders(Request $request, MigrationCenterService $service): View
+    {
+        $availableSeeders = $service->availableSeeders();
+
+        return view('tech.seeders.index', [
+            'seeders' => $availableSeeders,
+            'seederOutput' => $request->session()->get('seeder_output'),
+            'seederStatus' => $request->session()->get('seeder_status'),
+            'seederStatusLevel' => $request->session()->get('seeder_status_level', 'info'),
+            'lastRunSeeder' => $request->session()->get('seeder_last_run'),
+        ]);
+    }
+
     public function preview(MigrationCenterService $service): RedirectResponse
     {
         try {
