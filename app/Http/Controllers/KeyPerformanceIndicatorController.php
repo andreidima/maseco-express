@@ -22,7 +22,7 @@ class KeyPerformanceIndicatorController extends Controller
         $searchMonth = $request->input('searchMonth', now()->month); // Default to current month
         $searchYear = $request->input('searchYear', now()->year);   // Default to current year
 
-        $usersIDsForThisReport = [6, 7, 8, 12, 16, 17, 21, 23];
+        $usersIDsForThisReport = [7, 12, 16];
 
         // Query
         $usersWithKPIAndComanda = User::select(

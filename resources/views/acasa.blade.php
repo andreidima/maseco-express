@@ -19,7 +19,7 @@
         ->whereDate('data_creare', '>=', $startOfThisMonth)->get();
 
     // KPI report
-    $usersIDsForThisReport = [6, 7, 8, 12, 16, 17, 21];
+    $usersIDsForThisReport = [7, 12, 16];
 
     $comenziKPI = Comanda::select(
         'user_id',
