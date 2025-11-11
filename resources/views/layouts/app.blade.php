@@ -177,6 +177,11 @@
                                                 </a>
                                             </li>
                                             <li>
+                                                <a class="dropdown-item" href="{{ route('tech.seeders.index') }}">
+                                                    <i class="fa-solid fa-seedling me-1"></i>Seeder Control Center
+                                                </a>
+                                            </li>
+                                            <li>
                                                 <a class="dropdown-item" href="{{ route('tech.cron-logs.index') }}">
                                                     <i class="fa-solid fa-clock-rotate-left me-1"></i>Jurnal cron jobs
                                                 </a>
