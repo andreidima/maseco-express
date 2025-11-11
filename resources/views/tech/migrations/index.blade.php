@@ -17,6 +17,9 @@
                         <i class="fa-solid fa-triangle-exclamation me-1"></i>Run migrations
                     </button>
                 </form>
+                <a href="{{ route('tech.seeders.index') }}" class="btn btn-outline-success">
+                    <i class="fa-solid fa-seedling me-1"></i>Open seeder control
+                </a>
             </div>
         </div>
 
