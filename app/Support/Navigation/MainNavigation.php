@@ -128,6 +128,13 @@ class MainNavigation
         return [
             [
                 'permission' => 'rapoarte',
+                'href' => route('rapoarte.valabilitati'),
+                'icon' => 'fa-solid fa-route',
+                'label' => 'Curse valabilități',
+            ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'rapoarte',
                 'href' => '/rapoarte/documente-transportatori',
                 'icon' => 'fa-solid fa-file',
                 'label' => 'Documente transportatori',
