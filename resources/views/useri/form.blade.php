@@ -11,6 +11,10 @@
 
         @php
             $allowSuperAdminSelection = $user && $user->exists && $user->hasRole('super-admin');
+            $hiddenRoleSlugs = collect([
+                'documente-word-operator',
+                'documente-word-administrator',
+            ]);
             $availableRoles = $roles ?? collect();
 
             if ($availableRoles instanceof \Illuminate\Support\Collection) {
@@ -18,9 +22,20 @@
                     $availableRoles = $availableRoles->reject(fn ($roleOption) => $roleOption->slug === 'super-admin');
                 }
 
+                if ($hiddenRoleSlugs->isNotEmpty()) {
+                    $availableRoles = $availableRoles->reject(function ($roleOption) use ($hiddenRoleSlugs) {
+                        $slug = $roleOption->slug ?? null;
+
+                        return $slug && $hiddenRoleSlugs->contains($slug);
+                    });
+                }
+
                 if ($availableRoles->isEmpty()) {
                     $availableRoles = \App\Models\Role::query()
                         ->when(! $allowSuperAdminSelection, fn ($query) => $query->where('slug', '!=', 'super-admin'))
+                        ->when($hiddenRoleSlugs->isNotEmpty(), function ($query) use ($hiddenRoleSlugs) {
+                            return $query->whereNotIn('slug', $hiddenRoleSlugs->all());
+                        })
                         ->with('permissions')
                         ->orderBy('id')
                         ->get();
@@ -93,6 +108,7 @@
                     'moduleRoleMatrix' => $moduleRoleMatrix,
                     'moduleDefinitions' => $permissionDefinitions,
                     'visibleRoles' => $availableRoles,
+                    'hiddenRoleSlugs' => $hiddenRoleSlugs,
                 ])
             </div>
         @endif
