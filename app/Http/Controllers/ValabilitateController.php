@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ValabilitateRequest;
 use App\Models\Masini\Masina;
 use App\Models\Valabilitate;
-use App\Support\CountryList;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -56,7 +55,6 @@ class ValabilitateController extends Controller
 
         return view('valabilitati.show', [
             'valabilitate' => $valabilitate,
-            'countries' => CountryList::options(),
         ]);
     }
 
