@@ -11,6 +11,8 @@ class Valabilitate extends Model
 {
     use HasFactory;
 
+    protected $table = 'valabilitati';
+
     protected $fillable = [
         'numar_auto',
         'sofer_id',

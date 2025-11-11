@@ -1,4 +1,6 @@
-@php($azi = now()->startOfDay())
+@php
+    $azi = now()->startOfDay();
+@endphp
 
 @foreach ($valabilitati as $valabilitate)
     @php

@@ -5,7 +5,9 @@
 @endphp
 
 @if (($includeCreate ?? false) === true)
-    @php($isCreateActive = $currentFormType === 'create')
+    @php
+        $isCreateActive = $currentFormType === 'create';
+    @endphp
     <div class="modal fade text-dark" id="valabilitateCreateModal" tabindex="-1" role="dialog" aria-labelledby="valabilitateCreateModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
