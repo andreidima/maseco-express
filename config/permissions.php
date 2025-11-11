@@ -74,6 +74,10 @@ return [
             'name' => 'Resurse — Mașini valabilități',
             'description' => 'Permite consultarea și actualizarea valabilităților pentru parcul auto.',
         ],
+        'valabilitati' => [
+            'name' => 'Gestionare Valabilități',
+            'description' => 'Administrează cursele disponibile, istoricul localităților și intervalele de valabilitate.',
+        ],
         'gestiune-piese' => [
             'name' => 'Gestionare Stoc Piese',
             'description' => 'Acoperă stocurile de piese, transferurile interne și inventarele periodice.',
