@@ -139,52 +139,167 @@
                         <th class="text-end">Zile rămase</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @php($azi = now()->startOfDay())
-                    @forelse ($valabilitati as $valabilitate)
-                        @php
-                            $dataInceput = $valabilitate->data_inceput;
-                            $dataSfarsit = $valabilitate->data_sfarsit;
-                            $isActive = is_null($dataSfarsit) || $dataSfarsit->greaterThanOrEqualTo($azi);
-                            $statusLabel = $isActive ? 'Activă' : 'Expirată';
-                            $statusClass = $isActive ? 'bg-success' : 'bg-secondary';
-                            $zileRamase = is_null($dataSfarsit)
-                                ? null
-                                : $azi->diffInDays($dataSfarsit, false);
-                        @endphp
-                        <tr>
-                            <td class="fw-semibold">{{ $valabilitate->denumire }}</td>
-                            <td class="text-nowrap">{{ $valabilitate->numar_auto }}</td>
-                            <td>{{ $valabilitate->sofer->name ?? '—' }}</td>
-                            <td class="text-nowrap">{{ optional($dataInceput)->format('d.m.Y') ?? '—' }}</td>
-                            <td class="text-nowrap">{{ optional($dataSfarsit)->format('d.m.Y') ?? '—' }}</td>
-                            <td>
-                                <span class="badge {{ $statusClass }} text-white">{{ $statusLabel }}</span>
-                            </td>
-                            <td class="text-end">
-                                @if (is_null($zileRamase))
-                                    Nelimitat
-                                @elseif ($zileRamase >= 0)
-                                    {{ $zileRamase }} zile
-                                @else
-                                    Expirat de {{ abs($zileRamase) }} zile
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
+                <tbody id="valabilitati-table-body">
+                    @if ($valabilitati->count())
+                        @include('valabilitati.partials.rows', ['valabilitati' => $valabilitati])
+                    @else
                         <tr>
                             <td colspan="7" class="text-center py-4">Nu există valabilități care să respecte criteriile selectate.</td>
                         </tr>
-                    @endforelse
+                    @endif
                 </tbody>
             </table>
         </div>
 
         @if ($valabilitati instanceof \Illuminate\Contracts\Pagination\Paginator || $valabilitati instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
-            <div class="mt-3 px-3">
-                {{ $valabilitati->onEachSide(1)->links() }}
+            <div id="valabilitati-infinite-scroll" class="mt-3 px-3">
+                <div
+                    id="valabilitati-load-more-trigger"
+                    class="d-flex justify-content-center py-3"
+                    data-next-url="{{ $nextPageUrl }}"
+                >
+                    @if ($valabilitati->hasMorePages())
+                        <button type="button" class="btn btn-outline-primary" id="valabilitati-load-more">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            <span class="load-more-label">Încarcă mai multe</span>
+                        </button>
+                    @endif
+                </div>
             </div>
         @endif
     </div>
 </div>
+
+@push('page-scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadMoreButton = document.getElementById('valabilitati-load-more');
+            const loadMoreTrigger = document.getElementById('valabilitati-load-more-trigger');
+            const tableBody = document.getElementById('valabilitati-table-body');
+            const loadMoreSpinner = loadMoreButton ? loadMoreButton.querySelector('.spinner-border') : null;
+            const loadMoreLabel = loadMoreButton ? loadMoreButton.querySelector('.load-more-label') : null;
+
+            const loadState = {
+                loading: false,
+                nextUrl: loadMoreTrigger ? loadMoreTrigger.dataset.nextUrl : null,
+                observer: null,
+            };
+
+            const setLoadingState = (isLoading) => {
+                loadState.loading = isLoading;
+
+                if (!loadMoreButton) {
+                    return;
+                }
+
+                if (isLoading) {
+                    loadMoreButton.disabled = true;
+                    if (loadMoreSpinner) {
+                        loadMoreSpinner.classList.remove('d-none');
+                    }
+                    if (loadMoreLabel) {
+                        loadMoreLabel.textContent = 'Se încarcă...';
+                    }
+                } else {
+                    loadMoreButton.disabled = false;
+                    if (loadMoreSpinner) {
+                        loadMoreSpinner.classList.add('d-none');
+                    }
+                    if (loadMoreLabel) {
+                        loadMoreLabel.textContent = 'Încarcă mai multe';
+                    }
+                }
+            };
+
+            const appendHtml = (container, html) => {
+                if (!container || !html) {
+                    return;
+                }
+
+                const template = document.createElement('template');
+                template.innerHTML = html.trim();
+                container.appendChild(template.content);
+            };
+
+            const handleLoadMore = () => {
+                if (!loadState.nextUrl || loadState.loading) {
+                    return;
+                }
+
+                setLoadingState(true);
+
+                fetch(loadState.nextUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Solicitarea a eșuat.');
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.rows_html) {
+                            appendHtml(tableBody, data.rows_html);
+                        }
+
+                        loadState.nextUrl = data.next_url || null;
+
+                        if (loadMoreTrigger) {
+                            loadMoreTrigger.dataset.nextUrl = loadState.nextUrl || '';
+                        }
+
+                        if (loadMoreButton) {
+                            loadMoreButton.classList.remove('btn-danger');
+                        }
+
+                        if (!loadState.nextUrl && loadMoreButton) {
+                            loadMoreButton.remove();
+                        }
+
+                        if (!loadState.nextUrl && loadState.observer) {
+                            loadState.observer.disconnect();
+                        }
+
+                        setLoadingState(false);
+                    })
+                    .catch(() => {
+                        if (loadMoreButton) {
+                            loadMoreButton.classList.add('btn-danger');
+                        }
+
+                        if (loadMoreLabel) {
+                            loadMoreLabel.textContent = 'A apărut o eroare. Reîncearcă';
+                        }
+
+                        setLoadingState(false);
+                    });
+            };
+
+            if (loadMoreButton) {
+                loadMoreButton.addEventListener('click', () => {
+                    handleLoadMore();
+                });
+            }
+
+            if ('IntersectionObserver' in window && loadMoreTrigger) {
+                loadState.observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            handleLoadMore();
+                        }
+                    });
+                }, {
+                    root: null,
+                    rootMargin: '0px 0px 200px 0px',
+                });
+
+                loadState.observer.observe(loadMoreTrigger);
+            }
+        });
+    </script>
+@endpush
 @endsection
