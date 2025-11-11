@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Valabilitate;
+use App\Support\Valabilitati\ValabilitatiFilterState;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 
 class ValabilitateController extends Controller
 {
@@ -20,56 +21,21 @@ class ValabilitateController extends Controller
      */
     public function index(Request $request): View
     {
-        $filters = $this->extractFilters($request);
+        $filters = $this->validateFilters($request);
         $valabilitati = $this->paginateValabilitati($request, $filters);
-        $today = now()->startOfDay();
 
-        $statusCounts = [
-            'active' => Valabilitate::query()
-                ->where(function ($subQuery) use ($today): void {
-                    $subQuery
-                        ->whereNull('data_sfarsit')
-                        ->orWhereDate('data_sfarsit', '>=', $today);
-                })
-                ->count(),
-            'expirate' => Valabilitate::query()
-                ->whereNotNull('data_sfarsit')
-                ->whereDate('data_sfarsit', '<', $today)
-                ->count(),
-        ];
-
-        $denumiri = Valabilitate::query()
-            ->select('denumire')
-            ->distinct()
-            ->orderBy('denumire')
-            ->pluck('denumire');
-
-        $numereAuto = Valabilitate::query()
-            ->select('numar_auto')
-            ->distinct()
-            ->orderBy('numar_auto')
-            ->pluck('numar_auto');
-
-        $soferi = User::query()
-            ->select('name')
-            ->whereHas('valabilitati')
-            ->orderBy('name')
-            ->pluck('name');
+        ValabilitatiFilterState::remember($request, $this->filtersToQueryString($filters));
 
         return view('valabilitati.index', [
             'valabilitati' => $valabilitati,
             'filters' => $filters,
-            'statusCounts' => $statusCounts,
-            'denumiri' => $denumiri,
-            'numereAuto' => $numereAuto,
-            'soferi' => $soferi,
             'nextPageUrl' => $this->buildNextPageUrl($request, $valabilitati),
         ]);
     }
 
     public function paginate(Request $request): JsonResponse
     {
-        $filters = $this->extractFilters($request);
+        $filters = $this->validateFilters($request);
         $valabilitati = $this->paginateValabilitati($request, $filters);
 
         return response()->json([
@@ -80,22 +46,33 @@ class ValabilitateController extends Controller
         ]);
     }
 
+    private function validateFilters(Request $request): array
+    {
+        $validated = $request->validate([
+            'numar_auto' => ['nullable', 'string', 'max:255'],
+            'sofer' => ['nullable', 'string', 'max:255'],
+            'denumire' => ['nullable', 'string', 'max:255'],
+            'interval_start' => ['nullable', 'date'],
+            'interval_end' => ['nullable', 'date', 'after_or_equal:interval_start'],
+        ]);
+
+        return [
+            'numar_auto' => trim((string) ($validated['numar_auto'] ?? '')),
+            'sofer' => trim((string) ($validated['sofer'] ?? '')),
+            'denumire' => trim((string) ($validated['denumire'] ?? '')),
+            'interval_start' => $validated['interval_start'] ?? null,
+            'interval_end' => $validated['interval_end'] ?? null,
+        ];
+    }
+
     /**
+     * @param array<string, mixed> $filters
+     *
      * @return array<string, mixed>
      */
-    private function extractFilters(Request $request): array
+    private function filtersToQueryString(array $filters): array
     {
-        return [
-            'status' => $request->input('status', 'toate'),
-            'denumire' => trim((string) $request->input('denumire', '')),
-            'sofer' => trim((string) $request->input('sofer', '')),
-            'numar_auto' => trim((string) $request->input('numar_auto', '')),
-            'inceput_de_la' => $request->input('inceput_de_la', ''),
-            'inceput_pana_la' => $request->input('inceput_pana_la', ''),
-            'sfarsit_de_la' => $request->input('sfarsit_de_la', ''),
-            'sfarsit_pana_la' => $request->input('sfarsit_pana_la', ''),
-            'fara_sfarsit' => $request->boolean('fara_sfarsit'),
-        ];
+        return array_filter($filters, static fn ($value) => $value !== null && $value !== '');
     }
 
     /**
@@ -106,50 +83,28 @@ class ValabilitateController extends Controller
         $query = Valabilitate::query()->with(['sofer']);
 
         if ($filters['denumire'] !== '') {
-            $query->where('denumire', 'like', '%' . $filters['denumire'] . '%');
+            $denumire = Str::lower($filters['denumire']);
+            $query->whereRaw('LOWER(denumire) LIKE ?', ["%{$denumire}%"]);
         }
 
         if ($filters['sofer'] !== '') {
-            $query->whereHas('sofer', function (Builder $builder) use ($filters): void {
-                $builder->where('name', 'like', '%' . $filters['sofer'] . '%');
+            $sofer = Str::lower($filters['sofer']);
+            $query->whereHas('sofer', function (Builder $builder) use ($sofer): void {
+                $builder->whereRaw('LOWER(name) LIKE ?', ["%{$sofer}%"]);
             });
         }
 
         if ($filters['numar_auto'] !== '') {
-            $query->where('numar_auto', 'like', '%' . $filters['numar_auto'] . '%');
+            $numarAuto = Str::lower($filters['numar_auto']);
+            $query->whereRaw('LOWER(numar_auto) LIKE ?', ["%{$numarAuto}%"]);
         }
 
-        if ($filters['inceput_de_la'] !== '') {
-            $query->whereDate('data_inceput', '>=', $filters['inceput_de_la']);
+        if ($filters['interval_start']) {
+            $query->whereDate('data_inceput', '>=', $filters['interval_start']);
         }
 
-        if ($filters['inceput_pana_la'] !== '') {
-            $query->whereDate('data_inceput', '<=', $filters['inceput_pana_la']);
-        }
-
-        if ($filters['sfarsit_de_la'] !== '') {
-            $query->whereDate('data_sfarsit', '>=', $filters['sfarsit_de_la']);
-        }
-
-        if ($filters['sfarsit_pana_la'] !== '') {
-            $query->whereDate('data_sfarsit', '<=', $filters['sfarsit_pana_la']);
-        }
-
-        if ($filters['fara_sfarsit']) {
-            $query->whereNull('data_sfarsit');
-        }
-
-        $today = now()->startOfDay();
-        $statusFilter = $filters['status'];
-
-        if ($statusFilter === 'active') {
-            $query->where(function (Builder $builder) use ($today): void {
-                $builder
-                    ->whereNull('data_sfarsit')
-                    ->orWhereDate('data_sfarsit', '>=', $today);
-            });
-        } elseif ($statusFilter === 'expirate') {
-            $query->whereNotNull('data_sfarsit')->whereDate('data_sfarsit', '<', $today);
+        if ($filters['interval_end']) {
+            $query->whereDate('data_inceput', '<=', $filters['interval_end']);
         }
 
         return $query;
