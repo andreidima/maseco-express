@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Collection;
@@ -19,28 +18,17 @@ class ValabilitateCursa extends Model
         'valabilitate_id',
         'localitate_plecare',
         'localitate_sosire',
-        'descarcare_tara',
         'plecare_la',
         'sosire_la',
-        'ora',
         'km_bord',
         'observatii',
-        'ultima_cursa',
     ];
 
     protected $casts = [
         'plecare_la' => 'immutable_datetime',
         'sosire_la' => 'immutable_datetime',
         'km_bord' => 'integer',
-        'ultima_cursa' => 'boolean',
     ];
-
-    protected function descarcareTara(): Attribute
-    {
-        return Attribute::make(
-            set: fn (?string $value) => $value !== null ? strtoupper(trim($value)) : null,
-        );
-    }
 
     public function valabilitate(): BelongsTo
     {
