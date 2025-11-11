@@ -328,7 +328,7 @@ Route::middleware(['auth'])->group(function () {
             ->parameters(['masini-valabilitati' => 'masinaValabilitati']);
     });
 
-    Route::middleware('permission:valabilitati')->group(function () {
+    Route::middleware(['permission:valabilitati', 'role:super-admin,admin'])->group(function () {
         Route::resource('valabilitati', ValabilitateController::class)
             ->parameters(['valabilitati' => 'valabilitate']);
 
