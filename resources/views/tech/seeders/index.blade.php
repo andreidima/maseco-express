@@ -7,9 +7,6 @@
                 <h1 class="h3 mb-1">Seeder Control Center</h1>
                 <p class="text-muted mb-0">Review each seeder's responsibilities, impacted tables, and safety notes before executing it.</p>
             </div>
-            <a href="{{ route('tech.migrations.index') }}" class="btn btn-outline-secondary">
-                <i class="fa-solid fa-arrow-left me-1"></i>Back to migrations dashboard
-            </a>
         </div>
 
         @if ($seederStatus)
