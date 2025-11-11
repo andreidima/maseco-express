@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\View\View;
 use Throwable;
 
-class MigrationCenterController extends Controller
+class MigrationDashboardController extends Controller
 {
     public function index(Request $request, MigrationCenterService $service): View
     {
@@ -66,4 +66,5 @@ class MigrationCenterController extends Controller
                 ]);
         }
     }
+
 }
