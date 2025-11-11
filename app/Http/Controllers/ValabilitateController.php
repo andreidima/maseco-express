@@ -213,6 +213,9 @@ class ValabilitateController extends Controller
     {
         return User::query()
             ->where('activ', 1)
+            ->whereHas('roles', function (Builder $query): void {
+                $query->where('slug', 'sofer');
+            })
             ->orderBy('name')
             ->pluck('name', 'id')
             ->toArray();
