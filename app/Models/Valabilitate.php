@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\User;
 
 class Valabilitate extends Model
@@ -29,6 +30,11 @@ class Valabilitate extends Model
     public function sofer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sofer_id');
+    }
+
+    public function curse(): HasMany
+    {
+        return $this->hasMany(ValabilitateCursa::class);
     }
 
     public function syncSummary(): void
