@@ -171,8 +171,8 @@ class ValabilitateCursaController extends Controller
     private function paginateCurse(Request $request, Valabilitate $valabilitate, array $filters, ?array $query = null): LengthAwarePaginator
     {
         $paginator = $this->buildFilteredQuery($valabilitate, $filters)
-            ->orderByDesc('data_cursa')
-            ->orderByDesc('created_at')
+            ->orderBy('data_cursa')
+            ->orderBy('created_at')
             ->paginate(self::PER_PAGE);
 
         if ($query !== null) {

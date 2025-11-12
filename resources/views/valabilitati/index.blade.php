@@ -450,6 +450,16 @@
                         if (response.status === 422) {
                             return response.json().then(data => {
                                 displayValidationErrors(form, data.errors || {});
+
+                                if (data.should_close_modal) {
+                                    const modalElement = form.closest('.modal');
+                                    closeModal(modalElement);
+                                }
+
+                                if (data.message) {
+                                    showFeedback(data.message, data.feedback_type || 'danger');
+                                }
+
                                 throw new Error('validation');
                             });
                         }
