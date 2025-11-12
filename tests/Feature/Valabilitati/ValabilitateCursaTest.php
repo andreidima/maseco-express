@@ -29,7 +29,8 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Livrare completă',
         ]);
 
-        $response->assertRedirect(route('valabilitati.show', $valabilitate));
+        $response->assertRedirect(route('valabilitati.curse.index', $valabilitate));
+        $response->assertSessionHas('status', 'Cursa a fost adăugată cu succes.');
 
         $this->assertDatabaseHas('valabilitati_curse', [
             'valabilitate_id' => $valabilitate->id,
@@ -66,7 +67,8 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Actualizare detalii',
         ]);
 
-        $response->assertRedirect(route('valabilitati.show', $cursa->valabilitate));
+        $response->assertRedirect(route('valabilitati.curse.index', $cursa->valabilitate));
+        $response->assertSessionHas('status', 'Cursa a fost actualizată.');
 
         $this->assertDatabaseHas('valabilitati_curse', [
             'id' => $cursa->id,
@@ -86,7 +88,8 @@ class ValabilitateCursaTest extends TestCase
 
         $response = $this->actingAs($user)->delete(route('valabilitati.curse.destroy', [$cursa->valabilitate, $cursa]));
 
-        $response->assertRedirect(route('valabilitati.show', $cursa->valabilitate));
+        $response->assertRedirect(route('valabilitati.curse.index', $cursa->valabilitate));
+        $response->assertSessionHas('status', 'Cursa a fost ștearsă.');
         $this->assertDatabaseMissing('valabilitati_curse', ['id' => $cursa->id]);
     }
 

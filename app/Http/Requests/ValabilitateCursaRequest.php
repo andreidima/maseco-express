@@ -2,7 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Valabilitate;
+use App\Support\Valabilitati\ValabilitatiCurseFilterState;
+use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\ValidationException;
 
 class ValabilitateCursaRequest extends FormRequest
 {
@@ -23,5 +27,46 @@ class ValabilitateCursaRequest extends FormRequest
             'data_cursa' => ['nullable', 'date'],
             'observatii' => ['nullable', 'string'],
         ];
+    }
+
+    protected function failedValidation(Validator $validator): void
+    {
+        if ($this->expectsJson()) {
+            parent::failedValidation($validator);
+
+            return;
+        }
+
+        $valabilitate = $this->route('valabilitate');
+        $modalKey = $this->determineModalKey();
+
+        $response = redirect($this->resolveRedirectUrl($valabilitate))
+            ->withErrors($validator)
+            ->withInput($this->all())
+            ->with('curse.modal', $modalKey);
+
+        throw new ValidationException($validator, $response);
+    }
+
+    private function determineModalKey(): string
+    {
+        $formType = (string) $this->input('form_type', '');
+
+        if ($formType === 'edit') {
+            $formId = (int) $this->input('form_id');
+
+            return $formId > 0 ? 'edit:' . $formId : 'edit';
+        }
+
+        return 'create';
+    }
+
+    private function resolveRedirectUrl(?Valabilitate $valabilitate): string
+    {
+        if ($valabilitate instanceof Valabilitate) {
+            return ValabilitatiCurseFilterState::route($valabilitate);
+        }
+
+        return url()->previous();
     }
 }

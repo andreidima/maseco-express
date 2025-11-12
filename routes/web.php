@@ -336,12 +336,12 @@ Route::middleware(['auth'])->group(function () {
             ->parameters(['valabilitati' => 'valabilitate']);
 
         Route::scopeBindings()->group(function () {
+            Route::get('valabilitati/{valabilitate}/curse/paginate', [ValabilitateCursaController::class, 'paginate'])
+                ->name('valabilitati.curse.paginate');
             Route::get('valabilitati/{valabilitate}/curse', [ValabilitateCursaController::class, 'index'])
                 ->name('valabilitati.curse.index');
             Route::post('valabilitati/{valabilitate}/curse', [ValabilitateCursaController::class, 'store'])
                 ->name('valabilitati.curse.store');
-            Route::get('valabilitati/{valabilitate}/curse/{cursa}/edit', [ValabilitateCursaController::class, 'edit'])
-                ->name('valabilitati.curse.edit');
             Route::put('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'update'])
                 ->name('valabilitati.curse.update');
             Route::delete('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'destroy'])
