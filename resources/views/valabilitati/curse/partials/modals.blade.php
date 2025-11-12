@@ -44,7 +44,7 @@
         aria-labelledby="cursaCreateModalLabel"
         aria-hidden="true"
     >
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog" role="document" style="--bs-modal-width: 750px;">
             <div class="modal-content">
                 <div class="modal-header bg-success text-white">
                     <h5 class="modal-title" id="cursaCreateModalLabel">Adaugă cursă</h5>
@@ -86,7 +86,7 @@
                             }
                         @endphp
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="cursa-create-incarcare-localitate" class="form-label">Localitate încărcare</label>
                                 <input
                                     type="text"
@@ -103,7 +103,7 @@
                                     {{ $isCreateActive ? $errors->first('incarcare_localitate') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="cursa-create-incarcare-cod-postal" class="form-label">Cod poștal încărcare</label>
                                 <input
                                     type="text"
@@ -120,7 +120,7 @@
                                     {{ $isCreateActive ? $errors->first('incarcare_cod_postal') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6" data-country-field>
+                            <div class="col-md-4" data-country-field>
                                 <label for="cursa-create-incarcare-tara" class="form-label">Țară încărcare</label>
                                 <input type="hidden" name="incarcare_tara_id" value="{{ $createIncarcareTaraId }}" data-country-hidden="true">
                                 <input
@@ -141,7 +141,7 @@
                                     {{ $isCreateActive ? $errors->first('incarcare_tara_id') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="cursa-create-descarcare-localitate" class="form-label">Localitate descărcare</label>
                                 <input
                                     type="text"
@@ -158,7 +158,7 @@
                                     {{ $isCreateActive ? $errors->first('descarcare_localitate') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="cursa-create-descarcare-cod-postal" class="form-label">Cod poștal descărcare</label>
                                 <input
                                     type="text"
@@ -175,7 +175,7 @@
                                     {{ $isCreateActive ? $errors->first('descarcare_cod_postal') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6" data-country-field>
+                            <div class="col-md-4" data-country-field>
                                 <label for="cursa-create-descarcare-tara" class="form-label">Țară descărcare</label>
                                 <input type="hidden" name="descarcare_tara_id" value="{{ $createDescarcareTaraId }}" data-country-hidden="true">
                                 <input
@@ -196,7 +196,7 @@
                                     {{ $isCreateActive ? $errors->first('descarcare_tara_id') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-8">
                                 <label for="cursa-create-data-date" class="form-label">Data și ora cursei</label>
                                 <div class="row g-2">
                                     <div class="col-6">
@@ -228,7 +228,7 @@
                                     {{ $isCreateActive ? $errors->first('data_cursa') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="cursa-create-km-bord" class="form-label">Km bord</label>
                                 <input
                                     type="number"
@@ -319,7 +319,7 @@
         aria-labelledby="cursaEditModalLabel{{ $cursa->id }}"
         aria-hidden="true"
     >
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog" role="document" style="--bs-modal-width: 750px;">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
                     <h5 class="modal-title" id="cursaEditModalLabel{{ $cursa->id }}">Modifică cursa</h5>
@@ -337,7 +337,7 @@
                     <input type="hidden" name="form_id" value="{{ $cursa->id }}">
                     <div class="modal-body">
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="{{ $editPrefix }}incarcare-localitate" class="form-label">Localitate încărcare</label>
                                 <input
                                     type="text"
@@ -354,7 +354,7 @@
                                     {{ $isEditing ? $errors->first('incarcare_localitate') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="{{ $editPrefix }}incarcare-cod-postal" class="form-label">Cod poștal încărcare</label>
                                 <input
                                     type="text"
@@ -371,7 +371,7 @@
                                     {{ $isEditing ? $errors->first('incarcare_cod_postal') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6" data-country-field>
+                            <div class="col-md-4" data-country-field>
                                 <label for="{{ $editPrefix }}incarcare-tara" class="form-label">Țară încărcare</label>
                                 <input type="hidden" name="incarcare_tara_id" value="{{ $editIncarcareTaraId }}" data-country-hidden="true">
                                 <input
@@ -392,7 +392,7 @@
                                     {{ $isEditing ? $errors->first('incarcare_tara_id') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="{{ $editPrefix }}descarcare-localitate" class="form-label">Localitate descărcare</label>
                                 <input
                                     type="text"
@@ -409,7 +409,7 @@
                                     {{ $isEditing ? $errors->first('descarcare_localitate') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="{{ $editPrefix }}descarcare-cod-postal" class="form-label">Cod poștal descărcare</label>
                                 <input
                                     type="text"
@@ -426,7 +426,7 @@
                                     {{ $isEditing ? $errors->first('descarcare_cod_postal') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6" data-country-field>
+                            <div class="col-md-4" data-country-field>
                                 <label for="{{ $editPrefix }}descarcare-tara" class="form-label">Țară descărcare</label>
                                 <input type="hidden" name="descarcare_tara_id" value="{{ $editDescarcareTaraId }}" data-country-hidden="true">
                                 <input
@@ -447,7 +447,7 @@
                                     {{ $isEditing ? $errors->first('descarcare_tara_id') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-8">
                                 <label for="{{ $editPrefix }}data-date" class="form-label">Data și ora cursei</label>
                                 <div class="row g-2">
                                     <div class="col-6">
@@ -479,7 +479,7 @@
                                     {{ $isEditing ? $errors->first('data_cursa') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="{{ $editPrefix }}km-bord" class="form-label">Km bord</label>
                                 <input
                                     type="number"

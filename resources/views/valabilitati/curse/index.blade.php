@@ -14,7 +14,7 @@
         <div class="col-lg-8 mb-0" id="formularCurse">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
                 <div class="row mb-1 custom-search-form justify-content-center align-items-end">
-                    <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-6 col-md-6 mb-2 mb-lg-0">
                         <input
                             type="text"
                             class="form-control rounded-3"
@@ -24,7 +24,7 @@
                             value="{{ $filters['localitate'] }}"
                         >
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-6 col-md-6 mb-2 mb-lg-0">
                         <input
                             type="text"
                             class="form-control rounded-3"
@@ -32,16 +32,6 @@
                             name="cod_postal"
                             placeholder="Cod poștal"
                             value="{{ $filters['cod_postal'] }}"
-                        >
-                    </div>
-                    <div class="col-lg-5 col-md-12 mb-2 mb-lg-0">
-                        <input
-                            type="text"
-                            class="form-control rounded-3"
-                            id="filter-observatii"
-                            name="observatii"
-                            placeholder="Observații"
-                            value="{{ $filters['observatii'] }}"
                         >
                     </div>
                 </div>
@@ -134,7 +124,6 @@
                         <th>Descărcare - țară</th>
                         <th>Data cursă</th>
                         <th>Km bord</th>
-                        <th>Observații</th>
                         <th class="text-end">Acțiuni</th>
                     </tr>
                 </thead>
@@ -143,7 +132,7 @@
                         @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                     @else
                         <tr>
-                            <td colspan="11" class="text-center py-4">Nu există curse care să respecte criteriile selectate.</td>
+                            <td colspan="10" class="text-center py-4">Nu există curse care să respecte criteriile selectate.</td>
                         </tr>
                     @endif
                 </tbody>
