@@ -34,10 +34,6 @@ use App\Http\Controllers\Masini\MasiniMementoController;
 use App\Http\Controllers\DocumentWordController;
 use App\Http\Controllers\KeyPerformanceIndicatorController;
 use App\Http\Controllers\OfertaCursaController;
-use App\Http\Controllers\Driver\DashboardController as DriverDashboardController;
-use App\Http\Controllers\Driver\ValabilitateController as DriverValabilitateController;
-use App\Http\Controllers\Driver\CursaController as DriverCursaController;
-use App\Http\Controllers\Driver\LocalitateController as DriverLocalitateController;
 use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorController;
 use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorFisierController;
 use App\Http\Controllers\FacturiFurnizori\PlataCalupController;
@@ -94,26 +90,6 @@ Route::get('oferte-curse', [OfertaCursaController::class, 'index'])->name('ofert
 Route::redirect('/', '/acasa');
 
 Route::middleware(['auth'])->group(function () {
-    Route::prefix('driver')
-        ->name('driver.')
-        ->middleware('role:soferi')
-        ->group(function () {
-            Route::get('/', DriverDashboardController::class)->name('dashboard');
-
-            Route::get('/api/valabilitati', [DriverValabilitateController::class, 'index'])
-                ->name('api.valabilitati.index');
-            Route::get('/api/valabilitati/{valabilitate}', [DriverValabilitateController::class, 'show'])
-                ->name('api.valabilitati.show');
-            Route::post('/api/valabilitati/{valabilitate}/curse', [DriverCursaController::class, 'store'])
-                ->name('api.valabilitati.curse.store');
-            Route::put('/api/valabilitati/{valabilitate}/curse/{cursa}', [DriverCursaController::class, 'update'])
-                ->name('api.valabilitati.curse.update');
-            Route::delete('/api/valabilitati/{valabilitate}/curse/{cursa}', [DriverCursaController::class, 'destroy'])
-                ->name('api.valabilitati.curse.destroy');
-            Route::get('/api/localitati', DriverLocalitateController::class)
-                ->name('api.localitati.index');
-        });
-
     Route::middleware('role:sofer')->group(function () {
         Route::get('sofer/dashboard', SoferDashboardController::class)->name('sofer.dashboard');
     });
