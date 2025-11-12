@@ -45,37 +45,33 @@
                         >
                     </div>
                 </div>
+                @php
+                    $dateRangeFilter = implode(',', array_filter([
+                        $filters['data_start'] ?? null,
+                        $filters['data_end'] ?? null,
+                    ]));
+                @endphp
                 <div class="row custom-search-form justify-content-center align-items-end" id="datePicker">
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
-                        <label for="filter-data-start" class="form-label mb-0 ps-3">Început perioadă</label>
+                    <div class="col-lg-6 col-md-6 mb-2 mb-lg-0">
+                        <label for="filter-data-interval" class="form-label mb-0 ps-3">Perioadă</label>
                         <vue-datepicker-next
-                            id="filter-data-start"
-                            data-veche="{{ $filters['data_start'] }}"
-                            nume-camp-db="data_start"
+                            id="filter-data-interval"
+                            data-veche="{{ $dateRangeFilter }}"
                             tip="date"
                             value-type="YYYY-MM-DD"
                             format="DD.MM.YYYY"
                             :latime="{ width: '100%' }"
+                            :range="true"
+                            range-start-name="data_start"
+                            range-end-name="data_end"
                         ></vue-datepicker-next>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
-                        <label for="filter-data-end" class="form-label mb-0 ps-3">Sfârșit perioadă</label>
-                        <vue-datepicker-next
-                            id="filter-data-end"
-                            data-veche="{{ $filters['data_end'] }}"
-                            nume-camp-db="data_end"
-                            tip="date"
-                            value-type="YYYY-MM-DD"
-                            format="DD.MM.YYYY"
-                            :latime="{ width: '100%' }"
-                        ></vue-datepicker-next>
-                    </div>
-                    <div class="col-lg-3 col-md-4 mb-2 mb-md-0">
+                    <div class="col-lg-3 col-md-3 mb-2 mb-md-0">
                         <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit">
                             <i class="fas fa-search text-white me-1"></i>Caută
                         </button>
                     </div>
-                    <div class="col-lg-3 col-md-4">
+                    <div class="col-lg-3 col-md-3">
                         <a
                             class="btn btn-sm w-100 btn-secondary text-white border border-dark rounded-3"
                             href="{{ route('valabilitati.curse.index', $valabilitate) }}"

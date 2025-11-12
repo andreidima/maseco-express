@@ -21,7 +21,9 @@ export default {
     'doarZiuaB',
     'minuteStep',
     'hours',
-    'range'],
+    'range',
+    'rangeStartName',
+    'rangeEndName'],
   computed: {
     latimePrelucrata() {
       if (this.tip === "time") {
@@ -58,6 +60,8 @@ export default {
         // disabledDates: {
         //         weekdays: [1, 7]
         // }
+        rangeStartValue: '',
+        rangeEndValue: '',
     }
   },
     methods: {
@@ -125,6 +129,33 @@ export default {
             }
         },
     },
+    watch: {
+        time: {
+            handler(value) {
+                if (!this.range || (!this.rangeStartName && !this.rangeEndName)) {
+                    this.rangeStartValue = '';
+                    this.rangeEndValue = '';
+                    return;
+                }
+
+                if (Array.isArray(value)) {
+                    this.rangeStartValue = value[0] ?? '';
+                    this.rangeEndValue = value[1] ?? '';
+                    return;
+                }
+
+                if (typeof value === 'string' && value !== '') {
+                    this.rangeStartValue = value;
+                    this.rangeEndValue = '';
+                } else {
+                    this.rangeStartValue = '';
+                    this.rangeEndValue = '';
+                }
+            },
+            deep: true,
+            immediate: true,
+        }
+    },
     created() {
         // if ((typeof this.dataVeche !== 'undefined') && (this.dataVeche !== "")) {
         if (this.dataVeche != null && this.dataVeche !== "") {
@@ -153,7 +184,25 @@ export default {
 
 <template>
   <div>
-    <input type="text" :name=numeCampDb v-model="time" v-show="false">
+    <input
+        v-if="numeCampDb"
+        type="text"
+        :name="numeCampDb"
+        v-model="time"
+        v-show="false"
+    >
+    <input
+        v-if="range && rangeStartName"
+        type="hidden"
+        :name="rangeStartName"
+        :value="rangeStartValue"
+    >
+    <input
+        v-if="range && rangeEndName"
+        type="hidden"
+        :name="rangeEndName"
+        :value="rangeEndValue"
+    >
     <date-picker
         v-model:value="time"
         :type=tip
