@@ -106,6 +106,8 @@ class ValabilitateController extends Controller
                     'errors' => [
                         'curse' => [$message],
                     ],
+                    'should_close_modal' => true,
+                    'feedback_type' => 'danger',
                 ], 422);
             }
 

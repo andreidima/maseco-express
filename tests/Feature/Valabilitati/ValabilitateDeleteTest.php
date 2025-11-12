@@ -45,6 +45,8 @@ class ValabilitateDeleteTest extends TestCase
             'errors' => [
                 'curse' => ['Valabilitatea nu poate fi ștearsă deoarece are curse asociate.'],
             ],
+            'should_close_modal' => true,
+            'feedback_type' => 'danger',
         ]);
         $this->assertDatabaseHas('valabilitati', ['id' => $valabilitate->id]);
     }
