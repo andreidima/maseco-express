@@ -60,9 +60,6 @@ class ValabilitateController extends Controller
     {
         $valabilitate->loadMissing([
             'sofer',
-            'curse' => fn ($query) => $query
-                ->orderByDesc('data_cursa')
-                ->orderByDesc('created_at'),
         ]);
 
         return view('valabilitati.show', [
