@@ -367,17 +367,28 @@
                     `;
                 }
 
-                const method = (form.getAttribute('method') || 'POST').toUpperCase();
+                const methodAttribute = (form.getAttribute('method') || 'POST').toUpperCase();
+                const spoofedMethodInput = form.querySelector('input[name="_method"]');
+                const actualMethod =
+                    methodAttribute === 'POST' && spoofedMethodInput && spoofedMethodInput.value
+                        ? spoofedMethodInput.value.toUpperCase()
+                        : methodAttribute;
+
                 const fetchOptions = {
-                    method,
+                    method: actualMethod,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json',
                     },
+                    credentials: 'same-origin',
                 };
 
-                if (method !== 'GET') {
+                if (actualMethod !== 'GET') {
                     fetchOptions.body = new FormData(form);
+
+                    if (actualMethod !== methodAttribute && spoofedMethodInput) {
+                        fetchOptions.headers['X-HTTP-Method-Override'] = spoofedMethodInput.value.toUpperCase();
+                    }
                 }
 
                 fetch(form.action, fetchOptions)
