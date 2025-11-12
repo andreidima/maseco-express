@@ -12,17 +12,16 @@
         </div>
         <div class="col-lg-10 mb-0" id="formularValabilitati">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
-                <div class="row mb-1 custom-search-form justify-content-center align-items-end">
+                <div class="row mb-1 custom-search-form justify-content-center align-items-end" id="datePicker">
                     <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
                         <input type="text" class="form-control rounded-3" id="filter-numar-auto" name="numar_auto" placeholder="Număr auto" value="{{ $filters['numar_auto'] }}">
                     </div>
-                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
                         <input type="text" class="form-control rounded-3" id="filter-sofer" name="sofer" placeholder="Șofer" value="{{ $filters['sofer'] }}">
                     </div>
-                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
                         <input type="text" class="form-control rounded-3" id="filter-denumire" name="denumire" placeholder="Denumire" value="{{ $filters['denumire'] }}">
                     </div>
-                </div>
                 @php
                     $inceputRangeFilter = implode(',', array_filter([
                         $filters['inceput_start'] ?? null,
@@ -33,8 +32,7 @@
                         $filters['sfarsit_end'] ?? null,
                     ]));
                 @endphp
-                <div class="row custom-search-form justify-content-center align-items-end" id="datePicker">
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
                         <label for="filter-interval-inceput" class="form-label mb-0 ps-3">Început</label>
                         <vue-datepicker-next
                             id="filter-interval-inceput"
@@ -48,7 +46,7 @@
                             range-end-name="inceput_end"
                         ></vue-datepicker-next>
                     </div>
-                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
                         <label for="filter-interval-sfarsit" class="form-label mb-0 ps-3">Sfârșit</label>
                         <vue-datepicker-next
                             id="filter-interval-sfarsit"

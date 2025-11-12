@@ -13,8 +13,8 @@
         </div>
         <div class="col-lg-8 mb-0" id="formularCurse">
             <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
-                <div class="row mb-1 custom-search-form justify-content-center align-items-end">
-                    <div class="col-lg-6 col-md-6 mb-2 mb-lg-0">
+                <div class="row mb-1 custom-search-form justify-content-center align-items-end" id="datePicker">
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
                         <input
                             type="text"
                             class="form-control rounded-3"
@@ -24,7 +24,7 @@
                             value="{{ $filters['localitate'] }}"
                         >
                     </div>
-                    <div class="col-lg-6 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
                         <input
                             type="text"
                             class="form-control rounded-3"
@@ -34,15 +34,13 @@
                             value="{{ $filters['cod_postal'] }}"
                         >
                     </div>
-                </div>
                 @php
                     $dateRangeFilter = implode(',', array_filter([
                         $filters['data_start'] ?? null,
                         $filters['data_end'] ?? null,
                     ]));
                 @endphp
-                <div class="row custom-search-form justify-content-center align-items-end" id="datePicker">
-                    <div class="col-lg-6 col-md-6 mb-2 mb-lg-0">
+                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
                         <label for="filter-data-interval" class="form-label mb-0 ps-3">Perioadă</label>
                         <vue-datepicker-next
                             id="filter-data-interval"
@@ -56,12 +54,12 @@
                             range-end-name="data_end"
                         ></vue-datepicker-next>
                     </div>
-                    <div class="col-lg-3 col-md-3 mb-2 mb-md-0">
+                    <div class="col-lg-2 col-md-3 mb-2 mb-md-0">
                         <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit">
                             <i class="fas fa-search text-white me-1"></i>Caută
                         </button>
                     </div>
-                    <div class="col-lg-3 col-md-3">
+                    <div class="col-lg-2 col-md-3">
                         <a
                             class="btn btn-sm w-100 btn-secondary text-white border border-dark rounded-3"
                             href="{{ route('valabilitati.curse.index', $valabilitate) }}"
@@ -79,7 +77,7 @@
                     href="{{ $backUrl }}"
                     class="btn btn-sm btn-outline-secondary border border-dark rounded-3"
                 >
-                    <i class="fa-solid fa-list me-1"></i>Înapoi la listă
+                    <i class="fa-solid fa-list me-1"></i>Înapoi la valabilități
                 </a>
                 <button
                     type="button"
