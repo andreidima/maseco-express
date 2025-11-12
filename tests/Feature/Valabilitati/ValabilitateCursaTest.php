@@ -197,6 +197,33 @@ class ValabilitateCursaTest extends TestCase
         $response->assertSeeText('15400');
     }
 
+    public function test_index_lists_curse_in_chronological_order(): void
+    {
+        $user = $this->createValabilitatiUser();
+        $valabilitate = Valabilitate::factory()->create();
+
+        ValabilitateCursa::factory()->for($valabilitate)->create([
+            'data_cursa' => '2025-05-10 09:30:00',
+        ]);
+
+        ValabilitateCursa::factory()->for($valabilitate)->create([
+            'data_cursa' => '2025-05-01 08:00:00',
+        ]);
+
+        ValabilitateCursa::factory()->for($valabilitate)->create([
+            'data_cursa' => '2025-05-05 12:00:00',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('valabilitati.curse.index', $valabilitate));
+
+        $response->assertOk();
+        $response->assertSeeInOrder([
+            '01.05.2025 08:00',
+            '05.05.2025 12:00',
+            '10.05.2025 09:30',
+        ]);
+    }
+
     private function createValabilitatiUser(): User
     {
         $user = User::factory()->create();

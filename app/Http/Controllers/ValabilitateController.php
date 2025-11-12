@@ -97,6 +97,21 @@ class ValabilitateController extends Controller
 
     public function destroy(Request $request, Valabilitate $valabilitate): RedirectResponse|JsonResponse
     {
+        if ($valabilitate->curse()->exists()) {
+            $message = 'Valabilitatea nu poate fi ștearsă deoarece are curse asociate.';
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => $message,
+                    'errors' => [
+                        'curse' => [$message],
+                    ],
+                ], 422);
+            }
+
+            return back()->with('error', $message);
+        }
+
         $valabilitate->delete();
 
         return $this->respondAfterMutation($request, 'Valabilitatea a fost ștearsă.');
