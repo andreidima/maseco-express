@@ -413,12 +413,49 @@
                 const alert = document.createElement('div');
                 alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
                 alert.setAttribute('role', 'alert');
-                alert.innerHTML = `
-                    <span>${message}</span>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Închide"></button>
-                `;
+
+                const messageSpan = document.createElement('span');
+                messageSpan.textContent = message;
+                alert.appendChild(messageSpan);
+
+                const closeButton = document.createElement('button');
+                closeButton.type = 'button';
+                closeButton.className = 'btn-close';
+                closeButton.setAttribute('data-bs-dismiss', 'alert');
+                closeButton.setAttribute('aria-label', 'Închide');
+                alert.appendChild(closeButton);
 
                 feedbackContainer.appendChild(alert);
+            };
+
+            const buildErrorDetails = (error) => {
+                if (!error || typeof error !== 'object') {
+                    return '';
+                }
+
+                const details = [];
+                const status = typeof error.status === 'number' ? error.status : error.statusCode;
+
+                if (typeof status === 'number') {
+                    details.push(`cod ${status}`);
+                }
+
+                if (error.statusText) {
+                    details.push(error.statusText);
+                }
+
+                if (error.message && !['request_failed', 'validation'].includes(error.message)) {
+                    details.push(error.message);
+                }
+
+                if (error.body) {
+                    const snippet = String(error.body).trim().replace(/\s+/g, ' ');
+                    if (snippet) {
+                        details.push(snippet.length > 200 ? `${snippet.slice(0, 200)}…` : snippet);
+                    }
+                }
+
+                return details.length ? ` Detalii: ${details.join(' | ')}` : '';
             };
 
             const clearFormErrors = (form) => {
@@ -571,7 +608,14 @@
                         }
 
                         if (!response.ok) {
-                            throw new Error('request_failed');
+                            return response.text().then(body => {
+                                const error = new Error('request_failed');
+                                error.status = response.status;
+                                error.statusText = response.statusText;
+                                error.body = body;
+                                error.url = response.url;
+                                throw error;
+                            });
                         }
 
                         return response.json();
@@ -590,7 +634,11 @@
                             return;
                         }
 
-                        showFeedback('A apărut o eroare neașteptată. Reîncercați.', 'danger');
+                        console.error('Valabilități curse AJAX error', error);
+
+                        const detailText = buildErrorDetails(error);
+                        const baseMessage = 'A apărut o eroare neașteptată. Reîncercați.';
+                        showFeedback(detailText ? `${baseMessage}${detailText}` : baseMessage, 'danger');
                     })
                     .finally(() => {
                         if (submitButton) {
