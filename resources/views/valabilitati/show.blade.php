@@ -63,103 +63,15 @@
                         {{ optional($valabilitate->data_sfarsit)->format('d.m.Y') ?? '—' }}
                     </p>
                     @php($azi = now()->startOfDay())
-                    @php($zileRamase = optional($valabilitate->data_sfarsit)?->diffInDays($azi, false))
                     @php($isActive = is_null($valabilitate->data_sfarsit) || optional($valabilitate->data_sfarsit)->greaterThanOrEqualTo($azi))
                     <p class="mb-0">
                         <strong>Status:</strong>
                         <span class="badge {{ $isActive ? 'bg-success' : 'bg-secondary' }}">
                             {{ $isActive ? 'Activă' : 'Expirată' }}
                         </span>
-                        @if (! is_null($zileRamase))
-                            <span class="ms-2 text-muted">
-                                @if ($zileRamase >= 0)
-                                    {{ $zileRamase }} zile rămase
-                                @else
-                                    Expirată de {{ abs($zileRamase) }} zile
-                                @endif
-                            </span>
-                        @endif
                     </p>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div class="mx-3 px-3 mt-4 card" style="border-radius: 40px;">
-    <div class="card-header d-flex justify-content-between align-items-center" style="border-radius: 40px 40px 0px 0px;">
-        <h6 class="mb-0 text-uppercase">Curse asociate</h6>
-        <span class="badge bg-primary text-white">{{ $valabilitate->curse->count() }} înregistrări</span>
-    </div>
-    <div class="card-body">
-        @if ($valabilitate->curse->isEmpty())
-            <p class="text-muted mb-4">Nu există curse asociate acestei valabilități.</p>
-        @else
-            <div class="table-responsive mb-4">
-                <table class="table table-striped align-middle">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Încărcare - localitate</th>
-                            <th>Încărcare - cod poștal</th>
-                            <th>Descărcare - localitate</th>
-                            <th>Descărcare - cod poștal</th>
-                            <th>Data cursă</th>
-                            <th>Observații</th>
-                            <th class="text-end">Acțiuni</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($valabilitate->curse as $cursa)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td>{{ $cursa->incarcare_localitate ?: '—' }}</td>
-                                <td>{{ $cursa->incarcare_cod_postal ?: '—' }}</td>
-                                <td>{{ $cursa->descarcare_localitate ?: '—' }}</td>
-                                <td>{{ $cursa->descarcare_cod_postal ?: '—' }}</td>
-                                <td>{{ $cursa->data_cursa?->format('d.m.Y H:i') ?: '—' }}</td>
-                                <td>{{ $cursa->observatii ?: '—' }}</td>
-                                <td class="text-end">
-                                    <a
-                                        href="{{ route('valabilitati.curse.edit', [$valabilitate, $cursa]) }}"
-                                        class="btn btn-sm btn-outline-secondary me-2"
-                                        title="Modifică cursa"
-                                    >
-                                        <i class="fa-solid fa-pen"></i>
-                                    </a>
-                                    <form
-                                        action="{{ route('valabilitati.curse.destroy', [$valabilitate, $cursa]) }}"
-                                        method="POST"
-                                        class="d-inline"
-                                        onsubmit="return confirm('Sigur dorești să ștergi această cursă?');"
-                                    >
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-outline-danger" title="Șterge cursa">
-                                            <i class="fa-solid fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        @endif
-
-        <div class="border rounded-3 p-3">
-            <h6 class="text-muted text-uppercase mb-3">Adaugă cursă</h6>
-            <form method="POST" action="{{ route('valabilitati.curse.store', $valabilitate) }}" class="needs-validation" novalidate>
-                @csrf
-
-                @include('valabilitati.curse._form', ['cursa' => null])
-
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-success text-white border border-dark rounded-3">
-                        <i class="fa-solid fa-plus me-1"></i>Adaugă cursă
-                    </button>
-                </div>
-            </form>
         </div>
     </div>
 </div>

@@ -5,11 +5,29 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ValabilitateCursaRequest;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
+use App\Support\Valabilitati\ValabilitatiFilterState;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class ValabilitateCursaController extends Controller
 {
+    public function index(Valabilitate $valabilitate): View
+    {
+        $this->authorize('view', $valabilitate);
+
+        $valabilitate->loadMissing([
+            'sofer',
+            'curse' => fn ($query) => $query
+                ->orderByDesc('data_cursa')
+                ->orderByDesc('created_at'),
+        ]);
+
+        return view('valabilitati.curse.index', [
+            'valabilitate' => $valabilitate,
+            'backUrl' => ValabilitatiFilterState::route(),
+        ]);
+    }
+
     public function store(ValabilitateCursaRequest $request, Valabilitate $valabilitate): RedirectResponse
     {
         $this->authorize('update', $valabilitate);
@@ -17,7 +35,7 @@ class ValabilitateCursaController extends Controller
         $valabilitate->curse()->create($request->validated());
 
         return redirect()
-            ->route('valabilitati.show', $valabilitate)
+            ->route('valabilitati.curse.index', $valabilitate)
             ->with('status', 'Cursa a fost adăugată cu succes.');
     }
 
@@ -42,7 +60,7 @@ class ValabilitateCursaController extends Controller
         $cursa->update($request->validated());
 
         return redirect()
-            ->route('valabilitati.show', $valabilitate)
+            ->route('valabilitati.curse.index', $valabilitate)
             ->with('status', 'Cursa a fost actualizată.');
     }
 
@@ -55,7 +73,7 @@ class ValabilitateCursaController extends Controller
         $cursa->delete();
 
         return redirect()
-            ->route('valabilitati.show', $valabilitate)
+            ->route('valabilitati.curse.index', $valabilitate)
             ->with('status', 'Cursa a fost ștearsă.');
     }
 

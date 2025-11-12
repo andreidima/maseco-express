@@ -73,7 +73,6 @@
                         <th>Început</th>
                         <th>Sfârșit</th>
                         <th>Status</th>
-                        <th class="text-end">Zile rămase</th>
                         <th class="text-end">Acțiuni</th>
                     </tr>
                 </thead>
@@ -82,7 +81,7 @@
                         @include('valabilitati.partials.rows', ['valabilitati' => $valabilitati])
                     @else
                         <tr>
-                            <td colspan="8" class="text-center py-4">Nu există valabilități care să respecte criteriile selectate.</td>
+                            <td colspan="7" class="text-center py-4">Nu există valabilități care să respecte criteriile selectate.</td>
                         </tr>
                     @endif
                 </tbody>

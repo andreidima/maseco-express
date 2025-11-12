@@ -9,9 +9,6 @@
         $isActive = is_null($dataSfarsit) || $dataSfarsit->greaterThanOrEqualTo($azi);
         $statusLabel = $isActive ? 'Activă' : 'Expirată';
         $statusClass = $isActive ? 'bg-success' : 'bg-secondary';
-        $zileRamase = is_null($dataSfarsit)
-            ? null
-            : $azi->diffInDays($dataSfarsit, false);
     @endphp
     <tr>
         <td class="fw-semibold">{{ $valabilitate->denumire }}</td>
@@ -23,16 +20,12 @@
             <span class="badge {{ $statusClass }} text-white">{{ $statusLabel }}</span>
         </td>
         <td class="text-end">
-            @if (is_null($zileRamase))
-                Nelimitat
-            @elseif ($zileRamase >= 0)
-                {{ $zileRamase }} zile
-            @else
-                Expirat de {{ abs($zileRamase) }} zile
-            @endif
-        </td>
-        <td class="text-end">
             <div class="d-flex flex-wrap justify-content-end">
+                <div class="ms-1">
+                    <a href="{{ route('valabilitati.curse.index', $valabilitate) }}" class="flex">
+                        <span class="badge bg-info text-dark">Curse</span>
+                    </a>
+                </div>
                 <div class="ms-1">
                     <a href="{{ route('valabilitati.show', $valabilitate) }}" class="flex">
                         <span class="badge bg-success">Vezi</span>
