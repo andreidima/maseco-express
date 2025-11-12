@@ -1,7 +1,25 @@
 @php
     $currentFormType = $formType ?? old('form_type');
     $currentFormId = (int) ($formId ?? old('form_id'));
+    $tariCollection = collect($tari ?? [])->keyBy('id');
+    $resolveTaraName = static function ($id) use ($tariCollection) {
+        if ($id === null || $id === '') {
+            return '';
+        }
+
+        $id = (int) $id;
+
+        return optional($tariCollection->get($id))->nume ?? '';
+    };
 @endphp
+
+@if (($includeCreate ?? false) === true)
+    <datalist id="valabilitati-curse-tari">
+        @foreach ($tariCollection as $tara)
+            <option value="{{ $tara->nume }}" data-id="{{ $tara->id }}"></option>
+        @endforeach
+    </datalist>
+@endif
 
 @if (($includeCreate ?? false) === true)
     @php
@@ -30,6 +48,21 @@
                     @csrf
                     <input type="hidden" name="form_type" value="create">
                     <div class="modal-body">
+                        @php
+                            $createIncarcareTaraId = $isCreateActive ? old('incarcare_tara_id', '') : '';
+                            $createIncarcareTaraText = $isCreateActive ? old('incarcare_tara_text', '') : '';
+                            if ($createIncarcareTaraText === '' && $createIncarcareTaraId !== '') {
+                                $createIncarcareTaraText = $resolveTaraName($createIncarcareTaraId);
+                            }
+
+                            $createDescarcareTaraId = $isCreateActive ? old('descarcare_tara_id', '') : '';
+                            $createDescarcareTaraText = $isCreateActive ? old('descarcare_tara_text', '') : '';
+                            if ($createDescarcareTaraText === '' && $createDescarcareTaraId !== '') {
+                                $createDescarcareTaraText = $resolveTaraName($createDescarcareTaraId);
+                            }
+
+                            $createKmBord = $isCreateActive ? old('km_bord', '') : '';
+                        @endphp
                         <div class="row g-3">
                             <div class="col-md-6">
                                 <label for="cursa-create-incarcare-localitate" class="form-label">Localitate încărcare</label>
@@ -63,6 +96,27 @@
                                     data-error-for="incarcare_cod_postal"
                                 >
                                     {{ $isCreateActive ? $errors->first('incarcare_cod_postal') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-md-6" data-country-field>
+                                <label for="cursa-create-incarcare-tara" class="form-label">Țară încărcare</label>
+                                <input type="hidden" name="incarcare_tara_id" value="{{ $createIncarcareTaraId }}" data-country-hidden="true">
+                                <input
+                                    type="text"
+                                    name="incarcare_tara_text"
+                                    id="cursa-create-incarcare-tara"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('incarcare_tara_id') ? 'is-invalid' : '' }}"
+                                    value="{{ $createIncarcareTaraText }}"
+                                    maxlength="255"
+                                    autocomplete="off"
+                                    list="valabilitati-curse-tari"
+                                    data-country-input
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('incarcare_tara_id') ? 'd-block' : '' }}"
+                                    data-error-for="incarcare_tara_id"
+                                >
+                                    {{ $isCreateActive ? $errors->first('incarcare_tara_id') : '' }}
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -99,6 +153,27 @@
                                     {{ $isCreateActive ? $errors->first('descarcare_cod_postal') : '' }}
                                 </div>
                             </div>
+                            <div class="col-md-6" data-country-field>
+                                <label for="cursa-create-descarcare-tara" class="form-label">Țară descărcare</label>
+                                <input type="hidden" name="descarcare_tara_id" value="{{ $createDescarcareTaraId }}" data-country-hidden="true">
+                                <input
+                                    type="text"
+                                    name="descarcare_tara_text"
+                                    id="cursa-create-descarcare-tara"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('descarcare_tara_id') ? 'is-invalid' : '' }}"
+                                    value="{{ $createDescarcareTaraText }}"
+                                    maxlength="255"
+                                    autocomplete="off"
+                                    list="valabilitati-curse-tari"
+                                    data-country-input
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('descarcare_tara_id') ? 'd-block' : '' }}"
+                                    data-error-for="descarcare_tara_id"
+                                >
+                                    {{ $isCreateActive ? $errors->first('descarcare_tara_id') : '' }}
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <label for="cursa-create-data" class="form-label">Data și ora cursei</label>
                                 <input
@@ -113,6 +188,24 @@
                                     data-error-for="data_cursa"
                                 >
                                     {{ $isCreateActive ? $errors->first('data_cursa') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="cursa-create-km-bord" class="form-label">Km bord</label>
+                                <input
+                                    type="number"
+                                    name="km_bord"
+                                    id="cursa-create-km-bord"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_bord') ? 'is-invalid' : '' }}"
+                                    value="{{ $createKmBord }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_bord') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord"
+                                >
+                                    {{ $isCreateActive ? $errors->first('km_bord') : '' }}
                                 </div>
                             </div>
                             <div class="col-12">
@@ -151,6 +244,24 @@
         $editDataValue = $isEditing
             ? old('data_cursa', optional($cursa->data_cursa)->format('Y-m-d\TH:i'))
             : optional($cursa->data_cursa)->format('Y-m-d\TH:i');
+        $baseIncarcareTaraId = $cursa->incarcare_tara_id;
+        $editIncarcareTaraId = $isEditing ? old('incarcare_tara_id', $baseIncarcareTaraId) : $baseIncarcareTaraId;
+        $editIncarcareTaraText = $isEditing ? old('incarcare_tara_text', '') : optional($cursa->incarcareTara)->nume;
+        if ($editIncarcareTaraText === '' && $editIncarcareTaraId !== null && $editIncarcareTaraId !== '') {
+            $editIncarcareTaraText = $resolveTaraName($editIncarcareTaraId) ?: optional($cursa->incarcareTara)->nume;
+        }
+
+        $baseDescarcareTaraId = $cursa->descarcare_tara_id;
+        $editDescarcareTaraId = $isEditing ? old('descarcare_tara_id', $baseDescarcareTaraId) : $baseDescarcareTaraId;
+        $editDescarcareTaraText = $isEditing ? old('descarcare_tara_text', '') : optional($cursa->descarcareTara)->nume;
+        if ($editDescarcareTaraText === '' && $editDescarcareTaraId !== null && $editDescarcareTaraId !== '') {
+            $editDescarcareTaraText = $resolveTaraName($editDescarcareTaraId) ?: optional($cursa->descarcareTara)->nume;
+        }
+
+        $editKmBordValue = $isEditing ? old('km_bord', $cursa->km_bord) : $cursa->km_bord;
+        if ($editKmBordValue === null) {
+            $editKmBordValue = '';
+        }
     @endphp
     <div
         class="modal fade text-dark"
@@ -212,6 +323,27 @@
                                     {{ $isEditing ? $errors->first('incarcare_cod_postal') : '' }}
                                 </div>
                             </div>
+                            <div class="col-md-6" data-country-field>
+                                <label for="{{ $editPrefix }}incarcare-tara" class="form-label">Țară încărcare</label>
+                                <input type="hidden" name="incarcare_tara_id" value="{{ $editIncarcareTaraId }}" data-country-hidden="true">
+                                <input
+                                    type="text"
+                                    name="incarcare_tara_text"
+                                    id="{{ $editPrefix }}incarcare-tara"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('incarcare_tara_id') ? 'is-invalid' : '' }}"
+                                    value="{{ $editIncarcareTaraText }}"
+                                    maxlength="255"
+                                    autocomplete="off"
+                                    list="valabilitati-curse-tari"
+                                    data-country-input
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('incarcare_tara_id') ? 'd-block' : '' }}"
+                                    data-error-for="incarcare_tara_id"
+                                >
+                                    {{ $isEditing ? $errors->first('incarcare_tara_id') : '' }}
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <label for="{{ $editPrefix }}descarcare-localitate" class="form-label">Localitate descărcare</label>
                                 <input
@@ -246,6 +378,27 @@
                                     {{ $isEditing ? $errors->first('descarcare_cod_postal') : '' }}
                                 </div>
                             </div>
+                            <div class="col-md-6" data-country-field>
+                                <label for="{{ $editPrefix }}descarcare-tara" class="form-label">Țară descărcare</label>
+                                <input type="hidden" name="descarcare_tara_id" value="{{ $editDescarcareTaraId }}" data-country-hidden="true">
+                                <input
+                                    type="text"
+                                    name="descarcare_tara_text"
+                                    id="{{ $editPrefix }}descarcare-tara"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('descarcare_tara_id') ? 'is-invalid' : '' }}"
+                                    value="{{ $editDescarcareTaraText }}"
+                                    maxlength="255"
+                                    autocomplete="off"
+                                    list="valabilitati-curse-tari"
+                                    data-country-input
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('descarcare_tara_id') ? 'd-block' : '' }}"
+                                    data-error-for="descarcare_tara_id"
+                                >
+                                    {{ $isEditing ? $errors->first('descarcare_tara_id') : '' }}
+                                </div>
+                            </div>
                             <div class="col-md-6">
                                 <label for="{{ $editPrefix }}data" class="form-label">Data și ora cursei</label>
                                 <input
@@ -260,6 +413,24 @@
                                     data-error-for="data_cursa"
                                 >
                                     {{ $isEditing ? $errors->first('data_cursa') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ $editPrefix }}km-bord" class="form-label">Km bord</label>
+                                <input
+                                    type="number"
+                                    name="km_bord"
+                                    id="{{ $editPrefix }}km-bord"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_bord') ? 'is-invalid' : '' }}"
+                                    value="{{ $editKmBordValue }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('km_bord') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord"
+                                >
+                                    {{ $isEditing ? $errors->first('km_bord') : '' }}
                                 </div>
                             </div>
                             <div class="col-12">

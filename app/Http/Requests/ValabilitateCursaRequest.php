@@ -22,10 +22,13 @@ class ValabilitateCursaRequest extends FormRequest
         return [
             'incarcare_localitate' => ['nullable', 'string', 'max:255'],
             'incarcare_cod_postal' => ['nullable', 'string', 'max:255'],
+            'incarcare_tara_id' => ['nullable', 'exists:tari,id'],
             'descarcare_localitate' => ['nullable', 'string', 'max:255'],
             'descarcare_cod_postal' => ['nullable', 'string', 'max:255'],
+            'descarcare_tara_id' => ['nullable', 'exists:tari,id'],
             'data_cursa' => ['nullable', 'date'],
             'observatii' => ['nullable', 'string'],
+            'km_bord' => ['nullable', 'integer', 'min:0'],
         ];
     }
 

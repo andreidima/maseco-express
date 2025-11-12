@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ValabilitateCursaRequest;
+use App\Models\Tara;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
 use App\Support\Valabilitati\ValabilitatiCurseFilterState;
@@ -37,6 +38,7 @@ class ValabilitateCursaController extends Controller
             'filters' => $filters,
             'nextPageUrl' => $this->buildNextPageUrl($request, $valabilitate, $curse),
             'backUrl' => ValabilitatiFilterState::route(),
+            'tari' => $this->loadTari(),
         ]);
     }
 
@@ -58,6 +60,7 @@ class ValabilitateCursaController extends Controller
                 'valabilitate' => $valabilitate,
                 'curse' => $curse,
                 'includeCreate' => false,
+                'tari' => $this->loadTari(),
             ])->render(),
             'next_url' => $this->buildNextPageUrl($request, $valabilitate, $curse),
         ]);
@@ -133,7 +136,10 @@ class ValabilitateCursaController extends Controller
 
     private function buildFilteredQuery(Valabilitate $valabilitate, array $filters): Builder
     {
-        $query = $valabilitate->curse()->getQuery();
+        $query = $valabilitate->curse()->with([
+            'incarcareTara',
+            'descarcareTara',
+        ]);
 
         if ($filters['localitate'] !== '') {
             $term = Str::lower($filters['localitate']);
@@ -223,6 +229,7 @@ class ValabilitateCursaController extends Controller
                 'valabilitate' => $valabilitate,
                 'curse' => $curse,
                 'includeCreate' => true,
+                'tari' => $this->loadTari(),
             ])->render(),
             'next_url' => $this->buildNextPageUrl($filtersRequest, $valabilitate, $curse),
         ]);
@@ -233,5 +240,10 @@ class ValabilitateCursaController extends Controller
         if ($cursa->valabilitate_id !== $valabilitate->getKey()) {
             abort(404);
         }
+    }
+
+    private function loadTari()
+    {
+        return Tara::orderBy('nume')->get(['id', 'nume']);
     }
 }

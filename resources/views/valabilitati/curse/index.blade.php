@@ -90,12 +90,6 @@
         <div class="col-lg-2 text-lg-end mt-3 mt-lg-0">
             <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
                 <a
-                    href="{{ route('valabilitati.show', $valabilitate) }}"
-                    class="btn btn-sm btn-outline-secondary border border-dark rounded-3"
-                >
-                    <i class="fas fa-arrow-left me-1"></i>Înapoi la valabilitate
-                </a>
-                <a
                     href="{{ $backUrl }}"
                     class="btn btn-sm btn-outline-secondary border border-dark rounded-3"
                 >
@@ -138,9 +132,12 @@
                         <th class="text-nowrap">#</th>
                         <th>Încărcare - localitate</th>
                         <th>Încărcare - cod poștal</th>
+                        <th>Încărcare - țară</th>
                         <th>Descărcare - localitate</th>
                         <th>Descărcare - cod poștal</th>
+                        <th>Descărcare - țară</th>
                         <th>Data cursă</th>
+                        <th>Km bord</th>
                         <th>Observații</th>
                         <th class="text-end">Acțiuni</th>
                     </tr>
@@ -150,7 +147,7 @@
                         @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                     @else
                         <tr>
-                            <td colspan="8" class="text-center py-4">Nu există curse care să respecte criteriile selectate.</td>
+                            <td colspan="11" class="text-center py-4">Nu există curse care să respecte criteriile selectate.</td>
                         </tr>
                     @endif
                 </tbody>
@@ -186,6 +183,7 @@
         'includeCreate' => true,
         'formType' => old('form_type'),
         'formId' => old('form_id'),
+        'tari' => $tari,
     ])
 </div>
 
@@ -197,6 +195,11 @@
             const modalsContainer = document.getElementById('curse-modals');
             const tableBody = document.getElementById('curse-table-body');
             const feedbackContainer = document.getElementById('curse-feedback');
+            const COUNTRY_DATALIST_ID = 'valabilitati-curse-tari';
+            const countryState = {
+                mapByName: new Map(),
+                mapById: new Map(),
+            };
 
             const supportsAjax = () => typeof window.fetch === 'function' && typeof window.FormData === 'function';
 
@@ -218,6 +221,122 @@
                 const template = document.createElement('template');
                 template.innerHTML = html.trim();
                 container.appendChild(template.content);
+            };
+
+            const refreshCountryMaps = () => {
+                countryState.mapByName.clear();
+                countryState.mapById.clear();
+
+                if (!modalsContainer) {
+                    return;
+                }
+
+                const datalist = modalsContainer.querySelector(`#${COUNTRY_DATALIST_ID}`);
+
+                if (!datalist) {
+                    return;
+                }
+
+                const options = datalist.querySelectorAll('option');
+
+                options.forEach(option => {
+                    const name = (option.value || '').trim();
+                    const id = (option.dataset.id || '').trim();
+
+                    if (name) {
+                        countryState.mapByName.set(name.toLowerCase(), id);
+                    }
+
+                    if (id) {
+                        countryState.mapById.set(id, name);
+                    }
+                });
+            };
+
+            const syncHiddenToText = (textInput, hiddenInput) => {
+                const hiddenValue = (hiddenInput.value || '').trim();
+
+                if (!hiddenValue) {
+                    return;
+                }
+
+                const resolved = countryState.mapById.get(hiddenValue);
+
+                if (resolved && (textInput.value || '').trim() === '') {
+                    textInput.value = resolved;
+                }
+            };
+
+            const syncTextToHidden = (textInput, hiddenInput) => {
+                const textValue = (textInput.value || '').trim().toLowerCase();
+                const matchId = countryState.mapByName.get(textValue);
+
+                hiddenInput.value = matchId || '';
+            };
+
+            const bindCountryField = (field) => {
+                if (!field) {
+                    return;
+                }
+
+                const textInput = field.querySelector('[data-country-input]');
+                const hiddenInput = field.querySelector('[data-country-hidden]');
+
+                if (!textInput || !hiddenInput) {
+                    return;
+                }
+
+                const hasOptions = countryState.mapByName.size > 0;
+
+                if (textInput.dataset.countryBound === 'true') {
+                    syncHiddenToText(textInput, hiddenInput);
+                    if (hasOptions) {
+                        syncTextToHidden(textInput, hiddenInput);
+                    }
+                    return;
+                }
+
+                const clearValidationState = () => {
+                    textInput.classList.remove('is-invalid');
+                    hiddenInput.classList.remove('is-invalid');
+                };
+
+                syncHiddenToText(textInput, hiddenInput);
+                if (hasOptions) {
+                    syncTextToHidden(textInput, hiddenInput);
+                }
+
+                textInput.addEventListener('input', () => {
+                    if (hasOptions) {
+                        syncTextToHidden(textInput, hiddenInput);
+                    }
+                    clearValidationState();
+                });
+
+                textInput.addEventListener('change', () => {
+                    if (hasOptions) {
+                        syncTextToHidden(textInput, hiddenInput);
+                    }
+                });
+
+                textInput.addEventListener('blur', () => {
+                    if ((textInput.value || '').trim() === '') {
+                        hiddenInput.value = '';
+                    }
+                });
+
+                textInput.dataset.countryBound = 'true';
+            };
+
+            const initCountryInputs = () => {
+                refreshCountryMaps();
+
+                if (!modalsContainer) {
+                    return;
+                }
+
+                const fields = modalsContainer.querySelectorAll('[data-country-field]');
+                fields.forEach(field => bindCountryField(field));
             };
 
             const showModalElement = (element, fallbackMessage = null) => {
@@ -326,6 +445,15 @@
                     const inputs = form.querySelectorAll(`[name="${field}"]`);
                     inputs.forEach(input => {
                         input.classList.add('is-invalid');
+
+                        if (input.dataset.countryHidden === 'true') {
+                            const fieldWrapper = input.closest('[data-country-field]');
+                            const textInput = fieldWrapper ? fieldWrapper.querySelector('[data-country-input]') : null;
+
+                            if (textInput) {
+                                textInput.classList.add('is-invalid');
+                            }
+                        }
                     });
 
                     const feedback = form.querySelector(`[data-error-for="${field}"]`);
@@ -377,6 +505,7 @@
                     loadMoreTrigger.dataset.nextUrl = data.next_url || '';
                 }
 
+                initCountryInputs();
                 initLoadMore();
 
                 if (supportsAjax()) {
@@ -508,6 +637,10 @@
 
                         if (data.modals_html && modalsContainer) {
                             appendHtml(modalsContainer, data.modals_html);
+                            initCountryInputs();
+                            if (supportsAjax()) {
+                                attachFormHandlers();
+                            }
                         }
 
                         loadState.nextUrl = data.next_url || null;
@@ -606,6 +739,7 @@
                 modalsContainer.dataset.activeModal = '';
             };
 
+            initCountryInputs();
             initLoadMore();
 
             if (supportsAjax()) {
