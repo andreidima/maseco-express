@@ -419,13 +419,14 @@
 
                 const methodAttribute = (form.getAttribute('method') || 'POST').toUpperCase();
                 const spoofedMethodInput = form.querySelector('input[name="_method"]');
-                const actualMethod =
+                const spoofedMethod =
                     methodAttribute === 'POST' && spoofedMethodInput && spoofedMethodInput.value
                         ? spoofedMethodInput.value.toUpperCase()
-                        : methodAttribute;
+                        : null;
+                const fetchMethod = methodAttribute === 'GET' ? 'GET' : 'POST';
 
                 const fetchOptions = {
-                    method: actualMethod,
+                    method: fetchMethod,
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json',
@@ -438,11 +439,11 @@
                     fetchOptions.headers['X-CSRF-TOKEN'] = csrfToken;
                 }
 
-                if (actualMethod !== 'GET') {
+                if (fetchMethod !== 'GET') {
                     fetchOptions.body = new FormData(form);
 
-                    if (actualMethod !== methodAttribute && spoofedMethodInput) {
-                        fetchOptions.headers['X-HTTP-Method-Override'] = spoofedMethodInput.value.toUpperCase();
+                    if (spoofedMethod) {
+                        fetchOptions.headers['X-HTTP-Method-Override'] = spoofedMethod;
                     }
                 }
 
