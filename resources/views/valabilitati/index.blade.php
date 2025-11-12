@@ -380,6 +380,7 @@
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json',
                     },
+                    credentials: 'same-origin',
                 };
 
                 if (actualMethod !== 'GET') {
