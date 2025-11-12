@@ -8,8 +8,18 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::table('valabilitati_curse', function (Blueprint $table): void {
-            $table->foreignId('incarcare_tara_id')->nullable()->after('incarcare_cod_postal')->constrained('tari');
-            $table->foreignId('descarcare_tara_id')->nullable()->after('descarcare_cod_postal')->constrained('tari');
+            $table->unsignedSmallInteger('incarcare_tara_id')->nullable()->after('incarcare_cod_postal');
+            $table->unsignedSmallInteger('descarcare_tara_id')->nullable()->after('descarcare_cod_postal');
+            $table
+                ->foreign('incarcare_tara_id')
+                ->references('id')
+                ->on('tari')
+                ->nullOnDelete();
+            $table
+                ->foreign('descarcare_tara_id')
+                ->references('id')
+                ->on('tari')
+                ->nullOnDelete();
             $table->unsignedInteger('km_bord')->nullable()->after('observatii');
         });
     }
@@ -18,8 +28,9 @@ return new class extends Migration {
     {
         Schema::table('valabilitati_curse', function (Blueprint $table): void {
             $table->dropColumn('km_bord');
-            $table->dropConstrainedForeignId('descarcare_tara_id');
-            $table->dropConstrainedForeignId('incarcare_tara_id');
+            $table->dropForeign(['descarcare_tara_id']);
+            $table->dropForeign(['incarcare_tara_id']);
+            $table->dropColumn(['descarcare_tara_id', 'incarcare_tara_id']);
         });
     }
 };
