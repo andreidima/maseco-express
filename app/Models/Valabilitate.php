@@ -37,6 +37,15 @@ class Valabilitate extends Model
         return $this->hasMany(ValabilitateCursa::class);
     }
 
+    /**
+     * Alias required for Laravel's scoped implicit bindings which expect the
+     * pluralised child parameter ("cursas") when resolving nested bindings.
+     */
+    public function cursas(): HasMany
+    {
+        return $this->curse();
+    }
+
     public function syncSummary(): void
     {
         // Funcționalitatea pentru curse va fi adăugată când schema este disponibilă.
