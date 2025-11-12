@@ -129,6 +129,30 @@ class ImpersonationTest extends TestCase
         $this->assertSame($superAdmin->name, session('impersonated_by_name'));
     }
 
+    public function test_impersonating_sofer_redirects_to_sofer_dashboard(): void
+    {
+        $superAdmin = $this->createSuperAdmin();
+        $soferRole = Role::firstOrCreate(
+            ['slug' => 'sofer'],
+            [
+                'name' => 'Șofer',
+                'description' => 'Acces restrâns la cursele unei valabilități.',
+            ]
+        );
+
+        $soferUser = User::factory()->create();
+        $soferUser->assignRole($soferRole);
+
+        $response = $this->actingAs($superAdmin)->post(route('tech.impersonation.start'), [
+            'user_id' => $soferUser->id,
+        ]);
+
+        $response->assertRedirect(route('sofer.dashboard'));
+        $this->assertAuthenticatedAs($soferUser);
+        $this->assertSame($superAdmin->id, session('impersonated_by'));
+        $this->assertSame($superAdmin->name, session('impersonated_by_name'));
+    }
+
     public function test_impersonation_index_orders_by_primary_role_then_name(): void
     {
         $superAdminRole = Role::firstOrCreate(

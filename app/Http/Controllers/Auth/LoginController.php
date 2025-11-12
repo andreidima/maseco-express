@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
-use App\Support\Navigation\MainNavigation;
+use App\Support\Auth\UserRedirector;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 use Illuminate\Http\Request;
@@ -38,25 +38,7 @@ class LoginController extends Controller
 
     protected function redirectTo()
     {
-        $user = Auth::user();
-
-        if ($user && $user->hasRole('sofer')) {
-            return route('sofer.dashboard');
-        }
-
-        if ($user && $user->hasPermission('dashboard')) {
-            return route('dashboard');
-        }
-
-        if ($user) {
-            $menuUrl = MainNavigation::firstAccessibleUrlFor($user);
-
-            if ($menuUrl) {
-                return $menuUrl;
-            }
-        }
-
-        return $this->redirectTo;
+        return UserRedirector::redirectPathFor(Auth::user(), $this->redirectTo);
     }
 
     /**

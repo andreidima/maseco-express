@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tech;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Support\Auth\UserRedirector;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -72,11 +73,9 @@ class ImpersonationController extends Controller
 
         Auth::login($targetUser);
 
-        if ($targetUser->hasRole('mecanic')) {
-            return redirect()->route('service-masini.index');
-        }
+        $redirectUrl = UserRedirector::redirectPathFor($targetUser);
 
-        return redirect('/');
+        return redirect()->to($redirectUrl);
     }
 
     public function destroy(Request $request): RedirectResponse
