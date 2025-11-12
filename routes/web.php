@@ -45,6 +45,7 @@ use App\Http\Controllers\Tech\CronJobLogController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\SeederCenterController;
 use App\Http\Controllers\SoferDashboardController;
+use App\Http\Controllers\SoferValabilitateCursaController;
 use App\Http\Controllers\ValabilitateController;
 use App\Http\Controllers\ValabilitateCursaController;
 
@@ -92,6 +93,14 @@ Route::redirect('/', '/acasa');
 Route::middleware(['auth'])->group(function () {
     Route::middleware('role:sofer')->group(function () {
         Route::get('sofer/dashboard', SoferDashboardController::class)->name('sofer.dashboard');
+        Route::get('sofer/valabilitati/{valabilitate}', [SoferValabilitateCursaController::class, 'show'])
+            ->name('sofer.valabilitati.show');
+        Route::post('sofer/valabilitati/{valabilitate}/curse', [SoferValabilitateCursaController::class, 'store'])
+            ->name('sofer.valabilitati.curse.store');
+        Route::put('sofer/valabilitati/{valabilitate}/curse/{cursa}', [SoferValabilitateCursaController::class, 'update'])
+            ->name('sofer.valabilitati.curse.update');
+        Route::delete('sofer/valabilitati/{valabilitate}/curse/{cursa}', [SoferValabilitateCursaController::class, 'destroy'])
+            ->name('sofer.valabilitati.curse.destroy');
     });
 
     Route::middleware('permission:dashboard')->group(function () {
