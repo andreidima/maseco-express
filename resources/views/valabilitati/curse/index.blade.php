@@ -45,26 +45,30 @@
                         >
                     </div>
                 </div>
-                <div class="row custom-search-form justify-content-center align-items-end">
+                <div class="row custom-search-form justify-content-center align-items-end" id="datePicker">
                     <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
                         <label for="filter-data-start" class="form-label mb-0 ps-3">Început perioadă</label>
-                        <input
-                            type="date"
-                            class="form-control rounded-3"
+                        <vue-datepicker-next
                             id="filter-data-start"
-                            name="data_start"
-                            value="{{ $filters['data_start'] }}"
-                        >
+                            data-veche="{{ $filters['data_start'] }}"
+                            nume-camp-db="data_start"
+                            tip="date"
+                            value-type="YYYY-MM-DD"
+                            format="DD.MM.YYYY"
+                            :latime="{ width: '100%' }"
+                        ></vue-datepicker-next>
                     </div>
                     <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
                         <label for="filter-data-end" class="form-label mb-0 ps-3">Sfârșit perioadă</label>
-                        <input
-                            type="date"
-                            class="form-control rounded-3"
+                        <vue-datepicker-next
                             id="filter-data-end"
-                            name="data_end"
-                            value="{{ $filters['data_end'] }}"
-                        >
+                            data-veche="{{ $filters['data_end'] }}"
+                            nume-camp-db="data_end"
+                            tip="date"
+                            value-type="YYYY-MM-DD"
+                            format="DD.MM.YYYY"
+                            :latime="{ width: '100%' }"
+                        ></vue-datepicker-next>
                     </div>
                     <div class="col-lg-3 col-md-4 mb-2 mb-md-0">
                         <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit">
