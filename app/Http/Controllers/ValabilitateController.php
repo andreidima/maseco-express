@@ -109,7 +109,7 @@ class ValabilitateController extends Controller
                 ], 422);
             }
 
-            return redirect(ValabilitatiFilterState::route())->with('error', $message);
+            return back()->with('error', $message);
         }
 
         $valabilitate->delete();

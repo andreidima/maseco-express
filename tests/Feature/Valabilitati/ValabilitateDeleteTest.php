@@ -21,7 +21,9 @@ class ValabilitateDeleteTest extends TestCase
             ->has(ValabilitateCursa::factory(), 'curse')
             ->create();
 
-        $response = $this->actingAs($user)->delete(route('valabilitati.destroy', $valabilitate));
+        $response = $this->actingAs($user)
+            ->from(route('valabilitati.index'))
+            ->delete(route('valabilitati.destroy', $valabilitate));
 
         $response->assertRedirect(route('valabilitati.index'));
         $response->assertSessionHas('error', 'Valabilitatea nu poate fi ștearsă deoarece are curse asociate.');
