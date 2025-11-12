@@ -11,6 +11,7 @@ use App\Support\Valabilitati\ValabilitatiFilterState;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -134,7 +135,7 @@ class ValabilitateCursaController extends Controller
         return array_filter($filters, static fn ($value) => $value !== null && $value !== '');
     }
 
-    private function buildFilteredQuery(Valabilitate $valabilitate, array $filters): Builder
+    private function buildFilteredQuery(Valabilitate $valabilitate, array $filters): HasMany
     {
         $query = $valabilitate->curse()->with([
             'incarcareTara',
