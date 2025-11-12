@@ -199,6 +199,19 @@
 
             const supportsAjax = () => typeof window.fetch === 'function' && typeof window.FormData === 'function';
 
+            const resolveCsrfToken = (() => {
+                let cachedToken = null;
+                return () => {
+                    if (cachedToken !== null) {
+                        return cachedToken;
+                    }
+
+                    const meta = document.querySelector('meta[name="csrf-token"]');
+                    cachedToken = meta ? meta.getAttribute('content') : '';
+                    return cachedToken;
+                };
+            })();
+
             const loadState = {
                 button: null,
                 trigger: null,
@@ -589,6 +602,11 @@
                     },
                     credentials: 'same-origin',
                 };
+
+                const csrfToken = resolveCsrfToken();
+                if (csrfToken) {
+                    fetchOptions.headers['X-CSRF-TOKEN'] = csrfToken;
+                }
 
                 if (actualMethod !== 'GET') {
                     fetchOptions.body = new FormData(form);
