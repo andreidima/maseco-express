@@ -11,9 +11,12 @@
         <td class="text-nowrap">{{ $rowNumber }}</td>
         <td>{{ $cursa->incarcare_localitate ?: '—' }}</td>
         <td>{{ $cursa->incarcare_cod_postal ?: '—' }}</td>
+        <td>{{ $cursa->incarcareTara?->nume ?: '—' }}</td>
         <td>{{ $cursa->descarcare_localitate ?: '—' }}</td>
         <td>{{ $cursa->descarcare_cod_postal ?: '—' }}</td>
+        <td>{{ $cursa->descarcareTara?->nume ?: '—' }}</td>
         <td class="text-nowrap">{{ $dataCursa ?: '—' }}</td>
+        <td class="text-nowrap">{{ $cursa->km_bord !== null ? $cursa->km_bord : '—' }}</td>
         <td>{{ $cursa->observatii ?: '—' }}</td>
         <td class="text-end">
             <div class="d-flex flex-wrap justify-content-end">

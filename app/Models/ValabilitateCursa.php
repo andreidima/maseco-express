@@ -16,15 +16,29 @@ class ValabilitateCursa extends Model
         'valabilitate_id',
         'incarcare_localitate',
         'incarcare_cod_postal',
+        'incarcare_tara_id',
         'descarcare_localitate',
         'descarcare_cod_postal',
+        'descarcare_tara_id',
         'data_cursa',
         'observatii',
+        'km_bord',
     ];
 
     protected $casts = [
         'data_cursa' => 'datetime',
+        'km_bord' => 'integer',
     ];
+
+    public function incarcareTara(): BelongsTo
+    {
+        return $this->belongsTo(Tara::class, 'incarcare_tara_id');
+    }
+
+    public function descarcareTara(): BelongsTo
+    {
+        return $this->belongsTo(Tara::class, 'descarcare_tara_id');
+    }
 
     public function valabilitate(): BelongsTo
     {
