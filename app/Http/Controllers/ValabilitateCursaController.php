@@ -105,7 +105,6 @@ class ValabilitateCursaController extends Controller
             'cod_postal',
             'data_start',
             'data_end',
-            'observatii',
         ]));
     }
 
@@ -116,7 +115,6 @@ class ValabilitateCursaController extends Controller
             'cod_postal' => ['nullable', 'string', 'max:255'],
             'data_start' => ['nullable', 'date'],
             'data_end' => ['nullable', 'date', 'after_or_equal:data_start'],
-            'observatii' => ['nullable', 'string'],
         ]);
 
         $validated = $validator->validate();
@@ -126,7 +124,6 @@ class ValabilitateCursaController extends Controller
             'cod_postal' => trim((string) ($validated['cod_postal'] ?? '')),
             'data_start' => $validated['data_start'] ?? null,
             'data_end' => $validated['data_end'] ?? null,
-            'observatii' => trim((string) ($validated['observatii'] ?? '')),
         ];
     }
 
@@ -158,11 +155,6 @@ class ValabilitateCursaController extends Controller
                     ->whereRaw('LOWER(incarcare_cod_postal) LIKE ?', ["%{$term}%"])
                     ->orWhereRaw('LOWER(descarcare_cod_postal) LIKE ?', ["%{$term}%"]);
             });
-        }
-
-        if ($filters['observatii'] !== '') {
-            $term = Str::lower($filters['observatii']);
-            $query->whereRaw('LOWER(observatii) LIKE ?', ["%{$term}%"]);
         }
 
         if ($filters['data_start']) {
