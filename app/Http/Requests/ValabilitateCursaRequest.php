@@ -32,6 +32,33 @@ class ValabilitateCursaRequest extends FormRequest
         ];
     }
 
+    protected function prepareForValidation(): void
+    {
+        $dateInput = $this->input('data_cursa_date');
+        $timeInput = $this->input('data_cursa_time');
+
+        if ($dateInput === null && $timeInput === null) {
+            return;
+        }
+
+        $date = trim((string) $dateInput);
+        $time = trim((string) $timeInput);
+
+        if ($date === '') {
+            $this->merge(['data_cursa' => null]);
+
+            return;
+        }
+
+        if ($time === '') {
+            $time = '00:00';
+        }
+
+        $this->merge([
+            'data_cursa' => sprintf('%s %s', $date, $time),
+        ]);
+    }
+
     protected function failedValidation(Validator $validator): void
     {
         if ($this->expectsJson()) {

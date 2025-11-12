@@ -22,16 +22,46 @@
                     <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
                         <input type="text" class="form-control rounded-3" id="filter-denumire" name="denumire" placeholder="Denumire" value="{{ $filters['denumire'] }}">
                     </div>
-                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
-                        <label for="filter-interval-start" class="form-label mb-0 ps-3">Început</label>
-                        <input type="date" class="form-control rounded-3" id="filter-interval-start" name="interval_start" value="{{ $filters['interval_start'] }}">
-                    </div>
-                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
-                        <label for="filter-interval-end" class="form-label mb-0 ps-3">Sfârșit</label>
-                        <input type="date" class="form-control rounded-3" id="filter-interval-end" name="interval_end" value="{{ $filters['interval_end'] }}">
-                    </div>
                 </div>
-                <div class="row custom-search-form justify-content-center">
+                @php
+                    $inceputRangeFilter = implode(',', array_filter([
+                        $filters['inceput_start'] ?? null,
+                        $filters['inceput_end'] ?? null,
+                    ]));
+                    $sfarsitRangeFilter = implode(',', array_filter([
+                        $filters['sfarsit_start'] ?? null,
+                        $filters['sfarsit_end'] ?? null,
+                    ]));
+                @endphp
+                <div class="row custom-search-form justify-content-center align-items-end" id="datePicker">
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <label for="filter-interval-inceput" class="form-label mb-0 ps-3">Început</label>
+                        <vue-datepicker-next
+                            id="filter-interval-inceput"
+                            data-veche="{{ $inceputRangeFilter }}"
+                            tip="date"
+                            value-type="YYYY-MM-DD"
+                            format="DD.MM.YYYY"
+                            :latime="{ width: '100%' }"
+                            :range="true"
+                            range-start-name="inceput_start"
+                            range-end-name="inceput_end"
+                        ></vue-datepicker-next>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <label for="filter-interval-sfarsit" class="form-label mb-0 ps-3">Sfârșit</label>
+                        <vue-datepicker-next
+                            id="filter-interval-sfarsit"
+                            data-veche="{{ $sfarsitRangeFilter }}"
+                            tip="date"
+                            value-type="YYYY-MM-DD"
+                            format="DD.MM.YYYY"
+                            :latime="{ width: '100%' }"
+                            :range="true"
+                            range-start-name="sfarsit_start"
+                            range-end-name="sfarsit_end"
+                        ></vue-datepicker-next>
+                    </div>
                     <div class="col-lg-3 col-md-4 mb-2 mb-md-0">
                         <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit">
                             <i class="fas fa-search text-white me-1"></i>Caută

@@ -11,6 +11,17 @@
 
         return optional($tariCollection->get($id))->nume ?? '';
     };
+    $formatDateTimeValue = static function ($value, string $format) {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($value)->format($format);
+        } catch (\Throwable $exception) {
+            return '';
+        }
+    };
 @endphp
 
 @if (($includeCreate ?? false) === true)
@@ -62,6 +73,17 @@
                             }
 
                             $createKmBord = $isCreateActive ? old('km_bord', '') : '';
+                            $createDataDateValue = $isCreateActive ? old('data_cursa_date', '') : '';
+                            $createDataTimeValue = $isCreateActive ? old('data_cursa_time', '') : '';
+                            if ($isCreateActive) {
+                                $oldCombinedValue = old('data_cursa', '');
+                                if ($createDataDateValue === '' && $oldCombinedValue !== '') {
+                                    $createDataDateValue = $formatDateTimeValue($oldCombinedValue, 'Y-m-d');
+                                }
+                                if ($createDataTimeValue === '' && $oldCombinedValue !== '') {
+                                    $createDataTimeValue = $formatDateTimeValue($oldCombinedValue, 'H:i');
+                                }
+                            }
                         @endphp
                         <div class="row g-3">
                             <div class="col-md-6">
@@ -175,14 +197,30 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="cursa-create-data" class="form-label">Data și ora cursei</label>
-                                <input
-                                    type="datetime-local"
-                                    name="data_cursa"
-                                    id="cursa-create-data"
-                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
-                                    value="{{ $isCreateActive ? old('data_cursa', '') : '' }}"
-                                >
+                                <label for="cursa-create-data-date" class="form-label">Data și ora cursei</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input
+                                            type="date"
+                                            name="data_cursa_date"
+                                            id="cursa-create-data-date"
+                                            class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                            value="{{ $createDataDateValue }}"
+                                            data-error-proxy="data_cursa"
+                                        >
+                                    </div>
+                                    <div class="col-6">
+                                        <input
+                                            type="time"
+                                            name="data_cursa_time"
+                                            id="cursa-create-data-time"
+                                            class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                            value="{{ $createDataTimeValue }}"
+                                            step="60"
+                                            data-error-proxy="data_cursa"
+                                        >
+                                    </div>
+                                </div>
                                 <div
                                     class="invalid-feedback {{ $isCreateActive && $errors->has('data_cursa') ? 'd-block' : '' }}"
                                     data-error-for="data_cursa"
@@ -241,9 +279,19 @@
     @php
         $isEditing = $currentFormType === 'edit' && $currentFormId === (int) $cursa->id;
         $editPrefix = 'cursa-edit-' . $cursa->id . '-';
-        $editDataValue = $isEditing
-            ? old('data_cursa', optional($cursa->data_cursa)->format('Y-m-d\TH:i'))
-            : optional($cursa->data_cursa)->format('Y-m-d\TH:i');
+        $baseDataDate = optional($cursa->data_cursa)->format('Y-m-d');
+        $baseDataTime = optional($cursa->data_cursa)->format('H:i');
+        $editDataDateValue = $isEditing ? old('data_cursa_date', $baseDataDate) : $baseDataDate;
+        $editDataTimeValue = $isEditing ? old('data_cursa_time', $baseDataTime) : $baseDataTime;
+        if ($isEditing) {
+            $oldCombinedValue = old('data_cursa', '');
+            if ($editDataDateValue === '' && $oldCombinedValue !== '') {
+                $editDataDateValue = $formatDateTimeValue($oldCombinedValue, 'Y-m-d');
+            }
+            if ($editDataTimeValue === '' && $oldCombinedValue !== '') {
+                $editDataTimeValue = $formatDateTimeValue($oldCombinedValue, 'H:i');
+            }
+        }
         $baseIncarcareTaraId = $cursa->incarcare_tara_id;
         $editIncarcareTaraId = $isEditing ? old('incarcare_tara_id', $baseIncarcareTaraId) : $baseIncarcareTaraId;
         $editIncarcareTaraText = $isEditing ? old('incarcare_tara_text', '') : optional($cursa->incarcareTara)->nume;
@@ -400,14 +448,30 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="{{ $editPrefix }}data" class="form-label">Data și ora cursei</label>
-                                <input
-                                    type="datetime-local"
-                                    name="data_cursa"
-                                    id="{{ $editPrefix }}data"
-                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
-                                    value="{{ $isEditing ? old('data_cursa', $editDataValue) : $editDataValue }}"
-                                >
+                                <label for="{{ $editPrefix }}data-date" class="form-label">Data și ora cursei</label>
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <input
+                                            type="date"
+                                            name="data_cursa_date"
+                                            id="{{ $editPrefix }}data-date"
+                                            class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                            value="{{ $editDataDateValue }}"
+                                            data-error-proxy="data_cursa"
+                                        >
+                                    </div>
+                                    <div class="col-6">
+                                        <input
+                                            type="time"
+                                            name="data_cursa_time"
+                                            id="{{ $editPrefix }}data-time"
+                                            class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                            value="{{ $editDataTimeValue }}"
+                                            step="60"
+                                            data-error-proxy="data_cursa"
+                                        >
+                                    </div>
+                                </div>
                                 <div
                                     class="invalid-feedback {{ $isEditing && $errors->has('data_cursa') ? 'd-block' : '' }}"
                                     data-error-for="data_cursa"

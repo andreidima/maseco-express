@@ -439,6 +439,8 @@
 
                 Object.entries(errors).forEach(([field, messages]) => {
                     const inputs = form.querySelectorAll(`[name="${field}"]`);
+                    const proxyInputs = form.querySelectorAll(`[data-error-proxy="${field}"]`);
+
                     inputs.forEach(input => {
                         input.classList.add('is-invalid');
 
@@ -450,6 +452,10 @@
                                 textInput.classList.add('is-invalid');
                             }
                         }
+                    });
+
+                    proxyInputs.forEach(proxy => {
+                        proxy.classList.add('is-invalid');
                     });
 
                     const feedback = form.querySelector(`[data-error-for="${field}"]`);
