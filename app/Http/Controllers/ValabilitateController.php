@@ -58,7 +58,12 @@ class ValabilitateController extends Controller
 
     public function show(Valabilitate $valabilitate): View
     {
-        $valabilitate->loadMissing(['sofer']);
+        $valabilitate->loadMissing([
+            'sofer',
+            'curse' => fn ($query) => $query
+                ->orderByDesc('data_cursa')
+                ->orderByDesc('created_at'),
+        ]);
 
         return view('valabilitati.show', [
             'valabilitate' => $valabilitate,
