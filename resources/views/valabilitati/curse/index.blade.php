@@ -3,130 +3,613 @@
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-        <div class="col-lg-6">
+        <div class="col-lg-2 mb-2 mb-lg-0">
             <span class="badge culoare1 fs-5">
-                <i class="fa-solid fa-route me-1"></i>Curse asociate
+                <span class="d-inline-flex flex-column align-items-start gap-1 lh-1">
+                    <span><i class="fa-solid fa-route me-1"></i>Curse</span>
+                    <small class="text-white-50">{{ $valabilitate->denumire }}</small>
+                </span>
             </span>
         </div>
-        <div class="col-lg-6 text-lg-end mt-3 mt-lg-0">
-            <div class="d-flex flex-column flex-lg-row justify-content-lg-end align-items-stretch align-items-lg-center gap-2">
-                <a href="{{ route('valabilitati.show', $valabilitate) }}" class="btn btn-sm btn-secondary text-white border border-dark rounded-3">
-                    <i class="fas fa-arrow-left text-white me-1"></i>Înapoi la valabilitate
-                </a>
-                <a href="{{ $backUrl }}" class="btn btn-sm btn-outline-secondary border border-dark rounded-3">
-                    <i class="fa-solid fa-list me-1"></i>Înapoi la listă
-                </a>
-            </div>
-        </div>
-    </div>
-
-    <div class="card-body py-4">
-        @include('errors')
-
-        @if (session('status'))
-            <div class="alert alert-success" role="alert">
-                {{ session('status') }}
-            </div>
-        @endif
-
-        <div class="row g-4 mb-4">
-            <div class="col-md-6">
-                <div class="border rounded-3 p-3 h-100">
-                    <h6 class="text-muted text-uppercase mb-2">Informații generale</h6>
-                    <p class="mb-1"><strong>Denumire:</strong> {{ $valabilitate->denumire }}</p>
-                    <p class="mb-1"><strong>Număr auto:</strong> {{ $valabilitate->numar_auto }}</p>
-                    <p class="mb-0"><strong>Șofer:</strong> {{ $valabilitate->sofer->name ?? '—' }}</p>
+        <div class="col-lg-8 mb-0" id="formularCurse">
+            <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
+                <div class="row mb-1 custom-search-form justify-content-center align-items-end">
+                    <div class="col-lg-4 col-md-6 mb-2 mb-lg-0">
+                        <input
+                            type="text"
+                            class="form-control rounded-3"
+                            id="filter-localitate"
+                            name="localitate"
+                            placeholder="Localitate încărcare/descărcare"
+                            value="{{ $filters['localitate'] }}"
+                        >
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <input
+                            type="text"
+                            class="form-control rounded-3"
+                            id="filter-cod-postal"
+                            name="cod_postal"
+                            placeholder="Cod poștal"
+                            value="{{ $filters['cod_postal'] }}"
+                        >
+                    </div>
+                    <div class="col-lg-5 col-md-12 mb-2 mb-lg-0">
+                        <input
+                            type="text"
+                            class="form-control rounded-3"
+                            id="filter-observatii"
+                            name="observatii"
+                            placeholder="Observații"
+                            value="{{ $filters['observatii'] }}"
+                        >
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-6">
-                <div class="border rounded-3 p-3 h-100">
-                    <h6 class="text-muted text-uppercase mb-2">Perioadă</h6>
-                    <p class="mb-1">
-                        <strong>Început:</strong>
-                        {{ optional($valabilitate->data_inceput)->format('d.m.Y') ?? '—' }}
-                    </p>
-                    <p class="mb-0">
-                        <strong>Sfârșit:</strong>
-                        {{ optional($valabilitate->data_sfarsit)->format('d.m.Y') ?? '—' }}
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <div class="border rounded-3 p-3">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h6 class="mb-0 text-uppercase">Curse asociate</h6>
-                <span class="badge bg-primary text-white">{{ $valabilitate->curse->count() }} înregistrări</span>
-            </div>
-
-            @if ($valabilitate->curse->isEmpty())
-                <p class="text-muted mb-4">Nu există curse asociate acestei valabilități.</p>
-            @else
-                <div class="table-responsive mb-4">
-                    <table class="table table-striped align-middle">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Încărcare - localitate</th>
-                                <th>Încărcare - cod poștal</th>
-                                <th>Descărcare - localitate</th>
-                                <th>Descărcare - cod poștal</th>
-                                <th>Data cursă</th>
-                                <th>Observații</th>
-                                <th class="text-end">Acțiuni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($valabilitate->curse as $cursa)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td>{{ $cursa->incarcare_localitate ?: '—' }}</td>
-                                    <td>{{ $cursa->incarcare_cod_postal ?: '—' }}</td>
-                                    <td>{{ $cursa->descarcare_localitate ?: '—' }}</td>
-                                    <td>{{ $cursa->descarcare_cod_postal ?: '—' }}</td>
-                                    <td>{{ $cursa->data_cursa?->format('d.m.Y H:i') ?: '—' }}</td>
-                                    <td>{{ $cursa->observatii ?: '—' }}</td>
-                                    <td class="text-end">
-                                        <a
-                                            href="{{ route('valabilitati.curse.edit', [$valabilitate, $cursa]) }}"
-                                            class="btn btn-sm btn-outline-secondary me-2"
-                                            title="Modifică cursa"
-                                        >
-                                            <i class="fa-solid fa-pen"></i>
-                                        </a>
-                                        <form
-                                            action="{{ route('valabilitati.curse.destroy', [$valabilitate, $cursa]) }}"
-                                            method="POST"
-                                            class="d-inline"
-                                            onsubmit="return confirm('Sigur dorești să ștergi această cursă?');"
-                                        >
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Șterge cursa">
-                                                <i class="fa-solid fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            @endif
-
-            <h6 class="text-muted text-uppercase mb-3">Adaugă cursă</h6>
-            <form method="POST" action="{{ route('valabilitati.curse.store', $valabilitate) }}" class="needs-validation" novalidate>
-                @csrf
-
-                @include('valabilitati.curse._form', ['cursa' => null])
-
-                <div class="d-flex justify-content-end mt-4">
-                    <button type="submit" class="btn btn-success text-white border border-dark rounded-3">
-                        <i class="fa-solid fa-plus me-1"></i>Adaugă cursă
-                    </button>
+                <div class="row custom-search-form justify-content-center align-items-end">
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <label for="filter-data-start" class="form-label mb-0 ps-3">Început perioadă</label>
+                        <input
+                            type="date"
+                            class="form-control rounded-3"
+                            id="filter-data-start"
+                            name="data_start"
+                            value="{{ $filters['data_start'] }}"
+                        >
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
+                        <label for="filter-data-end" class="form-label mb-0 ps-3">Sfârșit perioadă</label>
+                        <input
+                            type="date"
+                            class="form-control rounded-3"
+                            id="filter-data-end"
+                            name="data_end"
+                            value="{{ $filters['data_end'] }}"
+                        >
+                    </div>
+                    <div class="col-lg-3 col-md-4 mb-2 mb-md-0">
+                        <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit">
+                            <i class="fas fa-search text-white me-1"></i>Caută
+                        </button>
+                    </div>
+                    <div class="col-lg-3 col-md-4">
+                        <a
+                            class="btn btn-sm w-100 btn-secondary text-white border border-dark rounded-3"
+                            href="{{ route('valabilitati.curse.index', $valabilitate) }}"
+                            role="button"
+                        >
+                            <i class="far fa-trash-alt text-white me-1"></i>Resetează
+                        </a>
+                    </div>
                 </div>
             </form>
         </div>
+        <div class="col-lg-2 text-lg-end mt-3 mt-lg-0">
+            <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
+                <a
+                    href="{{ route('valabilitati.show', $valabilitate) }}"
+                    class="btn btn-sm btn-outline-secondary border border-dark rounded-3"
+                >
+                    <i class="fas fa-arrow-left me-1"></i>Înapoi la valabilitate
+                </a>
+                <a
+                    href="{{ $backUrl }}"
+                    class="btn btn-sm btn-outline-secondary border border-dark rounded-3"
+                >
+                    <i class="fa-solid fa-list me-1"></i>Înapoi la listă
+                </a>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                    data-bs-toggle="modal"
+                    data-bs-target="#cursaCreateModal"
+                >
+                    <i class="fas fa-plus-square text-white me-1"></i>Adaugă cursă
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-body px-0 py-3">
+        @include('errors')
+
+        <div class="px-3 mb-3 text-muted small">
+            <div class="d-flex flex-column flex-lg-row gap-1 gap-lg-4">
+                <span><strong>Număr auto:</strong> {{ $valabilitate->numar_auto ?? '—' }}</span>
+                <span><strong>Șofer:</strong> {{ $valabilitate->sofer->name ?? '—' }}</span>
+                <span>
+                    <strong>Perioadă:</strong>
+                    {{ optional($valabilitate->data_inceput)->format('d.m.Y') ?? '—' }}
+                    -
+                    {{ optional($valabilitate->data_sfarsit)->format('d.m.Y') ?? '—' }}
+                </span>
+            </div>
+        </div>
+
+        <div id="curse-feedback" class="px-3"></div>
+
+        <div class="table-responsive rounded">
+            <table class="table table-sm table-striped table-hover rounded align-middle">
+                <thead class="text-white rounded culoare2">
+                    <tr>
+                        <th class="text-nowrap">#</th>
+                        <th>Încărcare - localitate</th>
+                        <th>Încărcare - cod poștal</th>
+                        <th>Descărcare - localitate</th>
+                        <th>Descărcare - cod poștal</th>
+                        <th>Data cursă</th>
+                        <th>Observații</th>
+                        <th class="text-end">Acțiuni</th>
+                    </tr>
+                </thead>
+                <tbody id="curse-table-body">
+                    @if ($curse->count())
+                        @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
+                    @else
+                        <tr>
+                            <td colspan="8" class="text-center py-4">Nu există curse care să respecte criteriile selectate.</td>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+
+        @if ($curse instanceof \Illuminate\Contracts\Pagination\Paginator || $curse instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator)
+            <div id="curse-infinite-scroll" class="mt-3 px-3">
+                <div
+                    id="curse-load-more-trigger"
+                    class="d-flex justify-content-center py-3"
+                    data-next-url="{{ $nextPageUrl }}"
+                >
+                    @if ($curse->hasMorePages())
+                        <button type="button" class="btn btn-outline-primary" id="curse-load-more">
+                            <span class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                            <span class="load-more-label">Încarcă mai multe</span>
+                        </button>
+                    @endif
+                </div>
+            </div>
+        @endif
     </div>
 </div>
+
+<div
+    id="curse-modals"
+    data-active-modal="{{ session('curse.modal') }}"
+>
+    @include('valabilitati.curse.partials.modals', [
+        'valabilitate' => $valabilitate,
+        'curse' => $curse,
+        'includeCreate' => true,
+        'formType' => old('form_type'),
+        'formId' => old('form_id'),
+    ])
+</div>
+
+@push('page-scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const bootstrap = window.bootstrap;
+            const bootstrapModal = bootstrap && bootstrap.Modal ? bootstrap.Modal : null;
+            const modalsContainer = document.getElementById('curse-modals');
+            const tableBody = document.getElementById('curse-table-body');
+            const feedbackContainer = document.getElementById('curse-feedback');
+
+            const supportsAjax = () => typeof window.fetch === 'function' && typeof window.FormData === 'function';
+
+            const loadState = {
+                button: null,
+                trigger: null,
+                spinner: null,
+                label: null,
+                observer: null,
+                nextUrl: null,
+                loading: false,
+            };
+
+            const appendHtml = (container, html) => {
+                if (!container || !html) {
+                    return;
+                }
+
+                const template = document.createElement('template');
+                template.innerHTML = html.trim();
+                container.appendChild(template.content);
+            };
+
+            const showModalElement = (element, fallbackMessage = null) => {
+                if (!element) {
+                    if (fallbackMessage && typeof window !== 'undefined' && typeof window.alert === 'function') {
+                        window.alert(fallbackMessage);
+                    }
+                    return;
+                }
+
+                if (bootstrapModal) {
+                    const modalInstance =
+                        typeof bootstrapModal.getOrCreateInstance === 'function'
+                            ? bootstrapModal.getOrCreateInstance(element)
+                            : new bootstrapModal(element);
+                    modalInstance.show();
+                    return;
+                }
+
+                const $ = window.jQuery || window.$;
+
+                if (typeof $ === 'function' && typeof $(element).modal === 'function') {
+                    $(element).modal('show');
+                    return;
+                }
+
+                if (fallbackMessage && typeof window !== 'undefined' && typeof window.alert === 'function') {
+                    window.alert(fallbackMessage);
+                }
+            };
+
+            const closeModal = (modalElement) => {
+                if (!modalElement) {
+                    return;
+                }
+
+                if (bootstrapModal) {
+                    const existingInstance =
+                        typeof bootstrapModal.getInstance === 'function'
+                            ? bootstrapModal.getInstance(modalElement)
+                            : null;
+
+                    if (existingInstance) {
+                        existingInstance.hide();
+                        return;
+                    }
+
+                    const fallbackInstance =
+                        typeof bootstrapModal.getOrCreateInstance === 'function'
+                            ? bootstrapModal.getOrCreateInstance(modalElement)
+                            : new bootstrapModal(modalElement);
+                    fallbackInstance.hide();
+                    return;
+                }
+
+                const $ = window.jQuery || window.$;
+
+                if (typeof $ === 'function' && typeof $(modalElement).modal === 'function') {
+                    $(modalElement).modal('hide');
+                    return;
+                }
+
+                modalElement.classList.remove('show');
+                modalElement.setAttribute('aria-hidden', 'true');
+            };
+
+            const showFeedback = (message, type = 'success') => {
+                if (!feedbackContainer) {
+                    return;
+                }
+
+                feedbackContainer.innerHTML = '';
+
+                if (!message) {
+                    return;
+                }
+
+                const alert = document.createElement('div');
+                alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+                alert.setAttribute('role', 'alert');
+                alert.innerHTML = `
+                    <span>${message}</span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Închide"></button>
+                `;
+
+                feedbackContainer.appendChild(alert);
+            };
+
+            const clearFormErrors = (form) => {
+                form.querySelectorAll('.is-invalid').forEach(element => {
+                    element.classList.remove('is-invalid');
+                });
+
+                form.querySelectorAll('[data-error-for]').forEach(element => {
+                    element.textContent = '';
+                    element.classList.remove('d-block');
+                });
+            };
+
+            const displayValidationErrors = (form, errors) => {
+                if (!errors) {
+                    return;
+                }
+
+                Object.entries(errors).forEach(([field, messages]) => {
+                    const inputs = form.querySelectorAll(`[name="${field}"]`);
+                    inputs.forEach(input => {
+                        input.classList.add('is-invalid');
+                    });
+
+                    const feedback = form.querySelector(`[data-error-for="${field}"]`);
+                    if (feedback) {
+                        const messageText = Array.isArray(messages) ? messages.join(' ') : messages;
+                        feedback.textContent = messageText;
+                        feedback.classList.add('d-block');
+                    }
+                });
+            };
+
+            function setLoadingState(isLoading) {
+                loadState.loading = isLoading;
+
+                if (!loadState.button) {
+                    return;
+                }
+
+                loadState.button.disabled = isLoading;
+
+                if (loadState.spinner) {
+                    loadState.spinner.classList.toggle('d-none', !isLoading);
+                }
+
+                if (loadState.label) {
+                    loadState.label.textContent = isLoading ? 'Se încarcă...' : 'Încarcă mai multe';
+                }
+            }
+
+            function disconnectObserver() {
+                if (loadState.observer) {
+                    loadState.observer.disconnect();
+                    loadState.observer = null;
+                }
+            }
+
+            function processMutationResponse(data) {
+                if (data.table_html && tableBody) {
+                    tableBody.innerHTML = data.table_html;
+                }
+
+                if (modalsContainer && data.modals_html) {
+                    modalsContainer.innerHTML = data.modals_html;
+                    modalsContainer.dataset.activeModal = '';
+                }
+
+                const loadMoreTrigger = document.getElementById('curse-load-more-trigger');
+                if (loadMoreTrigger) {
+                    loadMoreTrigger.dataset.nextUrl = data.next_url || '';
+                }
+
+                initLoadMore();
+
+                if (supportsAjax()) {
+                    attachFormHandlers();
+                }
+            }
+
+            function handleFormSubmit(event) {
+                if (!supportsAjax()) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const form = event.target;
+                const submitButton = form.querySelector('[type="submit"]');
+                const originalHtml = submitButton ? submitButton.innerHTML : null;
+
+                clearFormErrors(form);
+
+                if (submitButton) {
+                    submitButton.dataset.originalHtml = originalHtml || '';
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = `
+                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                        Se procesează...
+                    `;
+                }
+
+                const method = (form.getAttribute('method') || 'POST').toUpperCase();
+                const fetchOptions = {
+                    method,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                };
+
+                if (method !== 'GET') {
+                    fetchOptions.body = new FormData(form);
+                }
+
+                fetch(form.action, fetchOptions)
+                    .then(response => {
+                        if (response.status === 422) {
+                            return response.json().then(data => {
+                                displayValidationErrors(form, data.errors || {});
+                                throw new Error('validation');
+                            });
+                        }
+
+                        if (!response.ok) {
+                            throw new Error('request_failed');
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        processMutationResponse(data);
+                        const modalElement = form.closest('.modal');
+                        closeModal(modalElement);
+
+                        if (data.message) {
+                            showFeedback(data.message, 'success');
+                        }
+                    })
+                    .catch(error => {
+                        if (error && error.message === 'validation') {
+                            return;
+                        }
+
+                        showFeedback('A apărut o eroare neașteptată. Reîncercați.', 'danger');
+                    })
+                    .finally(() => {
+                        if (submitButton) {
+                            submitButton.disabled = false;
+                            if (submitButton.dataset.originalHtml !== undefined) {
+                                submitButton.innerHTML = submitButton.dataset.originalHtml || originalHtml || submitButton.innerHTML;
+                                delete submitButton.dataset.originalHtml;
+                            }
+                        }
+                    });
+            }
+
+            function attachFormHandlers() {
+                if (!supportsAjax()) {
+                    return;
+                }
+
+                const forms = document.querySelectorAll('.curse-modal-form');
+                forms.forEach(form => {
+                    if (form.dataset.ajaxBound === 'true') {
+                        return;
+                    }
+
+                    form.addEventListener('submit', handleFormSubmit);
+                    form.dataset.ajaxBound = 'true';
+                });
+            }
+
+            function handleLoadMore(event) {
+                if (event) {
+                    event.preventDefault();
+                }
+
+                if (!loadState.nextUrl || loadState.loading) {
+                    return;
+                }
+
+                setLoadingState(true);
+
+                fetch(loadState.nextUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('request_failed');
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.rows_html && tableBody) {
+                            appendHtml(tableBody, data.rows_html);
+                        }
+
+                        if (data.modals_html && modalsContainer) {
+                            appendHtml(modalsContainer, data.modals_html);
+                        }
+
+                        loadState.nextUrl = data.next_url || null;
+
+                        if (loadState.trigger) {
+                            loadState.trigger.dataset.nextUrl = loadState.nextUrl || '';
+                        }
+
+                        if (!loadState.nextUrl) {
+                            if (loadState.button) {
+                                loadState.button.remove();
+                            }
+                            loadState.button = null;
+                            loadState.spinner = null;
+                            loadState.label = null;
+                            disconnectObserver();
+                        }
+
+                        if (loadState.button) {
+                            loadState.button.classList.remove('btn-danger');
+                        }
+
+                        if (supportsAjax()) {
+                            attachFormHandlers();
+                        }
+                    })
+                    .catch(() => {
+                        if (loadState.button) {
+                            loadState.button.classList.add('btn-danger');
+                            loadState.button.disabled = false;
+                        }
+
+                        if (loadState.label) {
+                            loadState.label.textContent = 'Reîncearcă';
+                        }
+                    })
+                    .finally(() => {
+                        setLoadingState(false);
+                    });
+            }
+
+            function initLoadMore() {
+                disconnectObserver();
+
+                loadState.button = document.getElementById('curse-load-more');
+                loadState.trigger = document.getElementById('curse-load-more-trigger');
+                loadState.spinner = loadState.button ? loadState.button.querySelector('.spinner-border') : null;
+                loadState.label = loadState.button ? loadState.button.querySelector('.load-more-label') : null;
+                loadState.nextUrl = loadState.trigger ? loadState.trigger.dataset.nextUrl || null : null;
+                loadState.loading = false;
+
+                if (loadState.button) {
+                    loadState.button.addEventListener('click', handleLoadMore);
+                    loadState.button.classList.remove('btn-danger');
+                }
+
+                if ('IntersectionObserver' in window && loadState.trigger) {
+                    loadState.observer = new IntersectionObserver(entries => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                handleLoadMore();
+                            }
+                        });
+                    });
+
+                    loadState.observer.observe(loadState.trigger);
+                }
+            }
+
+            const showActiveModal = () => {
+                if (!modalsContainer) {
+                    return;
+                }
+
+                const activeModal = modalsContainer.dataset.activeModal;
+                if (!activeModal) {
+                    return;
+                }
+
+                let modalId = null;
+
+                if (activeModal === 'create') {
+                    modalId = 'cursaCreateModal';
+                } else if (activeModal.startsWith('edit:')) {
+                    const parts = activeModal.split(':');
+                    if (parts.length === 2 && parts[1]) {
+                        modalId = `cursaEditModal${parts[1]}`;
+                    }
+                }
+
+                if (modalId) {
+                    const modalElement = document.getElementById(modalId);
+                    showModalElement(modalElement);
+                }
+
+                modalsContainer.dataset.activeModal = '';
+            };
+
+            initLoadMore();
+
+            if (supportsAjax()) {
+                attachFormHandlers();
+            }
+
+            showActiveModal();
+        });
+    </script>
+@endpush
 @endsection
