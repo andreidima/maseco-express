@@ -32,7 +32,8 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_cod_postal' => '410001',
             'descarcare_tara_id' => $descarcareTara->id,
             'descarcare_tara_text' => $descarcareTara->nume,
-            'data_cursa' => '2025-05-01T08:30',
+            'data_cursa_date' => '2025-05-01',
+            'data_cursa_time' => '08:30',
             'observatii' => 'Livrare completă',
             'km_bord' => 12345,
         ]);
@@ -86,7 +87,8 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_cod_postal' => '800010',
             'descarcare_tara_id' => $newDescarcareTara->id,
             'descarcare_tara_text' => $newDescarcareTara->nume,
-            'data_cursa' => '2025-05-05T14:45',
+            'data_cursa_date' => '2025-05-05',
+            'data_cursa_time' => '14:45',
             'observatii' => 'Actualizare detalii',
             'km_bord' => 98765,
         ]);
@@ -105,6 +107,51 @@ class ValabilitateCursaTest extends TestCase
             'data_cursa' => '2025-05-05 14:45:00',
             'observatii' => 'Actualizare detalii',
             'km_bord' => 98765,
+        ]);
+    }
+
+    public function test_ajax_update_returns_json_payload(): void
+    {
+        $user = $this->createValabilitatiUser();
+        $cursa = ValabilitateCursa::factory()->create([
+            'data_cursa' => '2025-05-02 09:00:00',
+        ]);
+        $newIncarcareTara = Tara::factory()->create(['nume' => 'Austria']);
+        $newDescarcareTara = Tara::factory()->create(['nume' => 'Cehia']);
+
+        $response = $this
+            ->actingAs($user)
+            ->withHeaders([
+                'X-Requested-With' => 'XMLHttpRequest',
+                'Accept' => 'application/json',
+            ])
+            ->put(route('valabilitati.curse.update', [$cursa->valabilitate, $cursa]), [
+                'incarcare_localitate' => 'București',
+                'incarcare_cod_postal' => '010101',
+                'incarcare_tara_id' => $newIncarcareTara->id,
+                'descarcare_localitate' => 'Praga',
+                'descarcare_cod_postal' => '11000',
+                'descarcare_tara_id' => $newDescarcareTara->id,
+                'data_cursa_date' => '2025-05-10',
+                'data_cursa_time' => '11:15',
+            ]);
+
+        $response->assertOk();
+        $response->assertJsonStructure([
+            'message',
+            'table_html',
+            'modals_html',
+            'next_url',
+        ]);
+        $response->assertJson([
+            'message' => 'Cursa a fost actualizată.',
+        ]);
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $cursa->id,
+            'incarcare_localitate' => 'București',
+            'descarcare_localitate' => 'Praga',
+            'data_cursa' => '2025-05-10 11:15:00',
         ]);
     }
 
