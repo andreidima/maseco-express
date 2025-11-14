@@ -35,7 +35,8 @@ class ValabilitateCursaTest extends TestCase
             'data_cursa_date' => '2025-05-01',
             'data_cursa_time' => '08:30',
             'observatii' => 'Livrare completă',
-            'km_bord' => 12345,
+            'km_bord_incarcare' => 12345,
+            'km_bord_descarcare' => 12500,
         ]);
 
         $response->assertRedirect(route('valabilitati.curse.index', $valabilitate));
@@ -51,7 +52,8 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_tara_id' => $descarcareTara->id,
             'data_cursa' => '2025-05-01 08:30:00',
             'observatii' => 'Livrare completă',
-            'km_bord' => 12345,
+            'km_bord_incarcare' => 12345,
+            'km_bord_descarcare' => 12500,
         ]);
 
         $cursa = ValabilitateCursa::firstOrFail();
@@ -72,7 +74,8 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_cod_postal' => '550200',
             'descarcare_tara_id' => $initialDescarcareTara->id,
             'data_cursa' => '2025-05-03 10:00:00',
-            'km_bord' => 78000,
+            'km_bord_incarcare' => 78000,
+            'km_bord_descarcare' => 78500,
         ]);
 
         $newIncarcareTara = Tara::factory()->create(['nume' => 'Germania']);
@@ -90,7 +93,8 @@ class ValabilitateCursaTest extends TestCase
             'data_cursa_date' => '2025-05-05',
             'data_cursa_time' => '14:45',
             'observatii' => 'Actualizare detalii',
-            'km_bord' => 98765,
+            'km_bord_incarcare' => 98765,
+            'km_bord_descarcare' => 99000,
         ]);
 
         $response->assertRedirect(route('valabilitati.curse.index', $cursa->valabilitate));
@@ -106,7 +110,8 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_tara_id' => $newDescarcareTara->id,
             'data_cursa' => '2025-05-05 14:45:00',
             'observatii' => 'Actualizare detalii',
-            'km_bord' => 98765,
+            'km_bord_incarcare' => 98765,
+            'km_bord_descarcare' => 99000,
         ]);
     }
 
@@ -181,7 +186,8 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_cod_postal' => '310002',
             'data_cursa' => '2025-06-10 16:20:00',
             'descarcare_tara_id' => $descarcareTara->id,
-            'km_bord' => 15400,
+            'km_bord_incarcare' => 15400,
+            'km_bord_descarcare' => 15900,
         ]);
 
         $response = $this->actingAs($user)->get(route('valabilitati.curse.index', $valabilitate));
@@ -195,6 +201,7 @@ class ValabilitateCursaTest extends TestCase
         $response->assertSeeText($descarcareTara->nume);
         $response->assertSeeText('10.06.2025 16:20');
         $response->assertSeeText('15400');
+        $response->assertSeeText('15900');
     }
 
     public function test_index_lists_curse_in_chronological_order(): void

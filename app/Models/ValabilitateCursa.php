@@ -22,12 +22,14 @@ class ValabilitateCursa extends Model
         'descarcare_tara_id',
         'data_cursa',
         'observatii',
-        'km_bord',
+        'km_bord_incarcare',
+        'km_bord_descarcare',
     ];
 
     protected $casts = [
         'data_cursa' => 'datetime',
-        'km_bord' => 'integer',
+        'km_bord_incarcare' => 'integer',
+        'km_bord_descarcare' => 'integer',
     ];
 
     public function incarcareTara(): BelongsTo

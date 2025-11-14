@@ -72,7 +72,8 @@
                                 $createDescarcareTaraText = $resolveTaraName($createDescarcareTaraId);
                             }
 
-                            $createKmBord = $isCreateActive ? old('km_bord', '') : '';
+                            $createKmBordIncarcare = $isCreateActive ? old('km_bord_incarcare', '') : '';
+                            $createKmBordDescarcare = $isCreateActive ? old('km_bord_descarcare', '') : '';
                             $createDataDateValue = $isCreateActive ? old('data_cursa_date', '') : '';
                             $createDataTimeValue = $isCreateActive ? old('data_cursa_time', '') : '';
                             if ($isCreateActive) {
@@ -229,21 +230,39 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <label for="cursa-create-km-bord" class="form-label">Km bord</label>
+                                <label for="cursa-create-km-bord-incarcare" class="form-label">Km bord încărcare</label>
                                 <input
                                     type="number"
-                                    name="km_bord"
-                                    id="cursa-create-km-bord"
-                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_bord') ? 'is-invalid' : '' }}"
-                                    value="{{ $createKmBord }}"
+                                    name="km_bord_incarcare"
+                                    id="cursa-create-km-bord-incarcare"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_bord_incarcare') ? 'is-invalid' : '' }}"
+                                    value="{{ $createKmBordIncarcare }}"
                                     min="0"
                                     step="1"
                                 >
                                 <div
-                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_bord') ? 'd-block' : '' }}"
-                                    data-error-for="km_bord"
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_bord_incarcare') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord_incarcare"
                                 >
-                                    {{ $isCreateActive ? $errors->first('km_bord') : '' }}
+                                    {{ $isCreateActive ? $errors->first('km_bord_incarcare') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="cursa-create-km-bord-descarcare" class="form-label">Km bord descărcare</label>
+                                <input
+                                    type="number"
+                                    name="km_bord_descarcare"
+                                    id="cursa-create-km-bord-descarcare"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_bord_descarcare') ? 'is-invalid' : '' }}"
+                                    value="{{ $createKmBordDescarcare }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_bord_descarcare') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord_descarcare"
+                                >
+                                    {{ $isCreateActive ? $errors->first('km_bord_descarcare') : '' }}
                                 </div>
                             </div>
                             <div class="col-12">
@@ -306,9 +325,13 @@
             $editDescarcareTaraText = $resolveTaraName($editDescarcareTaraId) ?: optional($cursa->descarcareTara)->nume;
         }
 
-        $editKmBordValue = $isEditing ? old('km_bord', $cursa->km_bord) : $cursa->km_bord;
-        if ($editKmBordValue === null) {
-            $editKmBordValue = '';
+        $editKmBordIncarcare = $isEditing ? old('km_bord_incarcare', $cursa->km_bord_incarcare) : $cursa->km_bord_incarcare;
+        if ($editKmBordIncarcare === null) {
+            $editKmBordIncarcare = '';
+        }
+        $editKmBordDescarcare = $isEditing ? old('km_bord_descarcare', $cursa->km_bord_descarcare) : $cursa->km_bord_descarcare;
+        if ($editKmBordDescarcare === null) {
+            $editKmBordDescarcare = '';
         }
     @endphp
     <div
@@ -480,21 +503,39 @@
                                 </div>
                             </div>
                             <div class="col-md-4">
-                                <label for="{{ $editPrefix }}km-bord" class="form-label">Km bord</label>
+                                <label for="{{ $editPrefix }}km-bord-incarcare" class="form-label">Km bord încărcare</label>
                                 <input
                                     type="number"
-                                    name="km_bord"
-                                    id="{{ $editPrefix }}km-bord"
-                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_bord') ? 'is-invalid' : '' }}"
-                                    value="{{ $editKmBordValue }}"
+                                    name="km_bord_incarcare"
+                                    id="{{ $editPrefix }}km-bord-incarcare"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_bord_incarcare') ? 'is-invalid' : '' }}"
+                                    value="{{ $editKmBordIncarcare }}"
                                     min="0"
                                     step="1"
                                 >
                                 <div
-                                    class="invalid-feedback {{ $isEditing && $errors->has('km_bord') ? 'd-block' : '' }}"
-                                    data-error-for="km_bord"
+                                    class="invalid-feedback {{ $isEditing && $errors->has('km_bord_incarcare') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord_incarcare"
                                 >
-                                    {{ $isEditing ? $errors->first('km_bord') : '' }}
+                                    {{ $isEditing ? $errors->first('km_bord_incarcare') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ $editPrefix }}km-bord-descarcare" class="form-label">Km bord descărcare</label>
+                                <input
+                                    type="number"
+                                    name="km_bord_descarcare"
+                                    id="{{ $editPrefix }}km-bord-descarcare"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_bord_descarcare') ? 'is-invalid' : '' }}"
+                                    value="{{ $editKmBordDescarcare }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('km_bord_descarcare') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord_descarcare"
+                                >
+                                    {{ $isEditing ? $errors->first('km_bord_descarcare') : '' }}
                                 </div>
                             </div>
                             <div class="col-12">

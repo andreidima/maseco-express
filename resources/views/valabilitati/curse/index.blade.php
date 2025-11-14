@@ -121,7 +121,8 @@
                         <th>Descărcare - cod poștal</th>
                         <th>Descărcare - țară</th>
                         <th>Data cursă</th>
-                        <th>Km bord</th>
+                        <th>Încărcare - km bord</th>
+                        <th>Descărcare - km bord</th>
                         <th class="text-end">Acțiuni</th>
                     </tr>
                 </thead>
@@ -130,7 +131,7 @@
                         @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                     @else
                         <tr>
-                            <td colspan="10" class="text-center py-4">Nu există curse care să respecte criteriile selectate.</td>
+                            <td colspan="11" class="text-center py-4">Nu există curse care să respecte criteriile selectate.</td>
                         </tr>
                     @endif
                 </tbody>

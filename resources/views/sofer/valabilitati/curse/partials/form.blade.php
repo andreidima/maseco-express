@@ -176,16 +176,30 @@
             @endif
         </div>
         <div class="col-12 col-md-6">
-            <label class="form-label small text-uppercase fw-semibold">Kilometraj bord</label>
+            <label class="form-label small text-uppercase fw-semibold">Km bord încărcare</label>
             <input
                 type="number"
-                name="km_bord"
-                class="form-control form-control-sm @error('km_bord') is-invalid @enderror"
-                value="{{ old('km_bord', optional($cursa)->km_bord) }}"
+                name="km_bord_incarcare"
+                class="form-control form-control-sm @error('km_bord_incarcare') is-invalid @enderror"
+                value="{{ old('km_bord_incarcare', optional($cursa)->km_bord_incarcare) }}"
                 min="0"
                 step="1"
             >
-            @error('km_bord')
+            @error('km_bord_incarcare')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col-12 col-md-6">
+            <label class="form-label small text-uppercase fw-semibold">Km bord descărcare</label>
+            <input
+                type="number"
+                name="km_bord_descarcare"
+                class="form-control form-control-sm @error('km_bord_descarcare') is-invalid @enderror"
+                value="{{ old('km_bord_descarcare', optional($cursa)->km_bord_descarcare) }}"
+                min="0"
+                step="1"
+            >
+            @error('km_bord_descarcare')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>

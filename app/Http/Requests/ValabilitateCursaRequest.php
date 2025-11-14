@@ -28,7 +28,8 @@ class ValabilitateCursaRequest extends FormRequest
             'descarcare_tara_id' => ['nullable', 'exists:tari,id'],
             'data_cursa' => ['nullable', 'date'],
             'observatii' => ['nullable', 'string'],
-            'km_bord' => ['nullable', 'integer', 'min:0'],
+            'km_bord_incarcare' => ['nullable', 'integer', 'min:0'],
+            'km_bord_descarcare' => ['nullable', 'integer', 'min:0'],
         ];
     }
 

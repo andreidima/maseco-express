@@ -26,7 +26,8 @@ class ValabilitateCursaFactory extends Factory
             'descarcare_tara_id' => Tara::factory(),
             'data_cursa' => fake()->dateTimeBetween('-1 week', '+1 week'),
             'observatii' => fake()->optional()->sentence(),
-            'km_bord' => fake()->numberBetween(0, 500000),
+            'km_bord_incarcare' => fake()->numberBetween(0, 500000),
+            'km_bord_descarcare' => fake()->numberBetween(0, 500000),
         ];
     }
 }
