@@ -7,6 +7,10 @@
     $requiresTime = (bool) ($requiresTime ?? false);
     $lockTime = (bool) ($lockTime ?? false);
     $romanianCountryIds = collect($romanianCountryIds ?? [])->map(fn ($id) => (int) $id)->all();
+    $countryOptions = $tari->map(fn ($tara) => [
+        'id' => (string) $tara->id,
+        'name' => $tara->nume,
+    ])->values();
 
     $incarcareLocalitate = old('incarcare_localitate', optional($cursa)->incarcare_localitate);
     $incarcareCodPostal = old('incarcare_cod_postal', optional($cursa)->incarcare_cod_postal);
@@ -35,14 +39,6 @@
     $requireTimeDefault = $requiresTime || $finalReturnValue === 1 || $lockTime;
 @endphp
 
-@once
-    <datalist id="sofer-valabilitati-tari">
-        @foreach ($tari as $tara)
-            <option value="{{ $tara->nume }}" data-id="{{ $tara->id }}"></option>
-        @endforeach
-    </datalist>
-@endonce
-
 <form
     method="POST"
     action="{{ $action }}"
@@ -53,6 +49,7 @@
     data-require-time-default="{{ $requireTimeDefault ? 'true' : 'false' }}"
     data-initial-final-return="{{ $finalReturnValue }}"
     data-romanian-ids='@json(array_map("strval", $romanianCountryIds))'
+    data-country-options='@json($countryOptions)'
 >
     @csrf
     @if ($method !== 'POST')
@@ -91,15 +88,17 @@
         <div class="col-12 col-md-6" data-country-field data-country-role="incarcare">
             <label class="form-label small text-uppercase fw-semibold">Țara încărcării</label>
             <input type="hidden" name="incarcare_tara_id" value="{{ $incarcareTaraId ?: '' }}" data-country-hidden>
-            <input
-                type="text"
-                name="incarcare_tara_text"
-                class="form-control form-control-sm @error('incarcare_tara_id') is-invalid @enderror"
-                value="{{ $incarcareTaraText }}"
-                autocomplete="off"
-                list="sofer-valabilitati-tari"
-                data-country-input
-            >
+            <div class="country-autocomplete position-relative" data-country-autocomplete>
+                <input
+                    type="text"
+                    name="incarcare_tara_text"
+                    class="form-control form-control-sm @error('incarcare_tara_id') is-invalid @enderror"
+                    value="{{ $incarcareTaraText }}"
+                    autocomplete="off"
+                    data-country-input
+                >
+                <div class="dropdown-menu w-100" data-country-dropdown></div>
+            </div>
             @error('incarcare_tara_id')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -133,15 +132,17 @@
         <div class="col-12 col-md-6" data-country-field data-country-role="descarcare">
             <label class="form-label small text-uppercase fw-semibold">Țara descărcării</label>
             <input type="hidden" name="descarcare_tara_id" value="{{ $descarcareTaraId ?: '' }}" data-country-hidden>
-            <input
-                type="text"
-                name="descarcare_tara_text"
-                class="form-control form-control-sm @error('descarcare_tara_id') is-invalid @enderror"
-                value="{{ $descarcareTaraText }}"
-                autocomplete="off"
-                list="sofer-valabilitati-tari"
-                data-country-input
-            >
+            <div class="country-autocomplete position-relative" data-country-autocomplete>
+                <input
+                    type="text"
+                    name="descarcare_tara_text"
+                    class="form-control form-control-sm @error('descarcare_tara_id') is-invalid @enderror"
+                    value="{{ $descarcareTaraText }}"
+                    autocomplete="off"
+                    data-country-input
+                >
+                <div class="dropdown-menu w-100" data-country-dropdown></div>
+            </div>
             @error('descarcare_tara_id')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
@@ -220,6 +221,22 @@
         .cursa-form .cursa-time-field.is-required label::after {
             display: inline;
         }
+
+        .country-autocomplete {
+            position: relative;
+        }
+
+        .country-autocomplete .dropdown-menu {
+            max-height: 16rem;
+            overflow-y: auto;
+            width: 100%;
+            inset: 100% 0 auto 0 !important;
+            transform: none !important;
+        }
+
+        .country-autocomplete .dropdown-item {
+            white-space: normal;
+        }
     </style>
 @endpush
 
@@ -231,17 +248,44 @@
                 return;
             }
 
-            const datalist = document.getElementById('sofer-valabilitati-tari');
-            const options = datalist ? Array.from(datalist.options) : [];
+            const countryOptions = (() => {
+                try {
+                    return JSON.parse(form.dataset.countryOptions || '[]');
+                } catch (error) {
+                    return [];
+                }
+            })();
             const mapByName = new Map();
             const mapById = new Map();
 
-            options.forEach((option) => {
-                const name = (option.value || '').trim();
-                const id = (option.dataset.id || '').trim();
+            const normaliseString = (value) => {
+                const raw = String(value ?? '').trim();
+                if (!raw) {
+                    return '';
+                }
+
+                const normalised = typeof raw.normalize === 'function'
+                    ? raw.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                    : raw;
+
+                return normalised.toLowerCase();
+            };
+
+            countryOptions.forEach((option) => {
+                const name = (option.name || '').trim();
+                const id = String(option.id || '').trim();
 
                 if (name) {
-                    mapByName.set(name.toLowerCase(), id);
+                    const normalised = normaliseString(name);
+                    const lowercase = name.toLowerCase();
+
+                    if (normalised) {
+                        mapByName.set(normalised, id);
+                    }
+
+                    if (lowercase && !mapByName.has(lowercase)) {
+                        mapByName.set(lowercase, id);
+                    }
                 }
 
                 if (id) {
@@ -263,8 +307,13 @@
             };
 
             const syncTextToHidden = (textInput, hiddenInput) => {
-                const value = (textInput.value || '').trim().toLowerCase();
-                const matchedId = mapByName.get(value) || '';
+                const normalisedValue = normaliseString(textInput.value || '');
+                let matchedId = normalisedValue ? (mapByName.get(normalisedValue) || '') : '';
+
+                if (!matchedId) {
+                    const fallback = (textInput.value || '').trim().toLowerCase();
+                    matchedId = mapByName.get(fallback) || '';
+                }
                 const previousValue = hiddenInput.value;
 
                 hiddenInput.value = matchedId;
@@ -281,10 +330,101 @@
 
                 const textInput = field.querySelector('[data-country-input]');
                 const hiddenInput = field.querySelector('[data-country-hidden]');
+                const autocomplete = field.querySelector('[data-country-autocomplete]');
+                const dropdown = autocomplete ? autocomplete.querySelector('[data-country-dropdown]') : null;
 
-                if (!textInput || !hiddenInput) {
+                if (!textInput || !hiddenInput || !dropdown) {
                     return;
                 }
+
+                const maxSuggestions = 12;
+                let currentSuggestions = [];
+                let activeIndex = -1;
+                let dropdownVisible = false;
+                let suppressNextRender = false;
+
+                const closeDropdown = () => {
+                    dropdown.classList.remove('show');
+                    dropdownVisible = false;
+                    activeIndex = -1;
+                    dropdown.querySelectorAll('.dropdown-item').forEach((item) => item.classList.remove('active'));
+                };
+
+                const openDropdown = () => {
+                    if (currentSuggestions.length === 0) {
+                        closeDropdown();
+                        return;
+                    }
+
+                    dropdown.classList.add('show');
+                    dropdownVisible = true;
+                };
+
+                const updateActiveItem = () => {
+                    dropdown.querySelectorAll('.dropdown-item').forEach((item, index) => {
+                        if (index === activeIndex) {
+                            item.classList.add('active');
+                            item.scrollIntoView({ block: 'nearest' });
+                        } else {
+                            item.classList.remove('active');
+                        }
+                    });
+                };
+
+                const renderSuggestions = (query) => {
+                    const value = normaliseString(query || '');
+                    const suggestions = countryOptions
+                        .filter((option) => {
+                            if (!option || !option.name) {
+                                return false;
+                            }
+
+                            if (!value) {
+                                return true;
+                            }
+
+                            return normaliseString(option.name).includes(value);
+                        })
+                        .slice(0, maxSuggestions);
+
+                    currentSuggestions = suggestions;
+                    dropdown.innerHTML = '';
+                    activeIndex = -1;
+
+                    suggestions.forEach((option, index) => {
+                        const item = document.createElement('button');
+                        item.type = 'button';
+                        item.className = 'dropdown-item text-start';
+                        item.textContent = option.name;
+                        item.dataset.index = String(index);
+                        dropdown.appendChild(item);
+                    });
+
+                    if (suggestions.length === 0 || document.activeElement !== textInput) {
+                        closeDropdown();
+                        return;
+                    }
+
+                    openDropdown();
+                };
+
+                const selectOption = (option) => {
+                    if (!option) {
+                        return;
+                    }
+
+                    textInput.value = option.name || '';
+                    if (mapByName.size > 0) {
+                        syncTextToHidden(textInput, hiddenInput);
+                    }
+                    suppressNextRender = true;
+                    textInput.dispatchEvent(new Event('input', { bubbles: true }));
+                    textInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    window.setTimeout(() => {
+                        suppressNextRender = false;
+                    }, 0);
+                    closeDropdown();
+                };
 
                 syncHiddenToText(textInput, hiddenInput);
                 if (mapByName.size > 0) {
@@ -295,11 +435,66 @@
                     if (mapByName.size > 0) {
                         syncTextToHidden(textInput, hiddenInput);
                     }
+
+                    if (!suppressNextRender && countryOptions.length > 0) {
+                        renderSuggestions(textInput.value || '');
+                    }
+                });
+
+                textInput.addEventListener('focus', () => {
+                    if (countryOptions.length > 0) {
+                        renderSuggestions(textInput.value || '');
+                    }
                 });
 
                 textInput.addEventListener('change', () => {
+                    if (suppressNextRender) {
+                        return;
+                    }
+
                     if (mapByName.size > 0) {
                         syncTextToHidden(textInput, hiddenInput);
+                    }
+                });
+
+                textInput.addEventListener('keydown', (event) => {
+                    if (!dropdownVisible || currentSuggestions.length === 0) {
+                        return;
+                    }
+
+                    if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        activeIndex = (activeIndex + 1) % currentSuggestions.length;
+                        updateActiveItem();
+                    } else if (event.key === 'ArrowUp') {
+                        event.preventDefault();
+                        activeIndex = activeIndex <= 0
+                            ? currentSuggestions.length - 1
+                            : activeIndex - 1;
+                        updateActiveItem();
+                    } else if (event.key === 'Enter') {
+                        if (activeIndex >= 0 && activeIndex < currentSuggestions.length) {
+                            event.preventDefault();
+                            selectOption(currentSuggestions[activeIndex]);
+                        }
+                    } else if (event.key === 'Escape') {
+                        closeDropdown();
+                    }
+                });
+
+                dropdown.addEventListener('mousedown', (event) => {
+                    event.preventDefault();
+                });
+
+                dropdown.addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (!(target instanceof HTMLElement)) {
+                        return;
+                    }
+
+                    const index = Number.parseInt(target.dataset.index || '', 10);
+                    if (!Number.isNaN(index) && currentSuggestions[index]) {
+                        selectOption(currentSuggestions[index]);
                     }
                 });
 
@@ -307,6 +502,17 @@
                     if ((textInput.value || '').trim() === '') {
                         hiddenInput.value = '';
                         hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+
+                    window.setTimeout(() => {
+                        closeDropdown();
+                    }, 150);
+                });
+
+                document.addEventListener('click', (event) => {
+                    const target = event.target;
+                    if (target instanceof Node && !field.contains(target)) {
+                        closeDropdown();
                     }
                 });
             };
