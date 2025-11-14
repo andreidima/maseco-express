@@ -8,6 +8,8 @@ use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class SoferValabilitateCursaController extends Controller
@@ -24,15 +26,51 @@ class SoferValabilitateCursaController extends Controller
             'curse.descarcareTara',
         ]);
 
+        return view('sofer.valabilitati.show', [
+            'valabilitate' => $valabilitate,
+            'curse' => $valabilitate->curse,
+        ]);
+    }
+
+    public function create(Request $request, Valabilitate $valabilitate): View
+    {
+        $valabilitate = $this->ensureDriverOwnsValabilitate($request, $valabilitate);
+
         $tari = Tara::query()
             ->orderBy('nume')
             ->get(['id', 'nume']);
 
-        return view('sofer.valabilitati.show', [
+        $requiresTime = ! $valabilitate->curse()->exists();
+
+        return view('sofer.valabilitati.curse.create', [
             'valabilitate' => $valabilitate,
-            'curse' => $valabilitate->curse,
             'tari' => $tari,
-            'modalKey' => session('sofer_curse_modal'),
+            'requiresTime' => $requiresTime,
+            'lockTime' => $requiresTime,
+            'romanianCountryIds' => $this->determineRomanianCountryIds($tari),
+        ]);
+    }
+
+    public function edit(Request $request, Valabilitate $valabilitate, ValabilitateCursa $cursa): View
+    {
+        $valabilitate = $this->ensureDriverOwnsValabilitate($request, $valabilitate);
+        $this->ensureCursaBelongsToValabilitate($valabilitate, $cursa);
+
+        $cursa->loadMissing(['incarcareTara', 'descarcareTara']);
+
+        $tari = Tara::query()
+            ->orderBy('nume')
+            ->get(['id', 'nume']);
+
+        $hasDateTime = $cursa->data_cursa !== null;
+
+        return view('sofer.valabilitati.curse.edit', [
+            'valabilitate' => $valabilitate,
+            'cursa' => $cursa,
+            'tari' => $tari,
+            'requiresTime' => $hasDateTime,
+            'lockTime' => false,
+            'romanianCountryIds' => $this->determineRomanianCountryIds($tari),
         ]);
     }
 
@@ -83,5 +121,23 @@ class SoferValabilitateCursaController extends Controller
     private function ensureCursaBelongsToValabilitate(Valabilitate $valabilitate, ValabilitateCursa $cursa): void
     {
         abort_unless((int) $cursa->valabilitate_id === (int) $valabilitate->id, 404);
+    }
+
+    /**
+     * @param  Collection<int, Tara>  $tari
+     * @return array<int, int>
+     */
+    private function determineRomanianCountryIds(Collection $tari): array
+    {
+        return $tari
+            ->filter(static function (Tara $tara) {
+                $normalized = Str::lower($tara->nume);
+
+                return in_array($normalized, ['romania', 'românia'], true);
+            })
+            ->pluck('id')
+            ->map(static fn ($id) => (int) $id)
+            ->values()
+            ->all();
     }
 }
