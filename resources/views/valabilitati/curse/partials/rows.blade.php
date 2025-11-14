@@ -1,14 +1,9 @@
-@php
-    $startIndex = $curse->firstItem() ?? 1;
-@endphp
-
 @foreach ($curse as $cursa)
     @php
-        $rowNumber = $startIndex + $loop->index;
         $dataCursa = $cursa->data_cursa?->format('d.m.Y H:i');
     @endphp
     <tr>
-        <td class="text-nowrap">{{ $rowNumber }}</td>
+        <td class="text-nowrap">{{ $cursa->nr_cursa ?: '—' }}</td>
         <td>{{ $cursa->incarcare_localitate ?: '—' }}</td>
         <td>{{ $cursa->incarcare_cod_postal ?: '—' }}</td>
         <td>{{ $cursa->incarcareTara?->nume ?: '—' }}</td>

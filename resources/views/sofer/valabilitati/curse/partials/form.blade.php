@@ -37,6 +37,7 @@
     }
 
     $requireTimeDefault = $requiresTime || $finalReturnValue === 1 || $lockTime;
+    $nrCursa = old('nr_cursa', optional($cursa)->nr_cursa);
 @endphp
 
 <form
@@ -59,6 +60,19 @@
     <input type="hidden" name="final_return" value="{{ $finalReturnValue }}" data-final-return-input>
 
     <div class="row g-3">
+        <div class="col-12 col-md-6">
+            <label class="form-label small text-uppercase fw-semibold">Număr cursă</label>
+            <input
+                type="text"
+                name="nr_cursa"
+                class="form-control form-control-sm @error('nr_cursa') is-invalid @enderror"
+                value="{{ $nrCursa }}"
+                autocomplete="off"
+            >
+            @error('nr_cursa')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
         <div class="col-12 col-md-6">
             <label class="form-label small text-uppercase fw-semibold">Localitate încărcare</label>
             <input

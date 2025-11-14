@@ -113,7 +113,7 @@
             <table class="table table-sm table-striped table-hover rounded align-middle">
                 <thead class="text-white rounded culoare2">
                     <tr>
-                        <th class="text-nowrap">#</th>
+                        <th>Nr. cursă</th>
                         <th>Încărcare - localitate</th>
                         <th>Încărcare - cod poștal</th>
                         <th>Încărcare - țară</th>

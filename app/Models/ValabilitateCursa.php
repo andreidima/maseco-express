@@ -14,6 +14,7 @@ class ValabilitateCursa extends Model
 
     protected $fillable = [
         'valabilitate_id',
+        'nr_cursa',
         'incarcare_localitate',
         'incarcare_cod_postal',
         'incarcare_tara_id',

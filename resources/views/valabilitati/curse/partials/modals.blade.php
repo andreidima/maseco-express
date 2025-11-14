@@ -60,6 +60,7 @@
                     <input type="hidden" name="form_type" value="create">
                     <div class="modal-body">
                         @php
+                            $createNrCursa = $isCreateActive ? old('nr_cursa', '') : '';
                             $createIncarcareTaraId = $isCreateActive ? old('incarcare_tara_id', '') : '';
                             $createIncarcareTaraText = $isCreateActive ? old('incarcare_tara_text', '') : '';
                             if ($createIncarcareTaraText === '' && $createIncarcareTaraId !== '') {
@@ -87,6 +88,23 @@
                             }
                         @endphp
                         <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="cursa-create-nr" class="form-label">Număr cursă</label>
+                                <input
+                                    type="text"
+                                    name="nr_cursa"
+                                    id="cursa-create-nr"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('nr_cursa') ? 'is-invalid' : '' }}"
+                                    value="{{ $createNrCursa }}"
+                                    maxlength="255"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('nr_cursa') ? 'd-block' : '' }}"
+                                    data-error-for="nr_cursa"
+                                >
+                                    {{ $isCreateActive ? $errors->first('nr_cursa') : '' }}
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 <label for="cursa-create-incarcare-localitate" class="form-label">Localitate încărcare</label>
                                 <input
@@ -333,6 +351,10 @@
         if ($editKmBordDescarcare === null) {
             $editKmBordDescarcare = '';
         }
+        $editNrCursa = $isEditing ? old('nr_cursa', $cursa->nr_cursa) : $cursa->nr_cursa;
+        if ($editNrCursa === null) {
+            $editNrCursa = '';
+        }
     @endphp
     <div
         class="modal fade text-dark"
@@ -360,6 +382,23 @@
                     <input type="hidden" name="form_id" value="{{ $cursa->id }}">
                     <div class="modal-body">
                         <div class="row g-3">
+                            <div class="col-md-4">
+                                <label for="{{ $editPrefix }}nr" class="form-label">Număr cursă</label>
+                                <input
+                                    type="text"
+                                    name="nr_cursa"
+                                    id="{{ $editPrefix }}nr"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('nr_cursa') ? 'is-invalid' : '' }}"
+                                    value="{{ $editNrCursa }}"
+                                    maxlength="255"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('nr_cursa') ? 'd-block' : '' }}"
+                                    data-error-for="nr_cursa"
+                                >
+                                    {{ $isEditing ? $errors->first('nr_cursa') : '' }}
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 <label for="{{ $editPrefix }}incarcare-localitate" class="form-label">Localitate încărcare</label>
                                 <input
