@@ -2,47 +2,51 @@
 
 @section('content')
 <div class="container py-4 py-md-5 sofer-valabilitati">
-    <div class="mb-4">
-        <a href="{{ route('sofer.dashboard') }}" class="btn btn-link text-decoration-none px-0">
-            <i class="fa-solid fa-arrow-left-long me-1"></i>
-            Înapoi la panou
-        </a>
+   <div class="sofer-header mb-3 mb-md-4">
+        <div class="d-flex align-items-center justify-content-between gap-2">
+            {{-- Back link (text hidden on very small screens) --}}
+            <a
+                href="{{ route('sofer.dashboard') }}"
+                class="btn btn-link btn-sm text-decoration-none px-0 sofer-header__back"
+            >
+                <i class="fa-solid fa-arrow-left-long me-1"></i>
+                <span class="d-none d-sm-inline">Înapoi la panou</span>
+            </a>
+
+            {{-- Title + label in the middle --}}
+            <div class="flex-grow-1 mx-1 text-center">
+                <h1 class="sofer-header__title fw-bold mb-0 text-truncate">
+                    {{ $valabilitate->denumire }}
+                </h1>
+            </div>
+
+            {{-- Primary CTA on the right --}}
+            <a
+                href="{{ route('sofer.valabilitati.curse.create', $valabilitate) }}"
+                class="btn btn-success btn-sm flex-shrink-0 sofer-header__cta p-1"
+            >
+                <i class="fa-solid fa-plus"></i>
+                <span class="d-none d-sm-inline">Adaugă cursă</span>
+            </a>
+        </div>
+
+        {{-- Meta line: dates + număr auto --}}
+        <div class="sofer-header__meta small text-muted mt-2 text-center gap-2">
+            <span class="">
+                <i class="fa-solid fa-car-side me-1"></i>
+                {{ $valabilitate->numar_auto ?? 'Fără număr' }}
+            </span>
+        </div>
     </div>
 
     @if (session('status'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <div class="alert alert-success alert-dismissible fade show mb-3" role="alert">
             <i class="fa-solid fa-circle-check me-2"></i>
             {{ session('status') }}
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Închide"></button>
         </div>
     @endif
 
-    <div class="card border-0 shadow-sm mb-4">
-        <div class="card-body p-4 p-lg-5">
-            <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-4">
-                <div>
-                    <p class="text-uppercase text-muted small fw-semibold mb-1">Valabilitate activă</p>
-                    <h1 class="h4 fw-bold mb-1">{{ $valabilitate->denumire }}</h1>
-                    <p class="text-muted mb-0">
-                        {{ optional($valabilitate->data_inceput)->format('d.m.Y') ?? '—' }}
-                        <span class="mx-1">–</span>
-                        {{ optional($valabilitate->data_sfarsit)->format('d.m.Y') ?? 'Prezent' }}
-                    </p>
-                </div>
-                <div class="text-lg-end">
-                    <p class="text-uppercase text-muted small fw-semibold mb-1">Număr auto</p>
-                    <p class="h5 fw-bold mb-3 mb-lg-2">{{ $valabilitate->numar_auto ?? 'Fără număr' }}</p>
-                    <a
-                        href="{{ route('sofer.valabilitati.curse.create', $valabilitate) }}"
-                        class="btn btn-primary btn-sm px-4"
-                    >
-                        <i class="fa-solid fa-plus me-1"></i>
-                        Adaugă cursă
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 
     @if ($curse->isEmpty())
         <div class="card border-0 shadow-sm">
@@ -53,63 +57,105 @@
             </div>
         </div>
     @else
-        <div class="d-flex flex-column gap-3">
+        <div class="accordion cursa-accordion" id="curseAccordion">
             @foreach ($curse as $cursa)
-                <article class="cursa-card card border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3">
-                            <div class="flex-grow-1">
-                                <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-                                    <span class="badge bg-light text-dark fw-semibold">
-                                        {{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? 'Fără dată' }}
+                @php
+                    $cursaId = 'cursa-' . $cursa->id;
+                @endphp
+
+                <article class="accordion-item cursa-card">
+                    <h2 class="accordion-header" id="heading-{{ $cursaId }}">
+                        <button
+                            class="accordion-button collapsed py-3"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapse-{{ $cursaId }}"
+                            aria-expanded="false"
+                            aria-controls="collapse-{{ $cursaId }}"
+                        >
+                            <div class="w-100 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <span class="text-primary">
+                                        {{ $cursa->incarcare_localitate ?? '—' }}
+                                        <span class="mx-1">→</span>
+                                        {{ $cursa->descarcare_localitate ?? '—' }}
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ optional($cursa->data_cursa)->format('d.m.Y') ?? 'Fără dată' }}
+                                        </small>
+
                                     </span>
-                                    @if ($cursa->km_bord)
-                                        <span class="badge bg-body-secondary text-secondary fw-semibold">
-                                            {{ number_format($cursa->km_bord, 0, '.', ' ') }} km
-                                        </span>
-                                    @endif
                                 </div>
-                                <div class="row g-3 small text-muted">
-                                    <div class="col-12 col-md-6">
-                                        <p class="fw-semibold text-uppercase text-dark small mb-2">Încărcare</p>
-                                        <ul class="list-unstyled mb-0">
-                                            <li>{{ $cursa->incarcare_localitate ?? '—' }}</li>
-                                            <li>{{ $cursa->incarcare_cod_postal ?? '—' }}</li>
-                                            <li>{{ $cursa->incarcareTara?->nume ?? '—' }}</li>
-                                        </ul>
-                                    </div>
-                                    <div class="col-12 col-md-6">
-                                        <p class="fw-semibold text-uppercase text-dark small mb-2">Descărcare</p>
-                                        <ul class="list-unstyled mb-0">
-                                            <li>{{ $cursa->descarcare_localitate ?? '—' }}</li>
-                                            <li>{{ $cursa->descarcare_cod_postal ?? '—' }}</li>
-                                            <li>{{ $cursa->descarcareTara?->nume ?? '—' }}</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                @if ($cursa->observatii)
-                                    <p class="text-muted small mt-3 mb-0">{{ $cursa->observatii }}</p>
-                                @endif
                             </div>
-                            <div class="cursa-card__actions d-flex flex-column flex-sm-row align-items-stretch gap-2 w-100 w-lg-auto">
-                                <a
-                                    href="{{ route('sofer.valabilitati.curse.edit', [$valabilitate, $cursa]) }}"
-                                    class="btn btn-outline-primary btn-sm"
-                                >
-                                    <i class="fa-solid fa-pen me-1"></i>
-                                    Editează
-                                </a>
-                                <button
-                                    type="button"
-                                    class="btn btn-outline-danger btn-sm"
-                                    data-delete-trigger
-                                    data-delete-url="{{ route('sofer.valabilitati.curse.destroy', [$valabilitate, $cursa]) }}"
-                                    data-delete-date="{{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? 'Fără dată' }}"
-                                    data-delete-summary="{{ ($cursa->incarcare_localitate ?? '—') . ' → ' . ($cursa->descarcare_localitate ?? '—') }}"
-                                >
-                                    <i class="fa-solid fa-trash-can me-1"></i>
-                                    Șterge
-                                </button>
+                        </button>
+                    </h2>
+
+                    <div
+                        id="collapse-{{ $cursaId }}"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="heading-{{ $cursaId }}"
+                        data-bs-parent="#curseAccordion"
+                    >
+                        <div class="accordion-body bg-white">
+                            <div class="cursa-card__inner">
+
+                                <div class="row g-3 align-items-start">
+                                    <div class="col-12 col-lg-12">
+                                        {{-- Încărcare left, Descărcare right (always 50% / 50%) --}}
+                                        <div class="row g-2 small text-muted cursa-card__locations">
+                                            <div class="col-6">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Încărcare</p>
+                                                <p class="mb-0">
+                                                    <span class="text-body-secondary">
+                                                        {{ $cursa->incarcare_localitate ?? '—' }}<br>
+                                                        {{ $cursa->incarcare_cod_postal ?? '—' }}<br>
+                                                        {{ $cursa->incarcareTara?->nume ?? '—' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+
+                                            <div class="col-6 text-end">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Descărcare</p>
+                                                <p class="mb-0">
+                                                    <span class="text-body-secondary">
+                                                        {{ $cursa->descarcare_localitate ?? '—' }}<br>
+                                                        {{ $cursa->descarcare_cod_postal ?? '—' }}<br>
+                                                        {{ $cursa->descarcareTara?->nume ?? '—' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        @if ($cursa->observatii)
+                                            <p class="text-muted small mt-3 mb-0">{{ $cursa->observatii }}</p>
+                                        @endif
+                                    </div>
+
+                                    <div class="col-12 col-lg-12 mt-3 mt-lg-0">
+                                        {{-- Edit left, Delete right --}}
+                                        <div class="cursa-card__actions d-flex justify-content-between align-items-stretch gap-2">
+                                            <a
+                                                href="{{ route('sofer.valabilitati.curse.edit', [$valabilitate, $cursa]) }}"
+                                                class="btn btn-outline-primary btn-sm"
+                                            >
+                                                <i class="fa-solid fa-pen"></i>
+                                                <span class="d-none d-sm-inline ms-1">Editează</span>
+                                            </a>
+
+                                            <button
+                                                type="button"
+                                                class="btn btn-outline-danger btn-sm"
+                                                data-delete-trigger
+                                                data-delete-url="{{ route('sofer.valabilitati.curse.destroy', [$valabilitate, $cursa]) }}"
+                                                data-delete-date="{{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? 'Fără dată' }}"
+                                                data-delete-summary="{{ ($cursa->incarcare_localitate ?? '—') . ' → ' . ($cursa->descarcare_localitate ?? '—') }}"
+                                            >
+                                                <i class="fa-solid fa-trash-can"></i>
+                                                <span class="d-none d-sm-inline ms-1">Șterge</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -150,29 +196,100 @@
 
 @push('page-styles')
 <style>
-    .cursa-card {
+    /* --- HEADER --- */
+    .sofer-header__back,
+    .sofer-header__cta {
+        white-space: nowrap;
+    }
+
+    .sofer-header__title {
+        font-size: 1.1rem;
+    }
+
+    .sofer-header__meta {
+        font-size: 0.82rem;
+    }
+
+    /* --- ACCORDION / CURSE --- */
+    .cursa-accordion .accordion-item.cursa-card {
         border-radius: 1rem;
+        overflow: hidden;
+        border: 0;
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .04);
+    }
+
+    .cursa-accordion .accordion-item + .accordion-item {
+        margin-top: 0.75rem;
+    }
+
+    .cursa-accordion .accordion-button {
+        background-color: #fff;
+        font-size: 0.9rem;
+    }
+
+    .cursa-accordion .accordion-button:not(.collapsed) {
+        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .03);
+    }
+
+    .cursa-card__summary {
+        border-radius: 0.5rem;
+        background-color: #f8fafc;
+        padding: 0.35rem 0.6rem;
     }
 
     .cursa-card__actions .btn {
-        min-width: 150px;
+        min-width: 120px;
     }
 
-    .cursa-card__actions .btn + .btn {
-        margin-left: 0;
-    }
-
+    /* --- MOBILE TWEAKS --- */
     @media (max-width: 575.98px) {
+        .sofer-valabilitati .card-body {
+            padding: 0.85rem 0.9rem;
+        }
+
+        .sofer-header__title {
+            font-size: 1rem;
+        }
+
+        .sofer-header__meta {
+            font-size: 0.78rem;
+        }
+
+        .sofer-valabilitati .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.4rem;
+        }
+
+        .cursa-card__locations p {
+            font-size: 0.78rem;
+        }
+
         .cursa-card__actions {
             width: 100%;
         }
 
         .cursa-card__actions .btn {
-            width: 100%;
+            width: 48%;
+            min-width: 0;
+            padding: 0.4rem 0.2rem;
+            font-size: 0.78rem;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .sofer-header__title {
+            font-size: 0.95rem;
+        }
+
+        .sofer-valabilitati .card-body {
+            padding: 0.7rem 0.7rem;
         }
     }
 </style>
 @endpush
+
+
+
 
 @push('page-scripts')
 <script>
