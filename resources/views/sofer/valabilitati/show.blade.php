@@ -106,10 +106,7 @@
                                     <div class="col-12 col-lg-12">
                                         <div class="row g-2 small text-muted mb-2">
                                             <div class="col-12">
-                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă</p>
-                                                <p class="mb-0">
-                                                    <span class="text-body-secondary">{{ $cursa->nr_cursa ?? '—' }}</span>
-                                                </p>
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă: {{ $cursa->nr_cursa ?? '—' }}</p>
                                             </div>
                                         </div>
                                         {{-- Încărcare left, Descărcare right (always 50% / 50%) --}}
