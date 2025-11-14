@@ -76,7 +76,6 @@
                             <div class="w-100 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
                                 <div class="d-flex flex-wrap align-items-center gap-2">
                                     <span class="fw-semibold text-dark small text-uppercase">
-                                        Nr. cursă:
                                         <span class="text-body-secondary">{{ $cursa->nr_cursa ?? '—' }}</span>
                                     </span>
                                     <span class="text-primary">
