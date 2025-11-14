@@ -75,6 +75,10 @@
                         >
                             <div class="w-100 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
                                 <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <span class="fw-semibold text-dark small text-uppercase">
+                                        Nr. cursă:
+                                        <span class="text-body-secondary">{{ $cursa->nr_cursa ?? '—' }}</span>
+                                    </span>
                                     <span class="text-primary">
                                         {{ $cursa->incarcare_localitate ?? '—' }}
                                         <span class="mx-1">→</span>
@@ -101,6 +105,14 @@
 
                                 <div class="row g-3 align-items-start">
                                     <div class="col-12 col-lg-12">
+                                        <div class="row g-2 small text-muted mb-2">
+                                            <div class="col-12">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă</p>
+                                                <p class="mb-0">
+                                                    <span class="text-body-secondary">{{ $cursa->nr_cursa ?? '—' }}</span>
+                                                </p>
+                                            </div>
+                                        </div>
                                         {{-- Încărcare left, Descărcare right (always 50% / 50%) --}}
                                         <div class="row g-2 small text-muted cursa-card__locations">
                                             <div class="col-6">

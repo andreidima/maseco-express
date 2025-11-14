@@ -26,6 +26,7 @@ class SoferValabilitateCursaRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'nr_cursa' => ['nullable', 'string', 'max:255'],
             'incarcare_localitate' => ['nullable', 'string', 'max:255'],
             'incarcare_cod_postal' => ['nullable', 'string', 'max:255'],
             'incarcare_tara_id' => ['nullable', Rule::exists('tari', 'id')],
