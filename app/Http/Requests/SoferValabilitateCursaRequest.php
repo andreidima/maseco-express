@@ -6,7 +6,6 @@ use App\Models\Valabilitate;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\ValidationException;
 
 class SoferValabilitateCursaRequest extends FormRequest
 {
@@ -39,8 +38,6 @@ class SoferValabilitateCursaRequest extends FormRequest
             'observatii' => ['nullable', 'string'],
             'km_bord' => ['nullable', 'integer', 'min:0'],
             'final_return' => ['nullable', 'boolean'],
-            'form_type' => ['nullable', 'string'],
-            'form_id' => ['nullable', 'integer'],
         ];
     }
 
@@ -81,31 +78,9 @@ class SoferValabilitateCursaRequest extends FormRequest
             $validated['data_cursa_date'],
             $validated['data_cursa_time'],
             $validated['final_return'],
-            $validated['form_type'],
-            $validated['form_id'],
         );
 
         return $validated;
-    }
-
-    protected function failedValidation(Validator $validator): void
-    {
-        if ($this->expectsJson()) {
-            parent::failedValidation($validator);
-
-            return;
-        }
-
-        $valabilitate = $this->route('valabilitate');
-        $modalKey = $this->determineModalKey();
-
-        $response = redirect()
-            ->route('sofer.valabilitati.show', $valabilitate)
-            ->withErrors($validator)
-            ->withInput($this->all())
-            ->with('sofer_curse_modal', $modalKey);
-
-        throw new ValidationException($validator, $response);
     }
 
     protected function withValidator($validator): void
@@ -145,18 +120,5 @@ class SoferValabilitateCursaRequest extends FormRequest
         }
 
         return false;
-    }
-
-    private function determineModalKey(): string
-    {
-        $formType = (string) $this->input('form_type', '');
-
-        if ($formType === 'edit') {
-            $formId = (int) $this->input('form_id');
-
-            return $formId > 0 ? 'edit:' . $formId : 'edit';
-        }
-
-        return 'create';
     }
 }

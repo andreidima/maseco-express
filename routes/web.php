@@ -95,6 +95,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('sofer/dashboard', SoferDashboardController::class)->name('sofer.dashboard');
         Route::get('sofer/valabilitati/{valabilitate}', [SoferValabilitateCursaController::class, 'show'])
             ->name('sofer.valabilitati.show');
+        Route::get('sofer/valabilitati/{valabilitate}/curse/create', [SoferValabilitateCursaController::class, 'create'])
+            ->name('sofer.valabilitati.curse.create');
+        Route::get('sofer/valabilitati/{valabilitate}/curse/{cursa}/edit', [SoferValabilitateCursaController::class, 'edit'])
+            ->name('sofer.valabilitati.curse.edit');
         Route::post('sofer/valabilitati/{valabilitate}/curse', [SoferValabilitateCursaController::class, 'store'])
             ->name('sofer.valabilitati.curse.store');
         Route::put('sofer/valabilitati/{valabilitate}/curse/{cursa}', [SoferValabilitateCursaController::class, 'update'])
