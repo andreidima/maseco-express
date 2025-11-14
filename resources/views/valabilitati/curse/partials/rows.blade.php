@@ -16,7 +16,8 @@
         <td>{{ $cursa->descarcare_cod_postal ?: '—' }}</td>
         <td>{{ $cursa->descarcareTara?->nume ?: '—' }}</td>
         <td class="text-nowrap">{{ $dataCursa ?: '—' }}</td>
-        <td class="text-nowrap">{{ $cursa->km_bord !== null ? $cursa->km_bord : '—' }}</td>
+        <td class="text-nowrap">{{ $cursa->km_bord_incarcare !== null ? $cursa->km_bord_incarcare : '—' }}</td>
+        <td class="text-nowrap">{{ $cursa->km_bord_descarcare !== null ? $cursa->km_bord_descarcare : '—' }}</td>
         <td class="text-end">
             <div class="d-flex flex-wrap justify-content-end">
                 <div class="ms-1">

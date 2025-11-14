@@ -36,7 +36,8 @@ class SoferValabilitateCursaRequest extends FormRequest
             'data_cursa_time' => ['nullable', 'date_format:H:i'],
             'data_cursa' => ['nullable', 'date'],
             'observatii' => ['nullable', 'string'],
-            'km_bord' => ['nullable', 'integer', 'min:0'],
+            'km_bord_incarcare' => ['nullable', 'integer', 'min:0'],
+            'km_bord_descarcare' => ['nullable', 'integer', 'min:0'],
             'final_return' => ['nullable', 'boolean'],
         ];
     }

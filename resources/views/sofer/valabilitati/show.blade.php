@@ -126,6 +126,26 @@
                                             </div>
                                         </div>
 
+                                        <div class="row g-2 small text-muted mt-2">
+                                            <div class="col-6">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Km bord încărcare</p>
+                                                <p class="mb-0">
+                                                    <span class="text-body-secondary">
+                                                        {{ $cursa->km_bord_incarcare ?? '—' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+
+                                            <div class="col-6 text-end">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Km bord descărcare</p>
+                                                <p class="mb-0">
+                                                    <span class="text-body-secondary">
+                                                        {{ $cursa->km_bord_descarcare ?? '—' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+
                                         @if ($cursa->observatii)
                                             <p class="text-muted small mt-3 mb-0">{{ $cursa->observatii }}</p>
                                         @endif
