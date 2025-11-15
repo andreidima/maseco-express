@@ -1,5 +1,22 @@
 @extends('layouts.app')
 
+@push('page-styles')
+    <style>
+        [data-cursa-drag-handle] {
+            cursor: grab;
+        }
+
+        [data-cursa-drag-handle].is-drag-ready,
+        [data-cursa-reorder].is-reordering [data-cursa-drag-handle] {
+            cursor: grabbing;
+        }
+
+        tr[data-cursa-id].is-dragging {
+            opacity: 0.7;
+        }
+    </style>
+@endpush
+
 @section('content')
 <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
     <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
@@ -127,7 +144,12 @@
                         <th class="text-end">Acțiuni</th>
                     </tr>
                 </thead>
-                <tbody id="curse-table-body">
+                <tbody
+                    id="curse-table-body"
+                    data-cursa-reorder
+                    data-items-selector="tr[data-cursa-id]"
+                    data-reorder-url="{{ route('valabilitati.curse.reorder', $valabilitate) }}"
+                >
                     @if ($curse->count())
                         @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                     @else
@@ -431,6 +453,23 @@
                 feedbackContainer.appendChild(alert);
             };
 
+            document.addEventListener('curse:reorder-success', event => {
+                if (!event?.detail || event.detail.container !== tableBody) {
+                    return;
+                }
+
+                const message = event.detail.response?.message || 'Ordinea curselor a fost actualizată.';
+                showFeedback(message, 'success');
+            });
+
+            document.addEventListener('curse:reorder-error', event => {
+                if (!event?.detail || event.detail.container !== tableBody) {
+                    return;
+                }
+
+                showFeedback('Ordinea curselor nu a putut fi salvată. Reîncercați.', 'danger');
+            });
+
             const buildErrorDetails = (error) => {
                 if (!error || typeof error !== 'object') {
                     return '';
@@ -535,6 +574,7 @@
             function processMutationResponse(data) {
                 if (data.table_html && tableBody) {
                     tableBody.innerHTML = data.table_html;
+                    window.__curseReorder?.refresh();
                 }
 
                 if (modalsContainer && data.modals_html) {
@@ -549,6 +589,8 @@
 
                 initCountryInputs();
                 initLoadMore();
+
+                window.__curseReorder?.refresh();
 
                 if (supportsAjax()) {
                     attachFormHandlers();
@@ -703,6 +745,7 @@
                     .then(data => {
                         if (data.rows_html && tableBody) {
                             appendHtml(tableBody, data.rows_html);
+                            window.__curseReorder?.refresh();
                         }
 
                         if (data.modals_html && modalsContainer) {
@@ -815,6 +858,8 @@
             if (supportsAjax()) {
                 attachFormHandlers();
             }
+
+            window.__curseReorder?.refresh();
 
             showActiveModal();
         });
