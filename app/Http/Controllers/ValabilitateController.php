@@ -47,12 +47,29 @@ class ValabilitateController extends Controller
             'rows_html' => view('valabilitati.partials.rows', [
                 'valabilitati' => $valabilitati,
             ])->render(),
-            'modals_html' => view('valabilitati.partials.modals', [
-                'valabilitati' => $valabilitati,
-                'soferi' => $this->getSoferOptions(),
-                'includeCreate' => false,
-            ])->render(),
             'next_url' => $this->buildNextPageUrl($request, $valabilitati),
+        ]);
+    }
+
+    public function create(): View
+    {
+        return view('valabilitati.create', [
+            'backUrl' => ValabilitatiFilterState::route(),
+            'soferi' => $this->getSoferOptions(),
+        ]);
+    }
+
+    public function edit(Valabilitate $valabilitate): View
+    {
+        $valabilitate->loadMissing([
+            'sofer',
+            'taxeDrum',
+        ]);
+
+        return view('valabilitati.edit', [
+            'valabilitate' => $valabilitate,
+            'backUrl' => ValabilitatiFilterState::route(),
+            'soferi' => $this->getSoferOptions(),
         ]);
     }
 
@@ -297,11 +314,11 @@ class ValabilitateController extends Controller
             'data_inceput' => ['required', 'date'],
             'data_sfarsit' => ['nullable', 'date', 'after_or_equal:data_inceput'],
             'taxe_drum' => ['array'],
-            'taxe_drum.*.nume' => ['nullable', 'string', 'max:255'],
-            'taxe_drum.*.tara' => ['required', 'string', 'max:255'],
-            'taxe_drum.*.suma' => ['required', 'numeric', 'min:0'],
-            'taxe_drum.*.moneda' => ['required', 'string', 'max:10'],
-            'taxe_drum.*.data' => ['required', 'date'],
+            'taxe_drum.*.nume' => ['required', 'string', 'max:255'],
+            'taxe_drum.*.tara' => ['nullable', 'string', 'max:255'],
+            'taxe_drum.*.suma' => ['nullable', 'numeric', 'min:0'],
+            'taxe_drum.*.moneda' => ['nullable', 'string', 'max:10'],
+            'taxe_drum.*.data' => ['nullable', 'date'],
             'taxe_drum.*.observatii' => ['nullable', 'string'],
         ], [], [
             'numar_auto' => 'număr auto',
@@ -321,12 +338,9 @@ class ValabilitateController extends Controller
         $oldInput = $this->buildOldInput($request, $sanitizedRoadTaxes);
 
         if ($validator->fails() && ! $request->expectsJson()) {
-            $modalKey = $valabilitate ? 'edit:' . $valabilitate->id : 'create';
-
-            return redirect(ValabilitatiFilterState::route())
+            return redirect()->back()
                 ->withErrors($validator)
-                ->withInput($oldInput)
-                ->with('valabilitati.modal', $modalKey);
+                ->withInput($oldInput);
         }
 
         try {
@@ -339,12 +353,9 @@ class ValabilitateController extends Controller
                 throw $exception;
             }
 
-            $modalKey = $valabilitate ? 'edit:' . $valabilitate->id : 'create';
-
-            return redirect(ValabilitatiFilterState::route())
+            return redirect()->back()
                 ->withErrors($exception->validator)
-                ->withInput($oldInput)
-                ->with('valabilitati.modal', $modalKey);
+                ->withInput($oldInput);
         }
     }
 
@@ -368,11 +379,6 @@ class ValabilitateController extends Controller
             'message' => $message,
             'table_html' => view('valabilitati.partials.rows', [
                 'valabilitati' => $valabilitati,
-            ])->render(),
-            'modals_html' => view('valabilitati.partials.modals', [
-                'valabilitati' => $valabilitati,
-                'soferi' => $this->getSoferOptions(),
-                'includeCreate' => true,
             ])->render(),
             'next_url' => $this->buildNextPageUrl($filtersRequest, $valabilitati),
         ];
@@ -438,11 +444,11 @@ class ValabilitateController extends Controller
 
         foreach ($taxeDrum as $taxa) {
             $normalized[] = [
-                'nume' => $taxa['nume'] !== '' ? $taxa['nume'] : null,
-                'tara' => $taxa['tara'],
+                'nume' => $taxa['nume'],
+                'tara' => $taxa['tara'] !== '' ? $taxa['tara'] : null,
                 'suma' => $this->formatRoadTaxAmount($taxa['suma']),
-                'moneda' => Str::upper($taxa['moneda']),
-                'data' => $taxa['data'],
+                'moneda' => $taxa['moneda'] !== '' ? Str::upper($taxa['moneda']) : null,
+                'data' => $taxa['data'] !== '' ? $taxa['data'] : null,
                 'observatii' => $taxa['observatii'] !== '' ? $taxa['observatii'] : null,
             ];
         }
@@ -450,8 +456,12 @@ class ValabilitateController extends Controller
         return $normalized;
     }
 
-    private function formatRoadTaxAmount(string $amount): string
+    private function formatRoadTaxAmount(string $amount): ?string
     {
+        if ($amount === '') {
+            return null;
+        }
+
         $numeric = (float) $amount;
 
         return number_format($numeric, 2, '.', '');
