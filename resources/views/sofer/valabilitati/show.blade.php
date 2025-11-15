@@ -371,6 +371,90 @@
 
 @push('page-scripts')
 <script>
+    (function () {
+        var RELOAD_STORAGE_KEY = 'soferValabilitati:forcedReload';
+
+        var resolveNavigationType = function () {
+            var perf = window.performance;
+
+            if (!perf) {
+                return null;
+            }
+
+            if (typeof perf.getEntriesByType === 'function') {
+                var entries = perf.getEntriesByType('navigation');
+
+                if (entries && entries.length > 0) {
+                    return entries[0].type || null;
+                }
+            }
+
+            if (perf.navigation && typeof perf.navigation.type === 'number') {
+                var navigation = perf.navigation;
+
+                if (
+                    typeof navigation.TYPE_BACK_FORWARD === 'number' &&
+                    navigation.type === navigation.TYPE_BACK_FORWARD
+                ) {
+                    return 'back_forward';
+                }
+            }
+
+            return null;
+        };
+
+        var performHardReload = function () {
+            try {
+                sessionStorage.setItem(RELOAD_STORAGE_KEY, '1');
+            } catch (error) {
+                // sessionStorage might be unavailable (Safari private mode, etc.).
+            }
+
+            var currentUrl = window.location.href;
+            var withoutHash = currentUrl.split('#')[0];
+
+            window.location.replace(withoutHash);
+        };
+
+        var alreadyForcedReload = function () {
+            try {
+                return sessionStorage.getItem(RELOAD_STORAGE_KEY) === '1';
+            } catch (error) {
+                return false;
+            }
+        };
+
+        var clearForcedReloadFlag = function () {
+            try {
+                sessionStorage.removeItem(RELOAD_STORAGE_KEY);
+            } catch (error) {
+                // no-op
+            }
+        };
+
+        window.addEventListener('pageshow', function (event) {
+            var isPersisted = event.persisted === true;
+            var navigationType = resolveNavigationType();
+            var cameFromHistory = navigationType === 'back_forward';
+
+            if (isPersisted || cameFromHistory) {
+                if (!alreadyForcedReload()) {
+                    performHardReload();
+                } else {
+                    clearForcedReloadFlag();
+                }
+
+                return;
+            }
+
+            clearForcedReloadFlag();
+        });
+
+        window.addEventListener('pagehide', function () {
+            clearForcedReloadFlag();
+        });
+    })();
+
     document.addEventListener('DOMContentLoaded', () => {
         const deleteModalEl = document.getElementById('deleteCursaModal');
         const deleteForm = document.getElementById('deleteCursaForm');
