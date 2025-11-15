@@ -75,20 +75,28 @@
         </div>
         <div class="col-lg-1 text-lg-end mt-3 mt-lg-0">
             <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
-                <button
-                    type="button"
+                <a
+                    href="{{ route('valabilitati.create') }}"
                     class="btn btn-sm btn-success text-white border border-dark rounded-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#valabilitateCreateModal"
                 >
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă valabilitate
-                </button>
+                </a>
             </div>
         </div>
     </div>
 
     <div class="card-body px-0 py-3">
         @include('errors')
+        @if (session('status'))
+            <div class="alert alert-success mx-3" role="alert">
+                {{ session('status') }}
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert alert-danger mx-3" role="alert">
+                {{ session('error') }}
+            </div>
+        @endif
         <div id="valabilitati-feedback" class="px-3"></div>
 
         <div class="table-responsive rounded">
@@ -135,145 +143,59 @@
     </div>
 </div>
 
-<div
-    id="valabilitati-modals"
-    data-active-modal="{{ session('valabilitati.modal') }}"
->
-    @include('valabilitati.partials.modals', [
-        'valabilitati' => $valabilitati,
-        'soferi' => $soferi,
-        'includeCreate' => true,
-        'formType' => old('form_type'),
-        'formId' => old('form_id'),
-    ])
-</div>
-
 @push('page-scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const bootstrap = window.bootstrap;
-            const bootstrapModal = bootstrap && bootstrap.Modal ? bootstrap.Modal : null;
-            const modalsContainer = document.getElementById('valabilitati-modals');
             const tableBody = document.getElementById('valabilitati-table-body');
             const feedbackContainer = document.getElementById('valabilitati-feedback');
+            const loadMoreButton = document.getElementById('valabilitati-load-more');
+            const loadMoreTrigger = document.getElementById('valabilitati-load-more-trigger');
+            const spinner = loadMoreButton ? loadMoreButton.querySelector('.spinner-border') : null;
+            const label = loadMoreButton ? loadMoreButton.querySelector('.load-more-label') : null;
 
-            const supportsAjax = () => typeof window.fetch === 'function' && typeof window.FormData === 'function';
+            const supportsAjax = () => typeof window.fetch === 'function';
+            let isLoading = false;
+            let observer = null;
 
-            const resolveCsrfToken = (() => {
-                let cachedToken = null;
-                return () => {
-                    if (cachedToken !== null) {
-                        return cachedToken;
-                    }
+            const getNextUrl = () => (loadMoreTrigger ? loadMoreTrigger.dataset.nextUrl || '' : '');
 
-                    const meta = document.querySelector('meta[name="csrf-token"]');
-                    cachedToken = meta ? meta.getAttribute('content') : '';
-                    return cachedToken;
-                };
-            })();
-
-            const loadState = {
-                button: null,
-                trigger: null,
-                spinner: null,
-                label: null,
-                observer: null,
-                nextUrl: null,
-                loading: false,
-            };
-
-            const appendHtml = (container, html) => {
-                if (!container || !html) {
-                    return;
-                }
-
-                const template = document.createElement('template');
-                template.innerHTML = html.trim();
-                container.appendChild(template.content);
-            };
-
-            const showModalElement = (element, fallbackMessage = null) => {
-                if (!element) {
-                    if (fallbackMessage && typeof window !== 'undefined' && typeof window.alert === 'function') {
-                        window.alert(fallbackMessage);
-                    }
-                    return;
-                }
-
-                if (bootstrapModal) {
-                    const modalInstance =
-                        typeof bootstrapModal.getOrCreateInstance === 'function'
-                            ? bootstrapModal.getOrCreateInstance(element)
-                            : new bootstrapModal(element);
-                    modalInstance.show();
-                    return;
-                }
-
-                const $ = window.jQuery || window.$;
-
-                if (typeof $ === 'function' && typeof $(element).modal === 'function') {
-                    $(element).modal('show');
-                    return;
-                }
-
-                if (fallbackMessage && typeof window !== 'undefined' && typeof window.alert === 'function') {
-                    window.alert(fallbackMessage);
+            const setNextUrl = (url) => {
+                if (loadMoreTrigger) {
+                    loadMoreTrigger.dataset.nextUrl = url || '';
                 }
             };
 
-            const closeModal = (modalElement) => {
-                if (!modalElement) {
+            const setLoadingState = (loading) => {
+                if (!loadMoreButton) {
                     return;
                 }
 
-                if (bootstrapModal) {
-                    const existingInstance =
-                        typeof bootstrapModal.getInstance === 'function'
-                            ? bootstrapModal.getInstance(modalElement)
-                            : null;
+                loadMoreButton.disabled = loading;
 
-                    if (existingInstance) {
-                        existingInstance.hide();
-                        return;
-                    }
-
-                    const fallbackInstance =
-                        typeof bootstrapModal.getOrCreateInstance === 'function'
-                            ? bootstrapModal.getOrCreateInstance(modalElement)
-                            : new bootstrapModal(modalElement);
-                    fallbackInstance.hide();
-                    return;
+                if (spinner) {
+                    spinner.classList.toggle('d-none', !loading);
                 }
 
-                const $ = window.jQuery || window.$;
-
-                if (typeof $ === 'function' && typeof $(modalElement).modal === 'function') {
-                    $(modalElement).modal('hide');
-                    return;
+                if (label) {
+                    label.textContent = loading ? 'Se încarcă...' : 'Încarcă mai multe';
                 }
-
-                modalElement.classList.remove('show');
-                modalElement.setAttribute('aria-hidden', 'true');
             };
 
-            const showFeedback = (message, type = 'success') => {
-                if (!feedbackContainer) {
-                    return;
+            const clearFeedback = () => {
+                if (feedbackContainer) {
+                    feedbackContainer.innerHTML = '';
                 }
+            };
 
-                feedbackContainer.innerHTML = '';
-
-                if (!message) {
+            const showError = (message) => {
+                if (!feedbackContainer || !message) {
                     return;
                 }
 
                 const alert = document.createElement('div');
-                alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
+                alert.className = 'alert alert-danger alert-dismissible fade show mt-3';
                 alert.setAttribute('role', 'alert');
-
-                const messageSpan = document.createElement('span');
-                messageSpan.textContent = message;
-                alert.appendChild(messageSpan);
+                alert.textContent = message;
 
                 const closeButton = document.createElement('button');
                 closeButton.type = 'button';
@@ -282,409 +204,97 @@
                 closeButton.setAttribute('aria-label', 'Închide');
                 alert.appendChild(closeButton);
 
+                feedbackContainer.innerHTML = '';
                 feedbackContainer.appendChild(alert);
             };
 
-            const buildErrorDetails = (error) => {
-                if (!error || typeof error !== 'object') {
-                    return '';
-                }
-
-                const details = [];
-                const status = typeof error.status === 'number' ? error.status : error.statusCode;
-
-                if (typeof status === 'number') {
-                    details.push(`cod ${status}`);
-                }
-
-                if (error.statusText) {
-                    details.push(error.statusText);
-                }
-
-                if (error.message && !['request_failed', 'validation'].includes(error.message)) {
-                    details.push(error.message);
-                }
-
-                if (error.body) {
-                    const snippet = String(error.body).trim().replace(/\s+/g, ' ');
-                    if (snippet) {
-                        details.push(snippet.length > 200 ? `${snippet.slice(0, 200)}…` : snippet);
-                    }
-                }
-
-                return details.length ? ` Detalii: ${details.join(' | ')}` : '';
-            };
-
-            const clearFormErrors = (form) => {
-                form.querySelectorAll('.is-invalid').forEach(element => {
-                    element.classList.remove('is-invalid');
-                });
-
-                form.querySelectorAll('[data-error-for]').forEach(element => {
-                    element.textContent = '';
-                    element.classList.remove('d-block');
-                });
-            };
-
-            const displayValidationErrors = (form, errors) => {
-                if (!errors) {
+            const appendRows = (html) => {
+                if (!tableBody || !html) {
                     return;
                 }
 
-                const toBracketNotation = field =>
-                    field
-                        .split('.')
-                        .map((segment, index) => (index === 0 ? segment : `[${segment}]`))
-                        .join('');
-
-                Object.entries(errors).forEach(([field, messages]) => {
-                    const selectors = [field];
-
-                    if (field.includes('.')) {
-                        selectors.push(toBracketNotation(field));
-                    }
-
-                    selectors.forEach(name => {
-                        const inputs = form.querySelectorAll(`[name="${name}"]`);
-                        inputs.forEach(input => {
-                            input.classList.add('is-invalid');
-                        });
-                    });
-
-                    const feedback = form.querySelector(`[data-error-for="${field}"]`);
-                    if (feedback) {
-                        const messageText = Array.isArray(messages) ? messages.join(' ') : messages;
-                        feedback.textContent = messageText;
-                        feedback.classList.add('d-block');
-                    }
-                });
+                const template = document.createElement('template');
+                template.innerHTML = html.trim();
+                tableBody.appendChild(template.content);
             };
 
-            function setLoadingState(isLoading) {
-                loadState.loading = isLoading;
+            const disconnectObserver = () => {
+                if (observer) {
+                    observer.disconnect();
+                    observer = null;
+                }
+            };
 
-                if (!loadState.button) {
+            const handleLoadMore = () => {
+                if (!supportsAjax() || isLoading) {
                     return;
                 }
 
-                loadState.button.disabled = isLoading;
-
-                if (loadState.spinner) {
-                    loadState.spinner.classList.toggle('d-none', !isLoading);
-                }
-
-                if (loadState.label) {
-                    loadState.label.textContent = isLoading ? 'Se încarcă...' : 'Încarcă mai multe';
-                }
-            }
-
-            function disconnectObserver() {
-                if (loadState.observer) {
-                    loadState.observer.disconnect();
-                    loadState.observer = null;
-                }
-            }
-
-            function processMutationResponse(data) {
-                if (data.table_html && tableBody) {
-                    tableBody.innerHTML = data.table_html;
-                }
-
-                if (modalsContainer && data.modals_html) {
-                    modalsContainer.innerHTML = data.modals_html;
-                    modalsContainer.dataset.activeModal = '';
-
-                    if (typeof window.initializeRoadTaxCollections === 'function') {
-                        window.initializeRoadTaxCollections(modalsContainer);
-                    }
-                }
-
-                const loadMoreTrigger = document.getElementById('valabilitati-load-more-trigger');
-                if (loadMoreTrigger) {
-                    loadMoreTrigger.dataset.nextUrl = data.next_url || '';
-                }
-
-                initLoadMore();
-
-                if (supportsAjax()) {
-                    attachFormHandlers();
-                }
-            }
-
-            function handleFormSubmit(event) {
-                if (!supportsAjax()) {
+                const nextUrl = getNextUrl();
+                if (!nextUrl) {
                     return;
                 }
 
-                event.preventDefault();
-
-                const form = event.target;
-                const submitButton = form.querySelector('[type="submit"]');
-                const originalHtml = submitButton ? submitButton.innerHTML : null;
-
-                clearFormErrors(form);
-
-                if (submitButton) {
-                    submitButton.dataset.originalHtml = originalHtml || '';
-                    submitButton.disabled = true;
-                    submitButton.innerHTML = `
-                        <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
-                        Se procesează...
-                    `;
+                isLoading = true;
+                setLoadingState(true);
+                if (loadMoreButton) {
+                    loadMoreButton.classList.remove('btn-danger');
                 }
 
-                const methodAttribute = (form.getAttribute('method') || 'POST').toUpperCase();
-                const spoofedMethodInput = form.querySelector('input[name="_method"]');
-                const spoofedMethod =
-                    methodAttribute === 'POST' && spoofedMethodInput && spoofedMethodInput.value
-                        ? spoofedMethodInput.value.toUpperCase()
-                        : null;
-                const fetchMethod = methodAttribute === 'GET' ? 'GET' : 'POST';
-
-                const fetchOptions = {
-                    method: fetchMethod,
+                fetch(nextUrl, {
                     headers: {
                         'X-Requested-With': 'XMLHttpRequest',
                         'Accept': 'application/json',
                     },
                     credentials: 'same-origin',
-                };
-
-                const csrfToken = resolveCsrfToken();
-                if (csrfToken) {
-                    fetchOptions.headers['X-CSRF-TOKEN'] = csrfToken;
-                }
-
-                if (fetchMethod !== 'GET') {
-                    fetchOptions.body = new FormData(form);
-
-                    if (spoofedMethod) {
-                        fetchOptions.headers['X-HTTP-Method-Override'] = spoofedMethod;
-                    }
-                }
-
-                fetch(form.action, fetchOptions)
-                    .then(response => {
-                        if (response.status === 422) {
-                            return response.json().then(data => {
-                                displayValidationErrors(form, data.errors || {});
-
-                                if (data.should_close_modal) {
-                                    const modalElement = form.closest('.modal');
-                                    closeModal(modalElement);
-                                }
-
-                                if (data.message) {
-                                    showFeedback(data.message, data.feedback_type || 'danger');
-                                }
-
-                                throw new Error('validation');
-                            });
-                        }
-
-                        if (!response.ok) {
-                            return response.text().then(body => {
-                                const error = new Error('request_failed');
-                                error.status = response.status;
-                                error.statusText = response.statusText;
-                                error.body = body;
-                                error.url = response.url;
-                                throw error;
-                            });
-                        }
-
-                        return response.json();
-                    })
-                    .then(data => {
-                        processMutationResponse(data);
-                        const modalElement = form.closest('.modal');
-                        closeModal(modalElement);
-
-                        if (data.message) {
-                            showFeedback(data.message, 'success');
-                        }
-                    })
-                    .catch(error => {
-                        if (error && error.message === 'validation') {
-                            return;
-                        }
-
-                        console.error('Valabilități AJAX error', error);
-
-                        const detailText = buildErrorDetails(error);
-                        const baseMessage = 'A apărut o eroare neașteptată. Reîncercați.';
-                        showFeedback(detailText ? `${baseMessage}${detailText}` : baseMessage, 'danger');
-                    })
-                    .finally(() => {
-                        if (submitButton) {
-                            submitButton.disabled = false;
-                            if (submitButton.dataset.originalHtml !== undefined) {
-                                submitButton.innerHTML = submitButton.dataset.originalHtml || originalHtml || submitButton.innerHTML;
-                                delete submitButton.dataset.originalHtml;
-                            }
-                        }
-                    });
-            }
-
-            function attachFormHandlers() {
-                if (!supportsAjax()) {
-                    return;
-                }
-
-                const forms = document.querySelectorAll('.valabilitati-modal-form');
-                forms.forEach(form => {
-                    if (form.dataset.ajaxBound === 'true') {
-                        return;
-                    }
-
-                    form.addEventListener('submit', handleFormSubmit);
-                    form.dataset.ajaxBound = 'true';
-                });
-            }
-
-            function handleLoadMore(event) {
-                if (event) {
-                    event.preventDefault();
-                }
-
-                if (!loadState.nextUrl || loadState.loading) {
-                    return;
-                }
-
-                setLoadingState(true);
-
-                fetch(loadState.nextUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    },
                 })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('request_failed');
+                            throw new Error(`Request failed with status ${response.status}`);
                         }
-
                         return response.json();
                     })
                     .then(data => {
-                        if (data.rows_html && tableBody) {
-                            appendHtml(tableBody, data.rows_html);
-                        }
+                        appendRows(data.rows_html || '');
+                        setNextUrl(data.next_url || '');
+                        clearFeedback();
 
-                        if (data.modals_html && modalsContainer) {
-                            appendHtml(modalsContainer, data.modals_html);
-
-                            if (typeof window.initializeRoadTaxCollections === 'function') {
-                                window.initializeRoadTaxCollections(modalsContainer);
-                            }
-                        }
-
-                        loadState.nextUrl = data.next_url || null;
-
-                        if (loadState.trigger) {
-                            loadState.trigger.dataset.nextUrl = loadState.nextUrl || '';
-                        }
-
-                        if (!loadState.nextUrl) {
-                            if (loadState.button) {
-                                loadState.button.remove();
-                            }
-                            loadState.button = null;
-                            loadState.spinner = null;
-                            loadState.label = null;
+                        if (!data.next_url && loadMoreButton) {
+                            loadMoreButton.remove();
                             disconnectObserver();
                         }
-
-                        if (loadState.button) {
-                            loadState.button.classList.remove('btn-danger');
-                        }
-
-                        if (supportsAjax()) {
-                            attachFormHandlers();
-                        }
                     })
-                    .catch(() => {
-                        if (loadState.button) {
-                            loadState.button.classList.add('btn-danger');
-                            loadState.button.disabled = false;
-                        }
-
-                        if (loadState.label) {
-                            loadState.label.textContent = 'Reîncearcă';
+                    .catch(error => {
+                        console.error('Valabilități load more error', error);
+                        showError('Nu s-au putut încărca mai multe valabilități. Reîncercați.');
+                        if (loadMoreButton) {
+                            loadMoreButton.classList.add('btn-danger');
                         }
                     })
                     .finally(() => {
+                        isLoading = false;
                         setLoadingState(false);
                     });
-            }
-
-            function initLoadMore() {
-                disconnectObserver();
-
-                loadState.button = document.getElementById('valabilitati-load-more');
-                loadState.trigger = document.getElementById('valabilitati-load-more-trigger');
-                loadState.spinner = loadState.button ? loadState.button.querySelector('.spinner-border') : null;
-                loadState.label = loadState.button ? loadState.button.querySelector('.load-more-label') : null;
-                loadState.nextUrl = loadState.trigger ? loadState.trigger.dataset.nextUrl || null : null;
-                loadState.loading = false;
-
-                if (loadState.button) {
-                    loadState.button.addEventListener('click', handleLoadMore);
-                    loadState.button.classList.remove('btn-danger');
-                }
-
-                if ('IntersectionObserver' in window && loadState.trigger) {
-                    loadState.observer = new IntersectionObserver(entries => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                handleLoadMore();
-                            }
-                        });
-                    });
-
-                    loadState.observer.observe(loadState.trigger);
-                }
-            }
-
-            const showActiveModal = () => {
-                if (!modalsContainer) {
-                    return;
-                }
-
-                const activeModal = modalsContainer.dataset.activeModal;
-                if (!activeModal) {
-                    return;
-                }
-
-                let modalId = null;
-
-                if (activeModal === 'create') {
-                    modalId = 'valabilitateCreateModal';
-                } else if (activeModal.startsWith('edit:')) {
-                    const parts = activeModal.split(':');
-                    if (parts.length === 2 && parts[1]) {
-                        modalId = `valabilitateEditModal${parts[1]}`;
-                    }
-                }
-
-                if (modalId) {
-                    const modalElement = document.getElementById(modalId);
-                    showModalElement(modalElement);
-                }
-
-                modalsContainer.dataset.activeModal = '';
             };
 
-            initLoadMore();
-
-            if (supportsAjax()) {
-                attachFormHandlers();
+            if (loadMoreButton) {
+                loadMoreButton.addEventListener('click', handleLoadMore);
             }
 
-            showActiveModal();
+            if ('IntersectionObserver' in window && loadMoreTrigger) {
+                observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            handleLoadMore();
+                        }
+                    });
+                });
+
+                observer.observe(loadMoreTrigger);
+            }
         });
     </script>
 @endpush
 
-
+@include('valabilitati.partials.delete-modal')
 @endsection
