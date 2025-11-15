@@ -16,7 +16,6 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ValabilitateCursaController extends Controller
@@ -67,54 +66,6 @@ class ValabilitateCursaController extends Controller
                 'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
             ])->render(),
             'next_url' => $this->buildNextPageUrl($request, $valabilitate, $curse),
-        ]);
-    }
-
-    public function reorder(Request $request, Valabilitate $valabilitate): JsonResponse
-    {
-        $this->authorize('update', $valabilitate);
-
-        $validated = $request->validate([
-            'order' => ['required', 'array'],
-            'order.*' => ['integer', 'min:1'],
-        ]);
-
-        $order = array_values(array_unique(array_map('intval', $validated['order'] ?? [])));
-
-        if ($order === []) {
-            return response()->json([
-                'message' => 'Ordinea curselor a fost actualizată.',
-            ]);
-        }
-
-        $allowedIds = $valabilitate->curse()
-            ->whereIn('id', $order)
-            ->pluck('id')
-            ->map(static fn ($id) => (int) $id)
-            ->all();
-
-        if (count($allowedIds) !== count($order)) {
-            return response()->json([
-                'message' => 'Ordinea furnizată nu este validă.',
-            ], 422);
-        }
-
-        $timestamp = now();
-
-        DB::transaction(function () use ($order, $valabilitate, $timestamp): void {
-            foreach ($order as $index => $id) {
-                DB::table('valabilitati_curse')
-                    ->where('id', $id)
-                    ->where('valabilitate_id', $valabilitate->getKey())
-                    ->update([
-                        'nr_ordine' => $index + 1,
-                        'updated_at' => $timestamp,
-                    ]);
-            }
-        });
-
-        return response()->json([
-            'message' => 'Ordinea curselor a fost actualizată.',
         ]);
     }
 
