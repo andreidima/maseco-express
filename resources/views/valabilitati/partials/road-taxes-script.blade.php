@@ -74,6 +74,69 @@
                     updateEmptyState(collection);
                 }
 
+                let removalModalElement = null;
+                let removalModalInstance = null;
+                let pendingRemoval = null;
+
+                function ensureRemovalModal() {
+                    if (removalModalElement && removalModalInstance) {
+                        return removalModalInstance;
+                    }
+
+                    removalModalElement = document.createElement('div');
+                    removalModalElement.className = 'modal fade';
+                    removalModalElement.id = 'road-tax-delete-modal';
+                    removalModalElement.tabIndex = -1;
+                    removalModalElement.setAttribute('aria-labelledby', 'road-tax-delete-modal-label');
+                    removalModalElement.setAttribute('aria-hidden', 'true');
+                    removalModalElement.innerHTML = `
+<div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="road-tax-delete-modal-label">Ștergere taxă de drum</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+        </div>
+        <div class="modal-body">
+            Ești sigur că vrei să ștergi această taxă de drum?
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anulează</button>
+            <button type="button" class="btn btn-danger" data-road-tax-confirm-delete>
+                <i class="fa-solid fa-trash-can me-1"></i>Șterge
+            </button>
+        </div>
+    </div>
+</div>`;
+
+                    document.body.appendChild(removalModalElement);
+
+                    removalModalInstance = typeof bootstrap !== 'undefined' && bootstrap.Modal
+                        ? new bootstrap.Modal(removalModalElement)
+                        : null;
+
+                    const confirmButton = removalModalElement.querySelector('[data-road-tax-confirm-delete]');
+                    if (confirmButton) {
+                        confirmButton.addEventListener('click', () => {
+                            if (pendingRemoval && pendingRemoval.entry && pendingRemoval.collection) {
+                                pendingRemoval.entry.remove();
+                                updateCollection(pendingRemoval.collection);
+                            }
+
+                            pendingRemoval = null;
+
+                            if (removalModalInstance) {
+                                removalModalInstance.hide();
+                            }
+                        });
+                    }
+
+                    removalModalElement.addEventListener('hidden.bs.modal', () => {
+                        pendingRemoval = null;
+                    });
+
+                    return removalModalInstance;
+                }
+
                 function addEntry(collection) {
                     const template = collection.querySelector('template.road-tax-template');
                     const itemsContainer = collection.querySelector('.road-tax-items');
@@ -124,8 +187,22 @@
                     }
 
                     event.preventDefault();
-                    entry.remove();
-                    updateCollection(collection);
+
+                    if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+                        entry.remove();
+                        updateCollection(collection);
+                        return;
+                    }
+
+                    pendingRemoval = { entry, collection };
+                    const modal = ensureRemovalModal();
+
+                    if (modal) {
+                        modal.show();
+                    } else {
+                        entry.remove();
+                        updateCollection(collection);
+                    }
                 }
 
                 function initializeCollection(collection) {
