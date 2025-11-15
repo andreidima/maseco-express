@@ -71,7 +71,7 @@
 
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-            <div class="col-lg-2 mb-2 mb-lg-0">
+            <div class="col-lg-10 col-xl-10 mb-2 mb-lg-0">
                 <span class="badge culoare1 fs-5">
                     <span class="d-inline-flex flex-column align-items-start gap-1 lh-1">
                         <span><i class="fa-solid fa-route me-1"></i>Curse</span>
@@ -79,67 +79,7 @@
                     </span>
                 </span>
             </div>
-            <div class="col-lg-8 mb-0" id="formularCurse">
-                <form class="needs-validation mb-lg-0" novalidate method="GET" action="{{ url()->current() }}">
-                    <div class="row mb-1 custom-search-form justify-content-center align-items-end" id="datePicker">
-                        <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
-                            <input
-                                type="text"
-                                class="form-control rounded-3"
-                                id="filter-localitate"
-                                name="localitate"
-                                placeholder="Localitate încărcare/descărcare"
-                                value="{{ $filters['localitate'] }}"
-                            >
-                        </div>
-                        <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
-                            <input
-                                type="text"
-                                class="form-control rounded-3"
-                                id="filter-cod-postal"
-                                name="cod_postal"
-                                placeholder="Cod poștal"
-                                value="{{ $filters['cod_postal'] }}"
-                            >
-                        </div>
-                        @php
-                            $dateRangeFilter = implode(',', array_filter([
-                                $filters['data_start'] ?? null,
-                                $filters['data_end'] ?? null,
-                            ]));
-                        @endphp
-                        <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
-                            <label for="filter-data-interval" class="form-label mb-0 ps-3">Perioadă</label>
-                            <vue-datepicker-next
-                                id="filter-data-interval"
-                                data-veche="{{ $dateRangeFilter }}"
-                                tip="date"
-                                value-type="YYYY-MM-DD"
-                                format="DD.MM.YYYY"
-                                :latime="{ width: '100%' }"
-                                :range="true"
-                                range-start-name="data_start"
-                                range-end-name="data_end"
-                            ></vue-datepicker-next>
-                        </div>
-                        <div class="col-lg-2 col-md-3 mb-2 mb-md-0">
-                            <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit">
-                                <i class="fas fa-search text-white me-1"></i>Caută
-                            </button>
-                        </div>
-                        <div class="col-lg-2 col-md-3">
-                            <a
-                                class="btn btn-sm w-100 btn-secondary text-white border border-dark rounded-3"
-                                href="{{ route('valabilitati.curse.index', $valabilitate) }}"
-                                role="button"
-                            >
-                                <i class="far fa-trash-alt text-white me-1"></i>Resetează
-                            </a>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="col-lg-2 text-lg-end mt-3 mt-lg-0">
+            <div class="col-lg-2 col-xl-2 text-lg-end mt-3 mt-lg-0">
                 <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
                     <a
                         href="{{ $backUrl }}"
