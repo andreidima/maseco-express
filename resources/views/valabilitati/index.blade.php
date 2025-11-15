@@ -331,10 +331,24 @@
                     return;
                 }
 
+                const toBracketNotation = field =>
+                    field
+                        .split('.')
+                        .map((segment, index) => (index === 0 ? segment : `[${segment}]`))
+                        .join('');
+
                 Object.entries(errors).forEach(([field, messages]) => {
-                    const inputs = form.querySelectorAll(`[name="${field}"]`);
-                    inputs.forEach(input => {
-                        input.classList.add('is-invalid');
+                    const selectors = [field];
+
+                    if (field.includes('.')) {
+                        selectors.push(toBracketNotation(field));
+                    }
+
+                    selectors.forEach(name => {
+                        const inputs = form.querySelectorAll(`[name="${name}"]`);
+                        inputs.forEach(input => {
+                            input.classList.add('is-invalid');
+                        });
                     });
 
                     const feedback = form.querySelector(`[data-error-for="${field}"]`);
@@ -379,6 +393,10 @@
                 if (modalsContainer && data.modals_html) {
                     modalsContainer.innerHTML = data.modals_html;
                     modalsContainer.dataset.activeModal = '';
+
+                    if (typeof window.initializeRoadTaxCollections === 'function') {
+                        window.initializeRoadTaxCollections(modalsContainer);
+                    }
                 }
 
                 const loadMoreTrigger = document.getElementById('valabilitati-load-more-trigger');
@@ -555,6 +573,10 @@
 
                         if (data.modals_html && modalsContainer) {
                             appendHtml(modalsContainer, data.modals_html);
+
+                            if (typeof window.initializeRoadTaxCollections === 'function') {
+                                window.initializeRoadTaxCollections(modalsContainer);
+                            }
                         }
 
                         loadState.nextUrl = data.next_url || null;

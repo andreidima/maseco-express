@@ -73,6 +73,43 @@
                 </div>
             </div>
         </div>
+
+        <div class="mt-4">
+            <div class="border rounded-3 p-3">
+                <h6 class="text-muted text-uppercase mb-2">Taxe de drum</h6>
+
+                @if ($valabilitate->taxeDrum->isEmpty())
+                    <p class="mb-0 text-muted">Nu există taxe de drum înregistrate.</p>
+                @else
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nume</th>
+                                    <th>Țară</th>
+                                    <th class="text-end">Sumă</th>
+                                    <th>Monedă</th>
+                                    <th>Dată</th>
+                                    <th>Observații</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($valabilitate->taxeDrum as $taxa)
+                                    <tr>
+                                        <td>{{ $taxa->nume ?? '—' }}</td>
+                                        <td>{{ $taxa->tara }}</td>
+                                        <td class="text-end">{{ number_format((float) $taxa->suma, 2, ',', '.') }}</td>
+                                        <td>{{ $taxa->moneda }}</td>
+                                        <td>{{ optional($taxa->data)->format('d.m.Y') ?? '—' }}</td>
+                                        <td>{{ $taxa->observatii ?? '—' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+        </div>
     </div>
 </div>
 

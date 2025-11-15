@@ -60,6 +60,7 @@ class ValabilitateController extends Controller
     {
         $valabilitate->loadMissing([
             'sofer',
+            'taxeDrum',
         ]);
 
         return view('valabilitati.show', [
@@ -77,9 +78,16 @@ class ValabilitateController extends Controller
             return $validated;
         }
 
-        Valabilitate::create($validated);
+        $taxeDrum = $validated['taxe_drum'] ?? [];
+        $attributes = Arr::except($validated, ['taxe_drum']);
 
-        return $this->respondAfterMutation($request, 'Valabilitatea a fost adăugată.');
+        $valabilitate = Valabilitate::create($attributes);
+
+        $this->syncRoadTaxes($valabilitate, $taxeDrum);
+
+        $valabilitate->refresh();
+
+        return $this->respondAfterMutation($request, 'Valabilitatea a fost adăugată.', $valabilitate);
     }
 
     public function update(Request $request, Valabilitate $valabilitate): RedirectResponse|JsonResponse
@@ -90,9 +98,16 @@ class ValabilitateController extends Controller
             return $validated;
         }
 
-        $valabilitate->update($validated);
+        $taxeDrum = $validated['taxe_drum'] ?? [];
+        $attributes = Arr::except($validated, ['taxe_drum']);
 
-        return $this->respondAfterMutation($request, 'Valabilitatea a fost actualizată.');
+        $valabilitate->update($attributes);
+
+        $this->syncRoadTaxes($valabilitate, $taxeDrum);
+
+        $valabilitate->refresh();
+
+        return $this->respondAfterMutation($request, 'Valabilitatea a fost actualizată.', $valabilitate);
     }
 
     public function destroy(Request $request, Valabilitate $valabilitate): RedirectResponse|JsonResponse
@@ -149,7 +164,10 @@ class ValabilitateController extends Controller
      */
     private function buildFilteredQuery(array $filters): Builder
     {
-        $query = Valabilitate::query()->with(['sofer']);
+        $query = Valabilitate::query()->with([
+            'sofer',
+            'taxeDrum',
+        ]);
 
         if ($filters['denumire'] !== '') {
             $denumire = Str::lower($filters['denumire']);
@@ -266,31 +284,56 @@ class ValabilitateController extends Controller
      */
     private function validateValabilitate(Request $request, ?Valabilitate $valabilitate = null)
     {
-        $validator = Validator::make($request->all(), [
+        $sanitizedRoadTaxes = $this->sanitizeRoadTaxes($request->input('taxe_drum', []));
+
+        $input = array_merge($request->all(), [
+            'taxe_drum' => $sanitizedRoadTaxes,
+        ]);
+
+        $validator = Validator::make($input, [
             'numar_auto' => ['required', 'string', 'max:255'],
             'sofer_id' => ['required', 'integer', 'exists:users,id'],
             'denumire' => ['required', 'string', 'max:255'],
             'data_inceput' => ['required', 'date'],
             'data_sfarsit' => ['nullable', 'date', 'after_or_equal:data_inceput'],
+            'taxe_drum' => ['array'],
+            'taxe_drum.*.nume' => ['nullable', 'string', 'max:255'],
+            'taxe_drum.*.tara' => ['required', 'string', 'max:255'],
+            'taxe_drum.*.suma' => ['required', 'numeric', 'min:0'],
+            'taxe_drum.*.moneda' => ['required', 'string', 'max:10'],
+            'taxe_drum.*.data' => ['required', 'date'],
+            'taxe_drum.*.observatii' => ['nullable', 'string'],
         ], [], [
             'numar_auto' => 'număr auto',
             'sofer_id' => 'șofer',
             'denumire' => 'denumire',
             'data_inceput' => 'data de început',
             'data_sfarsit' => 'data de sfârșit',
+            'taxe_drum' => 'taxe de drum',
+            'taxe_drum.*.nume' => 'nume',
+            'taxe_drum.*.tara' => 'țară',
+            'taxe_drum.*.suma' => 'sumă',
+            'taxe_drum.*.moneda' => 'monedă',
+            'taxe_drum.*.data' => 'dată',
+            'taxe_drum.*.observatii' => 'observații',
         ]);
+
+        $oldInput = $this->buildOldInput($request, $sanitizedRoadTaxes);
 
         if ($validator->fails() && ! $request->expectsJson()) {
             $modalKey = $valabilitate ? 'edit:' . $valabilitate->id : 'create';
 
             return redirect(ValabilitatiFilterState::route())
                 ->withErrors($validator)
-                ->withInput()
+                ->withInput($oldInput)
                 ->with('valabilitati.modal', $modalKey);
         }
 
         try {
-            return $validator->validate();
+            $validated = $validator->validate();
+            $validated['taxe_drum'] = $this->normalizeRoadTaxesForStorage($sanitizedRoadTaxes);
+
+            return $validated;
         } catch (ValidationException $exception) {
             if ($request->expectsJson()) {
                 throw $exception;
@@ -300,28 +343,28 @@ class ValabilitateController extends Controller
 
             return redirect(ValabilitatiFilterState::route())
                 ->withErrors($exception->validator)
-                ->withInput()
+                ->withInput($oldInput)
                 ->with('valabilitati.modal', $modalKey);
         }
     }
 
-    private function respondAfterMutation(Request $request, string $message): RedirectResponse|JsonResponse
+    private function respondAfterMutation(Request $request, string $message, ?Valabilitate $valabilitate = null): RedirectResponse|JsonResponse
     {
         if ($request->expectsJson()) {
-            return $this->listingJsonResponse($message);
+            return $this->listingJsonResponse($message, $valabilitate);
         }
 
         return redirect(ValabilitatiFilterState::route())->with('status', $message);
     }
 
-    private function listingJsonResponse(string $message): JsonResponse
+    private function listingJsonResponse(string $message, ?Valabilitate $valabilitate = null): JsonResponse
     {
         $query = ValabilitatiFilterState::get();
         $filtersRequest = Request::create('', 'GET', $query);
         $filters = $this->parseFilters($query);
         $valabilitati = $this->paginateValabilitati($filtersRequest, $filters, $query);
 
-        return response()->json([
+        $response = [
             'message' => $message,
             'table_html' => view('valabilitati.partials.rows', [
                 'valabilitati' => $valabilitati,
@@ -332,6 +375,103 @@ class ValabilitateController extends Controller
                 'includeCreate' => true,
             ])->render(),
             'next_url' => $this->buildNextPageUrl($filtersRequest, $valabilitati),
+        ];
+
+        if ($valabilitate) {
+            $valabilitate->loadMissing(['sofer', 'taxeDrum']);
+            $response['valabilitate'] = $valabilitate->toArray();
+        }
+
+        return response()->json($response);
+    }
+
+    /**
+     * @param array<int, mixed>|mixed $input
+     *
+     * @return array<int, array<string, string>>
+     */
+    private function sanitizeRoadTaxes(mixed $input): array
+    {
+        if (! is_array($input)) {
+            return [];
+        }
+
+        $sanitized = [];
+
+        foreach ($input as $taxa) {
+            if (! is_array($taxa)) {
+                continue;
+            }
+
+            $nume = isset($taxa['nume']) ? trim((string) $taxa['nume']) : '';
+            $tara = isset($taxa['tara']) ? trim((string) $taxa['tara']) : '';
+            $suma = isset($taxa['suma']) ? trim((string) $taxa['suma']) : '';
+            $moneda = isset($taxa['moneda']) ? trim((string) $taxa['moneda']) : '';
+            $data = isset($taxa['data']) ? trim((string) $taxa['data']) : '';
+            $observatii = isset($taxa['observatii']) ? trim((string) $taxa['observatii']) : '';
+
+            if ($nume === '' && $tara === '' && $suma === '' && $moneda === '' && $data === '' && $observatii === '') {
+                continue;
+            }
+
+            $sanitized[] = [
+                'nume' => $nume,
+                'tara' => $tara,
+                'suma' => $suma === '' ? '' : str_replace(',', '.', $suma),
+                'moneda' => $moneda,
+                'data' => $data,
+                'observatii' => $observatii,
+            ];
+        }
+
+        return array_values($sanitized);
+    }
+
+    /**
+     * @param array<int, array<string, string>> $taxeDrum
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeRoadTaxesForStorage(array $taxeDrum): array
+    {
+        $normalized = [];
+
+        foreach ($taxeDrum as $taxa) {
+            $normalized[] = [
+                'nume' => $taxa['nume'] !== '' ? $taxa['nume'] : null,
+                'tara' => $taxa['tara'],
+                'suma' => $this->formatRoadTaxAmount($taxa['suma']),
+                'moneda' => Str::upper($taxa['moneda']),
+                'data' => $taxa['data'],
+                'observatii' => $taxa['observatii'] !== '' ? $taxa['observatii'] : null,
+            ];
+        }
+
+        return $normalized;
+    }
+
+    private function formatRoadTaxAmount(string $amount): string
+    {
+        $numeric = (float) $amount;
+
+        return number_format($numeric, 2, '.', '');
+    }
+
+    private function buildOldInput(Request $request, array $taxeDrum): array
+    {
+        return array_merge($request->except('taxe_drum'), [
+            'taxe_drum' => $taxeDrum,
         ]);
+    }
+
+    private function syncRoadTaxes(Valabilitate $valabilitate, array $taxeDrum): void
+    {
+        $valabilitate->taxeDrum()->delete();
+
+        if ($taxeDrum === []) {
+            return;
+        }
+
+        $valabilitate->taxeDrum()->createMany($taxeDrum);
     }
 }
