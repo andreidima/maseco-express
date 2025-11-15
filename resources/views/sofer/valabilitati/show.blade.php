@@ -47,6 +47,8 @@
         </div>
     @endif
 
+    <div id="sofer-curse-feedback" class="mb-3"></div>
+
 
     @if ($curse->isEmpty())
         <div class="card border-0 shadow-sm">
@@ -57,16 +59,23 @@
             </div>
         </div>
     @else
-        <div class="accordion cursa-accordion" id="curseAccordion">
+        <div
+            class="accordion cursa-accordion"
+            id="curseAccordion"
+            data-cursa-reorder
+            data-items-selector="article[data-cursa-id]"
+            data-handle-selector="[data-cursa-drag-handle]"
+            data-reorder-url="{{ route('sofer.valabilitati.curse.reorder', $valabilitate) }}"
+        >
             @foreach ($curse as $cursa)
                 @php
                     $cursaId = 'cursa-' . $cursa->id;
                 @endphp
 
-                <article class="accordion-item cursa-card">
-                    <h2 class="accordion-header" id="heading-{{ $cursaId }}">
+                <article class="accordion-item cursa-card" data-cursa-id="{{ $cursa->id }}">
+                    <h2 class="accordion-header d-flex align-items-stretch" id="heading-{{ $cursaId }}">
                         <button
-                            class="accordion-button collapsed py-3"
+                            class="accordion-button collapsed py-3 flex-grow-1"
                             type="button"
                             data-bs-toggle="collapse"
                             data-bs-target="#collapse-{{ $cursaId }}"
@@ -75,7 +84,9 @@
                         >
                             <div class="w-100 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
                                 <div class="d-flex flex-wrap align-items-center gap-2">
-                                    <span class="badge rounded-pill text-bg-secondary">#{{ $cursa->nr_ordine }}</span>
+                                    <span class="badge rounded-pill text-bg-secondary" data-order-label>
+                                        #{{ $cursa->nr_ordine }}
+                                    </span>
                                     <span class="fw-semibold text-dark small text-uppercase">
                                         <span class="text-body-secondary">{{ $cursa->nr_cursa ?? '—' }}</span>
                                     </span>
@@ -92,6 +103,13 @@
                                 </div>
                             </div>
                         </button>
+                        <span
+                            class="accordion-drag-handle d-flex align-items-center px-3 text-muted"
+                            data-cursa-drag-handle
+                            title="Reordonează cursa"
+                        >
+                            <i class="fa-solid fa-grip-vertical"></i>
+                        </span>
                     </h2>
 
                     <div
@@ -261,6 +279,28 @@
         box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .03);
     }
 
+    .accordion-drag-handle {
+        border-left: 1px solid rgba(15, 23, 42, 0.08);
+        background-color: #f8fafc;
+        cursor: grab;
+        min-width: 2.5rem;
+        justify-content: center;
+    }
+
+    .accordion-drag-handle:hover,
+    .accordion-drag-handle:focus {
+        color: #0d6efd;
+    }
+
+    .accordion-drag-handle.is-drag-ready,
+    .cursa-accordion.is-reordering .accordion-drag-handle {
+        cursor: grabbing;
+    }
+
+    article[data-cursa-id].is-dragging {
+        opacity: 0.85;
+    }
+
     .cursa-card__summary {
         border-radius: 0.5rem;
         background-color: #f8fafc;
@@ -324,6 +364,56 @@
 @push('page-scripts')
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const reorderContainer = document.getElementById('curseAccordion');
+        const feedbackContainer = document.getElementById('sofer-curse-feedback');
+
+        const showFeedback = (message, type = 'success') => {
+            if (!feedbackContainer) {
+                return;
+            }
+
+            feedbackContainer.innerHTML = '';
+
+            if (!message) {
+                return;
+            }
+
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show`;
+            alert.setAttribute('role', 'alert');
+            alert.textContent = message;
+
+            const closeButton = document.createElement('button');
+            closeButton.type = 'button';
+            closeButton.className = 'btn-close';
+            closeButton.setAttribute('data-bs-dismiss', 'alert');
+            closeButton.setAttribute('aria-label', 'Închide');
+            alert.appendChild(closeButton);
+
+            feedbackContainer.appendChild(alert);
+        };
+
+        if (reorderContainer) {
+            document.addEventListener('curse:reorder-success', event => {
+                if (!event?.detail || event.detail.container !== reorderContainer) {
+                    return;
+                }
+
+                const message = event.detail.response?.message || 'Ordinea curselor a fost actualizată.';
+                showFeedback(message, 'success');
+            });
+
+            document.addEventListener('curse:reorder-error', event => {
+                if (!event?.detail || event.detail.container !== reorderContainer) {
+                    return;
+                }
+
+                showFeedback('Ordinea curselor nu a putut fi salvată. Reîncercați.', 'danger');
+            });
+
+            window.__curseReorder?.refresh();
+        }
+
         const deleteModalEl = document.getElementById('deleteCursaModal');
         const deleteForm = document.getElementById('deleteCursaForm');
         const bootstrapModal = window.bootstrap?.Modal ?? window.bootstrapModal ?? null;
