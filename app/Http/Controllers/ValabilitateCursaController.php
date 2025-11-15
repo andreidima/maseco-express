@@ -40,6 +40,7 @@ class ValabilitateCursaController extends Controller
             'nextPageUrl' => $this->buildNextPageUrl($request, $valabilitate, $curse),
             'backUrl' => ValabilitatiFilterState::route(),
             'tari' => $this->loadTari(),
+            'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
         ]);
     }
 
@@ -62,6 +63,7 @@ class ValabilitateCursaController extends Controller
                 'curse' => $curse,
                 'includeCreate' => false,
                 'tari' => $this->loadTari(),
+                'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
             ])->render(),
             'next_url' => $this->buildNextPageUrl($request, $valabilitate, $curse),
         ]);
@@ -171,8 +173,9 @@ class ValabilitateCursaController extends Controller
     private function paginateCurse(Request $request, Valabilitate $valabilitate, array $filters, ?array $query = null): LengthAwarePaginator
     {
         $paginator = $this->buildFilteredQuery($valabilitate, $filters)
+            ->reorder()
+            ->orderBy('nr_ordine')
             ->orderBy('data_cursa')
-            ->orderBy('created_at')
             ->paginate(self::PER_PAGE);
 
         if ($query !== null) {
@@ -222,10 +225,20 @@ class ValabilitateCursaController extends Controller
                 'valabilitate' => $valabilitate,
                 'curse' => $curse,
                 'includeCreate' => true,
+                'formType' => old('form_type'),
+                'formId' => old('form_id'),
                 'tari' => $this->loadTari(),
+                'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
             ])->render(),
             'next_url' => $this->buildNextPageUrl($filtersRequest, $valabilitate, $curse),
         ]);
+    }
+
+    private function resolveNextNrOrdine(Valabilitate $valabilitate): int
+    {
+        $max = (int) $valabilitate->curse()->max('nr_ordine');
+
+        return $max > 0 ? $max + 1 : 1;
     }
 
     private function assertBelongsToValabilitate(Valabilitate $valabilitate, ValabilitateCursa $cursa): void

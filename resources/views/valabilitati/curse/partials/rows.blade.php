@@ -3,6 +3,7 @@
         $dataCursa = $cursa->data_cursa?->format('d.m.Y H:i');
     @endphp
     <tr>
+        <td class="text-center fw-semibold">{{ $cursa->nr_ordine }}</td>
         <td class="text-nowrap">{{ $cursa->nr_cursa ?: '—' }}</td>
         <td>{{ $cursa->incarcare_localitate ?: '—' }}</td>
         <td>{{ $cursa->incarcare_cod_postal ?: '—' }}</td>

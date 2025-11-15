@@ -23,6 +23,7 @@
                 'requiresTime' => $requiresTime,
                 'lockTime' => $lockTime,
                 'romanianCountryIds' => $romanianCountryIds,
+                'nextNrOrdine' => $nextNrOrdine,
             ])
         </div>
     </div>

@@ -34,7 +34,9 @@ class Valabilitate extends Model
 
     public function curse(): HasMany
     {
-        return $this->hasMany(ValabilitateCursa::class);
+        return $this->hasMany(ValabilitateCursa::class)
+            ->orderBy('nr_ordine')
+            ->orderBy('id');
     }
 
     /**

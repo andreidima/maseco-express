@@ -113,6 +113,7 @@
             <table class="table table-sm table-striped table-hover rounded align-middle">
                 <thead class="text-white rounded culoare2">
                     <tr>
+                        <th class="text-center">#</th>
                         <th>Nr. cursă</th>
                         <th>Încărcare - localitate</th>
                         <th>Încărcare - cod poștal</th>
@@ -131,7 +132,7 @@
                         @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                     @else
                         <tr>
-                            <td colspan="11" class="text-center py-4">Nu există curse care să respecte criteriile selectate.</td>
+                            <td colspan="12" class="text-center py-4">Nu există curse care să respecte criteriile selectate.</td>
                         </tr>
                     @endif
                 </tbody>
@@ -168,6 +169,7 @@
         'formType' => old('form_type'),
         'formId' => old('form_id'),
         'tari' => $tari,
+        'nextNrOrdine' => $nextNrOrdine,
     ])
 </div>
 

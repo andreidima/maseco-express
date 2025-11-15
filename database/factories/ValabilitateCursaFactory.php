@@ -18,6 +18,7 @@ class ValabilitateCursaFactory extends Factory
     {
         return [
             'valabilitate_id' => Valabilitate::factory(),
+            'nr_ordine' => fake()->numberBetween(1, 20),
             'nr_cursa' => fake()->optional()->bothify('Cursa-###'),
             'incarcare_localitate' => fake()->city(),
             'incarcare_cod_postal' => fake()->postcode(),

@@ -75,6 +75,7 @@
                         >
                             <div class="w-100 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
                                 <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <span class="badge rounded-pill text-bg-secondary">#{{ $cursa->nr_ordine }}</span>
                                     <span class="fw-semibold text-dark small text-uppercase">
                                         <span class="text-body-secondary">{{ $cursa->nr_cursa ?? '—' }}</span>
                                     </span>
@@ -105,9 +106,10 @@
                                 <div class="row g-3 align-items-start">
                                     <div class="col-12 col-lg-12">
                                         <div class="row g-2 small text-muted mb-2">
-                                            <div class="col-12">
-                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă: {{ $cursa->nr_cursa ?? '—' }}</p>
-                                            </div>
+                                        <div class="col-12">
+                                            <p class="fw-semibold text-uppercase text-dark small mb-1">Nr. ordine: #{{ $cursa->nr_ordine }}</p>
+                                            <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă: {{ $cursa->nr_cursa ?? '—' }}</p>
+                                        </div>
                                         </div>
                                         {{-- Încărcare left, Descărcare right (always 50% / 50%) --}}
                                         <div class="row g-2 small text-muted cursa-card__locations">
