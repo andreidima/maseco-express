@@ -161,8 +161,53 @@
                                     </div>
 
                                     <div class="col-12 col-lg-12 mt-3 mt-lg-0">
-                                        {{-- Edit left, Delete right --}}
-                                        <div class="cursa-card__actions d-flex justify-content-between align-items-stretch gap-2">
+                                        {{-- Reorder, Edit, Delete --}}
+                                        @php
+                                            $canMoveUp = ! $loop->first;
+                                            $canMoveDown = ! $loop->last;
+                                            $hasMultipleCurse = $loop->count > 1;
+                                        @endphp
+                                        <div class="cursa-card__actions d-flex flex-wrap justify-content-end align-items-stretch gap-2">
+                                            @if ($hasMultipleCurse)
+                                                <form
+                                                    method="POST"
+                                                    action="{{ route('sofer.valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
+                                                    class="cursa-card__order-form"
+                                                >
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="direction" value="up">
+                                                    <button
+                                                        type="submit"
+                                                        class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center gap-1"
+                                                        title="Mută cursa mai sus"
+                                                        @disabled(! $canMoveUp)
+                                                    >
+                                                        <i class="fa-solid fa-arrow-up"></i>
+                                                        <span class="d-none d-sm-inline">Sus</span>
+                                                    </button>
+                                                </form>
+
+                                                <form
+                                                    method="POST"
+                                                    action="{{ route('sofer.valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
+                                                    class="cursa-card__order-form"
+                                                >
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="hidden" name="direction" value="down">
+                                                    <button
+                                                        type="submit"
+                                                        class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center gap-1"
+                                                        title="Mută cursa mai jos"
+                                                        @disabled(! $canMoveDown)
+                                                    >
+                                                        <i class="fa-solid fa-arrow-down"></i>
+                                                        <span class="d-none d-sm-inline">Jos</span>
+                                                    </button>
+                                                </form>
+                                            @endif
+
                                             <a
                                                 href="{{ route('sofer.valabilitati.curse.edit', [$valabilitate, $cursa]) }}"
                                                 class="btn btn-outline-primary btn-sm"
@@ -268,6 +313,10 @@
 
     .cursa-card__actions .btn {
         min-width: 120px;
+    }
+
+    .cursa-card__order-form {
+        margin: 0;
     }
 
     /* --- MOBILE TWEAKS --- */

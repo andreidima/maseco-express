@@ -6,10 +6,12 @@ use App\Http\Requests\SoferValabilitateCursaRequest;
 use App\Models\Tara;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
+use App\Support\Valabilitati\ValabilitateCursaOrderer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class SoferValabilitateCursaController extends Controller
@@ -109,6 +111,30 @@ class SoferValabilitateCursaController extends Controller
         return redirect()
             ->route('sofer.valabilitati.show', $valabilitate)
             ->with('status', 'Cursa a fost ștearsă.');
+    }
+
+    public function reorder(Request $request, Valabilitate $valabilitate, ValabilitateCursa $cursa): RedirectResponse
+    {
+        $valabilitate = $this->ensureDriverOwnsValabilitate($request, $valabilitate);
+        $this->ensureCursaBelongsToValabilitate($valabilitate, $cursa);
+
+        $validated = $request->validate([
+            'direction' => ['required', Rule::in(['up', 'down'])],
+        ]);
+
+        $direction = $validated['direction'];
+
+        $moved = ValabilitateCursaOrderer::move($cursa, $direction);
+
+        $message = $moved
+            ? 'Ordinea cursei a fost actualizată.'
+            : ($direction === 'up'
+                ? 'Această cursă este deja prima în listă.'
+                : 'Această cursă este deja ultima în listă.');
+
+        return redirect()
+            ->route('sofer.valabilitati.show', $valabilitate)
+            ->with('status', $message);
     }
 
     private function ensureDriverOwnsValabilitate(Request $request, Valabilitate $valabilitate): Valabilitate

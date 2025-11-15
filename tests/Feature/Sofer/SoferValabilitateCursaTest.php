@@ -164,6 +164,66 @@ class SoferValabilitateCursaTest extends TestCase
         ]);
     }
 
+    public function test_driver_can_reorder_curse(): void
+    {
+        $driver = $this->createSoferUser();
+        $valabilitate = Valabilitate::factory()
+            ->for($driver, 'sofer')
+            ->create([
+                'data_inceput' => Carbon::today()->subWeek(),
+                'data_sfarsit' => Carbon::today()->addWeek(),
+            ]);
+
+        $first = ValabilitateCursa::factory()->for($valabilitate)->create(['nr_ordine' => 1]);
+        $second = ValabilitateCursa::factory()->for($valabilitate)->create(['nr_ordine' => 2]);
+
+        $response = $this
+            ->actingAs($driver)
+            ->patch(route('sofer.valabilitati.curse.reorder', [$valabilitate, $first]), [
+                'direction' => 'down',
+            ]);
+
+        $response->assertRedirect(route('sofer.valabilitati.show', $valabilitate));
+        $response->assertSessionHas('status', 'Ordinea cursei a fost actualizată.');
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $first->id,
+            'nr_ordine' => 2,
+        ]);
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $second->id,
+            'nr_ordine' => 1,
+        ]);
+    }
+
+    public function test_driver_gets_feedback_when_reorder_is_not_possible(): void
+    {
+        $driver = $this->createSoferUser();
+        $valabilitate = Valabilitate::factory()
+            ->for($driver, 'sofer')
+            ->create([
+                'data_inceput' => Carbon::today()->subWeek(),
+                'data_sfarsit' => Carbon::today()->addWeek(),
+            ]);
+
+        $onlyCursa = ValabilitateCursa::factory()->for($valabilitate)->create(['nr_ordine' => 1]);
+
+        $response = $this
+            ->actingAs($driver)
+            ->patch(route('sofer.valabilitati.curse.reorder', [$valabilitate, $onlyCursa]), [
+                'direction' => 'up',
+            ]);
+
+        $response->assertRedirect(route('sofer.valabilitati.show', $valabilitate));
+        $response->assertSessionHas('status', 'Această cursă este deja prima în listă.');
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $onlyCursa->id,
+            'nr_ordine' => 1,
+        ]);
+    }
+
     private function createSoferUser(): User
     {
         $role = Role::firstOrCreate(

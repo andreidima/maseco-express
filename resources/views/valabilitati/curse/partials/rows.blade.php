@@ -2,8 +2,55 @@
     @php
         $dataCursa = $cursa->data_cursa?->format('d.m.Y H:i');
     @endphp
+    @php
+        $canMoveUp = ! $loop->first;
+        $canMoveDown = ! $loop->last;
+        $hasMultipleCurse = $loop->count > 1;
+    @endphp
     <tr>
-        <td class="text-center fw-semibold">{{ $cursa->nr_ordine }}</td>
+        <td class="text-center fw-semibold">
+            <div class="d-inline-flex align-items-center gap-2">
+                <span>#{{ $cursa->nr_ordine }}</span>
+                @if ($hasMultipleCurse)
+                    <div class="d-flex flex-column gap-1">
+                        <form
+                            method="POST"
+                            action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
+                            class="mb-0"
+                        >
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="direction" value="up">
+                            <button
+                                type="submit"
+                                class="btn btn-sm btn-outline-secondary p-1"
+                                title="Mută cursa mai sus"
+                                @disabled(! $canMoveUp)
+                            >
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </button>
+                        </form>
+                        <form
+                            method="POST"
+                            action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
+                            class="mb-0"
+                        >
+                            @csrf
+                            @method('PATCH')
+                            <input type="hidden" name="direction" value="down">
+                            <button
+                                type="submit"
+                                class="btn btn-sm btn-outline-secondary p-1"
+                                title="Mută cursa mai jos"
+                                @disabled(! $canMoveDown)
+                            >
+                                <i class="fa-solid fa-arrow-down"></i>
+                            </button>
+                        </form>
+                    </div>
+                @endif
+            </div>
+        </td>
         <td class="text-nowrap">{{ $cursa->nr_cursa ?: '—' }}</td>
         <td>{{ $cursa->incarcare_localitate ?: '—' }}</td>
         <td>{{ $cursa->incarcare_cod_postal ?: '—' }}</td>
