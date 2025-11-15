@@ -169,7 +169,6 @@
         'formType' => old('form_type'),
         'formId' => old('form_id'),
         'tari' => $tari,
-        'nextNrOrdine' => $nextNrOrdine,
     ])
 </div>
 

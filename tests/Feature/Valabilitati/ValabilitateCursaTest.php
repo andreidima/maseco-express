@@ -24,7 +24,6 @@ class ValabilitateCursaTest extends TestCase
         $descarcareTara = Tara::factory()->create(['nume' => 'Ungaria']);
 
         $response = $this->actingAs($user)->post(route('valabilitati.curse.store', $valabilitate), [
-            'nr_ordine' => 1,
             'incarcare_localitate' => 'Cluj-Napoca',
             'incarcare_cod_postal' => '400000',
             'incarcare_tara_id' => $incarcareTara->id,
@@ -85,7 +84,6 @@ class ValabilitateCursaTest extends TestCase
         $newDescarcareTara = Tara::factory()->create(['nume' => 'Polonia']);
 
         $response = $this->actingAs($user)->put(route('valabilitati.curse.update', [$cursa->valabilitate, $cursa]), [
-            'nr_ordine' => 2,
             'incarcare_localitate' => 'Iași',
             'incarcare_cod_postal' => '700505',
             'incarcare_tara_id' => $newIncarcareTara->id,
@@ -106,7 +104,7 @@ class ValabilitateCursaTest extends TestCase
 
         $this->assertDatabaseHas('valabilitati_curse', [
             'id' => $cursa->id,
-            'nr_ordine' => 2,
+            'nr_ordine' => 1,
             'incarcare_localitate' => 'Iași',
             'incarcare_cod_postal' => '700505',
             'incarcare_tara_id' => $newIncarcareTara->id,
@@ -137,7 +135,6 @@ class ValabilitateCursaTest extends TestCase
                 'Accept' => 'application/json',
             ])
             ->put(route('valabilitati.curse.update', [$cursa->valabilitate, $cursa]), [
-                'nr_ordine' => 4,
                 'incarcare_localitate' => 'București',
                 'incarcare_cod_postal' => '010101',
                 'incarcare_tara_id' => $newIncarcareTara->id,
@@ -161,7 +158,7 @@ class ValabilitateCursaTest extends TestCase
 
         $this->assertDatabaseHas('valabilitati_curse', [
             'id' => $cursa->id,
-            'nr_ordine' => 4,
+            'nr_ordine' => 3,
             'incarcare_localitate' => 'București',
             'descarcare_localitate' => 'Praga',
             'data_cursa' => '2025-05-10 11:15:00',

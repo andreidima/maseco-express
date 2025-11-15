@@ -42,7 +42,6 @@ class ValabilitateCursaController extends Controller
             'nextPageUrl' => $this->buildNextPageUrl($request, $valabilitate, $curse),
             'backUrl' => ValabilitatiFilterState::route(),
             'tari' => $this->loadTari(),
-            'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
         ]);
     }
 
@@ -65,7 +64,6 @@ class ValabilitateCursaController extends Controller
                 'curse' => $curse,
                 'includeCreate' => false,
                 'tari' => $this->loadTari(),
-                'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
             ])->render(),
             'next_url' => $this->buildNextPageUrl($request, $valabilitate, $curse),
         ]);
@@ -75,7 +73,13 @@ class ValabilitateCursaController extends Controller
     {
         $this->authorize('update', $valabilitate);
 
-        $valabilitate->curse()->create($request->validated());
+        $data = $request->validated();
+
+        if (! array_key_exists('nr_ordine', $data)) {
+            $data['nr_ordine'] = $this->resolveNextNrOrdine($valabilitate);
+        }
+
+        $valabilitate->curse()->create($data);
 
         return $this->respondAfterMutation($request, $valabilitate, 'Cursa a fost adăugată cu succes.');
     }
@@ -257,7 +261,6 @@ class ValabilitateCursaController extends Controller
                 'formType' => old('form_type'),
                 'formId' => old('form_id'),
                 'tari' => $this->loadTari(),
-                'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
             ])->render(),
             'next_url' => $this->buildNextPageUrl($filtersRequest, $valabilitate, $curse),
         ]);

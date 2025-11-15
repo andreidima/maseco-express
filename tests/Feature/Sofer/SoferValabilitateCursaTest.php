@@ -49,7 +49,6 @@ class SoferValabilitateCursaTest extends TestCase
             ->from(route('sofer.valabilitati.show', $valabilitate))
             ->post(route('sofer.valabilitati.curse.store', $valabilitate), [
                 'form_type' => 'create',
-                'nr_ordine' => 1,
                 'incarcare_localitate' => 'Cluj',
                 'descarcare_localitate' => 'Berlin',
                 'descarcare_tara_id' => $descarcareTara->id,
@@ -77,7 +76,6 @@ class SoferValabilitateCursaTest extends TestCase
             ->actingAs($driver)
             ->post(route('sofer.valabilitati.curse.store', $valabilitate), [
                 'form_type' => 'create',
-                'nr_ordine' => 1,
                 'incarcare_localitate' => 'Cluj',
                 'descarcare_localitate' => 'Budapesta',
                 'descarcare_tara_id' => $tara->id,
@@ -115,7 +113,6 @@ class SoferValabilitateCursaTest extends TestCase
             ->from(route('sofer.valabilitati.show', $valabilitate))
             ->post(route('sofer.valabilitati.curse.store', $valabilitate), [
                 'form_type' => 'create',
-                'nr_ordine' => 2,
                 'descarcare_tara_id' => $romania->id,
                 'data_cursa_date' => '2025-06-10',
                 'final_return' => 1,
@@ -149,7 +146,6 @@ class SoferValabilitateCursaTest extends TestCase
             ->put(route('sofer.valabilitati.curse.update', [$valabilitate, $cursa]), [
                 'form_type' => 'edit',
                 'form_id' => $cursa->id,
-                'nr_ordine' => $cursa->nr_ordine,
                 'descarcare_tara_id' => $romania->id,
                 'data_cursa_date' => '2025-05-02',
                 'final_return' => 1,
