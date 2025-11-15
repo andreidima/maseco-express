@@ -371,25 +371,89 @@
 
 @push('page-scripts')
 <script>
-    window.addEventListener('pageshow', function (event) {
-        var persisted = event.persisted;
-        var isBackForward = false;
+    (function () {
+        var RELOAD_STORAGE_KEY = 'soferValabilitati:forcedReload';
 
-        if (!persisted) {
-            if (window.performance && typeof window.performance.getEntriesByType === 'function') {
-                var entries = window.performance.getEntriesByType('navigation');
-                if (entries && entries.length > 0) {
-                    isBackForward = entries[0].type === 'back_forward';
-                }
-            } else if (window.performance && window.performance.navigation) {
-                isBackForward = window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD;
+        var resolveNavigationType = function () {
+            var perf = window.performance;
+
+            if (!perf) {
+                return null;
             }
-        }
 
-        if (persisted || isBackForward) {
-            window.location.reload();
-        }
-    });
+            if (typeof perf.getEntriesByType === 'function') {
+                var entries = perf.getEntriesByType('navigation');
+
+                if (entries && entries.length > 0) {
+                    return entries[0].type || null;
+                }
+            }
+
+            if (perf.navigation && typeof perf.navigation.type === 'number') {
+                var navigation = perf.navigation;
+
+                if (
+                    typeof navigation.TYPE_BACK_FORWARD === 'number' &&
+                    navigation.type === navigation.TYPE_BACK_FORWARD
+                ) {
+                    return 'back_forward';
+                }
+            }
+
+            return null;
+        };
+
+        var performHardReload = function () {
+            try {
+                sessionStorage.setItem(RELOAD_STORAGE_KEY, '1');
+            } catch (error) {
+                // sessionStorage might be unavailable (Safari private mode, etc.).
+            }
+
+            var currentUrl = window.location.href;
+            var withoutHash = currentUrl.split('#')[0];
+
+            window.location.replace(withoutHash);
+        };
+
+        var alreadyForcedReload = function () {
+            try {
+                return sessionStorage.getItem(RELOAD_STORAGE_KEY) === '1';
+            } catch (error) {
+                return false;
+            }
+        };
+
+        var clearForcedReloadFlag = function () {
+            try {
+                sessionStorage.removeItem(RELOAD_STORAGE_KEY);
+            } catch (error) {
+                // no-op
+            }
+        };
+
+        window.addEventListener('pageshow', function (event) {
+            var isPersisted = event.persisted === true;
+            var navigationType = resolveNavigationType();
+            var cameFromHistory = navigationType === 'back_forward';
+
+            if (isPersisted || cameFromHistory) {
+                if (!alreadyForcedReload()) {
+                    performHardReload();
+                } else {
+                    clearForcedReloadFlag();
+                }
+
+                return;
+            }
+
+            clearForcedReloadFlag();
+        });
+
+        window.addEventListener('pagehide', function () {
+            clearForcedReloadFlag();
+        });
+    })();
 
     document.addEventListener('DOMContentLoaded', () => {
         const deleteModalEl = document.getElementById('deleteCursaModal');
