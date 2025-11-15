@@ -24,6 +24,7 @@ class ValabilitateCursaTest extends TestCase
         $descarcareTara = Tara::factory()->create(['nume' => 'Ungaria']);
 
         $response = $this->actingAs($user)->post(route('valabilitati.curse.store', $valabilitate), [
+            'nr_ordine' => 1,
             'incarcare_localitate' => 'Cluj-Napoca',
             'incarcare_cod_postal' => '400000',
             'incarcare_tara_id' => $incarcareTara->id,
@@ -44,6 +45,7 @@ class ValabilitateCursaTest extends TestCase
 
         $this->assertDatabaseHas('valabilitati_curse', [
             'valabilitate_id' => $valabilitate->id,
+            'nr_ordine' => 1,
             'incarcare_localitate' => 'Cluj-Napoca',
             'incarcare_cod_postal' => '400000',
             'incarcare_tara_id' => $incarcareTara->id,
@@ -67,6 +69,7 @@ class ValabilitateCursaTest extends TestCase
         $initialIncarcareTara = Tara::factory()->create(['nume' => 'Franța']);
         $initialDescarcareTara = Tara::factory()->create(['nume' => 'Italia']);
         $cursa = ValabilitateCursa::factory()->create([
+            'nr_ordine' => 1,
             'incarcare_localitate' => 'Brașov',
             'incarcare_cod_postal' => '500100',
             'incarcare_tara_id' => $initialIncarcareTara->id,
@@ -82,6 +85,7 @@ class ValabilitateCursaTest extends TestCase
         $newDescarcareTara = Tara::factory()->create(['nume' => 'Polonia']);
 
         $response = $this->actingAs($user)->put(route('valabilitati.curse.update', [$cursa->valabilitate, $cursa]), [
+            'nr_ordine' => 2,
             'incarcare_localitate' => 'Iași',
             'incarcare_cod_postal' => '700505',
             'incarcare_tara_id' => $newIncarcareTara->id,
@@ -102,6 +106,7 @@ class ValabilitateCursaTest extends TestCase
 
         $this->assertDatabaseHas('valabilitati_curse', [
             'id' => $cursa->id,
+            'nr_ordine' => 2,
             'incarcare_localitate' => 'Iași',
             'incarcare_cod_postal' => '700505',
             'incarcare_tara_id' => $newIncarcareTara->id,
@@ -119,6 +124,7 @@ class ValabilitateCursaTest extends TestCase
     {
         $user = $this->createValabilitatiUser();
         $cursa = ValabilitateCursa::factory()->create([
+            'nr_ordine' => 3,
             'data_cursa' => '2025-05-02 09:00:00',
         ]);
         $newIncarcareTara = Tara::factory()->create(['nume' => 'Austria']);
@@ -131,6 +137,7 @@ class ValabilitateCursaTest extends TestCase
                 'Accept' => 'application/json',
             ])
             ->put(route('valabilitati.curse.update', [$cursa->valabilitate, $cursa]), [
+                'nr_ordine' => 4,
                 'incarcare_localitate' => 'București',
                 'incarcare_cod_postal' => '010101',
                 'incarcare_tara_id' => $newIncarcareTara->id,
@@ -154,6 +161,7 @@ class ValabilitateCursaTest extends TestCase
 
         $this->assertDatabaseHas('valabilitati_curse', [
             'id' => $cursa->id,
+            'nr_ordine' => 4,
             'incarcare_localitate' => 'București',
             'descarcare_localitate' => 'Praga',
             'data_cursa' => '2025-05-10 11:15:00',
@@ -179,6 +187,7 @@ class ValabilitateCursaTest extends TestCase
         $incarcareTara = Tara::factory()->create(['nume' => 'Austria']);
         $descarcareTara = Tara::factory()->create(['nume' => 'Cehia']);
         $cursa = ValabilitateCursa::factory()->for($valabilitate)->create([
+            'nr_ordine' => 7,
             'incarcare_localitate' => 'Timișoara',
             'incarcare_cod_postal' => '300001',
             'incarcare_tara_id' => $incarcareTara->id,
@@ -198,6 +207,7 @@ class ValabilitateCursaTest extends TestCase
         $response->assertSeeText($incarcareTara->nume);
         $response->assertSeeText('Arad');
         $response->assertSeeText('310002');
+        $response->assertSeeText((string) $cursa->nr_ordine);
         $response->assertSeeText($descarcareTara->nume);
         $response->assertSeeText('10.06.2025 16:20');
         $response->assertSeeText('15400');

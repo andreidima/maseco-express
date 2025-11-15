@@ -2,6 +2,7 @@
     $currentFormType = $formType ?? old('form_type');
     $currentFormId = (int) ($formId ?? old('form_id'));
     $tariCollection = collect($tari ?? [])->keyBy('id');
+    $nextNrOrdine = max(1, (int) ($nextNrOrdine ?? 1));
     $resolveTaraName = static function ($id) use ($tariCollection) {
         if ($id === null || $id === '') {
             return '';
@@ -60,6 +61,7 @@
                     <input type="hidden" name="form_type" value="create">
                     <div class="modal-body">
                         @php
+                            $createNrOrdine = $isCreateActive ? old('nr_ordine', $nextNrOrdine) : $nextNrOrdine;
                             $createNrCursa = $isCreateActive ? old('nr_cursa', '') : '';
                             $createIncarcareTaraId = $isCreateActive ? old('incarcare_tara_id', '') : '';
                             $createIncarcareTaraText = $isCreateActive ? old('incarcare_tara_text', '') : '';
@@ -88,7 +90,25 @@
                             }
                         @endphp
                         <div class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <label for="cursa-create-nr-ordine" class="form-label">Nr. ordine</label>
+                                <input
+                                    type="number"
+                                    name="nr_ordine"
+                                    id="cursa-create-nr-ordine"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('nr_ordine') ? 'is-invalid' : '' }}"
+                                    value="{{ $createNrOrdine }}"
+                                    min="1"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('nr_ordine') ? 'd-block' : '' }}"
+                                    data-error-for="nr_ordine"
+                                >
+                                    {{ $isCreateActive ? $errors->first('nr_ordine') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <label for="cursa-create-nr" class="form-label">Număr cursă</label>
                                 <input
                                     type="text"
@@ -105,7 +125,7 @@
                                     {{ $isCreateActive ? $errors->first('nr_cursa') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="cursa-create-incarcare-localitate" class="form-label">Localitate încărcare</label>
                                 <input
                                     type="text"
@@ -122,7 +142,7 @@
                                     {{ $isCreateActive ? $errors->first('incarcare_localitate') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="cursa-create-incarcare-cod-postal" class="form-label">Cod poștal încărcare</label>
                                 <input
                                     type="text"
@@ -351,6 +371,10 @@
         if ($editKmBordDescarcare === null) {
             $editKmBordDescarcare = '';
         }
+        $editNrOrdine = $isEditing ? old('nr_ordine', $cursa->nr_ordine) : $cursa->nr_ordine;
+        if ($editNrOrdine === null) {
+            $editNrOrdine = '';
+        }
         $editNrCursa = $isEditing ? old('nr_cursa', $cursa->nr_cursa) : $cursa->nr_cursa;
         if ($editNrCursa === null) {
             $editNrCursa = '';
@@ -382,7 +406,25 @@
                     <input type="hidden" name="form_id" value="{{ $cursa->id }}">
                     <div class="modal-body">
                         <div class="row g-3">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <label for="{{ $editPrefix }}nr-ordine" class="form-label">Nr. ordine</label>
+                                <input
+                                    type="number"
+                                    name="nr_ordine"
+                                    id="{{ $editPrefix }}nr-ordine"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('nr_ordine') ? 'is-invalid' : '' }}"
+                                    value="{{ $editNrOrdine }}"
+                                    min="1"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('nr_ordine') ? 'd-block' : '' }}"
+                                    data-error-for="nr_ordine"
+                                >
+                                    {{ $isEditing ? $errors->first('nr_ordine') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <label for="{{ $editPrefix }}nr" class="form-label">Număr cursă</label>
                                 <input
                                     type="text"
@@ -399,7 +441,7 @@
                                     {{ $isEditing ? $errors->first('nr_cursa') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="{{ $editPrefix }}incarcare-localitate" class="form-label">Localitate încărcare</label>
                                 <input
                                     type="text"
@@ -416,7 +458,7 @@
                                     {{ $isEditing ? $errors->first('incarcare_localitate') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <label for="{{ $editPrefix }}incarcare-cod-postal" class="form-label">Cod poștal încărcare</label>
                                 <input
                                     type="text"

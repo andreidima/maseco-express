@@ -20,7 +20,7 @@ class SoferValabilitateCursaController extends Controller
 
         $valabilitate->load([
             'curse' => function ($query) {
-                $query->orderBy('data_cursa')->orderBy('id');
+                $query->orderBy('nr_ordine')->orderBy('data_cursa');
             },
             'curse.incarcareTara',
             'curse.descarcareTara',
@@ -48,6 +48,7 @@ class SoferValabilitateCursaController extends Controller
             'requiresTime' => $requiresTime,
             'lockTime' => $requiresTime,
             'romanianCountryIds' => $this->determineRomanianCountryIds($tari),
+            'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
         ]);
     }
 
@@ -71,6 +72,7 @@ class SoferValabilitateCursaController extends Controller
             'requiresTime' => $hasDateTime,
             'lockTime' => false,
             'romanianCountryIds' => $this->determineRomanianCountryIds($tari),
+            'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
         ]);
     }
 
@@ -139,5 +141,12 @@ class SoferValabilitateCursaController extends Controller
             ->map(static fn ($id) => (int) $id)
             ->values()
             ->all();
+    }
+
+    private function resolveNextNrOrdine(Valabilitate $valabilitate): int
+    {
+        $max = (int) $valabilitate->curse()->max('nr_ordine');
+
+        return $max > 0 ? $max + 1 : 1;
     }
 }

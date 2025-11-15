@@ -14,6 +14,7 @@ class ValabilitateCursa extends Model
 
     protected $fillable = [
         'valabilitate_id',
+        'nr_ordine',
         'nr_cursa',
         'incarcare_localitate',
         'incarcare_cod_postal',
@@ -28,6 +29,7 @@ class ValabilitateCursa extends Model
     ];
 
     protected $casts = [
+        'nr_ordine' => 'integer',
         'data_cursa' => 'datetime',
         'km_bord_incarcare' => 'integer',
         'km_bord_descarcare' => 'integer',
