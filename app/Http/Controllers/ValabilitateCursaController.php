@@ -11,10 +11,13 @@ use App\Support\Valabilitati\ValabilitatiCurseFilterState;
 use App\Support\Valabilitati\ValabilitatiFilterState;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ValabilitateCursaController extends Controller
@@ -25,15 +28,17 @@ class ValabilitateCursaController extends Controller
     {
         $this->authorize('view', $valabilitate);
 
-        $curse = $this->paginateCurse($request, $valabilitate);
+        $filters = $this->validateFilters($request);
+        $curse = $this->paginateCurse($request, $valabilitate, $filters);
 
-        ValabilitatiCurseFilterState::remember($request, $valabilitate);
+        ValabilitatiCurseFilterState::remember($request, $valabilitate, $this->filtersToQueryString($filters));
 
         $valabilitate->loadMissing(['sofer']);
 
         return view('valabilitati.curse.index', [
             'valabilitate' => $valabilitate,
             'curse' => $curse,
+            'filters' => $filters,
             'nextPageUrl' => $this->buildNextPageUrl($request, $valabilitate, $curse),
             'backUrl' => ValabilitatiFilterState::route(),
             'tari' => $this->loadTari(),
@@ -44,9 +49,10 @@ class ValabilitateCursaController extends Controller
     {
         $this->authorize('view', $valabilitate);
 
-        $curse = $this->paginateCurse($request, $valabilitate);
+        $filters = $this->validateFilters($request);
+        $curse = $this->paginateCurse($request, $valabilitate, $filters);
 
-        ValabilitatiCurseFilterState::remember($request, $valabilitate);
+        ValabilitatiCurseFilterState::remember($request, $valabilitate, $this->filtersToQueryString($filters));
 
         return response()->json([
             'rows_html' => view('valabilitati.curse.partials.rows', [
@@ -127,13 +133,79 @@ class ValabilitateCursaController extends Controller
         return redirect(ValabilitatiCurseFilterState::route($valabilitate))->with('status', $message);
     }
 
-    private function paginateCurse(Request $request, Valabilitate $valabilitate, ?array $query = null): LengthAwarePaginator
+    private function validateFilters(Request $request): array
     {
-        $paginator = $valabilitate->curse()
-            ->with([
-                'incarcareTara',
-                'descarcareTara',
-            ])
+        return $this->parseFilters($request->only([
+            'localitate',
+            'cod_postal',
+            'data_start',
+            'data_end',
+        ]));
+    }
+
+    private function parseFilters(array $input): array
+    {
+        $validator = validator($input, [
+            'localitate' => ['nullable', 'string', 'max:255'],
+            'cod_postal' => ['nullable', 'string', 'max:255'],
+            'data_start' => ['nullable', 'date'],
+            'data_end' => ['nullable', 'date', 'after_or_equal:data_start'],
+        ]);
+
+        $validated = $validator->validate();
+
+        return [
+            'localitate' => trim((string) ($validated['localitate'] ?? '')),
+            'cod_postal' => trim((string) ($validated['cod_postal'] ?? '')),
+            'data_start' => $validated['data_start'] ?? null,
+            'data_end' => $validated['data_end'] ?? null,
+        ];
+    }
+
+    private function filtersToQueryString(array $filters): array
+    {
+        return array_filter($filters, static fn ($value) => $value !== null && $value !== '');
+    }
+
+    private function buildFilteredQuery(Valabilitate $valabilitate, array $filters): HasMany
+    {
+        $query = $valabilitate->curse()->with([
+            'incarcareTara',
+            'descarcareTara',
+        ]);
+
+        if ($filters['localitate'] !== '') {
+            $term = Str::lower($filters['localitate']);
+            $query->where(function (Builder $builder) use ($term): void {
+                $builder
+                    ->whereRaw('LOWER(incarcare_localitate) LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(descarcare_localitate) LIKE ?', ["%{$term}%"]);
+            });
+        }
+
+        if ($filters['cod_postal'] !== '') {
+            $term = Str::lower($filters['cod_postal']);
+            $query->where(function (Builder $builder) use ($term): void {
+                $builder
+                    ->whereRaw('LOWER(incarcare_cod_postal) LIKE ?', ["%{$term}%"])
+                    ->orWhereRaw('LOWER(descarcare_cod_postal) LIKE ?', ["%{$term}%"]);
+            });
+        }
+
+        if ($filters['data_start']) {
+            $query->whereDate('data_cursa', '>=', $filters['data_start']);
+        }
+
+        if ($filters['data_end']) {
+            $query->whereDate('data_cursa', '<=', $filters['data_end']);
+        }
+
+        return $query;
+    }
+
+    private function paginateCurse(Request $request, Valabilitate $valabilitate, array $filters, ?array $query = null): LengthAwarePaginator
+    {
+        $paginator = $this->buildFilteredQuery($valabilitate, $filters)
             ->reorder()
             ->orderBy('nr_ordine')
             ->orderBy('data_cursa')
@@ -173,7 +245,8 @@ class ValabilitateCursaController extends Controller
     {
         $query = ValabilitatiCurseFilterState::get($valabilitate);
         $filtersRequest = Request::create('', 'GET', $query);
-        $curse = $this->paginateCurse($filtersRequest, $valabilitate, $query);
+        $filters = $this->parseFilters($query);
+        $curse = $this->paginateCurse($filtersRequest, $valabilitate, $filters, $query);
 
         return response()->json([
             'message' => $message,
