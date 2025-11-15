@@ -347,8 +347,14 @@ Route::middleware(['auth'])->group(function () {
         Route::get('valabilitati/paginate', [ValabilitateController::class, 'paginate'])
             ->name('valabilitati.paginate');
 
+        Route::get('valabilitati/create', [ValabilitateController::class, 'create'])
+            ->name('valabilitati.create');
+        Route::get('valabilitati/{valabilitate}/edit', [ValabilitateController::class, 'edit'])
+            ->name('valabilitati.edit');
+
         Route::resource('valabilitati', ValabilitateController::class)
-            ->parameters(['valabilitati' => 'valabilitate']);
+            ->parameters(['valabilitati' => 'valabilitate'])
+            ->except(['create', 'edit']);
 
         Route::scopeBindings()->group(function () {
             Route::get('valabilitati/{valabilitate}/curse/paginate', [ValabilitateCursaController::class, 'paginate'])

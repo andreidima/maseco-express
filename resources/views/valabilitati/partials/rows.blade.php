@@ -33,9 +33,7 @@
                 </div>
                 <div class="ms-1">
                     <a
-                        href="#"
-                        data-bs-toggle="modal"
-                        data-bs-target="#valabilitateEditModal{{ $valabilitate->id }}"
+                        href="{{ route('valabilitati.edit', $valabilitate) }}"
                         class="flex"
                         title="Modifică valabilitatea"
                     >
@@ -45,9 +43,11 @@
                 <div class="ms-1">
                     <a
                         href="#"
-                        data-bs-toggle="modal"
-                        data-bs-target="#valabilitateDeleteModal{{ $valabilitate->id }}"
                         class="flex"
+                        data-valabilitate-delete
+                        data-delete-url="{{ route('valabilitati.destroy', $valabilitate) }}"
+                        data-delete-denumire="{{ $valabilitate->denumire }}"
+                        data-delete-numar-auto="{{ $valabilitate->numar_auto }}"
                         title="Șterge valabilitatea"
                     >
                         <span class="badge bg-danger">Șterge</span>

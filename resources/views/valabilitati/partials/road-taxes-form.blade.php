@@ -8,7 +8,7 @@
             return [
                 'nume' => $entry->nume ?? '',
                 'tara' => $entry->tara ?? '',
-                'suma' => number_format((float) $entry->suma, 2, '.', ''),
+                'suma' => $entry->suma !== null ? number_format((float) $entry->suma, 2, '.', '') : '',
                 'moneda' => $entry->moneda ?? '',
                 'data' => optional($entry->data)->format('Y-m-d') ?? '',
                 'observatii' => $entry->observatii ?? '',
@@ -76,7 +76,7 @@
                     <div class="card-body pb-0">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-3">
-                                <label for="{{ $rowIdPrefix }}nume" class="form-label">Nume</label>
+                                <label for="{{ $rowIdPrefix }}nume" class="form-label">Nume<span class="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     name="{{ $fieldPrefix }}[nume]"
@@ -84,13 +84,14 @@
                                     class="form-control bg-white rounded-3 {{ $numeHasError ? 'is-invalid' : '' }}"
                                     value="{{ $taxa['nume'] }}"
                                     autocomplete="off"
+                                    required
                                 >
                                 <div class="invalid-feedback {{ $numeHasError ? 'd-block' : '' }}" data-error-for="{{ $numeErrorKey }}">
                                     {{ $numeHasError ? $errors->first($numeErrorKey) : '' }}
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <label for="{{ $rowIdPrefix }}tara" class="form-label">Țară<span class="text-danger">*</span></label>
+                                <label for="{{ $rowIdPrefix }}tara" class="form-label">Țară</label>
                                 <input
                                     type="text"
                                     name="{{ $fieldPrefix }}[tara]"
@@ -104,7 +105,7 @@
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <label for="{{ $rowIdPrefix }}suma" class="form-label">Sumă<span class="text-danger">*</span></label>
+                                <label for="{{ $rowIdPrefix }}suma" class="form-label">Sumă</label>
                                 <input
                                     type="text"
                                     name="{{ $fieldPrefix }}[suma]"
@@ -119,7 +120,7 @@
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <label for="{{ $rowIdPrefix }}moneda" class="form-label">Monedă<span class="text-danger">*</span></label>
+                                <label for="{{ $rowIdPrefix }}moneda" class="form-label">Monedă</label>
                                 <input
                                     type="text"
                                     name="{{ $fieldPrefix }}[moneda]"
@@ -133,7 +134,7 @@
                                 </div>
                             </div>
                             <div class="col-md-2">
-                                <label for="{{ $rowIdPrefix }}data" class="form-label">Dată<span class="text-danger">*</span></label>
+                                <label for="{{ $rowIdPrefix }}data" class="form-label">Dată</label>
                                 <input
                                     type="date"
                                     name="{{ $fieldPrefix }}[data]"
@@ -172,18 +173,19 @@
                 <div class="card-body pb-0">
                     <div class="row g-3 align-items-end">
                         <div class="col-md-3">
-                            <label for="{{ $idPrefix }}__INDEX__-nume" class="form-label">Nume</label>
+                            <label for="{{ $idPrefix }}__INDEX__-nume" class="form-label">Nume<span class="text-danger">*</span></label>
                             <input
                                 type="text"
                                 name="{{ $fieldName }}[__INDEX__][nume]"
                                 id="{{ $idPrefix }}__INDEX__-nume"
                                 class="form-control bg-white rounded-3"
                                 autocomplete="off"
+                                required
                             >
                             <div class="invalid-feedback" data-error-for="{{ $fieldName }}.__INDEX__.nume"></div>
                         </div>
                         <div class="col-md-2">
-                            <label for="{{ $idPrefix }}__INDEX__-tara" class="form-label">Țară<span class="text-danger">*</span></label>
+                            <label for="{{ $idPrefix }}__INDEX__-tara" class="form-label">Țară</label>
                             <input
                                 type="text"
                                 name="{{ $fieldName }}[__INDEX__][tara]"
@@ -194,7 +196,7 @@
                             <div class="invalid-feedback" data-error-for="{{ $fieldName }}.__INDEX__.tara"></div>
                         </div>
                         <div class="col-md-2">
-                            <label for="{{ $idPrefix }}__INDEX__-suma" class="form-label">Sumă<span class="text-danger">*</span></label>
+                            <label for="{{ $idPrefix }}__INDEX__-suma" class="form-label">Sumă</label>
                             <input
                                 type="text"
                                 name="{{ $fieldName }}[__INDEX__][suma]"
@@ -206,7 +208,7 @@
                             <div class="invalid-feedback" data-error-for="{{ $fieldName }}.__INDEX__.suma"></div>
                         </div>
                         <div class="col-md-2">
-                            <label for="{{ $idPrefix }}__INDEX__-moneda" class="form-label">Monedă<span class="text-danger">*</span></label>
+                            <label for="{{ $idPrefix }}__INDEX__-moneda" class="form-label">Monedă</label>
                             <input
                                 type="text"
                                 name="{{ $fieldName }}[__INDEX__][moneda]"
@@ -217,7 +219,7 @@
                             <div class="invalid-feedback" data-error-for="{{ $fieldName }}.__INDEX__.moneda"></div>
                         </div>
                         <div class="col-md-2">
-                            <label for="{{ $idPrefix }}__INDEX__-data" class="form-label">Dată<span class="text-danger">*</span></label>
+                            <label for="{{ $idPrefix }}__INDEX__-data" class="form-label">Dată</label>
                             <input
                                 type="date"
                                 name="{{ $fieldName }}[__INDEX__][data]"

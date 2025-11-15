@@ -13,22 +13,22 @@
                 <a href="{{ $backUrl }}" class="btn btn-sm btn-secondary text-white border border-dark rounded-3">
                     <i class="fas fa-arrow-left text-white me-1"></i>Înapoi
                 </a>
-                <button
-                    type="button"
+                <a
+                    href="{{ route('valabilitati.edit', $valabilitate) }}"
                     class="btn btn-sm btn-primary text-white border border-dark rounded-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#valabilitateEditModal{{ $valabilitate->id }}"
                 >
                     <i class="fa-solid fa-pen-to-square text-white me-1"></i>Modifică
-                </button>
-                <button
-                    type="button"
+                </a>
+                <a
+                    href="#"
                     class="btn btn-sm btn-danger text-white border border-dark rounded-3"
-                    data-bs-toggle="modal"
-                    data-bs-target="#valabilitateDeleteModal{{ $valabilitate->id }}"
+                    data-valabilitate-delete
+                    data-delete-url="{{ route('valabilitati.destroy', $valabilitate) }}"
+                    data-delete-denumire="{{ $valabilitate->denumire }}"
+                    data-delete-numar-auto="{{ $valabilitate->numar_auto }}"
                 >
                     <i class="fa-solid fa-trash-can text-white me-1"></i>Șterge
-                </button>
+                </a>
             </div>
         </div>
     </div>
@@ -97,9 +97,11 @@
                                 @foreach ($valabilitate->taxeDrum as $taxa)
                                     <tr>
                                         <td>{{ $taxa->nume ?? '—' }}</td>
-                                        <td>{{ $taxa->tara }}</td>
-                                        <td class="text-end">{{ number_format((float) $taxa->suma, 2, ',', '.') }}</td>
-                                        <td>{{ $taxa->moneda }}</td>
+                                        <td>{{ $taxa->tara ?: '—' }}</td>
+                                        <td class="text-end">
+                                            {{ $taxa->suma !== null ? number_format((float) $taxa->suma, 2, ',', '.') : '—' }}
+                                        </td>
+                                        <td>{{ $taxa->moneda ?: '—' }}</td>
                                         <td>{{ optional($taxa->data)->format('d.m.Y') ?? '—' }}</td>
                                         <td>{{ $taxa->observatii ?? '—' }}</td>
                                     </tr>
@@ -113,73 +115,5 @@
     </div>
 </div>
 
-<div
-    id="valabilitati-modals"
-    data-active-modal="{{ session('valabilitati.modal') }}"
->
-    @include('valabilitati.partials.modals', [
-        'valabilitati' => collect([$valabilitate]),
-        'soferi' => $soferi,
-        'includeCreate' => false,
-        'formType' => old('form_type'),
-        'formId' => old('form_id'),
-    ])
-</div>
-
-@push('page-scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const container = document.getElementById('valabilitati-modals');
-            if (!container) {
-                return;
-            }
-
-            const activeModal = container.dataset.activeModal;
-            if (!activeModal) {
-                return;
-            }
-
-            let modalId = null;
-
-            if (activeModal === 'create') {
-                modalId = 'valabilitateCreateModal';
-            } else if (activeModal.startsWith('edit:')) {
-                const parts = activeModal.split(':');
-                if (parts.length === 2 && parts[1]) {
-                    modalId = `valabilitateEditModal${parts[1]}`;
-                }
-            }
-
-            if (!modalId) {
-                return;
-            }
-
-            const modalElement = document.getElementById(modalId);
-            if (!modalElement) {
-                return;
-            }
-
-            const bootstrap = window.bootstrap;
-            const bootstrapModal = bootstrap && bootstrap.Modal ? bootstrap.Modal : null;
-
-            if (bootstrapModal) {
-                const instance =
-                    typeof bootstrapModal.getOrCreateInstance === 'function'
-                        ? bootstrapModal.getOrCreateInstance(modalElement)
-                        : new bootstrapModal(modalElement);
-                instance.show();
-                return;
-            }
-
-            const $ = window.jQuery || window.$;
-            if (typeof $ === 'function' && typeof $(modalElement).modal === 'function') {
-                $(modalElement).modal('show');
-                return;
-            }
-
-            modalElement.classList.add('show');
-            modalElement.removeAttribute('aria-hidden');
-        });
-    </script>
-@endpush
+@include('valabilitati.partials.delete-modal')
 @endsection
