@@ -86,7 +86,7 @@
     </div>
 
     <div class="card-body px-0 py-3">
-        @include('errors')
+        @include('errors', ['showSessionAlerts' => false])
         @if (session('status'))
             <div class="alert alert-success mx-3" role="alert">
                 {{ session('status') }}
