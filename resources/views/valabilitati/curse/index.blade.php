@@ -94,16 +94,82 @@
     <div class="card-body px-0 py-3">
         @include('errors')
 
-        <div class="px-3 mb-3 text-muted small">
-            <div class="d-flex flex-column flex-lg-row gap-1 gap-lg-4">
-                <span><strong>Număr auto:</strong> {{ $valabilitate->numar_auto ?? '—' }}</span>
-                <span><strong>Șofer:</strong> {{ $valabilitate->sofer->name ?? '—' }}</span>
-                <span>
-                    <strong>Perioadă:</strong>
-                    {{ optional($valabilitate->data_inceput)->format('d.m.Y') ?? '—' }}
-                    -
-                    {{ optional($valabilitate->data_sfarsit)->format('d.m.Y') ?? '—' }}
-                </span>
+        @php
+            $curseCollection = $curse instanceof \Illuminate\Contracts\Pagination\Paginator
+                || $curse instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator
+                || $curse instanceof \Illuminate\Contracts\Pagination\CursorPaginator
+                ? collect($curse->items())
+                : collect($curse);
+
+            $kmPlecare = $curseCollection
+                ->pluck('km_bord_incarcare')
+                ->filter(static fn ($value) => $value !== null && $value !== '')
+                ->min();
+
+            $kmSosire = $curseCollection
+                ->pluck('km_bord_descarcare')
+                ->filter(static fn ($value) => $value !== null && $value !== '')
+                ->max();
+
+            $kmTotal = $kmPlecare !== null && $kmSosire !== null
+                ? (float) $kmSosire - (float) $kmPlecare
+                : null;
+
+            $dataInceput = $valabilitate->data_inceput;
+            $dataSfarsit = $valabilitate->data_sfarsit;
+            $totalZile = $dataInceput && $dataSfarsit
+                ? $dataInceput->diffInDays($dataSfarsit) + 1
+                : null;
+        @endphp
+
+        <div class="px-3 mb-3">
+            <div class="row g-3">
+                <div class="col-12 col-md-6 col-xl-3 col-xxl">
+                    <div class="h-100 p-3 border rounded-3 bg-light">
+                        <div class="text-uppercase small fw-semibold text-secondary mb-1">Număr auto</div>
+                        <div class="fs-5 text-dark">{{ $valabilitate->numar_auto ?? '—' }}</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3 col-xxl">
+                    <div class="h-100 p-3 border rounded-3 bg-light">
+                        <div class="text-uppercase small fw-semibold text-secondary mb-1">Șofer</div>
+                        <div class="fs-5 text-dark">{{ $valabilitate->sofer->name ?? '—' }}</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3 col-xxl">
+                    <div class="h-100 p-3 border rounded-3 bg-light">
+                        <div class="text-uppercase small fw-semibold text-secondary mb-1">Perioadă</div>
+                        <div class="fs-6 text-dark">
+                            {{ optional($dataInceput)->format('d.m.Y') ?? '—' }}
+                            <span class="mx-1">-</span>
+                            {{ optional($dataSfarsit)->format('d.m.Y') ?? '—' }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3 col-xxl">
+                    <div class="h-100 p-3 border rounded-3 bg-light">
+                        <div class="text-uppercase small fw-semibold text-secondary mb-1">Total zile</div>
+                        <div class="fs-5 text-dark">{{ $totalZile !== null ? $totalZile : '—' }}</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3 col-xxl">
+                    <div class="h-100 p-3 border rounded-3 bg-light">
+                        <div class="text-uppercase small fw-semibold text-secondary mb-1">KM Plecare</div>
+                        <div class="fs-5 text-dark">{{ $kmPlecare !== null ? $kmPlecare : '—' }}</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3 col-xxl">
+                    <div class="h-100 p-3 border rounded-3 bg-light">
+                        <div class="text-uppercase small fw-semibold text-secondary mb-1">KM Sosire</div>
+                        <div class="fs-5 text-dark">{{ $kmSosire !== null ? $kmSosire : '—' }}</div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-6 col-xl-3 col-xxl">
+                    <div class="h-100 p-3 border rounded-3 bg-light">
+                        <div class="text-uppercase small fw-semibold text-secondary mb-1">KM Total</div>
+                        <div class="fs-5 text-dark">{{ $kmTotal !== null ? $kmTotal : '—' }}</div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -115,15 +181,13 @@
                     <tr>
                         <th class="text-center">#</th>
                         <th>Nr. cursă</th>
-                        <th>Încărcare - localitate</th>
-                        <th>Încărcare - cod poștal</th>
-                        <th>Încărcare - țară</th>
-                        <th>Descărcare - localitate</th>
-                        <th>Descărcare - cod poștal</th>
-                        <th>Descărcare - țară</th>
-                        <th>Data cursă</th>
-                        <th>Încărcare - km bord</th>
-                        <th>Descărcare - km bord</th>
+                        <th>Cursa</th>
+                        <th>Data transport</th>
+                        <th>KM Maps</th>
+                        <th>KM Plecare / KM Sosire</th>
+                        <th>KM BORD 2</th>
+                        <th>Sumă încasată</th>
+                        <th>Diferența KM (Bord-Maps)</th>
                         <th class="text-end">Acțiuni</th>
                     </tr>
                 </thead>
