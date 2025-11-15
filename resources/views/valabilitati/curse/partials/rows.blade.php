@@ -2,19 +2,8 @@
     @php
         $dataCursa = $cursa->data_cursa?->format('d.m.Y H:i');
     @endphp
-    <tr
-        data-cursa-id="{{ $cursa->id }}"
-    >
-        <td class="text-center fw-semibold align-middle">
-            <span
-                class="text-muted me-2"
-                data-cursa-drag-handle
-                title="Reordonează cursa"
-            >
-                <i class="fa-solid fa-grip-vertical"></i>
-            </span>
-            <span data-order-label>#{{ $cursa->nr_ordine }}</span>
-        </td>
+    <tr>
+        <td class="text-center fw-semibold">{{ $cursa->nr_ordine }}</td>
         <td class="text-nowrap">{{ $cursa->nr_cursa ?: '—' }}</td>
         <td>{{ $cursa->incarcare_localitate ?: '—' }}</td>
         <td>{{ $cursa->incarcare_cod_postal ?: '—' }}</td>
