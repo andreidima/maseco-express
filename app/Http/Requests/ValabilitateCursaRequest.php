@@ -32,6 +32,7 @@ class ValabilitateCursaRequest extends FormRequest
             'observatii' => ['nullable', 'string'],
             'km_bord_incarcare' => ['nullable', 'integer', 'min:0'],
             'km_bord_descarcare' => ['nullable', 'integer', 'min:0'],
+            'km_maps' => ['nullable', 'string', 'max:255'],
         ];
     }
 

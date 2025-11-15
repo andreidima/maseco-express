@@ -77,6 +77,7 @@
 
                             $createKmBordIncarcare = $isCreateActive ? old('km_bord_incarcare', '') : '';
                             $createKmBordDescarcare = $isCreateActive ? old('km_bord_descarcare', '') : '';
+                            $createKmMaps = $isCreateActive ? old('km_maps', '') : '';
                             $createDataDateValue = $isCreateActive ? old('data_cursa_date', '') : '';
                             $createDataTimeValue = $isCreateActive ? old('data_cursa_time', '') : '';
                             if ($isCreateActive) {
@@ -303,6 +304,23 @@
                                     {{ $isCreateActive ? $errors->first('km_bord_descarcare') : '' }}
                                 </div>
                             </div>
+                            <div class="col-md-4">
+                                <label for="cursa-create-km-maps" class="form-label">Km Maps</label>
+                                <input
+                                    type="text"
+                                    name="km_maps"
+                                    id="cursa-create-km-maps"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_maps') ? 'is-invalid' : '' }}"
+                                    value="{{ $createKmMaps }}"
+                                    maxlength="255"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_maps') ? 'd-block' : '' }}"
+                                    data-error-for="km_maps"
+                                >
+                                    {{ $isCreateActive ? $errors->first('km_maps') : '' }}
+                                </div>
+                            </div>
                             <div class="col-12">
                                 <label for="cursa-create-observatii" class="form-label">Observații</label>
                                 <textarea
@@ -370,6 +388,10 @@
         $editKmBordDescarcare = $isEditing ? old('km_bord_descarcare', $cursa->km_bord_descarcare) : $cursa->km_bord_descarcare;
         if ($editKmBordDescarcare === null) {
             $editKmBordDescarcare = '';
+        }
+        $editKmMaps = $isEditing ? old('km_maps', $cursa->km_maps) : $cursa->km_maps;
+        if ($editKmMaps === null) {
+            $editKmMaps = '';
         }
         $editNrOrdine = $isEditing ? old('nr_ordine', $cursa->nr_ordine) : $cursa->nr_ordine;
         if ($editNrOrdine === null) {
@@ -617,6 +639,23 @@
                                     data-error-for="km_bord_descarcare"
                                 >
                                     {{ $isEditing ? $errors->first('km_bord_descarcare') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ $editPrefix }}km-maps" class="form-label">Km Maps</label>
+                                <input
+                                    type="text"
+                                    name="km_maps"
+                                    id="{{ $editPrefix }}km-maps"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_maps') ? 'is-invalid' : '' }}"
+                                    value="{{ $editKmMaps }}"
+                                    maxlength="255"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('km_maps') ? 'd-block' : '' }}"
+                                    data-error-for="km_maps"
+                                >
+                                    {{ $isEditing ? $errors->first('km_maps') : '' }}
                                 </div>
                             </div>
                             <div class="col-12">
