@@ -1,8 +1,30 @@
 @foreach ($curse as $cursa)
     @php
-        $dataCursa = $cursa->data_cursa?->format('d.m.Y H:i');
-    @endphp
-    @php
+        $dataTransport = $cursa->data_cursa?->format('d.m.Y H:i');
+
+        $incarcareParts = array_filter([
+            $cursa->incarcare_localitate,
+            $cursa->incarcare_cod_postal,
+            $cursa->incarcareTara?->nume,
+        ]);
+        $descarcareParts = array_filter([
+            $cursa->descarcare_localitate,
+            $cursa->descarcare_cod_postal,
+            $cursa->descarcareTara?->nume,
+        ]);
+        $cursaDescriere = (count($incarcareParts) ? implode(', ', $incarcareParts) : '—') . ' → ' . (count($descarcareParts) ? implode(', ', $descarcareParts) : '—');
+
+        $kmPlecare = $cursa->km_bord_incarcare !== null && $cursa->km_bord_incarcare !== ''
+            ? (float) $cursa->km_bord_incarcare
+            : null;
+        $kmSosire = $cursa->km_bord_descarcare !== null && $cursa->km_bord_descarcare !== ''
+            ? (float) $cursa->km_bord_descarcare
+            : null;
+        $kmMapsDisplay = filled($cursa->km_maps) ? $cursa->km_maps : '—';
+        $kmMapsValue = is_numeric($cursa->km_maps) ? (float) $cursa->km_maps : null;
+        $kmBord2 = $kmPlecare !== null && $kmSosire !== null ? $kmSosire - $kmPlecare : null;
+        $kmDifference = $kmBord2 !== null && $kmMapsValue !== null ? $kmBord2 - $kmMapsValue : null;
+
         $canMoveUp = ! $loop->first;
         $canMoveDown = ! $loop->last;
         $hasMultipleCurse = $loop->count > 1;
@@ -52,15 +74,18 @@
             </div>
         </td>
         <td class="text-nowrap">{{ $cursa->nr_cursa ?: '—' }}</td>
-        <td>{{ $cursa->incarcare_localitate ?: '—' }}</td>
-        <td>{{ $cursa->incarcare_cod_postal ?: '—' }}</td>
-        <td>{{ $cursa->incarcareTara?->nume ?: '—' }}</td>
-        <td>{{ $cursa->descarcare_localitate ?: '—' }}</td>
-        <td>{{ $cursa->descarcare_cod_postal ?: '—' }}</td>
-        <td>{{ $cursa->descarcareTara?->nume ?: '—' }}</td>
-        <td class="text-nowrap">{{ $dataCursa ?: '—' }}</td>
-        <td class="text-nowrap">{{ $cursa->km_bord_incarcare !== null ? $cursa->km_bord_incarcare : '—' }}</td>
-        <td class="text-nowrap">{{ $cursa->km_bord_descarcare !== null ? $cursa->km_bord_descarcare : '—' }}</td>
+        <td class="text-muted small">{{ $cursaDescriere }}</td>
+        <td class="text-nowrap">{{ $dataTransport ?: '—' }}</td>
+        <td class="text-nowrap">{{ $kmMapsDisplay }}</td>
+        <td>
+            <div class="d-flex flex-column">
+                <span class="text-nowrap">{{ $kmPlecare !== null ? $kmPlecare : '—' }}</span>
+                <span class="text-nowrap">{{ $kmSosire !== null ? $kmSosire : '—' }}</span>
+            </div>
+        </td>
+        <td class="text-nowrap">{{ $kmBord2 !== null ? $kmBord2 : '—' }}</td>
+        <td>&nbsp;</td>
+        <td class="text-nowrap">{{ $kmDifference !== null ? $kmDifference : '—' }}</td>
         <td class="text-end">
             <div class="d-flex flex-wrap justify-content-end">
                 <div class="ms-1">
