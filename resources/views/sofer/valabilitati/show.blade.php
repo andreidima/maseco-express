@@ -371,6 +371,26 @@
 
 @push('page-scripts')
 <script>
+    window.addEventListener('pageshow', function (event) {
+        var persisted = event.persisted;
+        var isBackForward = false;
+
+        if (!persisted) {
+            if (window.performance && typeof window.performance.getEntriesByType === 'function') {
+                var entries = window.performance.getEntriesByType('navigation');
+                if (entries && entries.length > 0) {
+                    isBackForward = entries[0].type === 'back_forward';
+                }
+            } else if (window.performance && window.performance.navigation) {
+                isBackForward = window.performance.navigation.type === window.performance.navigation.TYPE_BACK_FORWARD;
+            }
+        }
+
+        if (persisted || isBackForward) {
+            window.location.reload();
+        }
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
         const deleteModalEl = document.getElementById('deleteCursaModal');
         const deleteForm = document.getElementById('deleteCursaForm');
