@@ -50,7 +50,6 @@ class SoferValabilitateCursaController extends Controller
             'requiresTime' => $requiresTime,
             'lockTime' => $requiresTime,
             'romanianCountryIds' => $this->determineRomanianCountryIds($tari),
-            'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
         ]);
     }
 
@@ -74,7 +73,6 @@ class SoferValabilitateCursaController extends Controller
             'requiresTime' => $hasDateTime,
             'lockTime' => false,
             'romanianCountryIds' => $this->determineRomanianCountryIds($tari),
-            'nextNrOrdine' => $this->resolveNextNrOrdine($valabilitate),
         ]);
     }
 
@@ -82,7 +80,13 @@ class SoferValabilitateCursaController extends Controller
     {
         $valabilitate = $this->ensureDriverOwnsValabilitate($request, $valabilitate);
 
-        $valabilitate->curse()->create($request->validated());
+        $data = $request->validated();
+
+        if (! array_key_exists('nr_ordine', $data)) {
+            $data['nr_ordine'] = $this->resolveNextNrOrdine($valabilitate);
+        }
+
+        $valabilitate->curse()->create($data);
 
         return redirect()
             ->route('sofer.valabilitati.show', $valabilitate)

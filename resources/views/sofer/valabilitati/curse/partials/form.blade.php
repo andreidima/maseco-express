@@ -37,8 +37,6 @@
     }
 
     $requireTimeDefault = $requiresTime || $finalReturnValue === 1 || $lockTime;
-    $nextNrOrdine = isset($nextNrOrdine) ? (int) $nextNrOrdine : 1;
-    $nrOrdine = old('nr_ordine', optional($cursa)->nr_ordine ?? $nextNrOrdine);
     $nrCursa = old('nr_cursa', optional($cursa)->nr_cursa);
 @endphp
 
@@ -62,20 +60,6 @@
     <input type="hidden" name="final_return" value="{{ $finalReturnValue }}" data-final-return-input>
 
     <div class="row g-3">
-        <div class="col-12 col-md-6">
-            <label class="form-label small text-uppercase fw-semibold">Nr. ordine</label>
-            <input
-                type="number"
-                name="nr_ordine"
-                class="form-control form-control-sm @error('nr_ordine') is-invalid @enderror"
-                value="{{ $nrOrdine }}"
-                min="1"
-                step="1"
-            >
-            @error('nr_ordine')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
         <div class="col-12 col-md-6">
             <label class="form-label small text-uppercase fw-semibold">Număr cursă</label>
             <input

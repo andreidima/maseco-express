@@ -20,7 +20,7 @@ class ValabilitateCursaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nr_ordine' => ['required', 'integer', 'min:1'],
+            'nr_ordine' => ['sometimes', 'integer', 'min:1'],
             'nr_cursa' => ['nullable', 'string', 'max:255'],
             'incarcare_localitate' => ['nullable', 'string', 'max:255'],
             'incarcare_cod_postal' => ['nullable', 'string', 'max:255'],
