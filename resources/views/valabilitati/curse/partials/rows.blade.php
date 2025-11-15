@@ -12,7 +12,9 @@
             $cursa->descarcare_cod_postal,
             $cursa->descarcareTara?->nume,
         ]);
-        $cursaDescriere = (count($incarcareParts) ? implode(', ', $incarcareParts) : '—') . ' → ' . (count($descarcareParts) ? implode(', ', $descarcareParts) : '—');
+        $cursaDescriere = (count($incarcareParts) ? implode(', ', $incarcareParts) : '—')
+            . ' → '
+            . (count($descarcareParts) ? implode(', ', $descarcareParts) : '—');
 
         $kmPlecare = $cursa->km_bord_incarcare !== null && $cursa->km_bord_incarcare !== ''
             ? (float) $cursa->km_bord_incarcare
@@ -20,16 +22,24 @@
         $kmSosire = $cursa->km_bord_descarcare !== null && $cursa->km_bord_descarcare !== ''
             ? (float) $cursa->km_bord_descarcare
             : null;
+
         $kmMapsDisplay = filled($cursa->km_maps) ? $cursa->km_maps : '—';
         $kmMapsValue = is_numeric($cursa->km_maps) ? (float) $cursa->km_maps : null;
+
         $kmBord2 = $kmPlecare !== null && $kmSosire !== null ? $kmSosire - $kmPlecare : null;
         $kmDifference = $kmBord2 !== null && $kmMapsValue !== null ? $kmBord2 - $kmMapsValue : null;
+
+        $diffClass = $kmDifference === null
+            ? ''
+            : ($kmDifference < 0 ? 'text-danger' : ($kmDifference > 0 ? 'text-success' : ''));
 
         $canMoveUp = ! $loop->first;
         $canMoveDown = ! $loop->last;
         $hasMultipleCurse = $loop->count > 1;
     @endphp
+
     <tr>
+        {{-- # + up/down controls --}}
         <td class="text-center fw-semibold">
             <div class="d-inline-flex align-items-center gap-2">
                 <span>#{{ $cursa->nr_ordine }}</span>
@@ -73,25 +83,58 @@
                 @endif
             </div>
         </td>
-        <td class="text-nowrap">{{ $cursa->nr_cursa ?: '—' }}</td>
-        <td class="text-muted small">{{ $cursaDescriere }}</td>
-        <td class="text-nowrap">{{ $dataTransport ?: '—' }}</td>
-        <td class="text-nowrap">{{ $kmMapsDisplay }}</td>
-        <td>
-            <div class="d-flex flex-column">
-                <span class="text-nowrap">{{ $kmPlecare !== null ? $kmPlecare : '—' }}</span>
-                <span class="text-nowrap">{{ $kmSosire !== null ? $kmSosire : '—' }}</span>
-            </div>
+
+        {{-- Nr. cursă --}}
+        <td class="text-nowrap align-middle">
+            {{ $cursa->nr_cursa ?: '—' }}
         </td>
-        <td class="text-nowrap">{{ $kmBord2 !== null ? $kmBord2 : '—' }}</td>
-        <td>&nbsp;</td>
-        <td class="text-nowrap">{{ $kmDifference !== null ? $kmDifference : '—' }}</td>
-        <td class="text-end">
+
+        {{-- Cursa (descriere) --}}
+        <td class="text-muted small align-middle">
+            {{ $cursaDescriere }}
+        </td>
+
+        {{-- Dată transport --}}
+        <td class="text-nowrap align-middle">
+            {{ $dataTransport ?: '—' }}
+        </td>
+
+        {{-- KM Maps --}}
+        <td class="text-end text-nowrap align-middle">
+            {{ $kmMapsDisplay }}
+        </td>
+
+        {{-- KM Plecare --}}
+        <td class="text-end text-nowrap align-middle">
+            {{ $kmPlecare !== null ? $kmPlecare : '—' }}
+        </td>
+
+        {{-- KM Sosire --}}
+        <td class="text-end text-nowrap align-middle">
+            {{ $kmSosire !== null ? $kmSosire : '—' }}
+        </td>
+
+        {{-- KM Bord 2 --}}
+        <td class="text-end text-nowrap align-middle">
+            {{ $kmBord2 !== null ? $kmBord2 : '—' }}
+        </td>
+
+        {{-- Sumă încasată – încă nu există în model, rămâne golă --}}
+        <td class="text-end align-middle">
+            &nbsp;
+        </td>
+
+        {{-- Diferența KM (Bord – Maps) --}}
+        <td class="text-end text-nowrap align-middle {{ $diffClass }}">
+            {{ $kmDifference !== null ? $kmDifference : '—' }}
+        </td>
+
+        {{-- Acțiuni --}}
+        <td class="text-end align-middle">
             <div class="d-flex flex-wrap justify-content-end">
                 <div class="ms-1">
                     <a
-                        href="#"
-                        data-bs-toggle="modal"
+                        href="#" data-bs-toggle="modal"
                         data-bs-target="#cursaEditModal{{ $cursa->id }}"
                         class="flex"
                         title="Modifică cursa"
