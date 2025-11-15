@@ -241,6 +241,74 @@ class ValabilitateCursaTest extends TestCase
         ]);
     }
 
+    public function test_user_can_move_cursa_up(): void
+    {
+        $user = $this->createValabilitatiUser();
+        $valabilitate = Valabilitate::factory()->create();
+
+        $first = ValabilitateCursa::factory()->for($valabilitate)->create(['nr_ordine' => 1]);
+        $second = ValabilitateCursa::factory()->for($valabilitate)->create(['nr_ordine' => 2]);
+        $third = ValabilitateCursa::factory()->for($valabilitate)->create(['nr_ordine' => 3]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('valabilitati.curse.reorder', [$valabilitate, $third]), [
+                'direction' => 'up',
+            ]);
+
+        $response->assertRedirect(route('valabilitati.curse.index', $valabilitate));
+        $response->assertSessionHas('status', 'Ordinea cursei a fost actualizată.');
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $third->id,
+            'nr_ordine' => 2,
+        ]);
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $second->id,
+            'nr_ordine' => 3,
+        ]);
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $first->id,
+            'nr_ordine' => 1,
+        ]);
+    }
+
+    public function test_user_can_move_cursa_down(): void
+    {
+        $user = $this->createValabilitatiUser();
+        $valabilitate = Valabilitate::factory()->create();
+
+        $first = ValabilitateCursa::factory()->for($valabilitate)->create(['nr_ordine' => 1]);
+        $second = ValabilitateCursa::factory()->for($valabilitate)->create(['nr_ordine' => 2]);
+        $third = ValabilitateCursa::factory()->for($valabilitate)->create(['nr_ordine' => 3]);
+
+        $response = $this
+            ->actingAs($user)
+            ->patch(route('valabilitati.curse.reorder', [$valabilitate, $first]), [
+                'direction' => 'down',
+            ]);
+
+        $response->assertRedirect(route('valabilitati.curse.index', $valabilitate));
+        $response->assertSessionHas('status', 'Ordinea cursei a fost actualizată.');
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $first->id,
+            'nr_ordine' => 2,
+        ]);
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $second->id,
+            'nr_ordine' => 1,
+        ]);
+
+        $this->assertDatabaseHas('valabilitati_curse', [
+            'id' => $third->id,
+            'nr_ordine' => 3,
+        ]);
+    }
+
     private function createValabilitatiUser(): User
     {
         $user = User::factory()->create();

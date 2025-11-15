@@ -6,6 +6,7 @@ use App\Http\Requests\ValabilitateCursaRequest;
 use App\Models\Tara;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
+use App\Support\Valabilitati\ValabilitateCursaOrderer;
 use App\Support\Valabilitati\ValabilitatiCurseFilterState;
 use App\Support\Valabilitati\ValabilitatiFilterState;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -17,6 +18,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ValabilitateCursaController extends Controller
 {
@@ -98,6 +100,33 @@ class ValabilitateCursaController extends Controller
         $cursa->delete();
 
         return $this->respondAfterMutation($request, $valabilitate, 'Cursa a fost ștearsă.');
+    }
+
+    public function reorder(Request $request, Valabilitate $valabilitate, ValabilitateCursa $cursa): RedirectResponse|JsonResponse
+    {
+        $this->assertBelongsToValabilitate($valabilitate, $cursa);
+
+        $this->authorize('update', $valabilitate);
+
+        $validated = $request->validate([
+            'direction' => ['required', Rule::in(['up', 'down'])],
+        ]);
+
+        $direction = $validated['direction'];
+
+        $moved = ValabilitateCursaOrderer::move($cursa, $direction);
+
+        $message = $moved
+            ? 'Ordinea cursei a fost actualizată.'
+            : ($direction === 'up'
+                ? 'Cursa este deja la începutul listei.'
+                : 'Cursa este deja la finalul listei.');
+
+        if ($request->expectsJson()) {
+            return $this->listingJsonResponse($valabilitate, $message);
+        }
+
+        return redirect(ValabilitatiCurseFilterState::route($valabilitate))->with('status', $message);
     }
 
     private function validateFilters(Request $request): array
