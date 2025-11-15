@@ -9,6 +9,7 @@ import './bootstrap';
 import '../sass/app.scss'
 import '../css/app.css'
 import '../css/andrei.css'
+import initCurseReorder from './modules/curse-reorder';
 
 
 /**
@@ -1031,6 +1032,10 @@ if (document.getElementById('excel') != null) {
 
 
 // Oferte curse: Auto-refresh, at every 10s, only the <tbody> (plain JS, not Vue) ---
+document.addEventListener('DOMContentLoaded', () => {
+    initCurseReorder();
+});
+
 document.addEventListener('DOMContentLoaded', () => {
     const tbody = document.getElementById('oferteBody');
     if (!tbody) return;

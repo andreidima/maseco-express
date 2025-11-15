@@ -101,6 +101,8 @@ Route::middleware(['auth'])->group(function () {
             ->name('sofer.valabilitati.curse.edit');
         Route::post('sofer/valabilitati/{valabilitate}/curse', [SoferValabilitateCursaController::class, 'store'])
             ->name('sofer.valabilitati.curse.store');
+        Route::post('sofer/valabilitati/{valabilitate}/curse/reorder', [SoferValabilitateCursaController::class, 'reorder'])
+            ->name('sofer.valabilitati.curse.reorder');
         Route::put('sofer/valabilitati/{valabilitate}/curse/{cursa}', [SoferValabilitateCursaController::class, 'update'])
             ->name('sofer.valabilitati.curse.update');
         Route::delete('sofer/valabilitati/{valabilitate}/curse/{cursa}', [SoferValabilitateCursaController::class, 'destroy'])
@@ -355,6 +357,8 @@ Route::middleware(['auth'])->group(function () {
                 ->name('valabilitati.curse.index');
             Route::post('valabilitati/{valabilitate}/curse', [ValabilitateCursaController::class, 'store'])
                 ->name('valabilitati.curse.store');
+            Route::post('valabilitati/{valabilitate}/curse/reorder', [ValabilitateCursaController::class, 'reorder'])
+                ->name('valabilitati.curse.reorder');
             Route::put('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'update'])
                 ->name('valabilitati.curse.update');
             Route::delete('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'destroy'])

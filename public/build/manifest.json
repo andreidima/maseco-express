@@ -2,16 +2,14 @@
   "__plugin-vue_export-helper-c27b6911.js": {
     "file": "assets/_plugin-vue_export-helper-c27b6911.js"
   },
-  "_vue.esm-bundler-ea606579.js": {
-    "file": "assets/vue.esm-bundler-ea606579.js"
-  },
   "resources/js/app.css": {
-    "file": "assets/app-2611234a.css",
+    "file": "assets/app-9310cb7c.css",
     "src": "resources/js/app.css"
   },
   "resources/js/app.js": {
     "css": [
-      "assets/app-2611234a.css"
+      "assets/app-9310cb7c.css",
+      "assets/app-67dcdfd2.css"
     ],
     "dynamicImports": [
       "resources/js/components/TiptapEditor.vue",
@@ -21,10 +19,7 @@
       "resources/js/components/intermedieri/TogglePredat.vue",
       "resources/js/components/DatePicker.vue"
     ],
-    "file": "assets/app-7dd8ac06.js",
-    "imports": [
-      "_vue.esm-bundler-ea606579.js"
-    ],
+    "file": "assets/app-95e7f158.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },
@@ -34,11 +29,12 @@
   },
   "resources/js/components/DatePicker.vue": {
     "css": [
-      "assets/DatePicker-3bf3781e.css"
+      "assets/DatePicker-3bf3781e.css",
+      "assets/app-67dcdfd2.css"
     ],
-    "file": "assets/DatePicker-1702cb2a.js",
+    "file": "assets/DatePicker-7ef9f985.js",
     "imports": [
-      "_vue.esm-bundler-ea606579.js",
+      "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
     "isDynamicEntry": true,
@@ -50,11 +46,12 @@
   },
   "resources/js/components/JspreadsheetComponent.vue": {
     "css": [
-      "assets/JspreadsheetComponent-2623a89e.css"
+      "assets/JspreadsheetComponent-2623a89e.css",
+      "assets/app-67dcdfd2.css"
     ],
-    "file": "assets/JspreadsheetComponent-76505896.js",
+    "file": "assets/JspreadsheetComponent-f3f6be4e.js",
     "imports": [
-      "_vue.esm-bundler-ea606579.js",
+      "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
     "isDynamicEntry": true,
@@ -66,11 +63,12 @@
   },
   "resources/js/components/TiptapEditor.vue": {
     "css": [
-      "assets/TiptapEditor-c427340f.css"
+      "assets/TiptapEditor-c427340f.css",
+      "assets/app-67dcdfd2.css"
     ],
-    "file": "assets/TiptapEditor-1875d43a.js",
+    "file": "assets/TiptapEditor-e8d478c3.js",
     "imports": [
-      "_vue.esm-bundler-ea606579.js",
+      "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
     "isDynamicEntry": true,
@@ -82,11 +80,12 @@
   },
   "resources/js/components/fileManager/DirectoryTree.vue": {
     "css": [
-      "assets/DirectoryTree-8d647b14.css"
+      "assets/DirectoryTree-8d647b14.css",
+      "assets/app-67dcdfd2.css"
     ],
-    "file": "assets/DirectoryTree-15a57c93.js",
+    "file": "assets/DirectoryTree-231733f3.js",
     "imports": [
-      "_vue.esm-bundler-ea606579.js",
+      "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
     "isDynamicEntry": true,
@@ -98,11 +97,12 @@
   },
   "resources/js/components/intermedieri/TogglePredat.vue": {
     "css": [
-      "assets/TogglePredat-65267045.css"
+      "assets/TogglePredat-65267045.css",
+      "assets/app-67dcdfd2.css"
     ],
-    "file": "assets/TogglePredat-9f558e6c.js",
+    "file": "assets/TogglePredat-52c3aff4.js",
     "imports": [
-      "_vue.esm-bundler-ea606579.js",
+      "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
     "isDynamicEntry": true,
@@ -114,30 +114,16 @@
   },
   "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.vue": {
     "css": [
-      "assets/InlineObservatiiEditor-4365ca00.css"
+      "assets/InlineObservatiiEditor-4365ca00.css",
+      "assets/app-67dcdfd2.css"
     ],
-    "file": "assets/InlineObservatiiEditor-baf42462.js",
+    "file": "assets/InlineObservatiiEditor-5f1cc638.js",
     "imports": [
-      "_vue.esm-bundler-ea606579.js",
+      "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
     ],
     "isDynamicEntry": true,
     "src": "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.vue"
-  },
-  "resources/js/driver.css": {
-    "file": "assets/driver-621eb87f.css",
-    "src": "resources/js/driver.css"
-  },
-  "resources/js/driver.js": {
-    "css": [
-      "assets/driver-621eb87f.css"
-    ],
-    "file": "assets/driver-73670007.js",
-    "imports": [
-      "_vue.esm-bundler-ea606579.js"
-    ],
-    "isEntry": true,
-    "src": "resources/js/driver.js"
   },
   "resources/sass/app.scss": {
     "file": "assets/app-67dcdfd2.css",
