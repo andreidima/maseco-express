@@ -26,6 +26,7 @@ class ValabilitateCursa extends Model
         'observatii',
         'km_bord_incarcare',
         'km_bord_descarcare',
+        'km_maps',
     ];
 
     protected $casts = [
