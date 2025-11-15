@@ -46,68 +46,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Închide"></button>
         </div>
     @endif
-    @php
-        $summaryData = $summary ?? [];
 
-        $formatNullable = static function ($value) {
-            return $value === null || $value === '' ? '—' : $value;
-        };
-
-        $formatNumeric = static function ($value) {
-            if ($value === null || $value === '') {
-                return '—';
-            }
-
-            if (is_numeric($value)) {
-                return number_format((float) $value, 0, ',', '.');
-            }
-
-            return $value;
-        };
-    @endphp
-
-    <div class="card border-0 shadow-sm mb-4 sofer-summary-card">
-        <div class="card-body">
-            <div class="sofer-summary-grid">
-                <div class="sofer-summary-item">
-                    <span class="sofer-summary-label">Număr auto</span>
-                    <span class="sofer-summary-value">{{ $formatNullable($summaryData['vehicle'] ?? null) }}</span>
-                </div>
-                <div class="sofer-summary-item">
-                    <span class="sofer-summary-label">Șofer</span>
-                    <span class="sofer-summary-value">{{ $formatNullable($summaryData['driver'] ?? null) }}</span>
-                </div>
-                <div class="sofer-summary-item">
-                    <span class="sofer-summary-label">Data plecare</span>
-                    <span class="sofer-summary-value">{{ $formatNullable($summaryData['period_start'] ?? null) }}</span>
-                </div>
-                <div class="sofer-summary-item">
-                    <span class="sofer-summary-label">Data sosire</span>
-                    <span class="sofer-summary-value">{{ $formatNullable($summaryData['period_end'] ?? null) }}</span>
-                </div>
-                <div class="sofer-summary-item">
-                    <span class="sofer-summary-label">Total zile</span>
-                    <span class="sofer-summary-value">{{ $formatNumeric($summaryData['total_days'] ?? null) }}</span>
-                </div>
-                <div class="sofer-summary-item">
-                    <span class="sofer-summary-label">Total curse</span>
-                    <span class="sofer-summary-value">{{ $formatNumeric($summaryData['total_courses'] ?? null) }}</span>
-                </div>
-                <div class="sofer-summary-item">
-                    <span class="sofer-summary-label">Total KM MAPS</span>
-                    <span class="sofer-summary-value">{{ $formatNumeric($summaryData['km_maps'] ?? null) }}</span>
-                </div>
-                <div class="sofer-summary-item">
-                    <span class="sofer-summary-label">Total KM BORD 2</span>
-                    <span class="sofer-summary-value">{{ $formatNumeric($summaryData['km_bord_2'] ?? null) }}</span>
-                </div>
-                <div class="sofer-summary-item">
-                    <span class="sofer-summary-label">Diferența totală KM (Bord - Maps)</span>
-                    <span class="sofer-summary-value">{{ $formatNumeric($summaryData['km_difference'] ?? null) }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
 
     @if ($curse->isEmpty())
         <div class="card border-0 shadow-sm">
@@ -118,124 +57,153 @@
             </div>
         </div>
     @else
-        <div class="card border-0 shadow-sm">
-            <div class="card-body p-0">
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle mb-0 sofer-curse-table">
-                        <thead class="table-light">
-                            <tr>
-                                <th scope="col" class="text-uppercase small text-muted">#</th>
-                                <th scope="col" class="text-uppercase small text-muted">Nr cursă</th>
-                                <th scope="col" class="text-uppercase small text-muted">Cursa</th>
-                                <th scope="col" class="text-uppercase small text-muted">Data Transport</th>
-                                <th scope="col" class="text-uppercase small text-muted text-end">KM MAPS</th>
-                                <th scope="col" class="text-uppercase small text-muted text-center">KM PLECARE / KM SOSIRE</th>
-                                <th scope="col" class="text-uppercase small text-muted text-end">KM BORD 2</th>
-                                <th scope="col" class="text-uppercase small text-muted text-center">Sumă încasată</th>
-                                <th scope="col" class="text-uppercase small text-muted text-end">Diferența KM (Bord-Maps)</th>
-                                <th scope="col" class="text-uppercase small text-muted text-end">Acțiuni</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($curse as $cursa)
-                                @php
-                                    $incarcare = collect([
-                                        $cursa->incarcare_localitate,
-                                        $cursa->incarcare_cod_postal,
-                                        $cursa->incarcareTara?->nume,
-                                    ])->filter()->implode(', ');
+        <div class="accordion cursa-accordion" id="curseAccordion">
+            @foreach ($curse as $cursa)
+                @php
+                    $cursaId = 'cursa-' . $cursa->id;
+                @endphp
 
-                                    $descarcare = collect([
-                                        $cursa->descarcare_localitate,
-                                        $cursa->descarcare_cod_postal,
-                                        $cursa->descarcareTara?->nume,
-                                    ])->filter()->implode(', ');
+                <article class="accordion-item cursa-card">
+                    <h2 class="accordion-header" id="heading-{{ $cursaId }}">
+                        <button
+                            class="accordion-button collapsed py-3"
+                            type="button"
+                            data-bs-toggle="collapse"
+                            data-bs-target="#collapse-{{ $cursaId }}"
+                            aria-expanded="false"
+                            aria-controls="collapse-{{ $cursaId }}"
+                        >
+                            <div class="w-100 d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-2">
+                                <div class="d-flex flex-wrap align-items-center gap-2">
+                                    <span class="badge rounded-pill text-bg-secondary">#{{ $cursa->nr_ordine }}</span>
+                                    <span class="fw-semibold text-dark small text-uppercase">
+                                        <span class="text-body-secondary text-primary">{{ $cursa->nr_cursa ?? '—' }}</span>
+                                    </span>
+                                    <span class="text-primary">
+                                        {{-- {{ $cursa->incarcare_localitate ?? '—' }}
+                                        <span class="mx-1">→</span>
+                                        {{ $cursa->descarcare_localitate ?? '—' }}
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ optional($cursa->data_cursa)->format('d.m.Y') ?? 'Fără dată' }}
+                                        </small> --}}
 
-                                    $transportDate = optional($cursa->data_cursa)->format('d.m.Y');
-                                    $transportTime = optional($cursa->data_cursa)->format('H:i');
+                                    </span>
+                                </div>
+                            </div>
+                        </button>
+                    </h2>
 
-                                    $kmMaps = $cursa->km_maps;
-                                    $kmPlecare = $cursa->km_bord_incarcare;
-                                    $kmSosire = $cursa->km_bord_descarcare;
-                                    $kmBord2 = ($kmPlecare !== null && $kmSosire !== null)
-                                        ? (int) $kmSosire - (int) $kmPlecare
-                                        : null;
-                                    $kmDifference = ($kmBord2 !== null && $kmMaps !== null)
-                                        ? $kmBord2 - (int) $kmMaps
-                                        : null;
+                    <div
+                        id="collapse-{{ $cursaId }}"
+                        class="accordion-collapse collapse"
+                        aria-labelledby="heading-{{ $cursaId }}"
+                        data-bs-parent="#curseAccordion"
+                    >
+                        <div class="accordion-body bg-white">
+                            <div class="cursa-card__inner">
 
-                                    $canMoveUp = ! $loop->first;
-                                    $canMoveDown = ! $loop->last;
-                                    $hasMultipleCurse = $loop->count > 1;
-                                @endphp
-                                <tr>
-                                    <td class="text-muted fw-semibold">#{{ $cursa->nr_ordine }}</td>
-                                    <td class="fw-semibold">{{ $cursa->nr_cursa ?? '—' }}</td>
-                                    <td>
-                                        <div class="sofer-curse-route">
-                                            <span class="fw-semibold text-body">{{ $incarcare ?: '—' }}</span>
-                                            <span class="sofer-curse-route__arrow">→</span>
-                                            <span class="fw-semibold text-body">{{ $descarcare ?: '—' }}</span>
+                                <div class="row g-3 align-items-start">
+                                    <div class="col-12 col-lg-12">
+                                        <div class="row g-2 small text-muted mb-2">
+                                        <div class="col-12">
+                                            <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă: {{ $cursa->nr_cursa ?? '—' }}</p>
                                         </div>
-                                    </td>
-                                    <td>
-                                        <div class="fw-semibold">{{ $transportDate ?? '—' }}</div>
-                                        @if ($transportTime)
-                                            <div class="text-muted small">{{ $transportTime }}</div>
+                                        </div>
+                                        {{-- Încărcare left, Descărcare right (always 50% / 50%) --}}
+                                        <div class="row g-2 small text-muted cursa-card__locations">
+                                            <div class="col-6">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Încărcare</p>
+                                                <p class="mb-0">
+                                                    <span class="text-body-secondary">
+                                                        {{ $cursa->incarcare_localitate ?? '—' }}<br>
+                                                        {{ $cursa->incarcare_cod_postal ?? '—' }}<br>
+                                                        {{ $cursa->incarcareTara?->nume ?? '—' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+
+                                            <div class="col-6 text-end">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Descărcare</p>
+                                                <p class="mb-0">
+                                                    <span class="text-body-secondary">
+                                                        {{ $cursa->descarcare_localitate ?? '—' }}<br>
+                                                        {{ $cursa->descarcare_cod_postal ?? '—' }}<br>
+                                                        {{ $cursa->descarcareTara?->nume ?? '—' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div class="row g-2 small text-muted mt-2">
+                                            <div class="col-6">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Km bord încărcare</p>
+                                                <p class="mb-0">
+                                                    <span class="text-body-secondary">
+                                                        {{ $cursa->km_bord_incarcare ?? '—' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+
+                                            <div class="col-6 text-end">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Km bord descărcare</p>
+                                                <p class="mb-0">
+                                                    <span class="text-body-secondary">
+                                                        {{ $cursa->km_bord_descarcare ?? '—' }}
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        @if ($cursa->observatii)
+                                            <p class="text-muted small mt-3 mb-0">{{ $cursa->observatii }}</p>
                                         @endif
-                                    </td>
-                                    <td class="text-end">
-                                        {{ $kmMaps !== null ? number_format((float) $kmMaps, 0, ',', '.') : '—' }}
-                                    </td>
-                                    <td class="text-center">
-                                        <div class="sofer-curse-table__stack">
-                                            <span>{{ $kmPlecare !== null ? number_format((float) $kmPlecare, 0, ',', '.') : '—' }}</span>
-                                            <span class="text-muted">{{ $kmSosire !== null ? number_format((float) $kmSosire, 0, ',', '.') : '—' }}</span>
-                                        </div>
-                                    </td>
-                                    <td class="text-end">
-                                        {{ $kmBord2 !== null ? number_format((float) $kmBord2, 0, ',', '.') : '—' }}
-                                    </td>
-                                    <td class="text-center">&nbsp;</td>
-                                    <td class="text-end">
-                                        {{ $kmDifference !== null ? number_format((float) $kmDifference, 0, ',', '.') : '—' }}
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="sofer-curse-actions d-flex flex-wrap justify-content-end gap-2">
+                                    </div>
+
+                                    <div class="col-12 col-lg-12 mt-3 mt-lg-0">
+                                        {{-- Reorder, Edit, Delete --}}
+                                        @php
+                                            $canMoveUp = ! $loop->first;
+                                            $canMoveDown = ! $loop->last;
+                                            $hasMultipleCurse = $loop->count > 1;
+                                        @endphp
+                                        <div class="cursa-card__actions d-flex flex-wrap justify-content-end align-items-stretch gap-2">
                                             @if ($hasMultipleCurse)
                                                 <form
                                                     method="POST"
                                                     action="{{ route('sofer.valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
-                                                    class="sofer-curse-action-form"
+                                                    class="cursa-card__order-form"
                                                 >
                                                     @csrf
                                                     @method('PATCH')
                                                     <input type="hidden" name="direction" value="up">
                                                     <button
                                                         type="submit"
-                                                        class="btn btn-outline-secondary btn-sm"
+                                                        class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center gap-1"
                                                         title="Mută cursa mai sus"
                                                         @disabled(! $canMoveUp)
                                                     >
                                                         <i class="fa-solid fa-arrow-up"></i>
+                                                        <span class="d-none d-sm-inline">Sus</span>
                                                     </button>
                                                 </form>
 
                                                 <form
                                                     method="POST"
                                                     action="{{ route('sofer.valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
-                                                    class="sofer-curse-action-form"
+                                                    class="cursa-card__order-form"
                                                 >
                                                     @csrf
                                                     @method('PATCH')
                                                     <input type="hidden" name="direction" value="down">
                                                     <button
                                                         type="submit"
-                                                        class="btn btn-outline-secondary btn-sm"
+                                                        class="btn btn-outline-secondary btn-sm d-flex align-items-center justify-content-center gap-1"
                                                         title="Mută cursa mai jos"
                                                         @disabled(! $canMoveDown)
                                                     >
                                                         <i class="fa-solid fa-arrow-down"></i>
+                                                        <span class="d-none d-sm-inline">Jos</span>
                                                     </button>
                                                 </form>
                                             @endif
@@ -243,9 +211,9 @@
                                             <a
                                                 href="{{ route('sofer.valabilitati.curse.edit', [$valabilitate, $cursa]) }}"
                                                 class="btn btn-outline-primary btn-sm"
-                                                title="Editează cursa"
                                             >
                                                 <i class="fa-solid fa-pen"></i>
+                                                <span class="d-none d-sm-inline ms-1">Editează</span>
                                             </a>
 
                                             <button
@@ -257,15 +225,16 @@
                                                 data-delete-summary="{{ ($cursa->incarcare_localitate ?? '—') . ' → ' . ($cursa->descarcare_localitate ?? '—') }}"
                                             >
                                                 <i class="fa-solid fa-trash-can"></i>
+                                                <span class="d-none d-sm-inline ms-1">Șterge</span>
                                             </button>
                                         </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            @endforeach
         </div>
     @endif
 </div>
@@ -315,120 +284,47 @@
         font-size: 0.82rem;
     }
 
-    /* --- SUMMARY --- */
-    .sofer-summary-card .card-body {
-        padding: 1.5rem;
+    /* --- ACCORDION / CURSE --- */
+    .cursa-accordion .accordion-item.cursa-card {
+        border-radius: 1rem;
+        overflow: hidden;
+        border: 0;
+        box-shadow: 0 .125rem .25rem rgba(0, 0, 0, .04);
     }
 
-    .sofer-summary-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1rem;
+    .cursa-accordion .accordion-item + .accordion-item {
+        margin-top: 0.75rem;
     }
 
-    .sofer-summary-item {
+    .cursa-accordion .accordion-button {
+        background-color: #fff;
+        font-size: 0.9rem;
+    }
+
+    .cursa-accordion .accordion-button:not(.collapsed) {
+        box-shadow: inset 0 -1px 0 rgba(0, 0, 0, .03);
+    }
+
+    .cursa-card__summary {
+        border-radius: 0.5rem;
         background-color: #f8fafc;
-        border-radius: 0.75rem;
-        padding: 0.9rem 1.1rem;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
+        padding: 0.35rem 0.6rem;
     }
 
-    .sofer-summary-label {
-        font-size: 0.72rem;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #64748b;
-        margin-bottom: 0.35rem;
+    .cursa-card__actions .btn {
+        min-width: 120px;
     }
 
-    .sofer-summary-value {
-        font-size: 1.05rem;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    /* --- TABLE --- */
-    .sofer-curse-table thead th {
-        font-size: 0.7rem;
-        letter-spacing: 0.06em;
-        border-bottom: 0;
-        background-color: #f8fafc;
-        color: #64748b;
-    }
-
-    .sofer-curse-table tbody td {
-        padding: 1rem 1.25rem;
-        font-size: 0.92rem;
-        color: #1f2937;
-        vertical-align: middle;
-    }
-
-    .sofer-curse-table tbody td:first-child {
-        color: #64748b;
-        font-size: 0.85rem;
-    }
-
-    .sofer-curse-route {
-        display: flex;
-        flex-direction: column;
-        gap: 0.15rem;
-    }
-
-    .sofer-curse-route__arrow {
-        color: #9ca3af;
-        font-size: 0.8rem;
-        text-align: center;
-    }
-
-    .sofer-curse-table__stack span {
-        display: block;
-    }
-
-    .sofer-curse-table__stack span + span {
-        margin-top: 0.35rem;
-    }
-
-    .sofer-curse-table__stack span:first-child {
-        font-weight: 600;
-    }
-
-    .sofer-curse-actions {
-        gap: 0.4rem !important;
-    }
-
-    .sofer-curse-actions .btn {
-        min-width: 0;
-        width: 36px;
-        height: 36px;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0;
-    }
-
-    .sofer-curse-actions .btn i {
-        font-size: 0.85rem;
-    }
-
-    .sofer-curse-action-form {
+    .cursa-card__order-form {
         margin: 0;
     }
 
     /* --- MOBILE TWEAKS --- */
-    @media (max-width: 991.98px) {
-        .sofer-summary-card .card-body {
-            padding: 1.25rem;
-        }
-
-        .sofer-curse-table tbody td {
-            padding: 0.85rem 1rem;
-        }
-    }
-
     @media (max-width: 575.98px) {
+        .sofer-valabilitati .card-body {
+            padding: 0.85rem 0.9rem;
+        }
+
         .sofer-header__title {
             font-size: 1rem;
         }
@@ -437,40 +333,34 @@
             font-size: 0.78rem;
         }
 
-        .sofer-summary-grid {
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 0.75rem;
+        .sofer-valabilitati .badge {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.4rem;
         }
 
-        .sofer-summary-item {
-            padding: 0.75rem 0.9rem;
+        .cursa-card__locations p {
+            font-size: 0.78rem;
         }
 
-        .sofer-summary-value {
-            font-size: 0.95rem;
+        .cursa-card__actions {
+            width: 100%;
         }
 
-        .sofer-curse-table tbody td {
-            font-size: 0.85rem;
-        }
-
-        .sofer-curse-actions {
-            justify-content: flex-start;
-        }
-
-        .sofer-curse-actions .btn {
-            width: 32px;
-            height: 32px;
+        .cursa-card__actions .btn {
+            width: 48%;
+            min-width: 0;
+            padding: 0.4rem 0.2rem;
+            font-size: 0.78rem;
         }
     }
 
     @media (max-width: 400px) {
-        .sofer-summary-grid {
-            grid-template-columns: 1fr;
+        .sofer-header__title {
+            font-size: 0.95rem;
         }
 
-        .sofer-curse-table tbody td {
-            padding: 0.75rem 0.8rem;
+        .sofer-valabilitati .card-body {
+            padding: 0.7rem 0.7rem;
         }
     }
 </style>

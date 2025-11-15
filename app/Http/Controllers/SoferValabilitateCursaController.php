@@ -21,7 +21,6 @@ class SoferValabilitateCursaController extends Controller
         $valabilitate = $this->ensureDriverOwnsValabilitate($request, $valabilitate);
 
         $valabilitate->load([
-            'sofer',
             'curse' => function ($query) {
                 $query->orderBy('nr_ordine')->orderBy('data_cursa');
             },
@@ -29,76 +28,9 @@ class SoferValabilitateCursaController extends Controller
             'curse.descarcareTara',
         ]);
 
-        $curse = $valabilitate->curse;
-
-        $startDate = $valabilitate->data_inceput;
-        $endDate = $valabilitate->data_sfarsit;
-
-        $totalDays = null;
-
-        if ($startDate && $endDate) {
-            $totalDays = $startDate->diffInDays($endDate) + 1;
-        }
-
-        $kmMapsAggregate = $curse->reduce(
-            static function (array $carry, ValabilitateCursa $cursa): array {
-                if ($cursa->km_maps !== null) {
-                    $carry['sum'] += (int) $cursa->km_maps;
-                    $carry['count']++;
-                }
-
-                return $carry;
-            },
-            ['sum' => 0, 'count' => 0]
-        );
-
-        $kmBord2Aggregate = $curse->reduce(
-            static function (array $carry, ValabilitateCursa $cursa): array {
-                if ($cursa->km_bord_incarcare !== null && $cursa->km_bord_descarcare !== null) {
-                    $carry['sum'] += (int) $cursa->km_bord_descarcare - (int) $cursa->km_bord_incarcare;
-                    $carry['count']++;
-                }
-
-                return $carry;
-            },
-            ['sum' => 0, 'count' => 0]
-        );
-
-        $kmDifferenceAggregate = $curse->reduce(
-            static function (array $carry, ValabilitateCursa $cursa): array {
-                if (
-                    $cursa->km_maps !== null &&
-                    $cursa->km_bord_incarcare !== null &&
-                    $cursa->km_bord_descarcare !== null
-                ) {
-                    $bord2 = (int) $cursa->km_bord_descarcare - (int) $cursa->km_bord_incarcare;
-                    $carry['sum'] += $bord2 - (int) $cursa->km_maps;
-                    $carry['count']++;
-                }
-
-                return $carry;
-            },
-            ['sum' => 0, 'count' => 0]
-        );
-
-        $kmMapsTotal = $kmMapsAggregate['count'] > 0 ? $kmMapsAggregate['sum'] : null;
-        $kmBord2Total = $kmBord2Aggregate['count'] > 0 ? $kmBord2Aggregate['sum'] : null;
-        $kmDifferenceTotal = $kmDifferenceAggregate['count'] > 0 ? $kmDifferenceAggregate['sum'] : null;
-
         return view('sofer.valabilitati.show', [
             'valabilitate' => $valabilitate,
-            'curse' => $curse,
-            'summary' => [
-                'vehicle' => $valabilitate->numar_auto ?: '—',
-                'driver' => $valabilitate->sofer?->name ?: '—',
-                'period_start' => $startDate?->format('d.m.Y'),
-                'period_end' => $endDate?->format('d.m.Y'),
-                'total_days' => $totalDays,
-                'total_courses' => $curse->count(),
-                'km_maps' => $kmMapsTotal,
-                'km_bord_2' => $kmBord2Total,
-                'km_difference' => $kmDifferenceTotal,
-            ],
+            'curse' => $valabilitate->curse,
         ]);
     }
 
