@@ -31,9 +31,21 @@
     $idPrefix = $formPrefix . 'taxe-drum-';
 @endphp
 
-<div class="mb-4" data-road-tax-wrapper>
-    <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center gap-2">
-        <label class="form-label mb-0">Taxe de drum</label>
+<div
+    class="mb-4 p-3 p-lg-4 rounded-4 border shadow-sm"
+    style="border-color: rgba(13, 110, 253, 0.35) !important; background-color: rgba(13, 110, 253, 0.05);"
+    data-road-tax-wrapper
+>
+    <div class="d-flex flex-column flex-lg-row justify-content-lg-between align-items-lg-center gap-3">
+        <div class="d-flex flex-column gap-2">
+            <span
+                class="badge text-primary fw-semibold text-uppercase px-3 py-2"
+                style="background-color: rgba(13, 110, 253, 0.1);"
+            >
+                <i class="fa-solid fa-road me-2"></i>Taxe de drum
+            </span>
+            <span class="small text-muted">Secțiune dedicată taxelor speciale ale cursei.</span>
+        </div>
         <button type="button" class="btn btn-sm btn-outline-primary" data-road-tax-add>
             <i class="fa-solid fa-plus me-1"></i>Adaugă taxă de drum
         </button>
