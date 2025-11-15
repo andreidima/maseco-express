@@ -3,13 +3,12 @@
     "file": "assets/_plugin-vue_export-helper-c27b6911.js"
   },
   "resources/js/app.css": {
-    "file": "assets/app-9310cb7c.css",
+    "file": "assets/app-2611234a.css",
     "src": "resources/js/app.css"
   },
   "resources/js/app.js": {
     "css": [
-      "assets/app-9310cb7c.css",
-      "assets/app-67dcdfd2.css"
+      "assets/app-2611234a.css"
     ],
     "dynamicImports": [
       "resources/js/components/TiptapEditor.vue",
@@ -19,7 +18,7 @@
       "resources/js/components/intermedieri/TogglePredat.vue",
       "resources/js/components/DatePicker.vue"
     ],
-    "file": "assets/app-95e7f158.js",
+    "file": "assets/app-0e14c0b5.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },
@@ -29,10 +28,9 @@
   },
   "resources/js/components/DatePicker.vue": {
     "css": [
-      "assets/DatePicker-3bf3781e.css",
-      "assets/app-67dcdfd2.css"
+      "assets/DatePicker-3bf3781e.css"
     ],
-    "file": "assets/DatePicker-7ef9f985.js",
+    "file": "assets/DatePicker-916f49f8.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -46,10 +44,9 @@
   },
   "resources/js/components/JspreadsheetComponent.vue": {
     "css": [
-      "assets/JspreadsheetComponent-2623a89e.css",
-      "assets/app-67dcdfd2.css"
+      "assets/JspreadsheetComponent-2623a89e.css"
     ],
-    "file": "assets/JspreadsheetComponent-f3f6be4e.js",
+    "file": "assets/JspreadsheetComponent-18f22f6b.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -63,10 +60,9 @@
   },
   "resources/js/components/TiptapEditor.vue": {
     "css": [
-      "assets/TiptapEditor-c427340f.css",
-      "assets/app-67dcdfd2.css"
+      "assets/TiptapEditor-c427340f.css"
     ],
-    "file": "assets/TiptapEditor-e8d478c3.js",
+    "file": "assets/TiptapEditor-9348f2b3.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -80,10 +76,9 @@
   },
   "resources/js/components/fileManager/DirectoryTree.vue": {
     "css": [
-      "assets/DirectoryTree-8d647b14.css",
-      "assets/app-67dcdfd2.css"
+      "assets/DirectoryTree-8d647b14.css"
     ],
-    "file": "assets/DirectoryTree-231733f3.js",
+    "file": "assets/DirectoryTree-43503a65.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -97,10 +92,9 @@
   },
   "resources/js/components/intermedieri/TogglePredat.vue": {
     "css": [
-      "assets/TogglePredat-65267045.css",
-      "assets/app-67dcdfd2.css"
+      "assets/TogglePredat-65267045.css"
     ],
-    "file": "assets/TogglePredat-52c3aff4.js",
+    "file": "assets/TogglePredat-cc33ddac.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -114,10 +108,9 @@
   },
   "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.vue": {
     "css": [
-      "assets/InlineObservatiiEditor-4365ca00.css",
-      "assets/app-67dcdfd2.css"
+      "assets/InlineObservatiiEditor-4365ca00.css"
     ],
-    "file": "assets/InlineObservatiiEditor-5f1cc638.js",
+    "file": "assets/InlineObservatiiEditor-6aea4576.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
