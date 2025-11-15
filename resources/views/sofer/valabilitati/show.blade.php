@@ -77,16 +77,16 @@
                                 <div class="d-flex flex-wrap align-items-center gap-2">
                                     <span class="badge rounded-pill text-bg-secondary">#{{ $cursa->nr_ordine }}</span>
                                     <span class="fw-semibold text-dark small text-uppercase">
-                                        <span class="text-body-secondary">{{ $cursa->nr_cursa ?? '—' }}</span>
+                                        <span class="text-body-secondary text-primary">{{ $cursa->nr_cursa ?? '—' }}</span>
                                     </span>
                                     <span class="text-primary">
-                                        {{ $cursa->incarcare_localitate ?? '—' }}
+                                        {{-- {{ $cursa->incarcare_localitate ?? '—' }}
                                         <span class="mx-1">→</span>
                                         {{ $cursa->descarcare_localitate ?? '—' }}
                                         <br>
                                         <small class="text-muted">
                                             {{ optional($cursa->data_cursa)->format('d.m.Y') ?? 'Fără dată' }}
-                                        </small>
+                                        </small> --}}
 
                                     </span>
                                 </div>
@@ -107,7 +107,6 @@
                                     <div class="col-12 col-lg-12">
                                         <div class="row g-2 small text-muted mb-2">
                                         <div class="col-12">
-                                            <p class="fw-semibold text-uppercase text-dark small mb-1">Nr. ordine: #{{ $cursa->nr_ordine }}</p>
                                             <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă: {{ $cursa->nr_cursa ?? '—' }}</p>
                                         </div>
                                         </div>
