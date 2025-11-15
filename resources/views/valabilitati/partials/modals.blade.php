@@ -97,6 +97,12 @@
                                 </div>
                             </div>
                         </div>
+
+                        @include('valabilitati.partials.road-taxes-form', [
+                            'entries' => $isCreateActive ? old('taxe_drum', []) : [],
+                            'formPrefix' => 'valabilitate-create-',
+                            'isActive' => $isCreateActive,
+                        ])
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
@@ -212,6 +218,12 @@
                                 </div>
                             </div>
                         </div>
+
+                        @include('valabilitati.partials.road-taxes-form', [
+                            'entries' => $isEditing ? old('taxe_drum', $valabilitate->taxeDrum->toArray()) : $valabilitate->taxeDrum,
+                            'formPrefix' => $editPrefix,
+                            'isActive' => $isEditing,
+                        ])
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
@@ -248,3 +260,5 @@
         </div>
     </div>
 @endforeach
+
+@include('valabilitati.partials.road-taxes-script')
