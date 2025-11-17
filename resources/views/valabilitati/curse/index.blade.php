@@ -102,132 +102,12 @@
         <div class="card-body px-0 py-3">
             @include('errors')
 
-            @php
-                $curseCollection = $curse instanceof \Illuminate\Contracts\Pagination\Paginator
-                    || $curse instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator
-                    || $curse instanceof \Illuminate\Contracts\Pagination\CursorPaginator
-                    ? collect($curse->items())
-                    : collect($curse);
-
-                $kmPlecare = $curseCollection
-                    ->pluck('km_bord_incarcare')
-                    ->filter(static fn ($value) => $value !== null && $value !== '')
-                    ->min();
-
-                $kmSosire = $curseCollection
-                    ->pluck('km_bord_descarcare')
-                    ->filter(static fn ($value) => $value !== null && $value !== '')
-                    ->max();
-
-                $kmTotal = $kmPlecare !== null && $kmSosire !== null
-                    ? (float) $kmSosire - (float) $kmPlecare
-                    : null;
-
-                $dataInceput = $valabilitate->data_inceput;
-                $dataSfarsit = $valabilitate->data_sfarsit;
-                $totalZile = $dataInceput && $dataSfarsit
-                    ? $dataInceput->diffInDays($dataSfarsit) + 1
-                    : null;
-
-                // Extra totals for the summary band
-                $totalKmMaps = $curseCollection
-                    ->pluck('km_maps')
-                    ->filter(static fn ($v) => $v !== null && $v !== '' && is_numeric($v))
-                    ->map(static fn ($v) => (float) $v)
-                    ->sum();
-
-                $totalKmBord2 = $curseCollection
-                    ->map(static function ($cursa) {
-                        $start = $cursa->km_bord_incarcare !== null && $cursa->km_bord_incarcare !== ''
-                            ? (float) $cursa->km_bord_incarcare
-                            : null;
-                        $end = $cursa->km_bord_descarcare !== null && $cursa->km_bord_descarcare !== ''
-                            ? (float) $cursa->km_bord_descarcare
-                            : null;
-
-                        return $start !== null && $end !== null ? $end - $start : null;
-                    })
-                    ->filter(static fn ($v) => $v !== null)
-                    ->sum();
-
-                $totalKmDiff = $curseCollection
-                    ->map(static function ($cursa) {
-                        $start = $cursa->km_bord_incarcare !== null && $cursa->km_bord_incarcare !== ''
-                            ? (float) $cursa->km_bord_incarcare
-                            : null;
-                        $end = $cursa->km_bord_descarcare !== null && $cursa->km_bord_descarcare !== ''
-                            ? (float) $cursa->km_bord_descarcare
-                            : null;
-                        $maps = is_numeric($cursa->km_maps) ? (float) $cursa->km_maps : null;
-
-                        $bord2 = $start !== null && $end !== null ? $end - $start : null;
-
-                        return $bord2 !== null && $maps !== null ? $bord2 - $maps : null;
-                    })
-                    ->filter(static fn ($v) => $v !== null)
-                    ->sum();
-            @endphp
-
             {{-- Excel-style summary band --}}
-            <div class="px-3 mb-3">
-                <table class="curse-summary-table">
-                    <tr>
-                        <th class="curse-summary-title">
-                            {{ $valabilitate->numar_auto ?? '—' }}
-                        </th>
-                        <th colspan="2" class="curse-summary-driver">
-                            {{ $valabilitate->sofer->name ?? '—' }}
-                        </th>
-                    </tr>
-                    <tr>
-                        <th class="curse-summary-label">Dată plecare</th>
-                        <td class="curse-nowrap">
-                            {{ optional($dataInceput)->format('d.m.Y') ?? '—' }}
-                        </td>
-
-                        <th class="text-end curse-summary-label">KM plecare</th>
-                        <td class="text-end curse-nowrap">
-                            {{ $kmPlecare !== null ? $kmPlecare : '—' }}
-                        </td>
-
-                        <th class="text-end curse-summary-label">KM Maps total</th>
-                        <td class="text-end curse-nowrap">
-                            {{ $totalKmMaps ? $totalKmMaps : '—' }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th class="curse-summary-label">Dată sosire</th>
-                        <td class="curse-nowrap">
-                            {{ optional($dataSfarsit)->format('d.m.Y') ?? '—' }}
-                        </td>
-
-                        <th class="text-end curse-summary-label">KM sosire</th>
-                        <td class="text-end curse-nowrap">
-                            {{ $kmSosire !== null ? $kmSosire : '—' }}
-                        </td>
-
-                        <th class="text-end curse-summary-label">KM Bord 2 total</th>
-                        <td class="text-end curse-nowrap">
-                            {{ $totalKmBord2 ? $totalKmBord2 : '—' }}
-                        </td>
-                    </tr>
-                    <tr>
-                        <th class="curse-summary-label">Total zile</th>
-                        <td class="curse-nowrap">
-                            {{ $totalZile !== null ? $totalZile : '—' }}
-                        </td>
-
-                        <th class="text-end curse-summary-label">KM total (plecare → sosire)</th>
-                        <td class="text-end curse-nowrap">
-                            {{ $kmTotal !== null ? $kmTotal : '—' }}
-                        </td>
-
-                        <th class="text-end curse-summary-label">Diferență totală (Bord–Maps)</th>
-                        <td class="text-end curse-nowrap">
-                            {{ $totalKmDiff ? $totalKmDiff : '—' }}
-                        </td>
-                    </tr>
-                </table>
+            <div id="curse-summary" class="px-3 mb-3">
+                @include('valabilitati.curse.partials.summary', [
+                    'valabilitate' => $valabilitate,
+                    'summary' => $summary,
+                ])
             </div>
 
             <div id="curse-feedback" class="px-3"></div>
@@ -314,6 +194,7 @@
                 const modalsContainer = document.getElementById('curse-modals');
                 const tableBody = document.getElementById('curse-table-body');
                 const feedbackContainer = document.getElementById('curse-feedback');
+                const summaryContainer = document.getElementById('curse-summary');
                 const COUNTRY_DATALIST_ID = 'valabilitati-curse-tari';
                 const countryState = {
                     mapByName: new Map(),
@@ -668,6 +549,10 @@
                 function processMutationResponse(data) {
                     if (data.table_html && tableBody) {
                         tableBody.innerHTML = data.table_html;
+                    }
+
+                    if (summaryContainer && data.summary_html) {
+                        summaryContainer.innerHTML = data.summary_html;
                     }
 
                     if (modalsContainer && data.modals_html) {
