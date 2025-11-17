@@ -6,6 +6,7 @@ use App\Models\Valabilitate;
 use App\Support\Valabilitati\ValabilitatiCurseFilterState;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class ValabilitateCursaRequest extends FormRequest
@@ -19,6 +20,8 @@ class ValabilitateCursaRequest extends FormRequest
 
     public function rules(): array
     {
+        $valabilitate = $this->route('valabilitate');
+
         return [
             'nr_ordine' => ['sometimes', 'integer', 'min:1'],
             'nr_cursa' => ['nullable', 'string', 'max:255'],
@@ -33,6 +36,14 @@ class ValabilitateCursaRequest extends FormRequest
             'km_bord_incarcare' => ['nullable', 'integer', 'min:0'],
             'km_bord_descarcare' => ['nullable', 'integer', 'min:0'],
             'km_maps' => ['nullable', 'string', 'max:255'],
+            'cursa_grup_id' => [
+                'nullable',
+                Rule::exists('valabilitati_cursa_grupuri', 'id')->where(function ($query) use ($valabilitate) {
+                    if ($valabilitate instanceof Valabilitate) {
+                        $query->where('valabilitate_id', $valabilitate->getKey());
+                    }
+                }),
+            ],
         ];
     }
 
