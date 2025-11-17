@@ -1,5 +1,6 @@
 @php
     $previousKmSosire = null;
+    $currentGroupKey = '__none__';
 @endphp
 
 @foreach ($curse as $cursa)
@@ -42,9 +43,41 @@
         $canMoveUp = ! $loop->first;
         $canMoveDown = ! $loop->last;
         $hasMultipleCurse = $loop->count > 1;
+
+        $group = $cursa->cursaGrup;
+        $groupKey = $group?->id ?? 'ungrouped';
+        $groupColor = $group->culoare_hex ?? '#f8f9fa';
+        $groupName = $group->nume ?? 'Fără grup';
+        $groupFormat = $group?->formatDocumenteLabel() ?? '—';
+        $groupInvoice = $group?->numar_factura ?? '—';
+        if ($groupInvoice !== '—' && $group?->data_factura) {
+            $groupInvoice .= ' / ' . optional($group->data_factura)->format('d.m.Y');
+        } elseif ($groupInvoice === '—' && $group?->data_factura) {
+            $groupInvoice = optional($group->data_factura)->format('d.m.Y');
+        }
+        $isNewGroup = $groupKey !== $currentGroupKey;
+        if ($isNewGroup) {
+            $currentGroupKey = $groupKey;
+        }
+        $groupSumDisplay = $isNewGroup && $group && $group->suma_incasata !== null
+            ? number_format((float) $group->suma_incasata, 2)
+            : '—';
     @endphp
 
-    <tr>
+    @if ($isNewGroup)
+        <tr class="curse-group-heading" style="background-color: {{ $groupColor }}; color: #111;">
+            <th colspan="12">
+                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
+                    <span class="fw-semibold">{{ $groupName }}</span>
+                    <span class="curse-group-heading__meta">
+                        Format: {{ $groupFormat }} | Factură: {{ $groupInvoice }}
+                    </span>
+                </div>
+            </th>
+        </tr>
+    @endif
+
+    <tr class="curse-group-row" style="background-color: {{ $group ? $groupColor : 'transparent' }}; color: #111;">
         {{-- # + up/down controls --}}
         <td class="text-center fw-semibold">
             <div class="d-inline-flex align-items-center gap-2">
@@ -130,9 +163,9 @@
             {{ $kmPlin !== null ? $kmPlin : '—' }}
         </td>
 
-        {{-- Sumă încasată – încă nu există în model, rămâne golă --}}
+        {{-- Sumă încasată --}}
         <td class="text-end align-middle">
-            &nbsp;
+            {{ $groupSumDisplay }}
         </td>
 
         {{-- Diferența KM (Bord – Maps) --}}

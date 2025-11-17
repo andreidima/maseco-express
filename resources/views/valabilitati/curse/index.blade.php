@@ -64,6 +64,21 @@
             background-color: #f1f3f5;
         }
 
+        .curse-group-heading th {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            background-color: #ffffff;
+        }
+
+        .curse-group-heading__meta {
+            font-size: 0.75rem;
+            color: #495057;
+        }
+
+        .curse-group-row {
+            transition: background-color 0.2s ease-in-out;
+        }
+
         .curse-nowrap {
             white-space: nowrap;
         }
@@ -83,7 +98,15 @@
                 </span>
             </div>
             <div class="col-lg-2 col-xl-2 text-lg-end mt-3 mt-lg-0">
-                <div class="d-flex align-items-stretch align-items-lg-end gap-2">
+                <div class="d-flex align-items-stretch align-items-lg-end gap-2 flex-wrap justify-content-end">
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-outline-primary border border-dark rounded-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#cursaGroupCreateModal"
+                    >
+                        <i class="fa-solid fa-layer-group me-1"></i>Crează grup
+                    </button>
                     <button
                         type="button"
                         class="btn btn-sm btn-success text-white border border-dark rounded-3"
@@ -181,14 +204,7 @@
         id="curse-modals"
         data-active-modal="{{ session('curse.modal') }}"
     >
-        @include('valabilitati.curse.partials.modals', [
-            'valabilitate' => $valabilitate,
-            'curse' => $curse,
-            'includeCreate' => true,
-            'formType' => old('form_type'),
-            'formId' => old('form_id'),
-            'tari' => $tari,
-        ])
+        @include('valabilitati.curse.partials.modals', $modalViewData)
     </div>
 
     @push('page-scripts')
@@ -821,6 +837,13 @@
                         const parts = activeModal.split(':');
                         if (parts.length === 2 && parts[1]) {
                             modalId = `cursaEditModal${parts[1]}`;
+                        }
+                    } else if (activeModal === 'group-create') {
+                        modalId = 'cursaGroupCreateModal';
+                    } else if (activeModal.startsWith('group-edit:')) {
+                        const parts = activeModal.split(':');
+                        if (parts.length === 2 && parts[1]) {
+                            modalId = `cursaGroupEditModal${parts[1]}`;
                         }
                     }
 
