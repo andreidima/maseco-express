@@ -74,19 +74,16 @@
             <div class="col-lg-10 col-xl-10 mb-2 mb-lg-0">
                 <span class="badge culoare1 fs-5">
                     <span class="d-inline-flex flex-column align-items-start gap-1 lh-1">
-                        <span><i class="fa-solid fa-route me-1"></i>Curse</span>
-                        <small class="text-white-50">{{ $valabilitate->denumire }}</small>
+                        <span>
+                            <i class="fa-solid fa-route me-1"></i>Curse
+                            / 
+                            {{ $valabilitate->denumire }}
+                        </span>
                     </span>
                 </span>
             </div>
             <div class="col-lg-2 col-xl-2 text-lg-end mt-3 mt-lg-0">
-                <div class="d-flex flex-column align-items-stretch align-items-lg-end gap-2">
-                    <a
-                        href="{{ $backUrl }}"
-                        class="btn btn-sm btn-outline-secondary border border-dark rounded-3"
-                    >
-                        <i class="fa-solid fa-list me-1"></i>Înapoi la valabilități
-                    </a>
+                <div class="d-flex align-items-stretch align-items-lg-end gap-2">
                     <button
                         type="button"
                         class="btn btn-sm btn-success text-white border border-dark rounded-3"
@@ -95,6 +92,12 @@
                     >
                         <i class="fas fa-plus-square text-white me-1"></i>Adaugă cursă
                     </button>
+                    <a
+                        href="{{ $backUrl }}"
+                        class="btn btn-sm btn-outline-secondary border border-dark rounded-3"
+                    >
+                        <i class="fa-solid fa-list me-1"></i>Înapoi la valabilități
+                    </a>
                 </div>
             </div>
         </div>
