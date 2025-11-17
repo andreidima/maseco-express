@@ -32,6 +32,7 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_cod_postal' => '410001',
             'descarcare_tara_id' => $descarcareTara->id,
             'descarcare_tara_text' => $descarcareTara->nume,
+            'format_documente' => 'Per post',
             'data_cursa_date' => '2025-05-01',
             'data_cursa_time' => '08:30',
             'observatii' => 'Livrare completă',
@@ -51,6 +52,7 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_localitate' => 'Oradea',
             'descarcare_cod_postal' => '410001',
             'descarcare_tara_id' => $descarcareTara->id,
+            'format_documente' => 'Per post',
             'data_cursa' => '2025-05-01 08:30:00',
             'observatii' => 'Livrare completă',
             'km_bord_incarcare' => 12345,
@@ -92,6 +94,7 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_cod_postal' => '800010',
             'descarcare_tara_id' => $newDescarcareTara->id,
             'descarcare_tara_text' => $newDescarcareTara->nume,
+            'format_documente' => 'Digital',
             'data_cursa_date' => '2025-05-05',
             'data_cursa_time' => '14:45',
             'observatii' => 'Actualizare detalii',
@@ -111,6 +114,7 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_localitate' => 'Galați',
             'descarcare_cod_postal' => '800010',
             'descarcare_tara_id' => $newDescarcareTara->id,
+            'format_documente' => 'Digital',
             'data_cursa' => '2025-05-05 14:45:00',
             'observatii' => 'Actualizare detalii',
             'km_bord_incarcare' => 98765,
@@ -141,6 +145,7 @@ class ValabilitateCursaTest extends TestCase
                 'descarcare_localitate' => 'Praga',
                 'descarcare_cod_postal' => '11000',
                 'descarcare_tara_id' => $newDescarcareTara->id,
+                'format_documente' => 'Per post',
                 'data_cursa_date' => '2025-05-10',
                 'data_cursa_time' => '11:15',
             ]);
@@ -162,6 +167,7 @@ class ValabilitateCursaTest extends TestCase
             'incarcare_localitate' => 'București',
             'descarcare_localitate' => 'Praga',
             'data_cursa' => '2025-05-10 11:15:00',
+            'format_documente' => 'Per post',
         ]);
     }
 
@@ -194,11 +200,14 @@ class ValabilitateCursaTest extends TestCase
             'descarcare_tara_id' => $descarcareTara->id,
             'km_bord_incarcare' => 15400,
             'km_bord_descarcare' => 15900,
+            'format_documente' => 'Per post',
         ]);
 
         $response = $this->actingAs($user)->get(route('valabilitati.curse.index', $valabilitate));
 
         $response->assertOk();
+        $response->assertSee('FrmDoc');
+        $response->assertSee('fa-solid fa-envelope text-danger', false);
         $response->assertSeeText('Timișoara');
         $response->assertSeeText('300001');
         $response->assertSeeText($incarcareTara->nume);
