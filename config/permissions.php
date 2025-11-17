@@ -109,6 +109,7 @@ return [
             'rapoarte',
             'statii-peco',
             'masini-valabilitati',
+            'valabilitati',
         ],
         'mecanic' => [
             'service-masini',
