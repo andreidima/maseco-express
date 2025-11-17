@@ -44,7 +44,7 @@
             <div class="d-inline-flex align-items-center gap-2">
                 <span>#{{ $cursa->nr_ordine }}</span>
                 @if ($hasMultipleCurse)
-                    <div class="d-flex flex-column gap-1">
+                    <div class="d-flex gap-1">
                         <form
                             method="POST"
                             action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"

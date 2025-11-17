@@ -16,7 +16,7 @@
         .curse-summary-table td,
         .curse-data-table th,
         .curse-data-table td {
-            border: 1px solid #dee2e6;
+            border: 1px solid #000000ff;
             padding: 0.4rem 0.6rem;
             line-height: 1.1;
             vertical-align: middle;
@@ -172,13 +172,14 @@
             <div class="px-3 mb-3">
                 <table class="curse-summary-table">
                     <tr>
-                        <th rowspan="3" class="curse-summary-title">
+                        <th class="curse-summary-title">
                             {{ $valabilitate->numar_auto ?? '—' }}
                         </th>
-                        <th rowspan="3" class="curse-summary-driver">
+                        <th colspan="2" class="curse-summary-driver">
                             {{ $valabilitate->sofer->name ?? '—' }}
                         </th>
-
+                    </tr>
+                    <tr>
                         <th class="curse-summary-label">Dată plecare</th>
                         <td class="curse-nowrap">
                             {{ optional($dataInceput)->format('d.m.Y') ?? '—' }}
