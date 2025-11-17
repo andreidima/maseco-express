@@ -131,6 +131,14 @@
                                 <th rowspan="2" class="text-end curse-nowrap">
                                     Diferența KM<br>(Bord – Maps)
                                 </th>
+                                <th
+                                    rowspan="2"
+                                    class="text-center curse-nowrap"
+                                    title="Format documente"
+                                >
+                                    <i class="fa-solid fa-envelopes-bulk"></i>
+                                    <span class="visually-hidden">Format documente</span>
+                                </th>
                                 <th rowspan="2" class="text-end curse-nowrap">Acțiuni</th>
                             </tr>
                             <tr class="curse-data-header-bottom">
