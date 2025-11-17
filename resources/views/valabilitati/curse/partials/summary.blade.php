@@ -66,9 +66,10 @@
         </td>
     </tr>
     @php
+        $showGroupSummary = $showGroupSummary ?? request()->routeIs('valabilitati.grupuri.*');
         $groupFinancials = collect($summary['groupFinancials'] ?? []);
     @endphp
-    @if ($groupFinancials->isNotEmpty())
+    @if ($showGroupSummary && $groupFinancials->isNotEmpty())
         <tr>
             <th colspan="6" class="curse-summary-label text-center">Situație pe grupuri</th>
         </tr>

@@ -84,21 +84,42 @@
         }
     </style>
 
+    @php
+        $grupuriRoute = route('valabilitati.grupuri.index', $valabilitate);
+        $curseRoute = route('valabilitati.curse.index', $valabilitate);
+        $isGroupsContext = request()->routeIs('valabilitati.grupuri.*');
+    @endphp
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
-        <div class="row card-header align-items-center" style="border-radius: 40px 40px 0px 0px;">
-            <div class="col-lg-10 col-xl-10 mb-2 mb-lg-0">
+        <div class="row card-header align-items-center text-center text-lg-start" style="border-radius: 40px 40px 0px 0px;">
+            <div class="col-12 col-lg-4 mb-2 mb-lg-0">
                 <span class="badge culoare1 fs-5">
                     <span class="d-inline-flex flex-column align-items-start gap-1 lh-1">
                         <span>
                             <i class="fa-solid fa-route me-1"></i>Curse
-                            / 
+                            /
                             {{ $valabilitate->denumire }}
                         </span>
                     </span>
                 </span>
             </div>
-            <div class="col-lg-2 col-xl-2 text-lg-end mt-3 mt-lg-0">
-                <div class="d-flex align-items-stretch align-items-lg-end gap-2 flex-wrap justify-content-end">
+            <div class="col-12 col-lg-4 my-2 my-lg-0">
+                <div class="d-inline-flex justify-content-center gap-2">
+                    <a
+                        href="{{ $curseRoute }}"
+                        class="btn btn-sm {{ $isGroupsContext ? 'btn-outline-primary' : 'btn-primary text-white' }} border border-dark rounded-3"
+                    >
+                        <i class="fa-solid fa-truck-fast me-1"></i>Curse
+                    </a>
+                    <a
+                        href="{{ $grupuriRoute }}"
+                        class="btn btn-sm {{ $isGroupsContext ? 'btn-primary text-white' : 'btn-outline-primary' }} border border-dark rounded-3"
+                    >
+                        <i class="fa-solid fa-layer-group me-1"></i>Grupuri
+                    </a>
+                </div>
+            </div>
+            <div class="col-12 col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <div class="d-flex align-items-stretch align-items-lg-end gap-2 flex-wrap justify-content-center justify-content-lg-end">
                     <button
                         type="button"
                         class="btn btn-sm btn-outline-primary border border-dark rounded-3"
@@ -133,6 +154,7 @@
                 @include('valabilitati.curse.partials.summary', [
                     'valabilitate' => $valabilitate,
                     'summary' => $summary,
+                    'showGroupSummary' => false,
                 ])
             </div>
 
@@ -674,7 +696,13 @@
                             closeModal(modalElement);
 
                             if (data.message) {
-                                showFeedback(data.message, 'success');
+                                const alertMap = {
+                                    error: 'danger',
+                                    warning: 'warning',
+                                    success: 'success',
+                                };
+                                const alertType = alertMap[data.message_type] || 'success';
+                                showFeedback(data.message, alertType);
                             }
                         })
                         .catch(error => {

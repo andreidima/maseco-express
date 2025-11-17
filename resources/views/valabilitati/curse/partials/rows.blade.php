@@ -129,7 +129,7 @@
         </td>
 
         {{-- Cursa (descriere) --}}
-        <td class="text-muted small align-middle">
+        <td class="small align-middle">
             {{ $cursaDescriere }}
         </td>
 
@@ -164,7 +164,7 @@
         </td>
 
         {{-- Sumă încasată --}}
-        <td class="text-end align-middle">
+        <td class="text-end align-middle" style="background-color: {{ $group ? $groupColor : 'transparent' }};">
             {{ $groupSumDisplay }}
         </td>
 

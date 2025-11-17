@@ -157,4 +157,9 @@ class ValabilitateCursaController extends Controller
     {
         return self::PER_PAGE;
     }
+
+    protected function displayGroupSummaryInResponses(): bool
+    {
+        return false;
+    }
 }
