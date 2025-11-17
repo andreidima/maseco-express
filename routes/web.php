@@ -343,7 +343,7 @@ Route::middleware(['auth'])->group(function () {
             ->parameters(['masini-valabilitati' => 'masinaValabilitati']);
     });
 
-    Route::middleware(['permission:valabilitati', 'role:super-admin,admin'])->group(function () {
+    Route::middleware(['permission:valabilitati', 'role:super-admin,admin,dispecer'])->group(function () {
         Route::get('valabilitati/paginate', [ValabilitateController::class, 'paginate'])
             ->name('valabilitati.paginate');
 
