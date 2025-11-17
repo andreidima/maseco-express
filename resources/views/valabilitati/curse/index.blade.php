@@ -119,7 +119,6 @@
                             <tr class="curse-data-header-top">
                                 <th rowspan="2" class="text-center curse-nowrap">#</th>
                                 <th rowspan="2" class="curse-nowrap">Nr. cursă</th>
-                                <th rowspan="2" class="text-center curse-nowrap">FrmDoc</th>
                                 <th rowspan="2">Cursa</th>
                                 <th rowspan="2" class="curse-nowrap">Dată transport</th>
                                 <th rowspan="2" class="text-end curse-nowrap">KM Maps</th>
@@ -130,14 +129,6 @@
                                 <th rowspan="2" class="text-end curse-nowrap">Sumă încasată</th>
                                 <th rowspan="2" class="text-end curse-nowrap">
                                     Diferența KM<br>(Bord – Maps)
-                                </th>
-                                <th
-                                    rowspan="2"
-                                    class="text-center curse-nowrap"
-                                    title="Format documente"
-                                >
-                                    <i class="fa-solid fa-envelopes-bulk"></i>
-                                    <span class="visually-hidden">Format documente</span>
                                 </th>
                                 <th rowspan="2" class="text-end curse-nowrap">Acțiuni</th>
                             </tr>
@@ -152,7 +143,7 @@
                                 @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                             @else
                                 <tr>
-                                    <td colspan="12" class="text-center py-4">
+                                    <td colspan="11" class="text-center py-4">
                                         Nu există curse care să respecte criteriile selectate.
                                     </td>
                                 </tr>

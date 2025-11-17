@@ -6,7 +6,6 @@ use App\Models\Valabilitate;
 use App\Support\Valabilitati\ValabilitatiCurseFilterState;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 class ValabilitateCursaRequest extends FormRequest
@@ -23,7 +22,6 @@ class ValabilitateCursaRequest extends FormRequest
         return [
             'nr_ordine' => ['sometimes', 'integer', 'min:1'],
             'nr_cursa' => ['nullable', 'string', 'max:255'],
-            'format_documente' => ['nullable', Rule::in(['Per post', 'Digital'])],
             'incarcare_localitate' => ['nullable', 'string', 'max:255'],
             'incarcare_cod_postal' => ['nullable', 'string', 'max:255'],
             'incarcare_tara_id' => ['nullable', 'exists:tari,id'],
@@ -40,11 +38,6 @@ class ValabilitateCursaRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $formatDocumente = $this->input('format_documente');
-        if ($formatDocumente !== null && trim((string) $formatDocumente) === '') {
-            $this->merge(['format_documente' => null]);
-        }
-
         $dateInput = $this->input('data_cursa_date');
         $timeInput = $this->input('data_cursa_time');
 
