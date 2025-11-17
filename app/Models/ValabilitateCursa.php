@@ -16,7 +16,6 @@ class ValabilitateCursa extends Model
         'valabilitate_id',
         'nr_ordine',
         'nr_cursa',
-        'format_documente',
         'incarcare_localitate',
         'incarcare_cod_postal',
         'incarcare_tara_id',

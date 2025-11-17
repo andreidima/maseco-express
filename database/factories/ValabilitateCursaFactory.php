@@ -20,7 +20,6 @@ class ValabilitateCursaFactory extends Factory
             'valabilitate_id' => Valabilitate::factory(),
             'nr_ordine' => fake()->numberBetween(1, 20),
             'nr_cursa' => fake()->optional()->bothify('Cursa-###'),
-            'format_documente' => fake()->randomElement(['Per post', 'Digital']),
             'incarcare_localitate' => fake()->city(),
             'incarcare_cod_postal' => fake()->postcode(),
             'incarcare_tara_id' => Tara::factory(),
