@@ -32,7 +32,7 @@
 
         // Km plin
         $kmPlin = $kmPlecare !== null && $kmSosire !== null ? $kmSosire - $kmPlecare : null;
-        $kmGol = $previousKmSosire !== null && $kmPlecare !== null ? $previousKmSosire - $kmPlecare : null;
+        $kmGol = $previousKmSosire !== null && $kmPlecare !== null ? $kmPlecare - $previousKmSosire : null;
         $kmDifference = $kmPlin !== null && $kmMapsValue !== null ? $kmPlin - $kmMapsValue : null;
 
         $diffClass = $kmDifference === null
