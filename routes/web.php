@@ -48,7 +48,6 @@ use App\Http\Controllers\SoferDashboardController;
 use App\Http\Controllers\SoferValabilitateCursaController;
 use App\Http\Controllers\ValabilitateController;
 use App\Http\Controllers\ValabilitateCursaController;
-use App\Http\Controllers\ValabilitateCursaGrupController;
 
 
 /*
@@ -370,13 +369,6 @@ Route::middleware(['auth'])->group(function () {
                 ->name('valabilitati.curse.reorder');
             Route::delete('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'destroy'])
                 ->name('valabilitati.curse.destroy');
-
-            Route::post('valabilitati/{valabilitate}/curse/grupuri', [ValabilitateCursaGrupController::class, 'store'])
-                ->name('valabilitati.curse.grupuri.store');
-            Route::put('valabilitati/{valabilitate}/curse/grupuri/{grup}', [ValabilitateCursaGrupController::class, 'update'])
-                ->name('valabilitati.curse.grupuri.update');
-            Route::delete('valabilitati/{valabilitate}/curse/grupuri/{grup}', [ValabilitateCursaGrupController::class, 'destroy'])
-                ->name('valabilitati.curse.grupuri.destroy');
         });
     });
 

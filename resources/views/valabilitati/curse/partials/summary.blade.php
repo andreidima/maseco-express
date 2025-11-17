@@ -65,6 +65,7 @@
             {{ $summary['totalKmDiff'] ? $summary['totalKmDiff'] : '—' }}
         </td>
     </tr>
+<<<<<<< HEAD
     @php
         $groupFinancials = collect($summary['groupFinancials'] ?? []);
     @endphp
@@ -119,4 +120,6 @@
             </th>
         </tr>
     @endif
+=======
+>>>>>>> d9872c8f98fae11534b2f21704663218cdb4e5b0
 </table>

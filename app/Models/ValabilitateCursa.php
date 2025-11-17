@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Models\ValabilitateCursaGrup;
 
 class ValabilitateCursa extends Model
 {
@@ -15,7 +14,6 @@ class ValabilitateCursa extends Model
 
     protected $fillable = [
         'valabilitate_id',
-        'cursa_grup_id',
         'nr_ordine',
         'nr_cursa',
         'incarcare_localitate',
@@ -32,7 +30,6 @@ class ValabilitateCursa extends Model
     ];
 
     protected $casts = [
-        'cursa_grup_id' => 'integer',
         'nr_ordine' => 'integer',
         'data_cursa' => 'datetime',
         'km_bord_incarcare' => 'integer',
@@ -52,11 +49,6 @@ class ValabilitateCursa extends Model
     public function valabilitate(): BelongsTo
     {
         return $this->belongsTo(Valabilitate::class);
-    }
-
-    public function cursaGrup(): BelongsTo
-    {
-        return $this->belongsTo(ValabilitateCursaGrup::class, 'cursa_grup_id');
     }
 
     protected static function booted(): void
