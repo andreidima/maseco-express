@@ -87,7 +87,6 @@
                                     $createDataTimeValue = $formatDateTimeValue($oldCombinedValue, 'H:i');
                                 }
                             }
-                            $createFormatDocumente = $isCreateActive ? old('format_documente', '') : '';
                         @endphp
                         <div class="row g-3">
                             <div class="col-md-3">
@@ -105,24 +104,6 @@
                                     data-error-for="nr_cursa"
                                 >
                                     {{ $isCreateActive ? $errors->first('nr_cursa') : '' }}
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="cursa-create-format-documente" class="form-label">Format documente</label>
-                                <select
-                                    name="format_documente"
-                                    id="cursa-create-format-documente"
-                                    class="form-select bg-white rounded-3 {{ $isCreateActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
-                                >
-                                    <option value="">Selectează formatul</option>
-                                    <option value="Per post" @selected($createFormatDocumente === 'Per post')>Per post</option>
-                                    <option value="Digital" @selected($createFormatDocumente === 'Digital')>Digital</option>
-                                </select>
-                                <div
-                                    class="invalid-feedback {{ $isCreateActive && $errors->has('format_documente') ? 'd-block' : '' }}"
-                                    data-error-for="format_documente"
-                                >
-                                    {{ $isCreateActive ? $errors->first('format_documente') : '' }}
                                 </div>
                             </div>
                             <div class="col-md-3">
@@ -414,11 +395,6 @@
         if ($editNrCursa === null) {
             $editNrCursa = '';
         }
-        $baseFormatDocumente = $cursa->format_documente;
-        $editFormatDocumente = $isEditing ? old('format_documente', $baseFormatDocumente) : $baseFormatDocumente;
-        if ($editFormatDocumente === null) {
-            $editFormatDocumente = '';
-        }
     @endphp
     <div
         class="modal fade text-dark"
@@ -461,24 +437,6 @@
                                     data-error-for="nr_cursa"
                                 >
                                     {{ $isEditing ? $errors->first('nr_cursa') : '' }}
-                                </div>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="{{ $editPrefix }}format-documente" class="form-label">Format documente</label>
-                                <select
-                                    name="format_documente"
-                                    id="{{ $editPrefix }}format-documente"
-                                    class="form-select bg-white rounded-3 {{ $isEditing && $errors->has('format_documente') ? 'is-invalid' : '' }}"
-                                >
-                                    <option value="">Selectează formatul</option>
-                                    <option value="Per post" @selected($editFormatDocumente === 'Per post')>Per post</option>
-                                    <option value="Digital" @selected($editFormatDocumente === 'Digital')>Digital</option>
-                                </select>
-                                <div
-                                    class="invalid-feedback {{ $isEditing && $errors->has('format_documente') ? 'd-block' : '' }}"
-                                    data-error-for="format_documente"
-                                >
-                                    {{ $isEditing ? $errors->first('format_documente') : '' }}
                                 </div>
                             </div>
                             <div class="col-md-3">
