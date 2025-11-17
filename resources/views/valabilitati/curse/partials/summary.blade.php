@@ -65,7 +65,9 @@
             {{ $summary['totalKmDiff'] ? $summary['totalKmDiff'] : '—' }}
         </td>
     </tr>
-    @php($groupFinancials = collect($summary['groupFinancials'] ?? []))
+    @php
+        $groupFinancials = collect($summary['groupFinancials'] ?? []);
+    @endphp
     @if ($groupFinancials->isNotEmpty())
         <tr>
             <th colspan="6" class="curse-summary-label text-center">Situație pe grupuri</th>
@@ -101,7 +103,9 @@
                 <td class="text-end">{{ $group['diferenta'] !== null ? number_format($group['diferenta'], 2) : '—' }}</td>
             </tr>
         @endforeach
-        @php($groupTotals = $summary['groupFinancialTotals'] ?? [])
+        @php
+            $groupTotals = $summary['groupFinancialTotals'] ?? [];
+        @endphp
         <tr>
             <th colspan="3" class="text-end curse-summary-label">Total grupuri</th>
             <th class="text-end">
