@@ -918,6 +918,7 @@
             </div>
         </div>
     </div>
+@endif
 
 @if ($renderGroupModals)
 @foreach ($grupuri as $grup)
@@ -985,8 +986,7 @@
                                             <option value="{{ $value }}" @selected((string) $groupEditFormat === (string) $value)>
                                                 {{ $label }}
                                             </option>
-@endforeach
-@endif
+                                        @endforeach
                                     </select>
                                     <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
                                         {{ $isGroupEditActive ? $errors->first('format_documente') : '' }}
