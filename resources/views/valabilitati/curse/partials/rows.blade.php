@@ -140,17 +140,6 @@
             {{ $kmDifference !== null ? $kmDifference : '—' }}
         </td>
 
-        {{-- Format documente --}}
-        <td class="text-center align-middle">
-            @if ($cursa->format_documente === 'Per post')
-                <i class="fa-solid fa-envelope text-danger" title="Documentele se trimit prin poștă"></i>
-            @elseif ($cursa->format_documente === 'Digital')
-                <i class="fa-solid fa-at text-success" title="Documentele se trimit digital"></i>
-            @else
-                —
-            @endif
-        </td>
-
         {{-- Acțiuni --}}
         <td class="text-end align-middle">
             <div class="d-flex flex-wrap justify-content-end">
