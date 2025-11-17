@@ -138,8 +138,12 @@
                         data-bs-target="#cursaEditModal{{ $cursa->id }}"
                         class="flex"
                         title="Modifică cursa"
+                        aria-label="Modifică cursa"
                     >
-                        <span class="badge bg-primary">Modifică</span>
+                        <span class="badge bg-primary d-inline-flex align-items-center justify-content-center" aria-hidden="true">
+                            <i class="fa-solid fa-pen-to-square"></i>
+                        </span>
+                        <span class="visually-hidden">Modifică</span>
                     </a>
                 </div>
                 <div class="ms-1">
@@ -149,8 +153,12 @@
                         data-bs-target="#cursaDeleteModal{{ $cursa->id }}"
                         class="flex"
                         title="Șterge cursa"
+                        aria-label="Șterge cursa"
                     >
-                        <span class="badge bg-danger">Șterge</span>
+                        <span class="badge bg-danger d-inline-flex align-items-center justify-content-center" aria-hidden="true">
+                            <i class="fa-solid fa-trash"></i>
+                        </span>
+                        <span class="visually-hidden">Șterge</span>
                     </a>
                 </div>
             </div>
