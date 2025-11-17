@@ -128,7 +128,7 @@
                                 <th colspan="2" class="text-center curse-nowrap">
                                     KM Bord (plecare / sosire)
                                 </th>
-                                <th rowspan="2" class="text-end curse-nowrap">KM Bord 2</th>
+                                <th colspan="2" class="text-center curse-nowrap">KM Bord 2</th>
                                 <th rowspan="2" class="text-end curse-nowrap">Sumă încasată</th>
                                 <th rowspan="2" class="text-end curse-nowrap">
                                     Diferența KM<br>(Bord – Maps)
@@ -138,6 +138,8 @@
                             <tr class="curse-data-header-bottom">
                                 <th class="text-end curse-nowrap">Plecare</th>
                                 <th class="text-end curse-nowrap">Sosire</th>
+                                <th class="text-end curse-nowrap">Km gol</th>
+                                <th class="text-end curse-nowrap">Km plin</th>
                             </tr>
                         </thead>
 
@@ -146,7 +148,7 @@
                                 @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                             @else
                                 <tr>
-                                    <td colspan="11" class="text-center py-4">
+                                    <td colspan="12" class="text-center py-4">
                                         Nu există curse care să respecte criteriile selectate.
                                     </td>
                                 </tr>

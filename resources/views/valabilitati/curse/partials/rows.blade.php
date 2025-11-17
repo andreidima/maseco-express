@@ -1,3 +1,7 @@
+@php
+    $previousKmSosire = null;
+@endphp
+
 @foreach ($curse as $cursa)
     @php
         $dataTransport = $cursa->data_cursa?->format('d.m.Y H:i');
@@ -26,8 +30,10 @@
         $kmMapsDisplay = filled($cursa->km_maps) ? $cursa->km_maps : '—';
         $kmMapsValue = is_numeric($cursa->km_maps) ? (float) $cursa->km_maps : null;
 
-        $kmBord2 = $kmPlecare !== null && $kmSosire !== null ? $kmSosire - $kmPlecare : null;
-        $kmDifference = $kmBord2 !== null && $kmMapsValue !== null ? $kmBord2 - $kmMapsValue : null;
+        // Km plin
+        $kmPlin = $kmPlecare !== null && $kmSosire !== null ? $kmSosire - $kmPlecare : null;
+        $kmGol = $previousKmSosire !== null && $kmPlecare !== null ? $previousKmSosire - $kmPlecare : null;
+        $kmDifference = $kmPlin !== null && $kmMapsValue !== null ? $kmPlin - $kmMapsValue : null;
 
         $diffClass = $kmDifference === null
             ? ''
@@ -114,9 +120,14 @@
             {{ $kmSosire !== null ? $kmSosire : '—' }}
         </td>
 
-        {{-- KM Bord 2 --}}
+        {{-- KM Bord 2 – Km gol --}}
         <td class="text-end text-nowrap align-middle">
-            {{ $kmBord2 !== null ? $kmBord2 : '—' }}
+            {{ $kmGol !== null ? $kmGol : '—' }}
+        </td>
+
+        {{-- KM Bord 2 – Km plin --}}
+        <td class="text-end text-nowrap align-middle">
+            {{ $kmPlin !== null ? $kmPlin : '—' }}
         </td>
 
         {{-- Sumă încasată – încă nu există în model, rămâne golă --}}
@@ -164,4 +175,8 @@
             </div>
         </td>
     </tr>
+
+    @php
+        $previousKmSosire = $kmSosire;
+    @endphp
 @endforeach
