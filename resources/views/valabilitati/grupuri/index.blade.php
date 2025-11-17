@@ -58,7 +58,7 @@
                 </span>
             </div>
             <div class="col-12 col-lg-4 my-2 my-lg-0">
-                <div class="d-inline-flex justify-content-center gap-2">
+                <div class="d-flex justify-content-center gap-2">
                     <a
                         href="{{ $curseRoute }}"
                         class="btn btn-sm btn-outline-primary border border-dark rounded-3"

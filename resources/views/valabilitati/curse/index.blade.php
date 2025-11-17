@@ -103,7 +103,7 @@
                 </span>
             </div>
             <div class="col-12 col-lg-4 my-2 my-lg-0">
-                <div class="d-inline-flex justify-content-center gap-2">
+                <div class="d-flex justify-content-center gap-2">
                     <a
                         href="{{ $curseRoute }}"
                         class="btn btn-sm {{ $isGroupsContext ? 'btn-outline-primary' : 'btn-primary text-white' }} border border-dark rounded-3"
@@ -120,14 +120,14 @@
             </div>
             <div class="col-12 col-lg-4 text-lg-end mt-3 mt-lg-0">
                 <div class="d-flex align-items-stretch align-items-lg-end gap-2 flex-wrap justify-content-center justify-content-lg-end">
-                    <button
+                    {{-- <button
                         type="button"
                         class="btn btn-sm btn-outline-primary border border-dark rounded-3"
                         data-bs-toggle="modal"
                         data-bs-target="#cursaGroupCreateModal"
                     >
                         <i class="fa-solid fa-layer-group me-1"></i>Crează grup
-                    </button>
+                    </button> --}}
                     <button
                         type="button"
                         class="btn btn-sm btn-success text-white border border-dark rounded-3"
