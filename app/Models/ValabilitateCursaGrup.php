@@ -22,6 +22,16 @@ class ValabilitateCursaGrup extends Model
         '#DCFCE7' => 'Verde mentă',
         '#FFE4E6' => 'Trandafiriu',
         '#F5F5F4' => 'Gri cald',
+        '#FFF7ED' => 'Nisip cald',
+        '#F0ABFC' => 'Liliac vibrant',
+        '#C7D2FE' => 'Indigo pastel',
+        '#E0E7FF' => 'Lavandă rece',
+        '#FFD6A5' => 'Caisă pastel',
+        '#E2F0CB' => 'Verde lime',
+        '#D1FAE5' => 'Aqua pastel',
+        '#F0E5CF' => 'Bej catifelat',
+        '#F1F5F9' => 'Gri perlat',
+        '#FDE2FF' => 'Roz liliac',
     ];
 
     private const DOCUMENT_FORMATS = [

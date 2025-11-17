@@ -5,6 +5,9 @@
     $grupuri = collect($valabilitate->cursaGrupuri ?? []);
     $groupFormatOptions = $groupFormatOptions ?? [];
     $groupColorOptions = $groupColorOptions ?? [];
+    $renderCurseModals = ($renderCurseModals ?? true) === true;
+    $renderGroupModals = ($renderGroupModals ?? true) === true;
+    $redirectTo = $redirectTo ?? '';
     $resolveTaraName = static function ($id) use ($tariCollection) {
         if ($id === null || $id === '') {
             return '';
@@ -27,7 +30,7 @@
     };
 @endphp
 
-@if (($includeCreate ?? false) === true)
+@if ($renderCurseModals && ($includeCreate ?? false) === true)
     <datalist id="valabilitati-curse-tari">
         @foreach ($tariCollection as $tara)
             <option value="{{ $tara->nume }}" data-id="{{ $tara->id }}"></option>
@@ -35,7 +38,7 @@
     </datalist>
 @endif
 
-@if (($includeCreate ?? false) === true)
+@if ($renderCurseModals && ($includeCreate ?? false) === true)
     @php
         $isCreateActive = $currentFormType === 'create';
     @endphp
@@ -369,6 +372,7 @@
     </div>
 @endif
 
+@if ($renderCurseModals)
 @foreach ($curse as $cursa)
     @php
         $isEditing = $currentFormType === 'edit' && $currentFormId === (int) $cursa->id;
@@ -758,8 +762,9 @@
         </div>
     </div>
 @endforeach
+@endif
 
-@if (($includeCreate ?? false) === true)
+@if ($renderGroupModals && ($includeCreate ?? false) === true)
     @php
         $isGroupCreateActive = $currentFormType === 'group-create';
         $groupCreateName = $isGroupCreateActive ? old('nume', '') : '';
@@ -791,6 +796,7 @@
                     novalidate
                 >
                     @csrf
+                    <input type="hidden" name="redirect_to" value="{{ $redirectTo }}">
                     <input type="hidden" name="form_type" value="group-create">
                     <div class="modal-body">
                         <div class="row g-3">
@@ -883,22 +889,19 @@
                                     {{ $isGroupCreateActive ? $errors->first('numar_factura') : '' }}
                                 </div>
                             </div>
-                            <div class="col-12">
-                                <label class="form-label">Culoare</label>
-                                <div class="d-flex flex-wrap gap-2">
+                            <div class="col-md-6">
+                                <label for="group-create-color" class="form-label">Culoare<span class="text-danger">*</span></label>
+                                <select
+                                    class="form-select rounded-3 {{ $isGroupCreateActive && $errors->has('culoare_hex') ? 'is-invalid' : '' }}"
+                                    id="group-create-color"
+                                    name="culoare_hex"
+                                >
                                     @foreach ($groupColorOptions as $hex => $label)
-                                        <label class="form-check form-check-inline align-items-center gap-2 px-2 py-1 rounded" style="background-color: {{ $hex }};">
-                                            <input
-                                                class="form-check-input"
-                                                type="radio"
-                                                name="culoare_hex"
-                                                value="{{ strtoupper($hex) }}"
-                                                @checked(strtoupper($groupCreateColor) === strtoupper($hex))
-                                            >
-                                            <span class="small text-dark">{{ $label }}</span>
-                                        </label>
+                                        <option value="{{ strtoupper($hex) }}" @selected(strtoupper($groupCreateColor) === strtoupper($hex))>
+                                            {{ $label }} ({{ strtoupper($hex) }})
+                                        </option>
                                     @endforeach
-                                </div>
+                                </select>
                                 <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('culoare_hex') ? 'd-block' : '' }}" data-error-for="culoare_hex">
                                     {{ $isGroupCreateActive ? $errors->first('culoare_hex') : '' }}
                                 </div>
@@ -916,7 +919,8 @@
         </div>
     </div>
 
-    @foreach ($grupuri as $grup)
+@if ($renderGroupModals)
+@foreach ($grupuri as $grup)
         @php
             $isGroupEditActive = $currentFormType === 'group-edit' && $currentFormId === (int) $grup->id;
             $groupEditName = $isGroupEditActive ? old('nume', $grup->nume) : $grup->nume;
@@ -951,6 +955,7 @@
                     >
                         @csrf
                         @method('PUT')
+                        <input type="hidden" name="redirect_to" value="{{ $redirectTo }}">
                         <input type="hidden" name="form_type" value="group-edit">
                         <input type="hidden" name="form_id" value="{{ $grup->id }}">
                         <div class="modal-body">
@@ -980,7 +985,8 @@
                                             <option value="{{ $value }}" @selected((string) $groupEditFormat === (string) $value)>
                                                 {{ $label }}
                                             </option>
-                                        @endforeach
+@endforeach
+@endif
                                     </select>
                                     <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
                                         {{ $isGroupEditActive ? $errors->first('format_documente') : '' }}
@@ -1043,22 +1049,19 @@
                                         {{ $isGroupEditActive ? $errors->first('numar_factura') : '' }}
                                     </div>
                                 </div>
-                                <div class="col-12">
-                                    <label class="form-label">Culoare</label>
-                                    <div class="d-flex flex-wrap gap-2">
+                                <div class="col-md-6">
+                                    <label for="group-edit-color-{{ $grup->id }}" class="form-label">Culoare<span class="text-danger">*</span></label>
+                                    <select
+                                        class="form-select rounded-3 {{ $isGroupEditActive && $errors->has('culoare_hex') ? 'is-invalid' : '' }}"
+                                        id="group-edit-color-{{ $grup->id }}"
+                                        name="culoare_hex"
+                                    >
                                         @foreach ($groupColorOptions as $hex => $label)
-                                            <label class="form-check form-check-inline align-items-center gap-2 px-2 py-1 rounded" style="background-color: {{ $hex }};">
-                                                <input
-                                                    class="form-check-input"
-                                                    type="radio"
-                                                    name="culoare_hex"
-                                                    value="{{ strtoupper($hex) }}"
-                                                    @checked(strtoupper((string) $groupEditColor) === strtoupper($hex))
-                                                >
-                                                <span class="small text-dark">{{ $label }}</span>
-                                            </label>
+                                            <option value="{{ strtoupper($hex) }}" @selected(strtoupper((string) $groupEditColor) === strtoupper($hex))>
+                                                {{ $label }} ({{ strtoupper($hex) }})
+                                            </option>
                                         @endforeach
-                                    </div>
+                                    </select>
                                     <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('culoare_hex') ? 'd-block' : '' }}" data-error-for="culoare_hex">
                                         {{ $isGroupEditActive ? $errors->first('culoare_hex') : '' }}
                                     </div>
@@ -1097,6 +1100,7 @@
                     >
                         @csrf
                         @method('DELETE')
+                        <input type="hidden" name="redirect_to" value="{{ $redirectTo }}">
                         <div class="modal-body">
                             Ești sigur că dorești să ștergi acest grup? Curse asociate vor pierde culoarea și metadatele de grup.
                         </div>

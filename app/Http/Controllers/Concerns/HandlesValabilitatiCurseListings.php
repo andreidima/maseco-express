@@ -14,6 +14,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 trait HandlesValabilitatiCurseListings
 {
@@ -59,7 +60,7 @@ trait HandlesValabilitatiCurseListings
             return $this->listingJsonResponse($valabilitate, $message);
         }
 
-        return redirect(ValabilitatiCurseFilterState::route($valabilitate))->with('status', $message);
+        return redirect($this->resolveListingRedirectUrl($request, $valabilitate))->with('status', $message);
     }
 
     protected function listingJsonResponse(Valabilitate $valabilitate, string $message): JsonResponse
@@ -72,6 +73,7 @@ trait HandlesValabilitatiCurseListings
 
         return response()->json([
             'message' => $message,
+            'message_type' => 'success',
             'table_html' => view('valabilitati.curse.partials.rows', [
                 'valabilitate' => $valabilitate,
                 'curse' => $curse,
@@ -217,7 +219,44 @@ trait HandlesValabilitatiCurseListings
         return view('valabilitati.curse.partials.summary', [
             'valabilitate' => $valabilitate,
             'summary' => $summary,
+            'showGroupSummary' => $this->displayGroupSummaryInResponses(),
         ])->render();
+    }
+
+    protected function displayGroupSummaryInResponses(): bool
+    {
+        return true;
+    }
+
+    protected function resolveListingRedirectUrl(Request $request, Valabilitate $valabilitate): string
+    {
+        return $this->sanitizeRedirectTarget((string) $request->input('redirect_to'))
+            ?? ValabilitatiCurseFilterState::route($valabilitate);
+    }
+
+    private function sanitizeRedirectTarget(?string $target): ?string
+    {
+        if (! is_string($target)) {
+            return null;
+        }
+
+        $target = trim($target);
+
+        if ($target === '') {
+            return null;
+        }
+
+        if (Str::startsWith($target, '/')) {
+            return $target;
+        }
+
+        $appUrl = rtrim(url('/'), '/');
+
+        if (Str::startsWith($target, $appUrl)) {
+            return $target;
+        }
+
+        return null;
     }
 
     protected function loadTari()

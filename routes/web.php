@@ -362,6 +362,8 @@ Route::middleware(['auth'])->group(function () {
                 ->name('valabilitati.curse.paginate');
             Route::get('valabilitati/{valabilitate}/curse', [ValabilitateCursaController::class, 'index'])
                 ->name('valabilitati.curse.index');
+            Route::get('valabilitati/{valabilitate}/grupuri', [ValabilitateCursaGrupController::class, 'index'])
+                ->name('valabilitati.grupuri.index');
             Route::post('valabilitati/{valabilitate}/curse', [ValabilitateCursaController::class, 'store'])
                 ->name('valabilitati.curse.store');
             Route::put('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'update'])
