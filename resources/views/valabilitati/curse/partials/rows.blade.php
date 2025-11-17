@@ -55,7 +55,7 @@
                             <input type="hidden" name="direction" value="up">
                             <button
                                 type="submit"
-                                class="btn btn-sm btn-outline-secondary p-1"
+                                class="btn btn-sm btn-outline-secondary p-0"
                                 title="Mută cursa mai sus"
                                 @disabled(! $canMoveUp)
                             >
@@ -72,7 +72,7 @@
                             <input type="hidden" name="direction" value="down">
                             <button
                                 type="submit"
-                                class="btn btn-sm btn-outline-secondary p-1"
+                                class="btn btn-sm btn-outline-secondary p-0"
                                 title="Mută cursa mai jos"
                                 @disabled(! $canMoveDown)
                             >
