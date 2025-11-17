@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\User;
 use App\Models\ValabilitateTaxaDrum;
-use App\Models\ValabilitateCursaGrup;
 
 class Valabilitate extends Model
 {
@@ -37,7 +36,6 @@ class Valabilitate extends Model
     public function curse(): HasMany
     {
         return $this->hasMany(ValabilitateCursa::class)
-            ->with(['cursaGrup'])
             ->orderBy('nr_ordine')
             ->orderBy('id');
     }
@@ -56,12 +54,6 @@ class Valabilitate extends Model
         return $this->hasMany(ValabilitateTaxaDrum::class)
             ->orderBy('data')
             ->orderBy('id');
-    }
-
-    public function cursaGrupuri(): HasMany
-    {
-        return $this->hasMany(ValabilitateCursaGrup::class)
-            ->orderBy('nume');
     }
 
     public function syncSummary(): void
