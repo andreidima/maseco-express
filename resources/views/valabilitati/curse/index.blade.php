@@ -89,7 +89,6 @@
         $grupuriRoute = route('valabilitati.grupuri.index', $valabilitate);
         $curseRoute = route('valabilitati.curse.index', $valabilitate);
         $isGroupsContext = request()->routeIs('valabilitati.grupuri.*');
-        $bulkAssignRoute = route('valabilitati.curse.bulk-assign', $valabilitate);
         $hasGrupuri = $valabilitate->cursaGrupuri->count() > 0;
     @endphp
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
@@ -138,6 +137,16 @@
                         data-bs-target="#cursaCreateModal"
                     >
                         <i class="fas fa-plus-square text-white me-1"></i>Adaugă cursă
+                    </button>
+                    <button
+                        type="button"
+                        id="curse-bulk-trigger"
+                        class="btn btn-sm btn-outline-primary border border-dark rounded-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#curseBulkAssignModal"
+                        disabled
+                    >
+                        <i class="fa-solid fa-layer-group me-1"></i>Adaugă cursele selectate în grup
                     </button>
                     <a
                         href="{{ $backUrl }}"
@@ -307,20 +316,37 @@
                 const tableBody = document.getElementById('curse-table-body');
                 const feedbackContainer = document.getElementById('curse-feedback');
                 const summaryContainer = document.getElementById('curse-summary');
-                const bulkAssignPanel = document.getElementById('curse-bulk-assign-panel');
-                const bulkGroupSelect = document.getElementById('curse-bulk-group');
-                const bulkSubmitButton = document.getElementById('curse-bulk-submit');
-                const bulkSelectedCount = document.getElementById('curse-bulk-selected-count');
-                const bulkFeedback = document.getElementById('curse-bulk-feedback');
+                const bulkTriggerButton = document.getElementById('curse-bulk-trigger');
                 const bulkSelectAllCheckbox = document.getElementById('curse-table-select-all');
-                const bulkEmptyWarning = bulkAssignPanel
-                    ? bulkAssignPanel.querySelector('[data-bulk-empty-warning]')
+                let bulkAssignModalElement = document.getElementById('curseBulkAssignModal');
+                let bulkGroupSelect = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('#curse-bulk-group')
+                    : null;
+                let bulkSubmitButton = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('#curse-bulk-submit')
+                    : null;
+                let bulkSelectedCount = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('#curse-bulk-selected-count')
+                    : null;
+                let bulkFeedback = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('#curse-bulk-feedback')
+                    : null;
+                let bulkEmptyWarning = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('[data-bulk-empty-warning]')
                     : null;
                 const bulkAssignState = {
                     selected: new Set(),
                     loading: false,
-                    hasGroups: bulkAssignPanel ? bulkAssignPanel.dataset.hasGroups === 'true' : false,
+                    hasGroups: bulkAssignModalElement ? bulkAssignModalElement.dataset.hasGroups === 'true' : false,
                 };
+                const resolveBulkModalInstance = () => {
+                    if (!bulkAssignModalElement || !bootstrapModal) {
+                        return null;
+                    }
+
+                    return bootstrapModal.getOrCreateInstance(bulkAssignModalElement);
+                };
+                let bulkAssignModalInstance = resolveBulkModalInstance();
                 const COUNTRY_DATALIST_ID = 'valabilitati-curse-tari';
                 const countryState = {
                     mapByName: new Map(),
@@ -365,6 +391,18 @@
                             bulkAssignState.selected.size > 0 &&
                             !bulkAssignState.loading;
                         bulkSubmitButton.disabled = !canSubmit;
+                    }
+
+                    if (bulkTriggerButton) {
+                        const canOpenModal =
+                            bulkAssignState.hasGroups &&
+                            bulkAssignState.selected.size > 0 &&
+                            !bulkAssignState.loading;
+                        bulkTriggerButton.disabled = !canOpenModal;
+                    }
+
+                    if (bulkEmptyWarning) {
+                        bulkEmptyWarning.classList.toggle('d-none', bulkAssignState.hasGroups);
                     }
 
                     if (bulkSelectAllCheckbox && tableBody) {
@@ -440,6 +478,29 @@
                     bulkSelectAllCheckbox.disabled = total === 0;
                 };
 
+                const refreshBulkModalReferences = () => {
+                    bulkAssignModalElement = document.getElementById('curseBulkAssignModal');
+                    bulkGroupSelect = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('#curse-bulk-group')
+                        : null;
+                    bulkSubmitButton = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('#curse-bulk-submit')
+                        : null;
+                    bulkSelectedCount = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('#curse-bulk-selected-count')
+                        : null;
+                    bulkFeedback = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('#curse-bulk-feedback')
+                        : null;
+                    bulkEmptyWarning = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('[data-bulk-empty-warning]')
+                        : null;
+                    bulkAssignState.hasGroups = bulkAssignModalElement
+                        ? bulkAssignModalElement.dataset.hasGroups === 'true'
+                        : false;
+                    bulkAssignModalInstance = resolveBulkModalInstance();
+                };
+
                 const bindBulkCheckboxes = () => {
                     if (!tableBody) {
                         return;
@@ -504,7 +565,9 @@
                 };
 
                 const syncBulkGroupOptions = () => {
-                    if (!bulkGroupSelect) {
+                    if (!bulkAssignModalElement || !bulkGroupSelect) {
+                        bulkAssignState.hasGroups = false;
+                        updateBulkAssignUi();
                         return;
                     }
 
@@ -513,6 +576,13 @@
                         : null;
 
                     if (!sourceSelect) {
+                        const existingOptions = Array.from(bulkGroupSelect.options).filter(
+                            option => option.value && option.value !== ''
+                        );
+                        bulkAssignState.hasGroups = existingOptions.length > 0;
+
+                        bulkAssignModalElement.dataset.hasGroups = bulkAssignState.hasGroups ? 'true' : 'false';
+                        updateBulkAssignUi();
                         return;
                     }
 
@@ -547,13 +617,7 @@
                         bulkGroupSelect.value = '';
                     }
 
-                    if (bulkAssignPanel) {
-                        bulkAssignPanel.dataset.hasGroups = bulkAssignState.hasGroups ? 'true' : 'false';
-                    }
-
-                    if (bulkEmptyWarning) {
-                        bulkEmptyWarning.classList.toggle('d-none', bulkAssignState.hasGroups);
-                    }
+                    bulkAssignModalElement.dataset.hasGroups = bulkAssignState.hasGroups ? 'true' : 'false';
 
                     updateBulkAssignUi();
                 };
@@ -576,13 +640,13 @@
                 const handleBulkAssignSubmit = (event) => {
                     event.preventDefault();
 
-                    if (!bulkAssignPanel || !bulkAssignState.hasGroups || bulkAssignState.loading) {
+                    if (!bulkAssignModalElement || !bulkAssignState.hasGroups || bulkAssignState.loading) {
                         return;
                     }
 
                     clearBulkAssignError();
 
-                    const action = bulkAssignPanel.dataset.action;
+                    const action = bulkAssignModalElement.dataset.action || '';
                     const groupId = bulkGroupSelect ? bulkGroupSelect.value : '';
                     const curseIds = Array.from(bulkAssignState.selected);
 
@@ -649,6 +713,10 @@
                             return response.json();
                         })
                         .then(data => {
+                            if (bulkAssignModalInstance) {
+                                bulkAssignModalInstance.hide();
+                            }
+
                             processMutationResponse(data);
                             clearBulkAssignError();
 
@@ -679,24 +747,42 @@
                         });
                 };
 
-                const initBulkAssignControls = () => {
-                    if (!bulkAssignPanel) {
-                        return;
-                    }
-
-                    if (bulkGroupSelect) {
+                const bindBulkModalEvents = () => {
+                    if (bulkGroupSelect && bulkGroupSelect.dataset.bulkBound !== 'true') {
                         bulkGroupSelect.addEventListener('change', () => {
                             clearBulkAssignError();
                             updateBulkAssignUi();
                         });
+                        bulkGroupSelect.dataset.bulkBound = 'true';
                     }
 
-                    if (bulkSubmitButton) {
+                    if (bulkSubmitButton && bulkSubmitButton.dataset.bulkBound !== 'true') {
                         bulkSubmitButton.addEventListener('click', handleBulkAssignSubmit);
+                        bulkSubmitButton.dataset.bulkBound = 'true';
                     }
 
-                    if (bulkSelectAllCheckbox) {
+                    if (bulkAssignModalElement && bulkAssignModalElement.dataset.bulkBound !== 'true') {
+                        bulkAssignModalElement.addEventListener('hidden.bs.modal', () => {
+                            if (!bulkAssignState.loading) {
+                                clearBulkAssignError();
+                            }
+                        });
+                        bulkAssignModalElement.dataset.bulkBound = 'true';
+                    }
+                };
+
+                const initBulkAssignControls = () => {
+                    refreshBulkModalReferences();
+                    bindBulkModalEvents();
+
+                    if (!bulkAssignModalElement) {
+                        updateBulkAssignUi();
+                        return;
+                    }
+
+                    if (bulkSelectAllCheckbox && bulkSelectAllCheckbox.dataset.bulkBound !== 'true') {
                         bulkSelectAllCheckbox.addEventListener('change', handleBulkSelectAllChange);
+                        bulkSelectAllCheckbox.dataset.bulkBound = 'true';
                     }
 
                     bindBulkCheckboxes();
@@ -1038,6 +1124,8 @@
                     if (modalsContainer && data.modals_html) {
                         modalsContainer.innerHTML = data.modals_html;
                         modalsContainer.dataset.activeModal = '';
+                        refreshBulkModalReferences();
+                        bindBulkModalEvents();
                         syncBulkGroupOptions();
                     }
 
@@ -1217,6 +1305,9 @@
 
                             if (data.modals_html && modalsContainer) {
                                 appendHtml(modalsContainer, data.modals_html);
+                                refreshBulkModalReferences();
+                                bindBulkModalEvents();
+                                syncBulkGroupOptions();
                                 initCountryInputs();
                                 if (supportsAjax()) {
                                     attachFormHandlers();
