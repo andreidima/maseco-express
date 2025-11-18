@@ -76,7 +76,15 @@ return new class extends Migration {
         });
 
         if (DB::getDriverName() !== 'sqlite') {
+            Schema::table('valabilitati', function (Blueprint $table): void {
+                $table->dropForeign('valabilitati_divizie_id_foreign');
+            });
+
             DB::statement('ALTER TABLE valabilitati MODIFY divizie_id BIGINT UNSIGNED NOT NULL');
+
+            Schema::table('valabilitati', function (Blueprint $table): void {
+                $table->foreign('divizie_id')->references('id')->on('valabilitati_divizii');
+            });
         }
     }
 
