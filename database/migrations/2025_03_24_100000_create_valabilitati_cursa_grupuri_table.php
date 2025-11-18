@@ -20,7 +20,7 @@ return new class extends Migration
             $table->decimal('suma_calculata', 12, 2)->nullable();
             $table->date('data_factura')->nullable();
             $table->string('numar_factura')->nullable();
-            $table->string('culoare_hex', 20)->default(ValabilitateCursaGrup::DEFAULT_COLOR);
+            $table->string('culoare_hex', 20)->nullable()->default(ValabilitateCursaGrup::DEFAULT_COLOR);
             $table->timestamps();
         });
 
