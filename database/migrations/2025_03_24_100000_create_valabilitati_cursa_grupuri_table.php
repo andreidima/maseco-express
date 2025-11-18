@@ -14,8 +14,8 @@ return new class extends Migration
             $table->foreignId('valabilitate_id')
                 ->constrained('valabilitati')
                 ->cascadeOnDelete();
-            $table->string('nume');
-            $table->string('format_documente');
+            $table->string('nume')->nullable();
+            $table->string('format_documente')->nullable();
             $table->decimal('suma_incasata', 12, 2)->nullable();
             $table->decimal('suma_calculata', 12, 2)->nullable();
             $table->date('data_factura')->nullable();
