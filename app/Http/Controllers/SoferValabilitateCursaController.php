@@ -21,6 +21,7 @@ class SoferValabilitateCursaController extends Controller
         $valabilitate = $this->ensureDriverOwnsValabilitate($request, $valabilitate);
 
         $valabilitate->load([
+            'divizie',
             'curse' => function ($query) {
                 $query->orderBy('nr_ordine')->orderBy('data_cursa');
             },
@@ -37,6 +38,7 @@ class SoferValabilitateCursaController extends Controller
     public function create(Request $request, Valabilitate $valabilitate): View
     {
         $valabilitate = $this->ensureDriverOwnsValabilitate($request, $valabilitate);
+        $valabilitate->loadMissing('divizie');
 
         $tari = Tara::query()
             ->orderBy('nume')
@@ -56,6 +58,7 @@ class SoferValabilitateCursaController extends Controller
     public function edit(Request $request, Valabilitate $valabilitate, ValabilitateCursa $cursa): View
     {
         $valabilitate = $this->ensureDriverOwnsValabilitate($request, $valabilitate);
+        $valabilitate->loadMissing('divizie');
         $this->ensureCursaBelongsToValabilitate($valabilitate, $cursa);
 
         $cursa->loadMissing(['incarcareTara', 'descarcareTara']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Valabilitate;
+use App\Models\ValabilitatiDivizie;
 use App\Support\Valabilitati\ValabilitatiFilterState;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Contracts\View\View;
@@ -56,6 +57,7 @@ class ValabilitateController extends Controller
         return view('valabilitati.create', [
             'backUrl' => ValabilitatiFilterState::route(),
             'soferi' => $this->getSoferOptions(),
+            'divizii' => $this->getDivizieOptions(),
         ]);
     }
 
@@ -64,12 +66,14 @@ class ValabilitateController extends Controller
         $valabilitate->loadMissing([
             'sofer',
             'taxeDrum',
+            'divizie',
         ]);
 
         return view('valabilitati.edit', [
             'valabilitate' => $valabilitate,
             'backUrl' => ValabilitatiFilterState::route(),
             'soferi' => $this->getSoferOptions(),
+            'divizii' => $this->getDivizieOptions(),
         ]);
     }
 
@@ -78,6 +82,7 @@ class ValabilitateController extends Controller
         $valabilitate->loadMissing([
             'sofer',
             'taxeDrum',
+            'divizie',
         ]);
 
         return view('valabilitati.show', [
@@ -156,7 +161,7 @@ class ValabilitateController extends Controller
         return $this->parseFilters($request->only([
             'numar_auto',
             'sofer',
-            'denumire',
+            'divizie',
             'inceput_start',
             'inceput_end',
             'sfarsit_start',
@@ -184,11 +189,14 @@ class ValabilitateController extends Controller
         $query = Valabilitate::query()->with([
             'sofer',
             'taxeDrum',
+            'divizie',
         ]);
 
-        if ($filters['denumire'] !== '') {
-            $denumire = Str::lower($filters['denumire']);
-            $query->whereRaw('LOWER(denumire) LIKE ?', ["%{$denumire}%"]);
+        if ($filters['divizie'] !== '') {
+            $divizie = Str::lower($filters['divizie']);
+            $query->whereHas('divizie', function (Builder $builder) use ($divizie): void {
+                $builder->whereRaw('LOWER(nume) LIKE ?', ["%{$divizie}%"]);
+            });
         }
 
         if ($filters['sofer'] !== '') {
@@ -229,7 +237,10 @@ class ValabilitateController extends Controller
     {
         $paginator = $this->buildFilteredQuery($filters)
             ->orderByDesc('data_inceput')
-            ->orderBy('denumire')
+            ->orderBy(
+                ValabilitatiDivizie::select('nume')
+                    ->whereColumn('valabilitati_divizii.id', 'valabilitati.divizie_id')
+            )
             ->paginate(self::PER_PAGE);
 
         if ($query !== null) {
@@ -259,7 +270,7 @@ class ValabilitateController extends Controller
         $validator = Validator::make($input, [
             'numar_auto' => ['nullable', 'string', 'max:255'],
             'sofer' => ['nullable', 'string', 'max:255'],
-            'denumire' => ['nullable', 'string', 'max:255'],
+            'divizie' => ['nullable', 'string', 'max:255'],
             'inceput_start' => ['nullable', 'date'],
             'inceput_end' => ['nullable', 'date', 'after_or_equal:inceput_start'],
             'sfarsit_start' => ['nullable', 'date'],
@@ -276,7 +287,7 @@ class ValabilitateController extends Controller
         return [
             'numar_auto' => trim((string) ($validated['numar_auto'] ?? '')),
             'sofer' => trim((string) ($validated['sofer'] ?? '')),
-            'denumire' => trim((string) ($validated['denumire'] ?? '')),
+            'divizie' => trim((string) ($validated['divizie'] ?? '')),
             'inceput_start' => $inceputStart,
             'inceput_end' => $inceputEnd,
             'sfarsit_start' => $validated['sfarsit_start'] ?? null,
@@ -296,6 +307,14 @@ class ValabilitateController extends Controller
             ->toArray();
     }
 
+    private function getDivizieOptions(): array
+    {
+        return ValabilitatiDivizie::query()
+            ->orderBy('nume')
+            ->pluck('nume', 'id')
+            ->toArray();
+    }
+
     /**
      * @return array<string, mixed>|RedirectResponse
      */
@@ -310,7 +329,7 @@ class ValabilitateController extends Controller
         $validator = Validator::make($input, [
             'numar_auto' => ['required', 'string', 'max:255'],
             'sofer_id' => ['required', 'integer', 'exists:users,id'],
-            'denumire' => ['required', 'string', 'max:255'],
+            'divizie_id' => ['required', 'integer', 'exists:valabilitati_divizii,id'],
             'data_inceput' => ['required', 'date'],
             'data_sfarsit' => ['nullable', 'date', 'after_or_equal:data_inceput'],
             'taxe_drum' => ['array'],
@@ -323,7 +342,7 @@ class ValabilitateController extends Controller
         ], [], [
             'numar_auto' => 'număr auto',
             'sofer_id' => 'șofer',
-            'denumire' => 'denumire',
+            'divizie_id' => 'divizie',
             'data_inceput' => 'data de început',
             'data_sfarsit' => 'data de sfârșit',
             'taxe_drum' => 'taxe de drum',
@@ -384,7 +403,7 @@ class ValabilitateController extends Controller
         ];
 
         if ($valabilitate) {
-            $valabilitate->loadMissing(['sofer', 'taxeDrum']);
+            $valabilitate->loadMissing(['sofer', 'taxeDrum', 'divizie']);
             $response['valabilitate'] = $valabilitate->toArray();
         }
 

@@ -78,7 +78,7 @@
                         <span>
                             <i class="fa-solid fa-layer-group me-1"></i>Grupuri
                             /
-                            {{ $valabilitate->denumire }}
+                            {{ $valabilitate->divizie->nume ?? 'Fără divizie' }}
                         </span>
                     </span>
                 </span>

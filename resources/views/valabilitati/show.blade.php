@@ -24,7 +24,7 @@
                     class="btn btn-sm btn-danger text-white border border-dark rounded-3"
                     data-valabilitate-delete
                     data-delete-url="{{ route('valabilitati.destroy', $valabilitate) }}"
-                    data-delete-denumire="{{ $valabilitate->denumire }}"
+                    data-delete-divizie="{{ $valabilitate->divizie->nume ?? '' }}"
                     data-delete-numar-auto="{{ $valabilitate->numar_auto }}"
                 >
                     <i class="fa-solid fa-trash-can text-white me-1"></i>Șterge
@@ -46,7 +46,7 @@
             <div class="col-md-6">
                 <div class="border rounded-3 p-3 h-100">
                     <h6 class="text-muted text-uppercase mb-2">Informații generale</h6>
-                    <p class="mb-1"><strong>Denumire:</strong> {{ $valabilitate->denumire }}</p>
+                    <p class="mb-1"><strong>Divizie:</strong> {{ $valabilitate->divizie->nume ?? '—' }}</p>
                     <p class="mb-1"><strong>Număr auto:</strong> {{ $valabilitate->numar_auto }}</p>
                     <p class="mb-0"><strong>Șofer:</strong> {{ $valabilitate->sofer->name ?? '—' }}</p>
                 </div>

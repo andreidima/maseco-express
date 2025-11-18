@@ -30,7 +30,7 @@ class ValabilitateCursaController extends Controller
 
         ValabilitatiCurseFilterState::remember($request, $valabilitate, []);
 
-        $valabilitate->loadMissing(['sofer', 'taxeDrum', 'cursaGrupuri']);
+        $valabilitate->loadMissing(['sofer', 'taxeDrum', 'cursaGrupuri', 'divizie']);
         $summary = $this->buildSummaryData($valabilitate, $curse);
 
         $modalViewData = $this->buildModalViewData(
@@ -59,7 +59,7 @@ class ValabilitateCursaController extends Controller
         $curse = $this->paginateCurse($request, $valabilitate);
 
         ValabilitatiCurseFilterState::remember($request, $valabilitate, []);
-        $valabilitate->loadMissing(['sofer', 'taxeDrum', 'cursaGrupuri']);
+        $valabilitate->loadMissing(['sofer', 'taxeDrum', 'cursaGrupuri', 'divizie']);
         $summary = $this->buildSummaryData($valabilitate, $curse);
 
         return response()->json([

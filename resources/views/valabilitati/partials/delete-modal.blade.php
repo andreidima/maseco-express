@@ -46,15 +46,15 @@
 
                     deleteForm.setAttribute('action', action);
 
-                    const denumire = trigger.getAttribute('data-delete-denumire') || '';
+                    const divizie = trigger.getAttribute('data-delete-divizie') || '';
                     const numarAuto = trigger.getAttribute('data-delete-numar-auto') || '';
 
                     if (messageElement) {
                         let message = 'Sigur ștergi valabilitatea?';
-                        if (denumire && numarAuto) {
-                            message = `Sigur ștergi valabilitatea „${denumire}” pentru „${numarAuto}”?`;
-                        } else if (denumire) {
-                            message = `Sigur ștergi valabilitatea „${denumire}”?`;
+                        if (divizie && numarAuto) {
+                            message = `Sigur ștergi valabilitatea pentru divizia „${divizie}” și numărul „${numarAuto}”?`;
+                        } else if (divizie) {
+                            message = `Sigur ștergi valabilitatea pentru divizia „${divizie}”?`;
                         } else if (numarAuto) {
                             message = `Sigur ștergi valabilitatea pentru „${numarAuto}”?`;
                         }

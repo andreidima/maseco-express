@@ -17,7 +17,7 @@ class SoferDashboardController extends Controller
 
         if ($driver) {
             $activeValabilitate = Valabilitate::query()
-                ->select(['id', 'numar_auto', 'denumire', 'data_inceput', 'data_sfarsit'])
+                ->select(['id', 'numar_auto', 'divizie_id', 'data_inceput', 'data_sfarsit'])
                 ->where('sofer_id', $driver->id)
                 ->whereDate('data_inceput', '<=', $today)
                 ->where(function ($query) use ($today) {
@@ -25,6 +25,7 @@ class SoferDashboardController extends Controller
                         ->whereNull('data_sfarsit')
                         ->orWhereDate('data_sfarsit', '>=', $today);
                 })
+                ->with('divizie:id,nume')
                 ->withCount('curse')
                 ->orderByDesc('data_inceput')
                 ->first();

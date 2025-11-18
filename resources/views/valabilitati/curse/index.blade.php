@@ -105,7 +105,7 @@
                         <span>
                             <i class="fa-solid fa-route me-1"></i>Curse
                             /
-                            {{ $valabilitate->denumire }}
+                            {{ $valabilitate->divizie->nume ?? 'Fără divizie' }}
                         </span>
                     </span>
                 </span>

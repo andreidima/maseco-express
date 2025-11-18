@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\User;
 use App\Models\ValabilitateTaxaDrum;
 use App\Models\ValabilitateCursaGrup;
+use App\Models\ValabilitatiDivizie;
 
 class Valabilitate extends Model
 {
@@ -19,7 +20,7 @@ class Valabilitate extends Model
     protected $fillable = [
         'numar_auto',
         'sofer_id',
-        'denumire',
+        'divizie_id',
         'data_inceput',
         'data_sfarsit',
     ];
@@ -32,6 +33,11 @@ class Valabilitate extends Model
     public function sofer(): BelongsTo
     {
         return $this->belongsTo(User::class, 'sofer_id');
+    }
+
+    public function divizie(): BelongsTo
+    {
+        return $this->belongsTo(ValabilitatiDivizie::class, 'divizie_id');
     }
 
     public function curse(): HasMany

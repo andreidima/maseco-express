@@ -16,7 +16,7 @@
             {{-- Title + label in the middle --}}
             <div class="flex-grow-1 mx-1 text-center">
                 <h1 class="sofer-header__title fw-bold mb-0 text-truncate">
-                    {{ $valabilitate->denumire }}
+                    {{ $valabilitate->divizie->nume ?? 'Fără divizie' }}
                 </h1>
             </div>
 
@@ -32,6 +32,10 @@
 
         {{-- Meta line: dates + număr auto --}}
         <div class="sofer-header__meta small text-muted mt-2 text-center gap-2">
+            <span class="me-2">
+                <i class="fa-solid fa-building me-1"></i>
+                {{ $valabilitate->divizie->nume ?? 'Fără divizie' }}
+            </span>
             <span class="">
                 <i class="fa-solid fa-car-side me-1"></i>
                 {{ $valabilitate->numar_auto ?? 'Fără număr' }}

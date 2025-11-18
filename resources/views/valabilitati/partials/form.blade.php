@@ -4,6 +4,7 @@
     $submitLabel = $submitLabel ?? 'Salvează';
     $formAction = $action ?? '';
     $soferi = $soferi ?? [];
+    $divizii = $divizii ?? [];
 @endphp
 
 <form action="{{ $formAction }}" method="POST" class="needs-validation" novalidate>
@@ -14,17 +15,26 @@
 
     <div class="row g-3 mb-3">
         <div class="col-md-6">
-            <label for="valabilitate-denumire" class="form-label">Denumire<span class="text-danger">*</span></label>
-            <input
-                type="text"
-                name="denumire"
-                id="valabilitate-denumire"
-                class="form-control bg-white rounded-3 @error('denumire') is-invalid @enderror"
-                value="{{ old('denumire', optional($valabilitate)->denumire) }}"
-                autocomplete="off"
+            <label for="valabilitate-divizie" class="form-label">Divizie<span class="text-danger">*</span></label>
+            <select
+                name="divizie_id"
+                id="valabilitate-divizie"
+                class="form-select bg-white rounded-3 @error('divizie_id') is-invalid @enderror"
                 required
             >
-            @error('denumire')
+                <option value="">Selectează divizie</option>
+                @foreach ($divizii as $divizieId => $divizieNume)
+                    <option value="{{ $divizieId }}" @selected((int) old('divizie_id', optional($valabilitate)->divizie_id) === (int) $divizieId)>
+                        {{ $divizieNume }}
+                    </option>
+                @endforeach
+                @if ($valabilitate && $valabilitate->divizie && ! array_key_exists($valabilitate->divizie_id, $divizii))
+                    <option value="{{ $valabilitate->divizie_id }}" selected>
+                        {{ $valabilitate->divizie->nume }}
+                    </option>
+                @endif
+            </select>
+            @error('divizie_id')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>

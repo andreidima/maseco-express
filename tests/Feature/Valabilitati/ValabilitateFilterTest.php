@@ -6,6 +6,7 @@ use App\Models\Permission;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\Valabilitate;
+use App\Models\ValabilitatiDivizie;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -17,20 +18,24 @@ class ValabilitateFilterTest extends TestCase
     {
         $user = $this->createValabilitatiUser();
 
+        $matchingDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Divizie potrivită']);
+        $beforeDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Înainte de interval']);
+        $afterDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'După interval']);
+
         $matching = Valabilitate::factory()->create([
-            'denumire' => 'Valabilitate potrivită',
+            'divizie_id' => $matchingDivizie->id,
             'data_inceput' => '2025-01-15',
             'data_sfarsit' => '2025-02-12',
         ]);
 
         Valabilitate::factory()->create([
-            'denumire' => 'Înainte de interval',
+            'divizie_id' => $beforeDivizie->id,
             'data_inceput' => '2025-01-05',
             'data_sfarsit' => '2025-02-12',
         ]);
 
         Valabilitate::factory()->create([
-            'denumire' => 'După interval',
+            'divizie_id' => $afterDivizie->id,
             'data_inceput' => '2025-01-18',
             'data_sfarsit' => '2025-02-25',
         ]);
@@ -43,23 +48,26 @@ class ValabilitateFilterTest extends TestCase
         ]));
 
         $response->assertOk();
-        $response->assertSeeText($matching->denumire);
-        $response->assertDontSeeText('Înainte de interval');
-        $response->assertDontSeeText('După interval');
+        $response->assertSeeText($matchingDivizie->nume);
+        $response->assertDontSeeText($beforeDivizie->nume);
+        $response->assertDontSeeText($afterDivizie->nume);
     }
 
     public function test_legacy_interval_parameters_are_supported(): void
     {
         $user = $this->createValabilitatiUser();
 
+        $insideDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Compatibil Legacy']);
+        $outsideDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'În afara Legacy']);
+
         $inside = Valabilitate::factory()->create([
-            'denumire' => 'Compatibil Legacy',
+            'divizie_id' => $insideDivizie->id,
             'data_inceput' => '2025-03-10',
             'data_sfarsit' => '2025-03-20',
         ]);
 
         Valabilitate::factory()->create([
-            'denumire' => 'În afara Legacy',
+            'divizie_id' => $outsideDivizie->id,
             'data_inceput' => '2025-03-25',
             'data_sfarsit' => '2025-03-28',
         ]);
@@ -70,8 +78,8 @@ class ValabilitateFilterTest extends TestCase
         ]));
 
         $response->assertOk();
-        $response->assertSeeText($inside->denumire);
-        $response->assertDontSeeText('În afara Legacy');
+        $response->assertSeeText($insideDivizie->nume);
+        $response->assertDontSeeText($outsideDivizie->nume);
     }
 
     private function createValabilitatiUser(): User

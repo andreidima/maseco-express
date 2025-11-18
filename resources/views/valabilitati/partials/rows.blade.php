@@ -11,7 +11,7 @@
         $statusClass = $isActive ? 'bg-success' : 'bg-secondary';
     @endphp
     <tr>
-        <td class="fw-semibold">{{ $valabilitate->denumire }}</td>
+        <td class="fw-semibold">{{ $valabilitate->divizie->nume ?? '—' }}</td>
         <td class="text-nowrap">{{ $valabilitate->numar_auto }}</td>
         <td>{{ $valabilitate->sofer->name ?? '—' }}</td>
         <td class="text-nowrap">{{ optional($dataInceput)->format('d.m.Y') ?? '—' }}</td>
@@ -46,7 +46,7 @@
                         class="flex"
                         data-valabilitate-delete
                         data-delete-url="{{ route('valabilitati.destroy', $valabilitate) }}"
-                        data-delete-denumire="{{ $valabilitate->denumire }}"
+                        data-delete-divizie="{{ $valabilitate->divizie->nume ?? '' }}"
                         data-delete-numar-auto="{{ $valabilitate->numar_auto }}"
                         title="Șterge valabilitatea"
                     >
