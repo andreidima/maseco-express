@@ -68,7 +68,7 @@ trait HandlesValabilitatiCurseListings
         $query = ValabilitatiCurseFilterState::get($valabilitate);
         $filtersRequest = Request::create('', 'GET', $query);
         $curse = $this->paginateCurse($filtersRequest, $valabilitate, $query);
-        $valabilitate->loadMissing(['sofer', 'taxeDrum', 'cursaGrupuri']);
+        $valabilitate->loadMissing(['sofer', 'taxeDrum', 'cursaGrupuri', 'divizie']);
         $summary = $this->buildSummaryData($valabilitate, $curse);
 
         return response()->json([

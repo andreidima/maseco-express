@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateTaxaDrum;
+use App\Models\ValabilitatiDivizie;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,8 +19,9 @@ class ValabilitateRoadTaxesFrontendTest extends TestCase
     {
         $user = $this->createValabilitatiUser();
 
+        $divizie = ValabilitatiDivizie::factory()->create(['nume' => 'Valabilitate modal']);
         $valabilitate = Valabilitate::factory()->create([
-            'denumire' => 'Valabilitate modal',
+            'divizie_id' => $divizie->id,
         ]);
 
         ValabilitateTaxaDrum::factory()->create([
@@ -66,8 +68,9 @@ class ValabilitateRoadTaxesFrontendTest extends TestCase
     {
         $user = $this->createValabilitatiUser();
 
+        $divizie = ValabilitatiDivizie::factory()->create(['nume' => 'Valabilitate vizualizare']);
         $valabilitate = Valabilitate::factory()->create([
-            'denumire' => 'Valabilitate vizualizare',
+            'divizie_id' => $divizie->id,
         ]);
 
         ValabilitateTaxaDrum::factory()->create([

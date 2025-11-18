@@ -24,6 +24,7 @@
             'submitLabel' => 'Salvează',
             'backUrl' => $backUrl ?? route('valabilitati.index'),
             'soferi' => $soferi,
+            'divizii' => $divizii,
         ])
     </div>
 </div>

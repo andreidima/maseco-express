@@ -7,6 +7,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateTaxaDrum;
+use App\Models\ValabilitatiDivizie;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -18,11 +19,12 @@ class ValabilitateRoadTaxesTest extends TestCase
     {
         $user = $this->createValabilitatiUser();
         $driver = User::factory()->create();
+        $divizie = ValabilitatiDivizie::factory()->create(['nume' => 'Divizie Taxe']);
 
         $payload = [
             'numar_auto' => 'B-99-XYZ',
             'sofer_id' => $driver->id,
-            'denumire' => 'Valabilitate cu taxe',
+            'divizie_id' => $divizie->id,
             'data_inceput' => '2025-03-01',
             'data_sfarsit' => '2025-03-31',
             'taxe_drum' => [
@@ -91,7 +93,7 @@ class ValabilitateRoadTaxesTest extends TestCase
         $payload = [
             'numar_auto' => $valabilitate->numar_auto,
             'sofer_id' => $valabilitate->sofer_id,
-            'denumire' => 'Actualizare taxe',
+            'divizie_id' => $valabilitate->divizie_id,
             'data_inceput' => $valabilitate->data_inceput?->format('Y-m-d') ?? '2025-03-01',
             'data_sfarsit' => $valabilitate->data_sfarsit?->format('Y-m-d'),
             'taxe_drum' => [
@@ -138,7 +140,7 @@ class ValabilitateRoadTaxesTest extends TestCase
         $payload = [
             'numar_auto' => $valabilitate->numar_auto,
             'sofer_id' => $valabilitate->sofer_id,
-            'denumire' => $valabilitate->denumire,
+            'divizie_id' => $valabilitate->divizie_id,
             'data_inceput' => $valabilitate->data_inceput?->format('Y-m-d') ?? '2025-03-01',
             'data_sfarsit' => $valabilitate->data_sfarsit?->format('Y-m-d'),
             'taxe_drum' => [],

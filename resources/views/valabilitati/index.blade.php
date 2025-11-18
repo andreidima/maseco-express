@@ -20,7 +20,7 @@
                         <input type="text" class="form-control rounded-3" id="filter-sofer" name="sofer" placeholder="Șofer" value="{{ $filters['sofer'] }}">
                     </div>
                     <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
-                        <input type="text" class="form-control rounded-3" id="filter-denumire" name="denumire" placeholder="Denumire" value="{{ $filters['denumire'] }}">
+                        <input type="text" class="form-control rounded-3" id="filter-divizie" name="divizie" placeholder="Divizie" value="{{ $filters['divizie'] }}">
                     </div>
                 @php
                     $inceputRangeFilter = implode(',', array_filter([
@@ -103,7 +103,7 @@
             <table class="table table-sm table-striped table-hover rounded align-middle">
                 <thead class="text-white rounded culoare2">
                     <tr>
-                        <th>Denumire</th>
+                        <th>Divizie</th>
                         <th>Număr auto</th>
                         <th>Șofer</th>
                         <th>Început</th>

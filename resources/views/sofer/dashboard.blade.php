@@ -17,6 +17,9 @@
                     <b class="h4 text-primary fw-bold">
                         {{ $activeValabilitate->numar_auto ?? 'Fără număr' }}
                     </b>
+                    <p class="text-muted mb-0">
+                        {{ $activeValabilitate->divizie->nume ?? 'Fără divizie' }}
+                    </p>
                 </div>
 
                 <div class="row g-4 align-items-center">
