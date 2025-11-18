@@ -71,6 +71,69 @@
     </datalist>
 @endif
 
+@php
+    $hasBulkGrupuri = $grupuri->isNotEmpty();
+@endphp
+
+<div
+    class="modal fade text-dark"
+    id="curseBulkAssignModal"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="curseBulkAssignModalLabel"
+    aria-hidden="true"
+    data-action="{{ route('valabilitati.curse.bulk-assign', $valabilitate) }}"
+    data-has-groups="{{ $hasBulkGrupuri ? 'true' : 'false' }}"
+>
+    <div class="modal-dialog" role="document" style="--bs-modal-width: 500px;">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="curseBulkAssignModalLabel">Adaugă cursele selectate în grup</h5>
+                <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Închide"></button>
+            </div>
+            <div class="modal-body">
+                @unless ($hasBulkGrupuri)
+                    <div class="alert alert-warning" data-bulk-empty-warning>
+                        Creează mai întâi un grup pentru a putea adăuga cursele selectate.
+                    </div>
+                @endunless
+                <div class="mb-3">
+                    <label for="curse-bulk-group" class="form-label">Alege grupul</label>
+                    <select
+                        id="curse-bulk-group"
+                        class="form-select"
+                        @disabled(! $hasBulkGrupuri)
+                    >
+                        <option value="">Selectează grupul</option>
+                        @foreach ($grupuri as $grup)
+                            <option value="{{ $grup->id }}">{{ $grup->nume }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div class="text-muted small mb-3">
+                    Curse selectate: <span id="curse-bulk-selected-count">0</span>
+                </div>
+                <div id="curse-bulk-feedback" class="text-danger small d-none"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                <button
+                    type="button"
+                    id="curse-bulk-submit"
+                    class="btn btn-primary text-white"
+                    @disabled(! $hasBulkGrupuri)
+                >
+                    <span data-bulk-default-label>Adaugă cursele selectate în grup</span>
+                    <span class="d-none" data-bulk-loading-label>
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Se procesează...
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @if ($renderCurseModals && ($includeCreate ?? false) === true)
     @php
         $isCreateActive = $currentFormType === 'create';

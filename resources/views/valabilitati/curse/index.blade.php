@@ -89,6 +89,7 @@
         $grupuriRoute = route('valabilitati.grupuri.index', $valabilitate);
         $curseRoute = route('valabilitati.curse.index', $valabilitate);
         $isGroupsContext = request()->routeIs('valabilitati.grupuri.*');
+        $hasGrupuri = $valabilitate->cursaGrupuri->count() > 0;
     @endphp
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center text-center text-lg-start" style="border-radius: 40px 40px 0px 0px;">
@@ -137,6 +138,16 @@
                     >
                         <i class="fas fa-plus-square text-white me-1"></i>Adaugă cursă
                     </button>
+                    <button
+                        type="button"
+                        id="curse-bulk-trigger"
+                        class="btn btn-sm btn-outline-primary border border-dark rounded-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#curseBulkAssignModal"
+                        disabled
+                    >
+                        <i class="fa-solid fa-layer-group me-1"></i>Adaugă cursele selectate în grup
+                    </button>
                     <a
                         href="{{ $backUrl }}"
                         class="btn btn-sm btn-outline-secondary border border-dark rounded-3"
@@ -166,6 +177,19 @@
                     <table class="table table-sm curse-data-table align-middle">
                         <thead>
                             <tr class="curse-data-header-top">
+                                <th rowspan="2" class="text-center curse-nowrap align-middle">
+                                    <div class="form-check mb-0">
+                                        <input
+                                            type="checkbox"
+                                            class="form-check-input"
+                                            id="curse-table-select-all"
+                                            @disabled($curse->count() === 0)
+                                        >
+                                        <label class="visually-hidden" for="curse-table-select-all">
+                                            Selectează toate cursele afișate
+                                        </label>
+                                    </div>
+                                </th>
                                 <th rowspan="2" class="text-center curse-nowrap">#</th>
                                 <th rowspan="2" class="curse-nowrap">Nr. cursă</th>
                                 <th rowspan="2">Cursa</th>
@@ -194,7 +218,7 @@
                                 @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                             @else
                                 <tr>
-                                    <td colspan="12" class="text-center py-4">
+                                    <td colspan="13" class="text-center py-4">
                                         Nu există curse care să respecte criteriile selectate.
                                     </td>
                                 </tr>
@@ -239,6 +263,37 @@
                 const tableBody = document.getElementById('curse-table-body');
                 const feedbackContainer = document.getElementById('curse-feedback');
                 const summaryContainer = document.getElementById('curse-summary');
+                const bulkTriggerButton = document.getElementById('curse-bulk-trigger');
+                const bulkSelectAllCheckbox = document.getElementById('curse-table-select-all');
+                let bulkAssignModalElement = document.getElementById('curseBulkAssignModal');
+                let bulkGroupSelect = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('#curse-bulk-group')
+                    : null;
+                let bulkSubmitButton = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('#curse-bulk-submit')
+                    : null;
+                let bulkSelectedCount = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('#curse-bulk-selected-count')
+                    : null;
+                let bulkFeedback = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('#curse-bulk-feedback')
+                    : null;
+                let bulkEmptyWarning = bulkAssignModalElement
+                    ? bulkAssignModalElement.querySelector('[data-bulk-empty-warning]')
+                    : null;
+                const bulkAssignState = {
+                    selected: new Set(),
+                    loading: false,
+                    hasGroups: bulkAssignModalElement ? bulkAssignModalElement.dataset.hasGroups === 'true' : false,
+                };
+                const resolveBulkModalInstance = () => {
+                    if (!bulkAssignModalElement || !bootstrapModal) {
+                        return null;
+                    }
+
+                    return bootstrapModal.getOrCreateInstance(bulkAssignModalElement);
+                };
+                let bulkAssignModalInstance = resolveBulkModalInstance();
                 const COUNTRY_DATALIST_ID = 'valabilitati-curse-tari';
                 const countryState = {
                     mapByName: new Map(),
@@ -268,6 +323,418 @@
                     observer: null,
                     nextUrl: null,
                     loading: false,
+                };
+
+                const updateBulkAssignUi = () => {
+                    if (bulkSelectedCount) {
+                        bulkSelectedCount.textContent = String(bulkAssignState.selected.size);
+                    }
+
+                    if (bulkSubmitButton) {
+                        const hasGroupSelection = bulkGroupSelect && bulkGroupSelect.value !== '';
+                        const canSubmit =
+                            bulkAssignState.hasGroups &&
+                            hasGroupSelection &&
+                            bulkAssignState.selected.size > 0 &&
+                            !bulkAssignState.loading;
+                        bulkSubmitButton.disabled = !canSubmit;
+                    }
+
+                    if (bulkTriggerButton) {
+                        const canOpenModal =
+                            bulkAssignState.hasGroups &&
+                            bulkAssignState.selected.size > 0 &&
+                            !bulkAssignState.loading;
+                        bulkTriggerButton.disabled = !canOpenModal;
+                    }
+
+                    if (bulkEmptyWarning) {
+                        bulkEmptyWarning.classList.toggle('d-none', bulkAssignState.hasGroups);
+                    }
+
+                    if (bulkSelectAllCheckbox && tableBody) {
+                        const totalCheckboxes = tableBody.querySelectorAll('.curse-row-checkbox').length;
+                        bulkSelectAllCheckbox.disabled = totalCheckboxes === 0;
+                    }
+                };
+
+                const clearBulkAssignError = () => {
+                    if (!bulkFeedback) {
+                        return;
+                    }
+
+                    bulkFeedback.textContent = '';
+                    bulkFeedback.classList.add('d-none');
+                };
+
+                const showBulkAssignError = (message) => {
+                    if (!bulkFeedback) {
+                        return;
+                    }
+
+                    bulkFeedback.textContent = message;
+                    bulkFeedback.classList.remove('d-none');
+                };
+
+                const setBulkAssignLoading = (isLoading) => {
+                    bulkAssignState.loading = isLoading;
+
+                    if (bulkSubmitButton) {
+                        const defaultLabel = bulkSubmitButton.querySelector('[data-bulk-default-label]');
+                        const loadingLabel = bulkSubmitButton.querySelector('[data-bulk-loading-label]');
+                        if (defaultLabel && loadingLabel) {
+                            defaultLabel.classList.toggle('d-none', isLoading);
+                            loadingLabel.classList.toggle('d-none', !isLoading);
+                        }
+                    }
+
+                    updateBulkAssignUi();
+                };
+
+                const resetBulkSelection = (clearSet = false) => {
+                    if (clearSet) {
+                        bulkAssignState.selected.clear();
+                    }
+
+                    if (tableBody) {
+                        const checkboxes = tableBody.querySelectorAll('.curse-row-checkbox');
+                        checkboxes.forEach(checkbox => {
+                            checkbox.checked = false;
+                        });
+                    }
+
+                    if (bulkSelectAllCheckbox) {
+                        bulkSelectAllCheckbox.checked = false;
+                        bulkSelectAllCheckbox.indeterminate = false;
+                    }
+
+                    updateBulkAssignUi();
+                };
+
+                const refreshBulkSelectAllState = () => {
+                    if (!bulkSelectAllCheckbox || !tableBody) {
+                        return;
+                    }
+
+                    const checkboxes = Array.from(tableBody.querySelectorAll('.curse-row-checkbox'));
+                    const total = checkboxes.length;
+                    const checked = checkboxes.filter(cb => cb.checked).length;
+
+                    bulkSelectAllCheckbox.indeterminate = checked > 0 && checked < total;
+                    bulkSelectAllCheckbox.checked = total > 0 && checked === total;
+                    bulkSelectAllCheckbox.disabled = total === 0;
+                };
+
+                const refreshBulkModalReferences = () => {
+                    bulkAssignModalElement = document.getElementById('curseBulkAssignModal');
+                    bulkGroupSelect = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('#curse-bulk-group')
+                        : null;
+                    bulkSubmitButton = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('#curse-bulk-submit')
+                        : null;
+                    bulkSelectedCount = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('#curse-bulk-selected-count')
+                        : null;
+                    bulkFeedback = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('#curse-bulk-feedback')
+                        : null;
+                    bulkEmptyWarning = bulkAssignModalElement
+                        ? bulkAssignModalElement.querySelector('[data-bulk-empty-warning]')
+                        : null;
+                    bulkAssignState.hasGroups = bulkAssignModalElement
+                        ? bulkAssignModalElement.dataset.hasGroups === 'true'
+                        : false;
+                    bulkAssignModalInstance = resolveBulkModalInstance();
+                };
+
+                const bindBulkCheckboxes = () => {
+                    if (!tableBody) {
+                        return;
+                    }
+
+                    const checkboxes = tableBody.querySelectorAll('.curse-row-checkbox');
+                    checkboxes.forEach(checkbox => {
+                        if (checkbox.dataset.bulkBound === 'true') {
+                            return;
+                        }
+
+                        checkbox.addEventListener('change', () => {
+                            const id = checkbox.dataset.cursaId;
+                            if (!id) {
+                                return;
+                            }
+
+                            if (checkbox.checked) {
+                                bulkAssignState.selected.add(id);
+                            } else {
+                                bulkAssignState.selected.delete(id);
+                            }
+
+                            refreshBulkSelectAllState();
+                            updateBulkAssignUi();
+                        });
+
+                        checkbox.dataset.bulkBound = 'true';
+                    });
+
+                    refreshBulkSelectAllState();
+                };
+
+                const handleBulkSelectAllChange = (event) => {
+                    if (!tableBody) {
+                        return;
+                    }
+
+                    const shouldCheck = event.target.checked;
+
+                    if (bulkSelectAllCheckbox) {
+                        bulkSelectAllCheckbox.indeterminate = false;
+                    }
+
+                    const checkboxes = tableBody.querySelectorAll('.curse-row-checkbox');
+                    checkboxes.forEach(checkbox => {
+                        checkbox.checked = shouldCheck;
+                        const id = checkbox.dataset.cursaId;
+
+                        if (!id) {
+                            return;
+                        }
+
+                        if (shouldCheck) {
+                            bulkAssignState.selected.add(id);
+                        } else {
+                            bulkAssignState.selected.delete(id);
+                        }
+                    });
+
+                    updateBulkAssignUi();
+                };
+
+                const syncBulkGroupOptions = () => {
+                    if (!bulkAssignModalElement || !bulkGroupSelect) {
+                        bulkAssignState.hasGroups = false;
+                        updateBulkAssignUi();
+                        return;
+                    }
+
+                    const sourceSelect = modalsContainer
+                        ? modalsContainer.querySelector('#cursa-create-grup')
+                        : null;
+
+                    if (!sourceSelect) {
+                        const existingOptions = Array.from(bulkGroupSelect.options).filter(
+                            option => option.value && option.value !== ''
+                        );
+                        bulkAssignState.hasGroups = existingOptions.length > 0;
+
+                        bulkAssignModalElement.dataset.hasGroups = bulkAssignState.hasGroups ? 'true' : 'false';
+                        updateBulkAssignUi();
+                        return;
+                    }
+
+                    const previousValue = bulkGroupSelect.value;
+                    const newOptions = Array.from(sourceSelect.options)
+                        .filter(option => option.value && option.value !== '')
+                        .map(option => ({
+                            value: option.value,
+                            label: (option.textContent || '').trim(),
+                        }));
+
+                    bulkGroupSelect.innerHTML = '';
+
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = 'Selectează grupul';
+                    bulkGroupSelect.appendChild(placeholder);
+
+                    newOptions.forEach(option => {
+                        const opt = document.createElement('option');
+                        opt.value = option.value;
+                        opt.textContent = option.label || '—';
+                        if (previousValue && previousValue === option.value) {
+                            opt.selected = true;
+                        }
+                        bulkGroupSelect.appendChild(opt);
+                    });
+
+                    bulkAssignState.hasGroups = newOptions.length > 0;
+
+                    if (!bulkAssignState.hasGroups) {
+                        bulkGroupSelect.value = '';
+                    }
+
+                    bulkAssignModalElement.dataset.hasGroups = bulkAssignState.hasGroups ? 'true' : 'false';
+
+                    updateBulkAssignUi();
+                };
+
+                const extractFirstValidationMessage = (errors) => {
+                    if (!errors || typeof errors !== 'object') {
+                        return null;
+                    }
+
+                    for (const key of Object.keys(errors)) {
+                        const messages = errors[key];
+                        if (Array.isArray(messages) && messages.length > 0) {
+                            return messages[0];
+                        }
+                    }
+
+                    return null;
+                };
+
+                const handleBulkAssignSubmit = (event) => {
+                    event.preventDefault();
+
+                    if (!bulkAssignModalElement || !bulkAssignState.hasGroups || bulkAssignState.loading) {
+                        return;
+                    }
+
+                    clearBulkAssignError();
+
+                    const action = bulkAssignModalElement.dataset.action || '';
+                    const groupId = bulkGroupSelect ? bulkGroupSelect.value : '';
+                    const curseIds = Array.from(bulkAssignState.selected);
+
+                    if (!action) {
+                        return;
+                    }
+
+                    if (curseIds.length === 0) {
+                        showBulkAssignError('Selectează cel puțin o cursă.');
+                        updateBulkAssignUi();
+                        return;
+                    }
+
+                    if (!groupId) {
+                        showBulkAssignError('Alege grupul în care dorești să muți cursele.');
+                        updateBulkAssignUi();
+                        return;
+                    }
+
+                    const formData = new FormData();
+                    curseIds.forEach(id => formData.append('curse_ids[]', id));
+                    formData.append('cursa_grup_id', groupId);
+
+                    setBulkAssignLoading(true);
+
+                    const fetchOptions = {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                        body: formData,
+                    };
+
+                    const csrfToken = resolveCsrfToken();
+                    if (csrfToken) {
+                        fetchOptions.headers['X-CSRF-TOKEN'] = csrfToken;
+                    }
+
+                    fetch(action, fetchOptions)
+                        .then(response => {
+                            if (response.status === 422) {
+                                return response.json().then(data => {
+                                    const message = extractFirstValidationMessage(data.errors || {});
+                                    if (message) {
+                                        showBulkAssignError(message);
+                                    }
+                                    throw new Error('validation');
+                                });
+                            }
+
+                            if (!response.ok) {
+                                return response.text().then(body => {
+                                    const error = new Error('request_failed');
+                                    error.status = response.status;
+                                    error.statusText = response.statusText;
+                                    error.body = body;
+                                    error.url = response.url;
+                                    throw error;
+                                });
+                            }
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (bulkAssignModalInstance) {
+                                bulkAssignModalInstance.hide();
+                            }
+
+                            processMutationResponse(data);
+                            clearBulkAssignError();
+
+                            if (data.message) {
+                                const alertMap = {
+                                    error: 'danger',
+                                    warning: 'warning',
+                                    success: 'success',
+                                };
+                                const alertType = alertMap[data.message_type] || 'success';
+                                showFeedback(data.message, alertType);
+                            }
+                        })
+                        .catch(error => {
+                            if (error && error.message === 'validation') {
+                                return;
+                            }
+
+                            console.error('Valabilități curse bulk assign error', error);
+
+                            const detailText = buildErrorDetails(error);
+                            const baseMessage = 'A apărut o eroare neașteptată. Reîncercați.';
+                            showFeedback(detailText ? `${baseMessage}${detailText}` : baseMessage, 'danger');
+                        })
+                        .finally(() => {
+                            setBulkAssignLoading(false);
+                            updateBulkAssignUi();
+                        });
+                };
+
+                const bindBulkModalEvents = () => {
+                    if (bulkGroupSelect && bulkGroupSelect.dataset.bulkBound !== 'true') {
+                        bulkGroupSelect.addEventListener('change', () => {
+                            clearBulkAssignError();
+                            updateBulkAssignUi();
+                        });
+                        bulkGroupSelect.dataset.bulkBound = 'true';
+                    }
+
+                    if (bulkSubmitButton && bulkSubmitButton.dataset.bulkBound !== 'true') {
+                        bulkSubmitButton.addEventListener('click', handleBulkAssignSubmit);
+                        bulkSubmitButton.dataset.bulkBound = 'true';
+                    }
+
+                    if (bulkAssignModalElement && bulkAssignModalElement.dataset.bulkBound !== 'true') {
+                        bulkAssignModalElement.addEventListener('hidden.bs.modal', () => {
+                            if (!bulkAssignState.loading) {
+                                clearBulkAssignError();
+                            }
+                        });
+                        bulkAssignModalElement.dataset.bulkBound = 'true';
+                    }
+                };
+
+                const initBulkAssignControls = () => {
+                    refreshBulkModalReferences();
+                    bindBulkModalEvents();
+
+                    if (!bulkAssignModalElement) {
+                        updateBulkAssignUi();
+                        return;
+                    }
+
+                    if (bulkSelectAllCheckbox && bulkSelectAllCheckbox.dataset.bulkBound !== 'true') {
+                        bulkSelectAllCheckbox.addEventListener('change', handleBulkSelectAllChange);
+                        bulkSelectAllCheckbox.dataset.bulkBound = 'true';
+                    }
+
+                    bindBulkCheckboxes();
+                    syncBulkGroupOptions();
+                    updateBulkAssignUi();
                 };
 
                 const appendHtml = (container, html) => {
@@ -591,6 +1058,8 @@
                 }
 
                 function processMutationResponse(data) {
+                    resetBulkSelection(true);
+
                     if (data.table_html && tableBody) {
                         tableBody.innerHTML = data.table_html;
                     }
@@ -602,6 +1071,9 @@
                     if (modalsContainer && data.modals_html) {
                         modalsContainer.innerHTML = data.modals_html;
                         modalsContainer.dataset.activeModal = '';
+                        refreshBulkModalReferences();
+                        bindBulkModalEvents();
+                        syncBulkGroupOptions();
                     }
 
                     const loadMoreTrigger = document.getElementById('curse-load-more-trigger');
@@ -611,6 +1083,9 @@
 
                     initCountryInputs();
                     initLoadMore();
+                    bindBulkCheckboxes();
+                    updateBulkAssignUi();
+                    clearBulkAssignError();
 
                     if (supportsAjax()) {
                         attachFormHandlers();
@@ -771,10 +1246,15 @@
                         .then(data => {
                             if (data.rows_html && tableBody) {
                                 appendHtml(tableBody, data.rows_html);
+                                bindBulkCheckboxes();
+                                updateBulkAssignUi();
                             }
 
                             if (data.modals_html && modalsContainer) {
                                 appendHtml(modalsContainer, data.modals_html);
+                                refreshBulkModalReferences();
+                                bindBulkModalEvents();
+                                syncBulkGroupOptions();
                                 initCountryInputs();
                                 if (supportsAjax()) {
                                     attachFormHandlers();
@@ -886,6 +1366,7 @@
 
                 initCountryInputs();
                 initLoadMore();
+                initBulkAssignControls();
 
                 if (supportsAjax()) {
                     attachFormHandlers();

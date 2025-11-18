@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Concerns\HandlesValabilitatiCurseListings;
+use App\Http\Requests\ValabilitateCursaBulkAssignRequest;
 use App\Http\Requests\ValabilitateCursaRequest;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
@@ -110,6 +111,30 @@ class ValabilitateCursaController extends Controller
         $cursa->delete();
 
         return $this->respondAfterMutation($request, $valabilitate, 'Cursa a fost ștearsă.');
+    }
+
+    public function bulkAssign(
+        ValabilitateCursaBulkAssignRequest $request,
+        Valabilitate $valabilitate
+    ): RedirectResponse|JsonResponse {
+        $this->authorize('update', $valabilitate);
+
+        $data = $request->validated();
+        $cursaIds = $data['curse_ids'] ?? [];
+        $grupId = $data['cursa_grup_id'];
+
+        $updated = $valabilitate
+            ->curse()
+            ->whereIn('id', $cursaIds)
+            ->update(['cursa_grup_id' => $grupId]);
+
+        $message = match ($updated) {
+            0 => 'Nicio cursă nu a fost actualizată.',
+            1 => '1 cursă a fost adăugată în grup.',
+            default => sprintf('%d curse au fost adăugate în grup.', $updated),
+        };
+
+        return $this->respondAfterMutation($request, $valabilitate, $message);
     }
 
     public function reorder(Request $request, Valabilitate $valabilitate, ValabilitateCursa $cursa): RedirectResponse|JsonResponse
