@@ -56,18 +56,19 @@
             border-top: none;
         }
 
-        .curse-data-table tbody tr:nth-child(even) {
+        .curse-data-table tbody tr:not(.curse-group-heading):not(.curse-group-row):nth-child(even) {
             background-color: #fcfcfc;
         }
 
-        .curse-data-table tbody tr:hover {
+        .curse-data-table tbody tr:not(.curse-group-heading):not(.curse-group-row):hover {
             background-color: #f1f3f5;
         }
 
         .curse-group-heading th {
             font-size: 0.8rem;
             text-transform: uppercase;
-            background-color: #ffffff;
+            background-color: transparent;
+            color: inherit;
         }
 
         .curse-group-heading__meta {
