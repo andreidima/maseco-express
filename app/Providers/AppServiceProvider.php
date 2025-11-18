@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Support\MailSettings;
 use Carbon\Carbon;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
@@ -14,7 +15,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(MailSettings::class, function () {
+            return new MailSettings();
+        });
     }
 
     /**
@@ -32,5 +35,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Use Bootstrap pagination views across the application
         Paginator::useBootstrapFive();
+
+        app(MailSettings::class)->applyToConfig();
     }
 }

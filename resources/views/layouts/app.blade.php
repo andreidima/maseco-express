@@ -168,6 +168,11 @@
                                                 <i class="fa-solid fa-user-secret me-1"></i>Impersonare utilizatori
                                             </a>
                                         </li>
+                                        <li>
+                                            <a class="dropdown-item" href="{{ route('tech.mail-settings.index') }}">
+                                                <i class="fa-solid fa-envelope-circle-check me-1"></i>Configurare email
+                                            </a>
+                                        </li>
                                     @endcan
                                     @can('access-tech')
                                         @if (auth()->user()?->hasRole('super-admin'))
