@@ -48,6 +48,7 @@ class ValabilitateCursaController extends Controller
             'backUrl' => ValabilitatiFilterState::route(),
             'summary' => $summary,
             'modalViewData' => $modalViewData,
+            'bulkAssignRoute' => route('valabilitati.curse.bulk-assign', $valabilitate),
         ]);
     }
 

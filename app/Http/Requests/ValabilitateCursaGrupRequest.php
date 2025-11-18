@@ -24,6 +24,7 @@ class ValabilitateCursaGrupRequest extends FormRequest
         return [
             'nume' => ['nullable', 'string', 'max:255'],
             'format_documente' => ['nullable', Rule::in(array_keys(ValabilitateCursaGrup::documentFormats()))],
+            'zile_calculate' => ['nullable', 'integer', 'min:0'],
             'suma_incasata' => ['nullable', 'numeric', 'min:0'],
             'suma_calculata' => ['nullable', 'numeric', 'min:0'],
             'data_factura' => ['nullable', 'date'],

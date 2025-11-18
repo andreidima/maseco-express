@@ -65,15 +65,21 @@
         }
 
         .curse-group-heading th {
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
-            background-color: transparent;
+            background-color: rgba(0, 0, 0, 0.05);
             color: inherit;
         }
 
+        .curse-group-heading--emphasis th,
+        .curse-group-heading--emphasis td {
+            border-top: 2px solid rgba(0, 0, 0, 0.25);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.25);
+            box-shadow: inset 0 0 0 999px rgba(255, 255, 255, 0.08);
+        }
+
         .curse-group-heading__meta {
-            font-size: 0.75rem;
-            color: #495057;
+            font-size: 0.8rem;
         }
 
         .curse-group-row {
@@ -252,7 +258,6 @@
                                     KM Bord (plecare / sosire)
                                 </th>
                                 <th colspan="2" class="text-center curse-nowrap">KM Bord 2</th>
-                                <th rowspan="2" class="text-end curse-nowrap">Sumă încasată</th>
                                 <th rowspan="2" class="text-end curse-nowrap">
                                     Diferența KM<br>(Bord – Maps)
                                 </th>
@@ -271,7 +276,7 @@
                                 @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                             @else
                                 <tr>
-                                    <td colspan="13" class="text-center py-4">
+                                    <td colspan="12" class="text-center py-4">
                                         Nu există curse care să respecte criteriile selectate.
                                     </td>
                                 </tr>
