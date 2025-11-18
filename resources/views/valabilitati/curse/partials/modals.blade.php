@@ -82,7 +82,7 @@
     role="dialog"
     aria-labelledby="curseBulkAssignModalLabel"
     aria-hidden="true"
-    data-action="{{ route('valabilitati.curse.bulk-assign', $valabilitate) }}"
+    data-action="{{ $bulkAssignRoute ?? route('valabilitati.curse.bulk-assign', $valabilitate) }}"
     data-has-groups="{{ $hasBulkGrupuri ? 'true' : 'false' }}"
 >
     <div class="modal-dialog" role="document" style="--bs-modal-width: 500px;">
