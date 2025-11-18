@@ -280,6 +280,7 @@ trait HandlesValabilitatiCurseListings
             'tari' => $this->loadTari(),
             'groupFormatOptions' => ValabilitateCursaGrup::documentFormats(),
             'groupColorOptions' => ValabilitateCursaGrup::colorPalette(),
+            'bulkAssignRoute' => route('valabilitati.curse.bulk-assign', $valabilitate),
         ];
     }
 }
