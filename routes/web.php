@@ -41,6 +41,7 @@ use App\Http\Controllers\Service\GestiunePieseController;
 use App\Http\Controllers\Service\ServiceMasiniController;
 use App\Http\Controllers\Service\ServiceSheetController;
 use App\Http\Controllers\Tech\ImpersonationController;
+use App\Http\Controllers\Tech\MailSettingsController;
 use App\Http\Controllers\Tech\CronJobLogController;
 use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\SeederCenterController;
@@ -124,6 +125,9 @@ Route::middleware(['auth'])->group(function () {
             Route::middleware('can:access-tech-impersonation')->group(function () {
                 Route::get('impersonation', [ImpersonationController::class, 'index'])->name('impersonation.index');
                 Route::post('impersonation', [ImpersonationController::class, 'store'])->name('impersonation.start');
+                Route::get('mail-settings', [MailSettingsController::class, 'index'])->name('mail-settings.index');
+                Route::post('mail-settings', [MailSettingsController::class, 'update'])->name('mail-settings.update');
+                Route::post('mail-settings/test', [MailSettingsController::class, 'sendTest'])->name('mail-settings.test');
             });
 
             Route::middleware('role:super-admin')->group(function () {
