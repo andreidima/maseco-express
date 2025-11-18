@@ -42,6 +42,32 @@
     @php
         $grupuriRoute = route('valabilitati.grupuri.index', $valabilitate);
         $curseRoute = route('valabilitati.curse.index', $valabilitate);
+        $resolveRowTextColor = static function ($value): string {
+            if (! is_string($value) || $value === '') {
+                return '#111111';
+            }
+
+            $hex = strtoupper(ltrim($value, '#'));
+
+            if (strlen($hex) === 3) {
+                $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+            }
+
+            if (strlen($hex) !== 6) {
+                return '#111111';
+            }
+
+            $formatted = '#' . $hex;
+            $r = $g = $b = 0;
+
+            if (sscanf($formatted, '#%02X%02X%02X', $r, $g, $b) !== 3) {
+                return '#111111';
+            }
+
+            $luminance = ($r * 299 + $g * 587 + $b * 114) / 1000;
+
+            return $luminance > 150 ? '#111111' : '#ffffff';
+        };
     @endphp
 
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
@@ -77,7 +103,7 @@
                 <div class="d-flex align-items-stretch align-items-lg-end gap-2 flex-wrap justify-content-center justify-content-lg-end">
                     <button
                         type="button"
-                        class="btn btn-sm btn-outline-primary border border-dark rounded-3"
+                        class="btn btn-sm btn-success text-white border border-dark rounded-3"
                         data-bs-toggle="modal"
                         data-bs-target="#cursaGroupCreateModal"
                     >
@@ -95,14 +121,6 @@
 
         <div class="card-body px-0 py-3">
             @include('errors')
-
-            <div id="curse-summary" class="px-3 mb-3">
-                @include('valabilitati.curse.partials.summary', [
-                    'valabilitate' => $valabilitate,
-                    'summary' => $summary,
-                    'showGroupSummary' => true,
-                ])
-            </div>
 
             <div class="px-3">
                 <div class="table-responsive">
@@ -138,10 +156,14 @@
                                     }
                                     $canDelete = ($grup->curse_count ?? 0) === 0;
                                 @endphp
-                                <tr style="background-color: {{ $grup->culoare_hex ?? '#ffffff' }}; color: #111;">
+                                @php
+                                    $rowColor = $grup->culoare_hex ?? '#ffffff';
+                                    $rowTextColor = $resolveRowTextColor($rowColor);
+                                @endphp
+                                <tr style="background-color: {{ $rowColor }}; color: {{ $rowTextColor }};">
                                     <td class="text-center fw-semibold">#{{ $rowIndex }}</td>
-                                    <td class="fw-semibold">{{ $grup->nume }}</td>
-                                    <td class="curse-nowrap">{{ $grup->formatDocumenteLabel() }}</td>
+                                    <td class="fw-semibold">{{ $grup->nume ?? '—' }}</td>
+                                    <td class="curse-nowrap">{{ $grup->formatDocumenteLabel() ?: '—' }}</td>
                                     <td>{{ $facturaLabel }}</td>
                                     <td class="text-end">{{ $incasata !== null ? number_format($incasata, 2) : '—' }}</td>
                                     <td class="text-end">{{ $calculata !== null ? number_format($calculata, 2) : '—' }}</td>

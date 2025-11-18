@@ -1,6 +1,32 @@
 @php
     $previousKmSosire = null;
     $currentGroupKey = '__none__';
+    $resolveRowTextColor = static function ($value): string {
+        if (! is_string($value) || $value === '') {
+            return '#111111';
+        }
+
+        $hex = strtoupper(ltrim($value, '#'));
+
+        if (strlen($hex) === 3) {
+            $hex = $hex[0] . $hex[0] . $hex[1] . $hex[1] . $hex[2] . $hex[2];
+        }
+
+        if (strlen($hex) !== 6) {
+            return '#111111';
+        }
+
+        $formatted = '#' . $hex;
+        $r = $g = $b = 0;
+
+        if (sscanf($formatted, '#%02X%02X%02X', $r, $g, $b) !== 3) {
+            return '#111111';
+        }
+
+        $luminance = ($r * 299 + $g * 587 + $b * 114) / 1000;
+
+        return $luminance > 150 ? '#111111' : '#ffffff';
+    };
 @endphp
 
 @foreach ($curse as $cursa)
@@ -47,6 +73,7 @@
         $group = $cursa->cursaGrup;
         $groupKey = $group?->id ?? 'ungrouped';
         $groupColor = $group->culoare_hex ?? '#f8f9fa';
+        $groupTextColor = $resolveRowTextColor($groupColor);
         $groupName = $group->nume ?? 'Fără grup';
         $groupFormat = $group?->formatDocumenteLabel() ?? '—';
         $groupInvoice = $group?->numar_factura ?? '—';
@@ -65,7 +92,7 @@
     @endphp
 
     @if ($isNewGroup)
-        <tr class="curse-group-heading" style="background-color: {{ $groupColor }}; color: #111;">
+        <tr class="curse-group-heading" style="background-color: {{ $groupColor }}; color: {{ $groupTextColor }};">
             <th colspan="12">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
                     <span class="fw-semibold">{{ $groupName }}</span>
@@ -77,7 +104,7 @@
         </tr>
     @endif
 
-    <tr class="curse-group-row" style="background-color: {{ $group ? $groupColor : 'transparent' }}; color: #111;">
+    <tr @class(['curse-group-row' => (bool) $group]) style="background-color: {{ $group ? $groupColor : 'transparent' }}; color: {{ $group ? $groupTextColor : '#111' }};">
         {{-- # + up/down controls --}}
         <td class="text-center fw-semibold">
             <div class="d-inline-flex align-items-center gap-2">

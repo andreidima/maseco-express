@@ -8,6 +8,39 @@
     $renderCurseModals = ($renderCurseModals ?? true) === true;
     $renderGroupModals = ($renderGroupModals ?? true) === true;
     $redirectTo = $redirectTo ?? '';
+    $normalizeColorHex = static function ($value): string {
+        if (! is_string($value) || $value === '') {
+            return '';
+        }
+
+        $value = strtoupper(ltrim($value, '#'));
+
+        if (strlen($value) === 3) {
+            $value = $value[0] . $value[0] . $value[1] . $value[1] . $value[2] . $value[2];
+        }
+
+        if (strlen($value) !== 6) {
+            return '';
+        }
+
+        return '#' . $value;
+    };
+    $resolveTextColor = static function ($value) use ($normalizeColorHex): string {
+        $hex = $normalizeColorHex($value);
+
+        if ($hex === '') {
+            return '#111111';
+        }
+
+        $r = $g = $b = 0;
+        if (sscanf($hex, '#%02X%02X%02X', $r, $g, $b) !== 3) {
+            return '#111111';
+        }
+
+        $luminance = ($r * 299 + $g * 587 + $b * 114) / 1000;
+
+        return $luminance > 150 ? '#111111' : '#ffffff';
+    };
     $resolveTaraName = static function ($id) use ($tariCollection) {
         if ($id === null || $id === '') {
             return '';
@@ -223,41 +256,6 @@
                                     {{ $isCreateActive ? $errors->first('descarcare_tara_id') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="cursa-create-grup" class="form-label">Grup cursă</label>
-                                <div class="d-flex align-items-center gap-2">
-                                    <select
-                                        name="cursa_grup_id"
-                                        id="cursa-create-grup"
-                                        class="form-select bg-white rounded-3 {{ $isCreateActive && $errors->has('cursa_grup_id') ? 'is-invalid' : '' }}"
-                                    >
-                                        <option value="">Fără grup</option>
-                                        @foreach ($grupuri as $grup)
-                                            <option value="{{ $grup->id }}" @selected((string) $createCursaGrupId === (string) $grup->id)>
-                                                {{ $grup->nume }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-secondary btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#cursaGroupCreateModal"
-                                        title="Crează grup"
-                                    >
-                                        <i class="fa-solid fa-plus"></i>
-                                    </button>
-                                </div>
-                                <div
-                                    class="invalid-feedback {{ $isCreateActive && $errors->has('cursa_grup_id') ? 'd-block' : '' }}"
-                                    data-error-for="cursa_grup_id"
-                                >
-                                    {{ $isCreateActive ? $errors->first('cursa_grup_id') : '' }}
-                                </div>
-                                <div class="form-text">
-                                    Nu găsești grupul? Adaugă unul nou folosind butonul plus.
-                                </div>
-                            </div>
                             <div class="col-md-8">
                                 <label for="cursa-create-data-date" class="form-label">Data și ora cursei</label>
                                 <div class="row g-2">
@@ -341,6 +339,27 @@
                                     data-error-for="km_maps"
                                 >
                                     {{ $isCreateActive ? $errors->first('km_maps') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label for="cursa-create-grup" class="form-label">Grup cursă</label>
+                                <select
+                                    name="cursa_grup_id"
+                                    id="cursa-create-grup"
+                                    class="form-select bg-white rounded-3 {{ $isCreateActive && $errors->has('cursa_grup_id') ? 'is-invalid' : '' }}"
+                                >
+                                    <option value="">Fără grup</option>
+                                    @foreach ($grupuri as $grup)
+                                        <option value="{{ $grup->id }}" @selected((string) $createCursaGrupId === (string) $grup->id)>
+                                            {{ $grup->nume ?? 'Fără nume' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('cursa_grup_id') ? 'd-block' : '' }}"
+                                    data-error-for="cursa_grup_id"
+                                >
+                                    {{ $isCreateActive ? $errors->first('cursa_grup_id') : '' }}
                                 </div>
                             </div>
                             <div class="col-12">
@@ -579,41 +598,6 @@
                                     {{ $isEditing ? $errors->first('descarcare_tara_id') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="{{ $editPrefix }}grup" class="form-label">Grup cursă</label>
-                                <div class="d-flex align-items-center gap-2">
-                                    <select
-                                        name="cursa_grup_id"
-                                        id="{{ $editPrefix }}grup"
-                                        class="form-select bg-white rounded-3 {{ $isEditing && $errors->has('cursa_grup_id') ? 'is-invalid' : '' }}"
-                                    >
-                                        <option value="">Fără grup</option>
-                                        @foreach ($grupuri as $grup)
-                                            <option value="{{ $grup->id }}" @selected((string) $editCursaGrupId === (string) $grup->id)>
-                                                {{ $grup->nume }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <button
-                                        type="button"
-                                        class="btn btn-outline-secondary btn-sm"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#cursaGroupCreateModal"
-                                        title="Crează grup"
-                                    >
-                                        <i class="fa-solid fa-plus"></i>
-                                    </button>
-                                </div>
-                                <div
-                                    class="invalid-feedback {{ $isEditing && $errors->has('cursa_grup_id') ? 'd-block' : '' }}"
-                                    data-error-for="cursa_grup_id"
-                                >
-                                    {{ $isEditing ? $errors->first('cursa_grup_id') : '' }}
-                                </div>
-                                <div class="form-text">
-                                    Actualizează sau creează grupurile din secțiunea dedicată.
-                                </div>
-                            </div>
                             <div class="col-md-8">
                                 <label for="{{ $editPrefix }}data-date" class="form-label">Data și ora cursei</label>
                                 <div class="row g-2">
@@ -700,6 +684,27 @@
                                 </div>
                             </div>
                             <div class="col-12">
+                                <label for="{{ $editPrefix }}grup" class="form-label">Grup cursă</label>
+                                <select
+                                    name="cursa_grup_id"
+                                    id="{{ $editPrefix }}grup"
+                                    class="form-select bg-white rounded-3 {{ $isEditing && $errors->has('cursa_grup_id') ? 'is-invalid' : '' }}"
+                                >
+                                    <option value="">Fără grup</option>
+                                    @foreach ($grupuri as $grup)
+                                        <option value="{{ $grup->id }}" @selected((string) $editCursaGrupId === (string) $grup->id)>
+                                            {{ $grup->nume ?? 'Fără nume' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('cursa_grup_id') ? 'd-block' : '' }}"
+                                    data-error-for="cursa_grup_id"
+                                >
+                                    {{ $isEditing ? $errors->first('cursa_grup_id') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-12">
                                 <label for="{{ $editPrefix }}observatii" class="form-label">Observații</label>
                                 <textarea
                                     class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('observatii') ? 'is-invalid' : '' }}"
@@ -773,7 +778,7 @@
         $groupCreateSumaCalculata = $isGroupCreateActive ? old('suma_calculata', '') : '';
         $groupCreateDataFactura = $isGroupCreateActive ? old('data_factura', '') : '';
         $groupCreateNumarFactura = $isGroupCreateActive ? old('numar_factura', '') : '';
-        $groupCreateColor = $isGroupCreateActive ? old('culoare_hex', \App\Models\ValabilitateCursaGrup::defaultColor()) : \App\Models\ValabilitateCursaGrup::defaultColor();
+        $groupCreateColor = $isGroupCreateActive ? old('culoare_hex', '') : '';
     @endphp
     <div
         class="modal fade text-dark"
@@ -801,7 +806,7 @@
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label for="group-create-name" class="form-label">Nume grup<span class="text-danger">*</span></label>
+                                <label for="group-create-name" class="form-label">Nume grup</label>
                                 <input
                                     type="text"
                                     class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('nume') ? 'is-invalid' : '' }}"
@@ -815,13 +820,13 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="group-create-format" class="form-label">Format documente<span class="text-danger">*</span></label>
+                                <label for="group-create-format" class="form-label">Format documente</label>
                                 <select
                                     class="form-select rounded-3 {{ $isGroupCreateActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
                                     id="group-create-format"
                                     name="format_documente"
                                 >
-                                    <option value="" disabled @selected($groupCreateFormat === '')>Selectează</option>
+                                    <option value="" @selected($groupCreateFormat === '')>Fără format</option>
                                     @foreach ($groupFormatOptions as $value => $label)
                                         <option value="{{ $value }}" @selected($groupCreateFormat === (string) $value)>
                                             {{ $label }}
@@ -890,15 +895,28 @@
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label for="group-create-color" class="form-label">Culoare<span class="text-danger">*</span></label>
+                                <label for="group-create-color" class="form-label">Culoare</label>
+                                @php
+                                    $currentCreateColorKey = strtoupper(ltrim((string) $groupCreateColor, '#'));
+                                @endphp
                                 <select
                                     class="form-select rounded-3 {{ $isGroupCreateActive && $errors->has('culoare_hex') ? 'is-invalid' : '' }}"
                                     id="group-create-color"
                                     name="culoare_hex"
                                 >
+                                    <option value="">Fără culoare</option>
                                     @foreach ($groupColorOptions as $hex => $label)
-                                        <option value="{{ strtoupper($hex) }}" @selected(strtoupper($groupCreateColor) === strtoupper($hex))>
-                                            {{ $label }} ({{ strtoupper($hex) }})
+                                        @php
+                                            $normalizedHex = $normalizeColorHex($hex);
+                                            $optionKey = strtoupper(ltrim($normalizedHex, '#'));
+                                            $textColor = $resolveTextColor($normalizedHex);
+                                        @endphp
+                                        <option
+                                            value="{{ $normalizedHex }}"
+                                            style="background-color: {{ $normalizedHex ?: '#ffffff' }}; color: {{ $textColor }};"
+                                            @selected($currentCreateColorKey !== '' && $currentCreateColorKey === $optionKey)
+                                        >
+                                            {{ $label }} ({{ $normalizedHex ?: strtoupper($hex) }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -962,7 +980,7 @@
                         <div class="modal-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label for="group-edit-name-{{ $grup->id }}" class="form-label">Nume grup<span class="text-danger">*</span></label>
+                                    <label for="group-edit-name-{{ $grup->id }}" class="form-label">Nume grup</label>
                                     <input
                                         type="text"
                                         class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('nume') ? 'is-invalid' : '' }}"
@@ -976,12 +994,13 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="group-edit-format-{{ $grup->id }}" class="form-label">Format documente<span class="text-danger">*</span></label>
+                                    <label for="group-edit-format-{{ $grup->id }}" class="form-label">Format documente</label>
                                     <select
                                         class="form-select rounded-3 {{ $isGroupEditActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
                                         id="group-edit-format-{{ $grup->id }}"
                                         name="format_documente"
                                     >
+                                        <option value="" @selected($groupEditFormat === null || $groupEditFormat === '')>Fără format</option>
                                         @foreach ($groupFormatOptions as $value => $label)
                                             <option value="{{ $value }}" @selected((string) $groupEditFormat === (string) $value)>
                                                 {{ $label }}
@@ -1050,15 +1069,28 @@
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <label for="group-edit-color-{{ $grup->id }}" class="form-label">Culoare<span class="text-danger">*</span></label>
+                                    <label for="group-edit-color-{{ $grup->id }}" class="form-label">Culoare</label>
+                                    @php
+                                        $currentEditColorKey = strtoupper(ltrim((string) $groupEditColor, '#'));
+                                    @endphp
                                     <select
                                         class="form-select rounded-3 {{ $isGroupEditActive && $errors->has('culoare_hex') ? 'is-invalid' : '' }}"
                                         id="group-edit-color-{{ $grup->id }}"
                                         name="culoare_hex"
                                     >
+                                        <option value="" @selected($groupEditColor === null || $groupEditColor === '')>Fără culoare</option>
                                         @foreach ($groupColorOptions as $hex => $label)
-                                            <option value="{{ strtoupper($hex) }}" @selected(strtoupper((string) $groupEditColor) === strtoupper($hex))>
-                                                {{ $label }} ({{ strtoupper($hex) }})
+                                            @php
+                                                $normalizedHex = $normalizeColorHex($hex);
+                                                $optionKey = strtoupper(ltrim($normalizedHex, '#'));
+                                                $textColor = $resolveTextColor($normalizedHex);
+                                            @endphp
+                                            <option
+                                                value="{{ $normalizedHex }}"
+                                                style="background-color: {{ $normalizedHex ?: '#ffffff' }}; color: {{ $textColor }};"
+                                                @selected($currentEditColorKey !== '' && $currentEditColorKey === $optionKey)
+                                            >
+                                                {{ $label }} ({{ $normalizedHex ?: strtoupper($hex) }})
                                             </option>
                                         @endforeach
                                     </select>

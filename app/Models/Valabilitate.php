@@ -64,6 +64,15 @@ class Valabilitate extends Model
             ->orderBy('nume');
     }
 
+    /**
+     * Alias required for Laravel's scoped implicit bindings which expect the
+     * pluralised child parameter ("grups") when resolving nested bindings.
+     */
+    public function grups(): HasMany
+    {
+        return $this->cursaGrupuri();
+    }
+
     public function syncSummary(): void
     {
         // Funcționalitatea pentru curse va fi adăugată când schema este disponibilă.

@@ -22,25 +22,51 @@ class ValabilitateCursaGrupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nume' => ['required', 'string', 'max:255'],
-            'format_documente' => ['required', Rule::in(array_keys(ValabilitateCursaGrup::documentFormats()))],
+            'nume' => ['nullable', 'string', 'max:255'],
+            'format_documente' => ['nullable', Rule::in(array_keys(ValabilitateCursaGrup::documentFormats()))],
             'suma_incasata' => ['nullable', 'numeric', 'min:0'],
             'suma_calculata' => ['nullable', 'numeric', 'min:0'],
             'data_factura' => ['nullable', 'date'],
             'numar_factura' => ['nullable', 'string', 'max:255'],
-            'culoare_hex' => ['required', Rule::in(array_keys(ValabilitateCursaGrup::colorPalette()))],
+            'culoare_hex' => ['nullable', Rule::in(array_keys(ValabilitateCursaGrup::colorPalette()))],
         ];
     }
 
     protected function prepareForValidation(): void
     {
+        $this->merge($this->mapEmptyStringsToNull([
+            'nume',
+            'format_documente',
+            'suma_incasata',
+            'suma_calculata',
+            'data_factura',
+            'numar_factura',
+        ]));
+
         $color = $this->input('culoare_hex');
 
         if (is_string($color)) {
+            $color = strtoupper($color);
+
             $this->merge([
-                'culoare_hex' => strtoupper($color),
+                'culoare_hex' => $color === '' ? null : $color,
             ]);
         }
+    }
+
+    private function mapEmptyStringsToNull(array $fields): array
+    {
+        $payload = [];
+
+        foreach ($fields as $field) {
+            $value = $this->input($field);
+
+            if (is_string($value) && trim($value) === '') {
+                $payload[$field] = null;
+            }
+        }
+
+        return $payload;
     }
 
     protected function failedValidation(Validator $validator): void
