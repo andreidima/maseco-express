@@ -176,59 +176,6 @@
                 ])
             </div>
 
-            <div class="px-3 mb-3">
-                <div
-                    id="curse-bulk-assign-panel"
-                    class="border border-2 border-light-subtle rounded-3 p-3 bg-light"
-                    data-action="{{ $bulkAssignRoute }}"
-                    data-has-groups="{{ $hasGrupuri ? 'true' : 'false' }}"
-                >
-                    <div class="row g-3 align-items-end">
-                        <div class="col-12 col-lg">
-                            <label for="curse-bulk-group" class="form-label mb-1">Alege grupul</label>
-                            <select
-                                id="curse-bulk-group"
-                                class="form-select"
-                                @disabled(! $hasGrupuri)
-                            >
-                                <option value="">Selectează grupul</option>
-                                @foreach ($valabilitate->cursaGrupuri as $grup)
-                                    <option value="{{ $grup->id }}">{{ $grup->nume }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-12 col-lg-auto">
-                            <button
-                                type="button"
-                                id="curse-bulk-submit"
-                                class="btn btn-primary text-white w-100"
-                                @disabled(! $hasGrupuri)
-                            >
-                                <span data-bulk-default-label>Adaugă cursele selectate în grup</span>
-                                <span class="d-none" data-bulk-loading-label>
-                                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                    Se procesează...
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2 mt-3">
-                        <div class="text-muted small">
-                            Curse selectate: <span id="curse-bulk-selected-count">0</span>
-                        </div>
-                        <div class="small text-secondary">
-                            Bifează cursele din tabel (prima coloană) înainte de a le adăuga într-un grup.
-                        </div>
-                    </div>
-                    <div id="curse-bulk-feedback" class="text-danger small mt-2 d-none"></div>
-                    @unless ($hasGrupuri)
-                        <div class="alert alert-warning mt-3 mb-0" role="alert" data-bulk-empty-warning>
-                            Creează mai întâi un grup pentru a putea adăuga cursele selectate.
-                        </div>
-                    @endunless
-                </div>
-            </div>
-
             <div id="curse-feedback" class="px-3"></div>
 
             <div class="px-3">
