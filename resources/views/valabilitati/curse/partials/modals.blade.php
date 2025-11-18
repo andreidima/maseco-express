@@ -837,6 +837,7 @@
         $isGroupCreateActive = $currentFormType === 'group-create';
         $groupCreateName = $isGroupCreateActive ? old('nume', '') : '';
         $groupCreateFormat = $isGroupCreateActive ? old('format_documente', '') : '';
+        $groupCreateZile = $isGroupCreateActive ? old('zile_calculate', '') : '';
         $groupCreateSumaIncasata = $isGroupCreateActive ? old('suma_incasata', '') : '';
         $groupCreateSumaCalculata = $isGroupCreateActive ? old('suma_calculata', '') : '';
         $groupCreateDataFactura = $isGroupCreateActive ? old('data_factura', '') : '';
@@ -898,6 +899,20 @@
                                 </select>
                                 <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
                                     {{ $isGroupCreateActive ? $errors->first('format_documente') : '' }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="group-create-zile" class="form-label">Zile calculate</label>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    id="group-create-zile"
+                                    name="zile_calculate"
+                                    class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('zile_calculate') ? 'is-invalid' : '' }}"
+                                    value="{{ $groupCreateZile }}"
+                                >
+                                <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('zile_calculate') ? 'd-block' : '' }}" data-error-for="zile_calculate">
+                                    {{ $isGroupCreateActive ? $errors->first('zile_calculate') : '' }}
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -1007,6 +1022,7 @@
             $isGroupEditActive = $currentFormType === 'group-edit' && $currentFormId === (int) $grup->id;
             $groupEditName = $isGroupEditActive ? old('nume', $grup->nume) : $grup->nume;
             $groupEditFormat = $isGroupEditActive ? old('format_documente', $grup->format_documente) : $grup->format_documente;
+            $groupEditZile = $isGroupEditActive ? old('zile_calculate', $grup->zile_calculate) : $grup->zile_calculate;
             $groupEditSumaIncasata = $isGroupEditActive ? old('suma_incasata', $grup->suma_incasata) : $grup->suma_incasata;
             $groupEditSumaCalculata = $isGroupEditActive ? old('suma_calculata', $grup->suma_calculata) : $grup->suma_calculata;
             $groupEditDataFactura = $isGroupEditActive
@@ -1072,6 +1088,20 @@
                                     </select>
                                     <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
                                         {{ $isGroupEditActive ? $errors->first('format_documente') : '' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="group-edit-zile-{{ $grup->id }}" class="form-label">Zile calculate</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        id="group-edit-zile-{{ $grup->id }}"
+                                        name="zile_calculate"
+                                        class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('zile_calculate') ? 'is-invalid' : '' }}"
+                                        value="{{ $groupEditZile }}"
+                                    >
+                                    <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('zile_calculate') ? 'd-block' : '' }}" data-error-for="zile_calculate">
+                                        {{ $isGroupEditActive ? $errors->first('zile_calculate') : '' }}
                                     </div>
                                 </div>
                                 <div class="col-md-6">

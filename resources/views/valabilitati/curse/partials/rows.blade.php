@@ -86,19 +86,40 @@
         if ($isNewGroup) {
             $currentGroupKey = $groupKey;
         }
-        $groupSumDisplay = $isNewGroup && $group && $group->suma_incasata !== null
-            ? number_format((float) $group->suma_incasata, 2)
-            : '—';
+        $groupFinancialMeta = null;
+        if ($isNewGroup && $group) {
+            $incasata = $group->suma_incasata !== null ? number_format((float) $group->suma_incasata, 2) : null;
+            $calculata = $group->suma_calculata !== null ? number_format((float) $group->suma_calculata, 2) : null;
+            $diferenta = null;
+            if ($group->suma_incasata !== null || $group->suma_calculata !== null) {
+                $rawDiff = (float) ($group->suma_incasata ?? 0) - (float) ($group->suma_calculata ?? 0);
+                $diferenta = number_format($rawDiff, 2);
+            }
+            $zileCalculate = is_numeric($group->zile_calculate) ? (int) $group->zile_calculate : null;
+            $groupFinancialMeta = [
+                'suma_incasata' => $incasata,
+                'suma_calculata' => $calculata,
+                'diferenta' => $diferenta,
+                'zile_calculate' => $zileCalculate,
+            ];
+        }
     @endphp
 
     @if ($isNewGroup)
-        <tr class="curse-group-heading" style="background-color: {{ $groupColor }}; color: {{ $groupTextColor }};">
-            <th colspan="13">
-                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2">
-                    <span class="fw-semibold">{{ $groupName }}</span>
-                    <span class="curse-group-heading__meta">
-                        Format: {{ $groupFormat }} | Factură: {{ $groupInvoice }}
-                    </span>
+        <tr class="curse-group-heading curse-group-heading--emphasis" style="background-color: {{ $groupColor }}; color: {{ $groupTextColor }};">
+            <th colspan="12">
+                <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
+                    <div class="fw-semibold fs-6 text-uppercase">{{ $groupName }}</div>
+                    <div class="d-flex flex-wrap gap-3 small curse-group-heading__meta">
+                        <span>Format: <strong>{{ $groupFormat }}</strong></span>
+                        <span>Factură: <strong>{{ $groupInvoice }}</strong></span>
+                        @if ($groupFinancialMeta)
+                            <span>Sumă încasată: <strong>{{ $groupFinancialMeta['suma_incasata'] ?? '—' }}</strong></span>
+                            <span>Sumă calculată: <strong>{{ $groupFinancialMeta['suma_calculata'] ?? '—' }}</strong></span>
+                            <span>Diferență: <strong>{{ $groupFinancialMeta['diferenta'] ?? '—' }}</strong></span>
+                            <span>Zile calculate: <strong>{{ $groupFinancialMeta['zile_calculate'] ?? '—' }}</strong></span>
+                        @endif
+                    </div>
                 </div>
             </th>
         </tr>
@@ -205,11 +226,6 @@
         {{-- KM Bord 2 – Km plin --}}
         <td class="text-end text-nowrap align-middle">
             {{ $kmPlin !== null ? $kmPlin : '—' }}
-        </td>
-
-        {{-- Sumă încasată --}}
-        <td class="text-end align-middle" style="background-color: {{ $group ? $groupColor : 'transparent' }};">
-            {{ $groupSumDisplay }}
         </td>
 
         {{-- Diferența KM (Bord – Maps) --}}

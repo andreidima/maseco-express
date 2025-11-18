@@ -130,6 +130,7 @@
                                 <th class="text-center curse-nowrap">#</th>
                                 <th>Grup</th>
                                 <th class="curse-nowrap">Format</th>
+                                <th class="text-center curse-nowrap">Zile calculate</th>
                                 <th>Factură</th>
                                 <th class="text-end curse-nowrap">Sumă încasată</th>
                                 <th class="text-end curse-nowrap">Sumă calculată</th>
@@ -155,6 +156,9 @@
                                         $diferenta = ($incasata ?? 0) - ($calculata ?? 0);
                                     }
                                     $canDelete = ($grup->curse_count ?? 0) === 0;
+                                    $zileCalculate = is_numeric($grup->zile_calculate)
+                                        ? (int) $grup->zile_calculate
+                                        : null;
                                 @endphp
                                 @php
                                     $rowColor = $grup->culoare_hex ?? '#ffffff';
@@ -164,6 +168,7 @@
                                     <td class="text-center fw-semibold">#{{ $rowIndex }}</td>
                                     <td class="fw-semibold">{{ $grup->nume ?? '—' }}</td>
                                     <td class="curse-nowrap">{{ $grup->formatDocumenteLabel() ?: '—' }}</td>
+                                    <td class="text-center">{{ $zileCalculate !== null ? $zileCalculate : '—' }}</td>
                                     <td>{{ $facturaLabel }}</td>
                                     <td class="text-end">{{ $incasata !== null ? number_format($incasata, 2) : '—' }}</td>
                                     <td class="text-end">{{ $calculata !== null ? number_format($calculata, 2) : '—' }}</td>
@@ -208,7 +213,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="9" class="text-center py-4">
+                                    <td colspan="10" class="text-center py-4">
                                         Nu există grupuri definite pentru această valabilitate.
                                     </td>
                                 </tr>

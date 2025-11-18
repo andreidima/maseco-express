@@ -45,6 +45,7 @@ class ValabilitateCursaGrup extends Model
         'valabilitate_id',
         'nume',
         'format_documente',
+        'zile_calculate',
         'suma_incasata',
         'suma_calculata',
         'data_factura',
@@ -56,6 +57,7 @@ class ValabilitateCursaGrup extends Model
         'data_factura' => 'date',
         'suma_incasata' => 'decimal:2',
         'suma_calculata' => 'decimal:2',
+        'zile_calculate' => 'integer',
     ];
 
     public static function colorPalette(): array
@@ -85,6 +87,10 @@ class ValabilitateCursaGrup extends Model
 
     public function formatDocumenteLabel(): string
     {
+        if (! is_string($this->format_documente) || $this->format_documente === '') {
+            return 'Fără format';
+        }
+
         return self::DOCUMENT_FORMATS[$this->format_documente] ?? $this->format_documente;
     }
 }
