@@ -174,6 +174,7 @@
                     'valabilitate' => $valabilitate,
                     'summary' => $summary,
                     'showGroupSummary' => false,
+                    'isFlashDivision' => $isFlashDivision,
                 ])
             </div>
 
@@ -206,6 +207,7 @@
                                     <th rowspan="2" class="text-end curse-nowrap">KM cu taxă</th>
                                     <th colspan="2" class="text-center curse-nowrap">KM Flash</th>
                                     <th colspan="2" class="text-center curse-nowrap">Diferența KM<br>(Maps – Flash)</th>
+                                    <th colspan="4" class="text-center curse-nowrap">Sumă calculată</th>
                                 @else
                                     <th rowspan="2" class="text-end curse-nowrap">KM Maps</th>
                                     <th colspan="2" class="text-center curse-nowrap">
@@ -226,6 +228,10 @@
                                     <th class="text-end curse-nowrap">Km plin</th>
                                     <th class="text-end curse-nowrap">Km gol</th>
                                     <th class="text-end curse-nowrap">Km plin</th>
+                                    <th class="text-end curse-nowrap">Km gol</th>
+                                    <th class="text-end curse-nowrap">Km plin</th>
+                                    <th class="text-end curse-nowrap">Km cu taxă</th>
+                                    <th class="text-end curse-nowrap">Total km</th>
                                 @else
                                     <th class="text-end curse-nowrap">Plecare</th>
                                     <th class="text-end curse-nowrap">Sosire</th>
@@ -240,7 +246,7 @@
                                 @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                             @else
                                 <tr>
-                                    <td colspan="{{ $isFlashDivision ? 13 : 12 }}" class="text-center py-4">
+                                    <td colspan="{{ $isFlashDivision ? 17 : 12 }}" class="text-center py-4">
                                         Nu există curse care să respecte criteriile selectate.
                                     </td>
                                 </tr>
