@@ -87,7 +87,7 @@
                                     <span class="fw-semibold text-dark small text-uppercase">
                                         <span class="text-body-secondary text-primary">{{ $cursa->nr_cursa ?? '—' }}</span>
                                     </span>
-                                    <span class="text-primary d-flex flex-column">
+                                    {{-- <span class="text-primary d-flex flex-column">
                                         <span>
                                             {{ $cursa->incarcare_localitate ?? '—' }}
                                             <span class="mx-1">→</span>
@@ -96,7 +96,7 @@
                                         <small class="text-muted">
                                             {{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? 'Fără dată' }}
                                         </small>
-                                    </span>
+                                    </span> --}}
                                 </div>
                             </div>
                         </button>
