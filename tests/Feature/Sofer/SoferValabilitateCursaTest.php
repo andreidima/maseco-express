@@ -7,6 +7,7 @@ use App\Models\Tara;
 use App\Models\User;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
+use App\Models\ValabilitatiDivizie;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -32,7 +33,7 @@ class SoferValabilitateCursaTest extends TestCase
         $response->assertForbidden();
     }
 
-    public function test_first_cursa_requires_time(): void
+    public function test_first_cursa_requires_datetime(): void
     {
         $driver = $this->createSoferUser();
         $valabilitate = Valabilitate::factory()
@@ -52,15 +53,15 @@ class SoferValabilitateCursaTest extends TestCase
                 'incarcare_localitate' => 'Cluj',
                 'descarcare_localitate' => 'Berlin',
                 'descarcare_tara_id' => $descarcareTara->id,
-                'data_cursa_date' => Carbon::today()->format('Y-m-d'),
+                'data_cursa' => '',
             ]);
 
         $response->assertRedirect(route('sofer.valabilitati.show', $valabilitate));
-        $response->assertSessionHasErrors(['data_cursa_time']);
+        $response->assertSessionHasErrors(['data_cursa']);
         $this->assertDatabaseCount('valabilitati_curse', 0);
     }
 
-    public function test_first_cursa_persists_when_time_is_provided(): void
+    public function test_first_cursa_persists_when_datetime_is_provided(): void
     {
         $driver = $this->createSoferUser();
         $valabilitate = Valabilitate::factory()
@@ -79,8 +80,7 @@ class SoferValabilitateCursaTest extends TestCase
                 'incarcare_localitate' => 'Cluj',
                 'descarcare_localitate' => 'Budapesta',
                 'descarcare_tara_id' => $tara->id,
-                'data_cursa_date' => '2025-05-20',
-                'data_cursa_time' => '08:15',
+                'data_cursa' => '2025-05-20T08:15',
             ]);
 
         $response->assertRedirect(route('sofer.valabilitati.show', $valabilitate));
@@ -92,72 +92,83 @@ class SoferValabilitateCursaTest extends TestCase
         ]);
     }
 
-    public function test_final_return_requires_time(): void
+    public function test_flash_valabilitate_hides_kilometer_fields_in_form(): void
     {
         $driver = $this->createSoferUser();
+        $flashDivizie = ValabilitatiDivizie::factory()->create([
+            'id' => 1,
+            'nume' => 'FLASH',
+        ]);
+
         $valabilitate = Valabilitate::factory()
             ->for($driver, 'sofer')
+            ->for($flashDivizie, 'divizie')
             ->create([
                 'data_inceput' => Carbon::today()->subWeek(),
                 'data_sfarsit' => Carbon::today()->addWeek(),
             ]);
 
-        ValabilitateCursa::factory()->for($valabilitate)->create([
-            'nr_ordine' => 1,
-        ]);
+        $response = $this->actingAs($driver)->get(route('sofer.valabilitati.curse.create', $valabilitate));
 
-        $romania = Tara::factory()->create(['nume' => 'Romania']);
-
-        $response = $this
-            ->actingAs($driver)
-            ->from(route('sofer.valabilitati.show', $valabilitate))
-            ->post(route('sofer.valabilitati.curse.store', $valabilitate), [
-                'form_type' => 'create',
-                'descarcare_tara_id' => $romania->id,
-                'data_cursa_date' => '2025-06-10',
-                'final_return' => 1,
-            ]);
-
-        $response->assertRedirect(route('sofer.valabilitati.show', $valabilitate));
-        $response->assertSessionHasErrors(['data_cursa_time']);
-        $this->assertDatabaseCount('valabilitati_curse', 1);
+        $response->assertOk();
+        $response->assertDontSee('Km bord încărcare', false);
+        $response->assertDontSee('Km bord descărcare', false);
     }
 
-    public function test_update_requires_time_when_marked_as_final_return(): void
+    public function test_non_flash_valabilitate_displays_kilometer_fields_in_form(): void
     {
         $driver = $this->createSoferUser();
+        $divizie = ValabilitatiDivizie::factory()->create([
+            'id' => 2,
+            'nume' => 'ALTĂ DIVIZIE',
+        ]);
+
         $valabilitate = Valabilitate::factory()
             ->for($driver, 'sofer')
+            ->for($divizie, 'divizie')
             ->create([
                 'data_inceput' => Carbon::today()->subWeek(),
                 'data_sfarsit' => Carbon::today()->addWeek(),
             ]);
 
-        $cursa = ValabilitateCursa::factory()->for($valabilitate)->create([
-            'nr_ordine' => 1,
-            'data_cursa' => '2025-05-01 07:00:00',
+        $response = $this->actingAs($driver)->get(route('sofer.valabilitati.curse.create', $valabilitate));
+
+        $response->assertOk();
+        $response->assertSee('Km bord încărcare', false);
+        $response->assertSee('Km bord descărcare', false);
+    }
+
+    public function test_flash_valabilitate_hides_kilometer_rows_on_show_page(): void
+    {
+        $driver = $this->createSoferUser();
+        $flashDivizie = ValabilitatiDivizie::factory()->create([
+            'id' => 1,
+            'nume' => 'FLASH',
         ]);
 
-        $romania = Tara::factory()->create(['nume' => 'România']);
-
-        $response = $this
-            ->actingAs($driver)
-            ->from(route('sofer.valabilitati.show', $valabilitate))
-            ->put(route('sofer.valabilitati.curse.update', [$valabilitate, $cursa]), [
-                'form_type' => 'edit',
-                'form_id' => $cursa->id,
-                'descarcare_tara_id' => $romania->id,
-                'data_cursa_date' => '2025-05-02',
-                'final_return' => 1,
+        $valabilitate = Valabilitate::factory()
+            ->for($driver, 'sofer')
+            ->for($flashDivizie, 'divizie')
+            ->create([
+                'data_inceput' => Carbon::today()->subWeek(),
+                'data_sfarsit' => Carbon::today()->addWeek(),
             ]);
 
-        $response->assertRedirect(route('sofer.valabilitati.show', $valabilitate));
-        $response->assertSessionHasErrors(['data_cursa_time']);
+        ValabilitateCursa::factory()
+            ->for($valabilitate)
+            ->create([
+                'nr_ordine' => 1,
+                'km_bord_incarcare' => 123,
+                'km_bord_descarcare' => 456,
+                'data_cursa' => '2025-05-01 07:00:00',
+            ]);
 
-        $this->assertDatabaseHas('valabilitati_curse', [
-            'id' => $cursa->id,
-            'data_cursa' => '2025-05-01 07:00:00',
-        ]);
+        $response = $this->actingAs($driver)->get(route('sofer.valabilitati.show', $valabilitate));
+
+        $response->assertOk();
+        $response->assertSee('01.05.2025 07:00', false);
+        $response->assertDontSee('Km bord încărcare', false);
+        $response->assertDontSee('Km bord descărcare', false);
     }
 
     public function test_driver_can_reorder_curse(): void

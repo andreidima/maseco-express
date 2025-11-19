@@ -9,7 +9,7 @@ use Illuminate\Validation\Rule;
 
 class SoferValabilitateCursaRequest extends FormRequest
 {
-    protected bool $shouldRequireTime = false;
+    protected bool $shouldRequireDateTime = false;
 
     public function authorize(): bool
     {
@@ -34,42 +34,33 @@ class SoferValabilitateCursaRequest extends FormRequest
             'descarcare_localitate' => ['nullable', 'string', 'max:255'],
             'descarcare_cod_postal' => ['nullable', 'string', 'max:255'],
             'descarcare_tara_id' => ['nullable', Rule::exists('tari', 'id')],
-            'data_cursa_date' => ['nullable', 'date'],
-            'data_cursa_time' => ['nullable', 'date_format:H:i'],
             'data_cursa' => ['nullable', 'date'],
             'observatii' => ['nullable', 'string'],
             'km_bord_incarcare' => ['nullable', 'integer', 'min:0'],
             'km_bord_descarcare' => ['nullable', 'integer', 'min:0'],
-            'final_return' => ['nullable', 'boolean'],
         ];
     }
 
     protected function prepareForValidation(): void
     {
-        $this->shouldRequireTime = $this->determineIfTimeIsRequired();
+        $this->shouldRequireDateTime = $this->determineIfDateTimeIsRequired();
 
-        $dateInput = $this->input('data_cursa_date');
-        $timeInput = $this->input('data_cursa_time');
+        $dateTimeInput = $this->input('data_cursa');
 
-        if ($dateInput === null && $timeInput === null) {
+        if ($dateTimeInput === null) {
             return;
         }
 
-        $date = trim((string) $dateInput);
-        $time = trim((string) $timeInput);
+        $normalized = str_replace('T', ' ', trim((string) $dateTimeInput));
 
-        if ($date === '') {
+        if ($normalized === '') {
             $this->merge(['data_cursa' => null]);
 
             return;
         }
 
-        if ($time === '') {
-            $time = '00:00';
-        }
-
         $this->merge([
-            'data_cursa' => sprintf('%s %s', $date, $time),
+            'data_cursa' => $normalized,
         ]);
     }
 
@@ -77,41 +68,26 @@ class SoferValabilitateCursaRequest extends FormRequest
     {
         $validated = parent::validated($key, $default);
 
-        unset(
-            $validated['data_cursa_date'],
-            $validated['data_cursa_time'],
-            $validated['final_return'],
-        );
-
         return $validated;
     }
 
     protected function withValidator($validator): void
     {
         $validator->after(function (Validator $validator): void {
-            if (! $this->shouldRequireTime) {
+            if (! $this->shouldRequireDateTime) {
                 return;
             }
 
-            $date = trim((string) $this->input('data_cursa_date'));
-            $time = trim((string) $this->input('data_cursa_time'));
+            $dateTime = trim((string) $this->input('data_cursa'));
 
-            if ($date === '') {
-                $validator->errors()->add('data_cursa_date', 'Completați data cursei.');
-            }
-
-            if ($time === '') {
-                $validator->errors()->add('data_cursa_time', 'Completați ora cursei.');
+            if ($dateTime === '') {
+                $validator->errors()->add('data_cursa', 'Completați data și ora cursei.');
             }
         });
     }
 
-    private function determineIfTimeIsRequired(): bool
+    private function determineIfDateTimeIsRequired(): bool
     {
-        if ($this->boolean('final_return')) {
-            return true;
-        }
-
         $valabilitate = $this->route('valabilitate');
 
         if (! $valabilitate instanceof Valabilitate) {

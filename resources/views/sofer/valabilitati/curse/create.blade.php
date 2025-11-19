@@ -19,13 +19,9 @@
                 'action' => route('sofer.valabilitati.curse.store', $valabilitate),
                 'method' => 'POST',
                 'submitLabel' => 'Salvează cursa',
-                'requiresTime' => $requiresTime,
-                'lockTime' => $lockTime,
-                'romanianCountryIds' => $romanianCountryIds,
+                'isFlashDivizie' => $isFlashDivizie,
             ])
         </div>
     </div>
 </div>
 @endsection
-
-@include('sofer.valabilitati.curse.partials.final-return-modal')
