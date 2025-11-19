@@ -44,6 +44,7 @@ class ValabilitateCursaGrup extends Model
     protected $fillable = [
         'valabilitate_id',
         'nume',
+        'rr',
         'format_documente',
         'zile_calculate',
         'suma_incasata',
