@@ -68,6 +68,8 @@
 
             return $luminance > 150 ? '#111111' : '#ffffff';
         };
+        $isFlashDivision = optional($valabilitate->divizie)->id === 1
+            && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
     @endphp
 
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
@@ -128,12 +130,14 @@
                         <thead>
                             <tr>
                                 <th class="text-center curse-nowrap">#</th>
-                                <th>Grup</th>
-                                <th class="curse-nowrap">Format</th>
+                                @if ($isFlashDivision)
+                                    <th>RR</th>
+                                @else
+                                    <th>Grup</th>
+                                    <th class="curse-nowrap">Format</th>
+                                @endif
                                 <th class="text-center curse-nowrap">Zile calculate</th>
                                 <th>Factură</th>
-                                <th class="text-end curse-nowrap">Sumă încasată</th>
-                                <th class="text-end curse-nowrap">Sumă calculată</th>
                                 <th class="text-end curse-nowrap">Diferență</th>
                                 <th class="text-center curse-nowrap">Curse atașate</th>
                                 <th class="text-end curse-nowrap">Acțiuni</th>
@@ -166,12 +170,14 @@
                                 @endphp
                                 <tr style="background-color: {{ $rowColor }}; color: {{ $rowTextColor }};">
                                     <td class="text-center fw-semibold">#{{ $rowIndex }}</td>
-                                    <td class="fw-semibold">{{ $grup->nume ?? '—' }}</td>
-                                    <td class="curse-nowrap">{{ $grup->formatDocumenteLabel() ?: '—' }}</td>
+                                    @if ($isFlashDivision)
+                                        <td class="fw-semibold">{{ $grup->rr ?? '—' }}</td>
+                                    @else
+                                        <td class="fw-semibold">{{ $grup->nume ?? '—' }}</td>
+                                        <td class="curse-nowrap">{{ $grup->formatDocumenteLabel() ?: '—' }}</td>
+                                    @endif
                                     <td class="text-center">{{ $zileCalculate !== null ? $zileCalculate : '—' }}</td>
                                     <td>{{ $facturaLabel }}</td>
-                                    <td class="text-end">{{ $incasata !== null ? number_format($incasata, 2) : '—' }}</td>
-                                    <td class="text-end">{{ $calculata !== null ? number_format($calculata, 2) : '—' }}</td>
                                     <td class="text-end">{{ $diferenta !== null ? number_format($diferenta, 2) : '—' }}</td>
                                     <td class="text-center">{{ $grup->curse_count ?? 0 }}</td>
                                     <td class="text-end">
@@ -213,7 +219,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="10" class="text-center py-4">
+                                    <td colspan="{{ $isFlashDivision ? 7 : 10 }}" class="text-center py-4">
                                         Nu există grupuri definite pentru această valabilitate.
                                     </td>
                                 </tr>

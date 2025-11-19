@@ -8,7 +8,8 @@
     $renderCurseModals = ($renderCurseModals ?? true) === true;
     $renderGroupModals = ($renderGroupModals ?? true) === true;
     $redirectTo = $redirectTo ?? '';
-    $isFlashDivision = optional($valabilitate->divizie)->id === 1;
+    $isFlashDivision = optional($valabilitate->divizie)->id === 1
+        && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
     $normalizeColorHex = static function ($value): string {
         if (! is_string($value) || $value === '') {
             return '';
@@ -1054,6 +1055,7 @@
     @php
         $isGroupCreateActive = $currentFormType === 'group-create';
         $groupCreateName = $isGroupCreateActive ? old('nume', '') : '';
+        $groupCreateRr = $isGroupCreateActive ? old('rr', '') : '';
         $groupCreateFormat = $isGroupCreateActive ? old('format_documente', '') : '';
         $groupCreateZile = $isGroupCreateActive ? old('zile_calculate', '') : '';
         $groupCreateSumaIncasata = $isGroupCreateActive ? old('suma_incasata', '') : '';
@@ -1087,38 +1089,55 @@
                     <input type="hidden" name="form_type" value="group-create">
                     <div class="modal-body">
                         <div class="row g-3">
-                            <div class="col-md-6">
-                                <label for="group-create-name" class="form-label">Nume grup</label>
-                                <input
-                                    type="text"
-                                    class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('nume') ? 'is-invalid' : '' }}"
-                                    id="group-create-name"
-                                    name="nume"
-                                    value="{{ $groupCreateName }}"
-                                    maxlength="255"
-                                >
-                                <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('nume') ? 'd-block' : '' }}" data-error-for="nume">
-                                    {{ $isGroupCreateActive ? $errors->first('nume') : '' }}
+                            @if ($isFlashDivision)
+                                <div class="col-md-6">
+                                    <label for="group-create-rr" class="form-label">RR</label>
+                                    <input
+                                        type="text"
+                                        class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('rr') ? 'is-invalid' : '' }}"
+                                        id="group-create-rr"
+                                        name="rr"
+                                        value="{{ $groupCreateRr }}"
+                                        maxlength="255"
+                                    >
+                                    <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('rr') ? 'd-block' : '' }}" data-error-for="rr">
+                                        {{ $isGroupCreateActive ? $errors->first('rr') : '' }}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="group-create-format" class="form-label">Format documente</label>
-                                <select
-                                    class="form-select rounded-3 {{ $isGroupCreateActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
-                                    id="group-create-format"
-                                    name="format_documente"
-                                >
-                                    <option value="" @selected($groupCreateFormat === '')>Fără format</option>
-                                    @foreach ($groupFormatOptions as $value => $label)
-                                        <option value="{{ $value }}" @selected($groupCreateFormat === (string) $value)>
-                                            {{ $label }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
-                                    {{ $isGroupCreateActive ? $errors->first('format_documente') : '' }}
+                            @else
+                                <div class="col-md-6">
+                                    <label for="group-create-name" class="form-label">Nume grup</label>
+                                    <input
+                                        type="text"
+                                        class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('nume') ? 'is-invalid' : '' }}"
+                                        id="group-create-name"
+                                        name="nume"
+                                        value="{{ $groupCreateName }}"
+                                        maxlength="255"
+                                    >
+                                    <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('nume') ? 'd-block' : '' }}" data-error-for="nume">
+                                        {{ $isGroupCreateActive ? $errors->first('nume') : '' }}
+                                    </div>
                                 </div>
-                            </div>
+                                <div class="col-md-6">
+                                    <label for="group-create-format" class="form-label">Format documente</label>
+                                    <select
+                                        class="form-select rounded-3 {{ $isGroupCreateActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
+                                        id="group-create-format"
+                                        name="format_documente"
+                                    >
+                                        <option value="" @selected($groupCreateFormat === '')>Fără format</option>
+                                        @foreach ($groupFormatOptions as $value => $label)
+                                            <option value="{{ $value }}" @selected($groupCreateFormat === (string) $value)>
+                                                {{ $label }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
+                                        {{ $isGroupCreateActive ? $errors->first('format_documente') : '' }}
+                                    </div>
+                                </div>
+                            @endif
                             <div class="col-md-6">
                                 <label for="group-create-zile" class="form-label">Zile calculate</label>
                                 <input
@@ -1133,36 +1152,38 @@
                                     {{ $isGroupCreateActive ? $errors->first('zile_calculate') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-6">
-                                <label for="group-create-suma-incasata" class="form-label">Sumă încasată</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    id="group-create-suma-incasata"
-                                    name="suma_incasata"
-                                    class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('suma_incasata') ? 'is-invalid' : '' }}"
-                                    value="{{ $groupCreateSumaIncasata }}"
-                                >
-                                <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('suma_incasata') ? 'd-block' : '' }}" data-error-for="suma_incasata">
-                                    {{ $isGroupCreateActive ? $errors->first('suma_incasata') : '' }}
+                            @unless ($isFlashDivision)
+                                <div class="col-md-6">
+                                    <label for="group-create-suma-incasata" class="form-label">Sumă încasată</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        id="group-create-suma-incasata"
+                                        name="suma_incasata"
+                                        class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('suma_incasata') ? 'is-invalid' : '' }}"
+                                        value="{{ $groupCreateSumaIncasata }}"
+                                    >
+                                    <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('suma_incasata') ? 'd-block' : '' }}" data-error-for="suma_incasata">
+                                        {{ $isGroupCreateActive ? $errors->first('suma_incasata') : '' }}
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-6">
-                                <label for="group-create-suma-calculata" class="form-label">Sumă calculată</label>
-                                <input
-                                    type="number"
-                                    step="0.01"
-                                    min="0"
-                                    id="group-create-suma-calculata"
-                                    name="suma_calculata"
-                                    class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('suma_calculata') ? 'is-invalid' : '' }}"
-                                    value="{{ $groupCreateSumaCalculata }}"
-                                >
-                                <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('suma_calculata') ? 'd-block' : '' }}" data-error-for="suma_calculata">
-                                    {{ $isGroupCreateActive ? $errors->first('suma_calculata') : '' }}
+                                <div class="col-md-6">
+                                    <label for="group-create-suma-calculata" class="form-label">Sumă calculată</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        id="group-create-suma-calculata"
+                                        name="suma_calculata"
+                                        class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('suma_calculata') ? 'is-invalid' : '' }}"
+                                        value="{{ $groupCreateSumaCalculata }}"
+                                    >
+                                    <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('suma_calculata') ? 'd-block' : '' }}" data-error-for="suma_calculata">
+                                        {{ $isGroupCreateActive ? $errors->first('suma_calculata') : '' }}
+                                    </div>
                                 </div>
-                            </div>
+                            @endunless
                             <div class="col-md-6">
                                 <label for="group-create-data-factura" class="form-label">Data facturii</label>
                                 <input
@@ -1239,6 +1260,7 @@
         @php
             $isGroupEditActive = $currentFormType === 'group-edit' && $currentFormId === (int) $grup->id;
             $groupEditName = $isGroupEditActive ? old('nume', $grup->nume) : $grup->nume;
+            $groupEditRr = $isGroupEditActive ? old('rr', $grup->rr) : $grup->rr;
             $groupEditFormat = $isGroupEditActive ? old('format_documente', $grup->format_documente) : $grup->format_documente;
             $groupEditZile = $isGroupEditActive ? old('zile_calculate', $grup->zile_calculate) : $grup->zile_calculate;
             $groupEditSumaIncasata = $isGroupEditActive ? old('suma_incasata', $grup->suma_incasata) : $grup->suma_incasata;
@@ -1276,38 +1298,55 @@
                         <input type="hidden" name="form_id" value="{{ $grup->id }}">
                         <div class="modal-body">
                             <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label for="group-edit-name-{{ $grup->id }}" class="form-label">Nume grup</label>
-                                    <input
-                                        type="text"
-                                        class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('nume') ? 'is-invalid' : '' }}"
-                                        id="group-edit-name-{{ $grup->id }}"
-                                        name="nume"
-                                        value="{{ $groupEditName }}"
-                                        maxlength="255"
-                                    >
-                                    <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('nume') ? 'd-block' : '' }}" data-error-for="nume">
-                                        {{ $isGroupEditActive ? $errors->first('nume') : '' }}
+                                @if ($isFlashDivision)
+                                    <div class="col-md-6">
+                                        <label for="group-edit-rr-{{ $grup->id }}" class="form-label">RR</label>
+                                        <input
+                                            type="text"
+                                            class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('rr') ? 'is-invalid' : '' }}"
+                                            id="group-edit-rr-{{ $grup->id }}"
+                                            name="rr"
+                                            value="{{ $groupEditRr }}"
+                                            maxlength="255"
+                                        >
+                                        <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('rr') ? 'd-block' : '' }}" data-error-for="rr">
+                                            {{ $isGroupEditActive ? $errors->first('rr') : '' }}
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="group-edit-format-{{ $grup->id }}" class="form-label">Format documente</label>
-                                    <select
-                                        class="form-select rounded-3 {{ $isGroupEditActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
-                                        id="group-edit-format-{{ $grup->id }}"
-                                        name="format_documente"
-                                    >
-                                        <option value="" @selected($groupEditFormat === null || $groupEditFormat === '')>Fără format</option>
-                                        @foreach ($groupFormatOptions as $value => $label)
-                                            <option value="{{ $value }}" @selected((string) $groupEditFormat === (string) $value)>
-                                                {{ $label }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
-                                        {{ $isGroupEditActive ? $errors->first('format_documente') : '' }}
+                                @else
+                                    <div class="col-md-6">
+                                        <label for="group-edit-name-{{ $grup->id }}" class="form-label">Nume grup</label>
+                                        <input
+                                            type="text"
+                                            class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('nume') ? 'is-invalid' : '' }}"
+                                            id="group-edit-name-{{ $grup->id }}"
+                                            name="nume"
+                                            value="{{ $groupEditName }}"
+                                            maxlength="255"
+                                        >
+                                        <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('nume') ? 'd-block' : '' }}" data-error-for="nume">
+                                            {{ $isGroupEditActive ? $errors->first('nume') : '' }}
+                                        </div>
                                     </div>
-                                </div>
+                                    <div class="col-md-6">
+                                        <label for="group-edit-format-{{ $grup->id }}" class="form-label">Format documente</label>
+                                        <select
+                                            class="form-select rounded-3 {{ $isGroupEditActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
+                                            id="group-edit-format-{{ $grup->id }}"
+                                            name="format_documente"
+                                        >
+                                            <option value="" @selected($groupEditFormat === null || $groupEditFormat === '')>Fără format</option>
+                                            @foreach ($groupFormatOptions as $value => $label)
+                                                <option value="{{ $value }}" @selected((string) $groupEditFormat === (string) $value)>
+                                                    {{ $label }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
+                                            {{ $isGroupEditActive ? $errors->first('format_documente') : '' }}
+                                        </div>
+                                    </div>
+                                @endif
                                 <div class="col-md-6">
                                     <label for="group-edit-zile-{{ $grup->id }}" class="form-label">Zile calculate</label>
                                     <input
@@ -1318,40 +1357,42 @@
                                         class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('zile_calculate') ? 'is-invalid' : '' }}"
                                         value="{{ $groupEditZile }}"
                                     >
-                                    <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('zile_calculate') ? 'd-block' : '' }}" data-error-for="zile_calculate">
-                                        {{ $isGroupEditActive ? $errors->first('zile_calculate') : '' }}
-                                    </div>
+                                <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('zile_calculate') ? 'd-block' : '' }}" data-error-for="zile_calculate">
+                                    {{ $isGroupEditActive ? $errors->first('zile_calculate') : '' }}
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="group-edit-suma-incasata-{{ $grup->id }}" class="form-label">Sumă încasată</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        id="group-edit-suma-incasata-{{ $grup->id }}"
-                                        name="suma_incasata"
-                                        class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('suma_incasata') ? 'is-invalid' : '' }}"
-                                        value="{{ $groupEditSumaIncasata }}"
-                                    >
-                                    <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('suma_incasata') ? 'd-block' : '' }}" data-error-for="suma_incasata">
-                                        {{ $isGroupEditActive ? $errors->first('suma_incasata') : '' }}
+                            </div>
+                                @unless ($isFlashDivision)
+                                    <div class="col-md-6">
+                                        <label for="group-edit-suma-incasata-{{ $grup->id }}" class="form-label">Sumă încasată</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            id="group-edit-suma-incasata-{{ $grup->id }}"
+                                            name="suma_incasata"
+                                            class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('suma_incasata') ? 'is-invalid' : '' }}"
+                                            value="{{ $groupEditSumaIncasata }}"
+                                        >
+                                        <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('suma_incasata') ? 'd-block' : '' }}" data-error-for="suma_incasata">
+                                            {{ $isGroupEditActive ? $errors->first('suma_incasata') : '' }}
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="group-edit-suma-calculata-{{ $grup->id }}" class="form-label">Sumă calculată</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        id="group-edit-suma-calculata-{{ $grup->id }}"
-                                        name="suma_calculata"
-                                        class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('suma_calculata') ? 'is-invalid' : '' }}"
-                                        value="{{ $groupEditSumaCalculata }}"
-                                    >
-                                    <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('suma_calculata') ? 'd-block' : '' }}" data-error-for="suma_calculata">
-                                        {{ $isGroupEditActive ? $errors->first('suma_calculata') : '' }}
+                                    <div class="col-md-6">
+                                        <label for="group-edit-suma-calculata-{{ $grup->id }}" class="form-label">Sumă calculată</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            id="group-edit-suma-calculata-{{ $grup->id }}"
+                                            name="suma_calculata"
+                                            class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('suma_calculata') ? 'is-invalid' : '' }}"
+                                            value="{{ $groupEditSumaCalculata }}"
+                                        >
+                                        <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('suma_calculata') ? 'd-block' : '' }}" data-error-for="suma_calculata">
+                                            {{ $isGroupEditActive ? $errors->first('suma_calculata') : '' }}
+                                        </div>
                                     </div>
-                                </div>
+                                @endunless
                                 <div class="col-md-6">
                                     <label for="group-edit-data-factura-{{ $grup->id }}" class="form-label">Data facturii</label>
                                     <input
