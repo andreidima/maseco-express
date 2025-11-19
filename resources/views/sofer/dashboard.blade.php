@@ -10,15 +10,15 @@
         {{-- <p class="text-muted small mb-0">Consultați rapid documentele și termenele limită asociate flotei.</p> --}}
     </div>
 
-    @if ($activeValabilitate)
+    @forelse ($activeValabilitati as $valabilitate)
         <article class="card border-0 shadow-sm mb-4">
             <div class="card-body p-4 p-lg-5 text-center">
                 <div class="gap-2 mb-3">
                     <b class="h4 text-primary fw-bold">
-                        {{ $activeValabilitate->numar_auto ?? 'Fără număr' }}
+                        {{ $valabilitate->numar_auto ?? 'Fără număr' }}
                     </b>
                     <p class="text-muted mb-0">
-                        {{ $activeValabilitate->divizie->nume ?? 'Fără divizie' }}
+                        {{ $valabilitate->divizie->nume ?? 'Fără divizie' }}
                     </p>
                 </div>
 
@@ -26,19 +26,19 @@
                     <div class="col-12">
                         <p class="text-uppercase mb-1">Perioadă valabilitate</p>
                         <p class="h6 mb-0">
-                            {{ optional($activeValabilitate->data_inceput)->format('d.m.Y') ?? '—' }}
+                            {{ optional($valabilitate->data_inceput)->format('d.m.Y') ?? '—' }}
                             <span class="text-muted">–</span>
-                            {{ optional($activeValabilitate->data_sfarsit)->format('d.m.Y') ?? 'Prezent' }}
+                            {{ optional($valabilitate->data_sfarsit)->format('d.m.Y') ?? 'Prezent' }}
                         </p>
                     </div>
                     <div class="col-12">
                         <p class="text-uppercase mb-1">Curse înregistrate:
                             <b>
-                                {{ $activeValabilitate->curse_count }}
+                                {{ $valabilitate->curse_count }}
                             </b>
                         </p>
                         <a
-                            href="{{ route('sofer.valabilitati.show', $activeValabilitate) }}"
+                            href="{{ route('sofer.valabilitati.show', $valabilitate) }}"
                             class="btn btn-primary px-4"
                         >
                             Gestionează cursele
@@ -47,7 +47,7 @@
                 </div>
             </div>
         </article>
-    @else
+    @empty
         <div class="card border-0 shadow-sm mb-4">
             <div class="card-body text-center py-5">
                 <i class="fa-solid fa-circle-check fa-3x text-success mb-3"></i>
@@ -55,7 +55,7 @@
                 <p class="text-muted small mb-0">Veți fi notificat de echipă atunci când apar documente noi.</p>
             </div>
         </div>
-    @endif
+    @endforelse
 
 </div>
 @endsection
