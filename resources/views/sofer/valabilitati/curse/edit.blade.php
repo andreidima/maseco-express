@@ -20,13 +20,9 @@
                 'action' => route('sofer.valabilitati.curse.update', [$valabilitate, $cursa]),
                 'method' => 'PUT',
                 'submitLabel' => 'Actualizează cursa',
-                'requiresTime' => $requiresTime,
-                'lockTime' => $lockTime,
-                'romanianCountryIds' => $romanianCountryIds,
+                'isFlashDivizie' => $isFlashDivizie,
             ])
         </div>
     </div>
 </div>
 @endsection
-
-@include('sofer.valabilitati.curse.partials.final-return-modal')

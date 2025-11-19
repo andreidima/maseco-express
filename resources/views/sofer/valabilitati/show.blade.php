@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@php($isFlashDivizie = (bool) ($isFlashDivizie ?? false))
+
 @section('content')
 <div class="container py-4 py-md-5 sofer-valabilitati">
    <div class="sofer-header mb-3 mb-md-4">
@@ -83,15 +85,15 @@
                                     <span class="fw-semibold text-dark small text-uppercase">
                                         <span class="text-body-secondary text-primary">{{ $cursa->nr_cursa ?? '—' }}</span>
                                     </span>
-                                    <span class="text-primary">
-                                        {{-- {{ $cursa->incarcare_localitate ?? '—' }}
-                                        <span class="mx-1">→</span>
-                                        {{ $cursa->descarcare_localitate ?? '—' }}
-                                        <br>
+                                    <span class="text-primary d-flex flex-column">
+                                        <span>
+                                            {{ $cursa->incarcare_localitate ?? '—' }}
+                                            <span class="mx-1">→</span>
+                                            {{ $cursa->descarcare_localitate ?? '—' }}
+                                        </span>
                                         <small class="text-muted">
-                                            {{ optional($cursa->data_cursa)->format('d.m.Y') ?? 'Fără dată' }}
-                                        </small> --}}
-
+                                            {{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? 'Fără dată' }}
+                                        </small>
                                     </span>
                                 </div>
                             </div>
@@ -140,24 +142,37 @@
                                         </div>
 
                                         <div class="row g-2 small text-muted mt-2">
-                                            <div class="col-6">
-                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Km bord încărcare</p>
+                                            <div class="col-12">
+                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Data și ora cursei</p>
                                                 <p class="mb-0">
                                                     <span class="text-body-secondary">
-                                                        {{ $cursa->km_bord_incarcare ?? '—' }}
-                                                    </span>
-                                                </p>
-                                            </div>
-
-                                            <div class="col-6 text-end">
-                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Km bord descărcare</p>
-                                                <p class="mb-0">
-                                                    <span class="text-body-secondary">
-                                                        {{ $cursa->km_bord_descarcare ?? '—' }}
+                                                        {{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? '—' }}
                                                     </span>
                                                 </p>
                                             </div>
                                         </div>
+
+                                        @unless ($isFlashDivizie)
+                                            <div class="row g-2 small text-muted mt-2">
+                                                <div class="col-6">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Km bord încărcare</p>
+                                                    <p class="mb-0">
+                                                        <span class="text-body-secondary">
+                                                            {{ $cursa->km_bord_incarcare ?? '—' }}
+                                                        </span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="col-6 text-end">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Km bord descărcare</p>
+                                                    <p class="mb-0">
+                                                        <span class="text-body-secondary">
+                                                            {{ $cursa->km_bord_descarcare ?? '—' }}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        @endunless
 
                                         @if ($cursa->observatii)
                                             <p class="text-muted small mt-3 mb-0">{{ $cursa->observatii }}</p>

@@ -9,8 +9,6 @@ use App\Models\ValabilitateCursa;
 use App\Support\Valabilitati\ValabilitateCursaOrderer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -32,6 +30,7 @@ class SoferValabilitateCursaController extends Controller
         return view('sofer.valabilitati.show', [
             'valabilitate' => $valabilitate,
             'curse' => $valabilitate->curse,
+            'isFlashDivizie' => $this->isFlashDivizie($valabilitate),
         ]);
     }
 
@@ -44,14 +43,10 @@ class SoferValabilitateCursaController extends Controller
             ->orderBy('nume')
             ->get(['id', 'nume']);
 
-        $requiresTime = ! $valabilitate->curse()->exists();
-
         return view('sofer.valabilitati.curse.create', [
             'valabilitate' => $valabilitate,
             'tari' => $tari,
-            'requiresTime' => $requiresTime,
-            'lockTime' => $requiresTime,
-            'romanianCountryIds' => $this->determineRomanianCountryIds($tari),
+            'isFlashDivizie' => $this->isFlashDivizie($valabilitate),
         ]);
     }
 
@@ -67,15 +62,11 @@ class SoferValabilitateCursaController extends Controller
             ->orderBy('nume')
             ->get(['id', 'nume']);
 
-        $hasDateTime = $cursa->data_cursa !== null;
-
         return view('sofer.valabilitati.curse.edit', [
             'valabilitate' => $valabilitate,
             'cursa' => $cursa,
             'tari' => $tari,
-            'requiresTime' => $hasDateTime,
-            'lockTime' => false,
-            'romanianCountryIds' => $this->determineRomanianCountryIds($tari),
+            'isFlashDivizie' => $this->isFlashDivizie($valabilitate),
         ]);
     }
 
@@ -158,22 +149,9 @@ class SoferValabilitateCursaController extends Controller
         abort_unless((int) $cursa->valabilitate_id === (int) $valabilitate->id, 404);
     }
 
-    /**
-     * @param  Collection<int, Tara>  $tari
-     * @return array<int, int>
-     */
-    private function determineRomanianCountryIds(Collection $tari): array
+    private function isFlashDivizie(Valabilitate $valabilitate): bool
     {
-        return $tari
-            ->filter(static function (Tara $tara) {
-                $normalized = Str::lower($tara->nume);
-
-                return in_array($normalized, ['romania', 'românia'], true);
-            })
-            ->pluck('id')
-            ->map(static fn ($id) => (int) $id)
-            ->values()
-            ->all();
+        return (int) $valabilitate->divizie_id === 1;
     }
 
     private function resolveNextNrOrdine(Valabilitate $valabilitate): int

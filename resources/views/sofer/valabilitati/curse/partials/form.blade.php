@@ -4,9 +4,7 @@
     $method = strtoupper($method ?? 'POST');
     $submitLabel = $submitLabel ?? 'Salvează';
     $tari = $tari ?? collect();
-    $requiresTime = (bool) ($requiresTime ?? false);
-    $lockTime = (bool) ($lockTime ?? false);
-    $romanianCountryIds = collect($romanianCountryIds ?? [])->map(fn ($id) => (int) $id)->all();
+    $isFlashDivizie = (bool) ($isFlashDivizie ?? false);
     $countryOptions = $tari->map(fn ($tara) => [
         'id' => (string) $tara->id,
         'name' => $tara->nume,
@@ -22,21 +20,7 @@
     $descarcareTaraId = (int) old('descarcare_tara_id', optional($cursa)->descarcare_tara_id);
     $descarcareTaraText = old('descarcare_tara_text', optional(optional($cursa)->descarcareTara)->nume);
 
-    $dateValue = old('data_cursa_date', optional(optional($cursa)->data_cursa)->format('Y-m-d'));
-    $timeValue = old('data_cursa_time', optional(optional($cursa)->data_cursa)->format('H:i'));
-
-    $defaultFinalReturn = old('final_return');
-    if ($defaultFinalReturn === null) {
-        $defaultFinalReturn = in_array($descarcareTaraId, $romanianCountryIds, true) ? 1 : 0;
-    }
-    $finalReturnValue = (int) $defaultFinalReturn;
-
-    $showTime = $requiresTime || $lockTime || $finalReturnValue === 1;
-    if (! $showTime && filled($timeValue)) {
-        $showTime = true;
-    }
-
-    $requireTimeDefault = $requiresTime || $finalReturnValue === 1 || $lockTime;
+    $dataCursaValue = old('data_cursa', optional(optional($cursa)->data_cursa)->format('Y-m-d\TH:i'));
     $nrCursa = old('nr_cursa', optional($cursa)->nr_cursa);
 @endphp
 
@@ -45,19 +29,12 @@
     action="{{ $action }}"
     class="cursa-form"
     data-cursa-form
-    data-initial-time-visible="{{ $showTime ? 'true' : 'false' }}"
-    data-lock-time-visible="{{ $lockTime ? 'true' : 'false' }}"
-    data-require-time-default="{{ $requireTimeDefault ? 'true' : 'false' }}"
-    data-initial-final-return="{{ $finalReturnValue }}"
-    data-romanian-ids='@json(array_map("strval", $romanianCountryIds))'
     data-country-options='@json($countryOptions)'
 >
     @csrf
     @if ($method !== 'POST')
         @method($method)
     @endif
-
-    <input type="hidden" name="final_return" value="{{ $finalReturnValue }}" data-final-return-input>
 
     <div class="row g-3">
         <div class="col-12 col-md-6">
@@ -162,33 +139,19 @@
             @enderror
         </div>
         <div class="col-12 col-md-6">
-            <label class="form-label small text-uppercase fw-semibold">Data cursei</label>
-            <input
-                type="date"
-                name="data_cursa_date"
-                class="form-control form-control-sm @error('data_cursa_date') is-invalid @enderror"
-                value="{{ $dateValue }}"
-            >
-            @error('data_cursa_date')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-        <div class="col-12 col-md-6 cursa-time-field @if (! $showTime) d-none @endif" data-time-container>
             <label class="form-label small text-uppercase fw-semibold">Ora cursei</label>
             <input
-                type="time"
-                name="data_cursa_time"
-                class="form-control form-control-sm @error('data_cursa_time') is-invalid @enderror"
-                value="{{ $timeValue }}"
-                data-time-input
+                type="datetime-local"
+                name="data_cursa"
+                class="form-control form-control-sm @error('data_cursa') is-invalid @enderror"
+                value="{{ $dataCursaValue }}"
+                step="60"
             >
-            @error('data_cursa_time')
+            @error('data_cursa')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
-            @if ($lockTime)
-                <div class="form-text">Ora este necesară pentru prima cursă înregistrată.</div>
-            @endif
         </div>
+        @unless ($isFlashDivizie)
         <div class="col-12 col-md-6">
             <label class="form-label small text-uppercase fw-semibold">Km bord încărcare</label>
             <input
@@ -217,6 +180,7 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
+        @endunless
         <div class="col-12">
             <label class="form-label small text-uppercase fw-semibold">Observații</label>
             <textarea
@@ -238,18 +202,6 @@
 
 @push('page-styles')
     <style>
-        .cursa-form .cursa-time-field label::after {
-            content: '*';
-            color: #dc3545;
-            margin-left: 0.25rem;
-            font-weight: 600;
-            display: none;
-        }
-
-        .cursa-form .cursa-time-field.is-required label::after {
-            display: inline;
-        }
-
         .country-autocomplete {
             position: relative;
         }
@@ -546,213 +498,6 @@
             };
 
             form.querySelectorAll('[data-country-field]').forEach((field) => bindCountryField(field));
-
-            const timeContainer = form.querySelector('[data-time-container]');
-            const timeInput = timeContainer ? timeContainer.querySelector('[data-time-input]') : null;
-            const finalReturnInput = form.querySelector('[data-final-return-input]');
-            const descarcareField = form.querySelector('[data-country-field][data-country-role="descarcare"]');
-            const descarcareHidden = descarcareField ? descarcareField.querySelector('[data-country-hidden]') : null;
-            const descarcareText = descarcareField ? descarcareField.querySelector('[data-country-input]') : null;
-            const confirmModalEl = document.getElementById('finalReturnConfirmModal');
-            const confirmButton = confirmModalEl ? confirmModalEl.querySelector('[data-final-return-confirm]') : null;
-            const cancelButton = confirmModalEl ? confirmModalEl.querySelector('[data-final-return-cancel]') : null;
-            const bootstrapModal = window.bootstrap?.Modal ?? window.bootstrapModal ?? null;
-
-            const initialTimeVisible = form.dataset.initialTimeVisible === 'true';
-            const lockTimeVisible = form.dataset.lockTimeVisible === 'true';
-            const requireTimeDefault = form.dataset.requireTimeDefault === 'true';
-            const initialFinalReturn = form.dataset.initialFinalReturn === '1';
-            const romanianIds = (() => {
-                try {
-                    return JSON.parse(form.dataset.romanianIds || '[]').map(String);
-                } catch (error) {
-                    return [];
-                }
-            })();
-
-            let pendingModal = false;
-
-            const toggleTimeField = (visible, requireTime = null) => {
-                if (!timeContainer) {
-                    return;
-                }
-
-                const shouldRequire = requireTime !== null ? requireTime : (lockTimeVisible || requireTimeDefault);
-
-                if (visible) {
-                    timeContainer.classList.remove('d-none');
-                    if (shouldRequire) {
-                        timeContainer.classList.add('is-required');
-                    } else {
-                        timeContainer.classList.remove('is-required');
-                    }
-                } else if (!lockTimeVisible) {
-                    timeContainer.classList.add('d-none');
-                    timeContainer.classList.remove('is-required');
-                    if (timeInput) {
-                        timeInput.value = '';
-                    }
-                }
-            };
-
-            const setFinalReturnFlag = (value) => {
-                if (finalReturnInput) {
-                    finalReturnInput.value = value ? '1' : '0';
-                }
-            };
-
-            const isRomaniaSelected = () => {
-                if (!descarcareHidden) {
-                    return false;
-                }
-
-                const hiddenValue = (descarcareHidden.value || '').trim();
-                if (hiddenValue && romanianIds.includes(hiddenValue)) {
-                    return true;
-                }
-
-                const rawText = descarcareText ? (descarcareText.value || '') : '';
-                const normalisedValue = rawText
-                    ? (typeof rawText.normalize === 'function'
-                        ? rawText
-                            .normalize('NFD')
-                            .replace(/[\u0300-\u036f]/g, '')
-                        : rawText)
-                    : '';
-
-                return normalisedValue.trim().toLowerCase() === 'romania';
-            };
-
-            const showFinalModal = () => {
-                if (!confirmModalEl) {
-                    return;
-                }
-
-                if (bootstrapModal && typeof bootstrapModal.getOrCreateInstance === 'function') {
-                    bootstrapModal.getOrCreateInstance(confirmModalEl).show();
-                    return;
-                }
-
-                const $ = window.jQuery || window.$;
-                if (typeof $ === 'function' && typeof $(confirmModalEl).modal === 'function') {
-                    $(confirmModalEl).modal('show');
-                    return;
-                }
-
-                confirmModalEl.classList.add('show');
-                confirmModalEl.removeAttribute('aria-hidden');
-            };
-
-            const hideFinalModal = () => {
-                if (!confirmModalEl) {
-                    return;
-                }
-
-                if (bootstrapModal && typeof bootstrapModal.getInstance === 'function') {
-                    const instance = bootstrapModal.getInstance(confirmModalEl);
-                    if (instance) {
-                        instance.hide();
-                        return;
-                    }
-                }
-
-                const $ = window.jQuery || window.$;
-                if (typeof $ === 'function' && typeof $(confirmModalEl).modal === 'function') {
-                    $(confirmModalEl).modal('hide');
-                    return;
-                }
-
-                confirmModalEl.classList.remove('show');
-                confirmModalEl.setAttribute('aria-hidden', 'true');
-            };
-
-            const resetAfterCancel = () => {
-                setFinalReturnFlag(false);
-
-                if (lockTimeVisible) {
-                    toggleTimeField(true, true);
-                    return;
-                }
-
-                const hasTimeValue = timeInput && (timeInput.value || '').trim() !== '';
-                if (initialTimeVisible || hasTimeValue) {
-                    toggleTimeField(true, hasTimeValue ? requireTimeDefault : initialFinalReturn);
-                } else {
-                    toggleTimeField(false, false);
-                }
-            };
-
-            const handleDestinationChange = () => {
-                if (!descarcareHidden) {
-                    return;
-                }
-
-                if (isRomaniaSelected()) {
-                    if (finalReturnInput && finalReturnInput.value === '1') {
-                        toggleTimeField(true, true);
-                        return;
-                    }
-
-                    pendingModal = true;
-                    showFinalModal();
-                    return;
-                }
-
-                pendingModal = false;
-                setFinalReturnFlag(false);
-
-                if (lockTimeVisible) {
-                    toggleTimeField(true, true);
-                    return;
-                }
-
-                const hasTimeValue = timeInput && (timeInput.value || '').trim() !== '';
-                if (initialTimeVisible || hasTimeValue) {
-                    toggleTimeField(true, hasTimeValue ? requireTimeDefault : initialFinalReturn);
-                } else {
-                    toggleTimeField(false, false);
-                }
-            };
-
-            confirmButton?.addEventListener('click', () => {
-                setFinalReturnFlag(true);
-                toggleTimeField(true, true);
-                hideFinalModal();
-                pendingModal = false;
-                if (timeInput) {
-                    timeInput.focus();
-                }
-            });
-
-            cancelButton?.addEventListener('click', () => {
-                resetAfterCancel();
-                hideFinalModal();
-                pendingModal = false;
-            });
-
-            if (confirmModalEl) {
-                confirmModalEl.addEventListener('hidden.bs.modal', () => {
-                    if (pendingModal) {
-                        resetAfterCancel();
-                        pendingModal = false;
-                    }
-                });
-            }
-
-            if (descarcareHidden) {
-                descarcareHidden.addEventListener('change', handleDestinationChange);
-            }
-
-            if (descarcareText) {
-                descarcareText.addEventListener('change', handleDestinationChange);
-                descarcareText.addEventListener('blur', handleDestinationChange);
-            }
-
-            if (initialTimeVisible || lockTimeVisible || (timeInput && (timeInput.value || '').trim() !== '')) {
-                toggleTimeField(true, finalReturnInput && finalReturnInput.value === '1');
-            }
-
-            handleDestinationChange();
         });
     </script>
 @endpush
