@@ -13,10 +13,10 @@ class SoferDashboardController extends Controller
         $today = Carbon::today();
         $driver = $request->user();
 
-        $activeValabilitate = null;
+        $activeValabilitati = collect();
 
         if ($driver) {
-            $activeValabilitate = Valabilitate::query()
+            $activeValabilitati = Valabilitate::query()
                 ->select(['id', 'numar_auto', 'divizie_id', 'data_inceput', 'data_sfarsit'])
                 ->where('sofer_id', $driver->id)
                 ->whereDate('data_inceput', '<=', $today)
@@ -28,11 +28,11 @@ class SoferDashboardController extends Controller
                 ->with('divizie:id,nume')
                 ->withCount('curse')
                 ->orderByDesc('data_inceput')
-                ->first();
+                ->get();
         }
 
         return view('sofer.dashboard', [
-            'activeValabilitate' => $activeValabilitate,
+            'activeValabilitati' => $activeValabilitati,
         ]);
     }
 }
