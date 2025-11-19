@@ -1,6 +1,17 @@
 @php
     $isFlashDivision = optional($valabilitate->divizie)->id === 1;
-    $tableColumnCount = $isFlashDivision ? 13 : 12;
+    $tableColumnCount = $isFlashDivision ? 14 : 12;
+    $divizie = $valabilitate->divizie;
+    $priceKmGol = $divizie && $divizie->pret_km_gol !== null ? (float) $divizie->pret_km_gol : null;
+    $priceKmPlin = $divizie && $divizie->pret_km_plin !== null ? (float) $divizie->pret_km_plin : null;
+    $priceKmCuTaxa = $divizie && $divizie->pret_km_cu_taxa !== null ? (float) $divizie->pret_km_cu_taxa : null;
+    $formatCalculatedValue = static function (?float $value): string {
+        if ($value === null) {
+            return '—';
+        }
+
+        return number_format($value, 2);
+    };
     $previousKmSosire = null;
     $currentGroupKey = '__none__';
     $resolveRowTextColor = static function ($value): string {
@@ -85,6 +96,26 @@
         $diffFlashPlinClass = $kmMapsFlashPlinDiff === null
             ? ''
             : ($kmMapsFlashPlinDiff < 0 ? 'text-danger' : ($kmMapsFlashPlinDiff > 0 ? 'text-success' : ''));
+
+        $kmMapsGolAmount = $kmMapsGolValue !== null && $priceKmGol !== null
+            ? round($kmMapsGolValue * $priceKmGol, 2)
+            : null;
+        $kmMapsPlinAmount = $kmMapsPlinValue !== null && $priceKmPlin !== null
+            ? round($kmMapsPlinValue * $priceKmPlin, 2)
+            : null;
+        $kmMapsCuTaxaAmount = $kmCuTaxaValue !== null && $priceKmCuTaxa !== null
+            ? round($kmCuTaxaValue * $priceKmCuTaxa, 2)
+            : null;
+
+        $calculatedTotalAmount = null;
+        if ($kmMapsGolAmount !== null || $kmMapsPlinAmount !== null || $kmMapsCuTaxaAmount !== null) {
+            $calculatedTotalAmount = round(
+                ($kmMapsGolAmount ?? 0.0)
+                + ($kmMapsPlinAmount ?? 0.0)
+                + ($kmMapsCuTaxaAmount ?? 0.0),
+                2
+            );
+        }
 
         $canMoveUp = ! $loop->first;
         $canMoveDown = ! $loop->last;
@@ -251,6 +282,28 @@
             </td>
             <td class="text-end text-nowrap align-middle {{ $diffFlashPlinClass }}">
                 {{ $kmMapsFlashPlinDiff !== null ? $kmMapsFlashPlinDiff : '—' }}
+            </td>
+
+            {{-- Sumă calculată --}}
+            <td class="text-end align-middle text-nowrap">
+                <div class="d-flex flex-column gap-1 small text-end">
+                    <div>
+                        <span>km gol:</span>
+                        <strong>{{ $formatCalculatedValue($kmMapsGolAmount) }}</strong>
+                    </div>
+                    <div>
+                        <span>km plin:</span>
+                        <strong>{{ $formatCalculatedValue($kmMapsPlinAmount) }}</strong>
+                    </div>
+                    <div>
+                        <span>km cu taxă:</span>
+                        <strong>{{ $formatCalculatedValue($kmMapsCuTaxaAmount) }}</strong>
+                    </div>
+                    <div>
+                        <span>total km:</span>
+                        <strong>{{ $formatCalculatedValue($calculatedTotalAmount) }}</strong>
+                    </div>
+                </div>
             </td>
         @else
             {{-- KM Maps --}}

@@ -393,23 +393,25 @@
                                     {{ $isCreateActive ? $errors->first('km_bord_descarcare') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <label for="cursa-create-km-maps" class="form-label">Km Maps</label>
-                                <input
-                                    type="text"
-                                    name="km_maps"
-                                    id="cursa-create-km-maps"
-                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_maps') ? 'is-invalid' : '' }}"
-                                    value="{{ $createKmMaps }}"
-                                    maxlength="255"
-                                >
-                                <div
-                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_maps') ? 'd-block' : '' }}"
-                                    data-error-for="km_maps"
-                                >
-                                    {{ $isCreateActive ? $errors->first('km_maps') : '' }}
+                            @unless ($isFlashDivision)
+                                <div class="col-md-4">
+                                    <label for="cursa-create-km-maps" class="form-label">Km Maps</label>
+                                    <input
+                                        type="text"
+                                        name="km_maps"
+                                        id="cursa-create-km-maps"
+                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_maps') ? 'is-invalid' : '' }}"
+                                        value="{{ $createKmMaps }}"
+                                        maxlength="255"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isCreateActive && $errors->has('km_maps') ? 'd-block' : '' }}"
+                                        data-error-for="km_maps"
+                                    >
+                                        {{ $isCreateActive ? $errors->first('km_maps') : '' }}
+                                    </div>
                                 </div>
-                            </div>
+                            @endunless
                             @if ($isFlashDivision)
                                 <div class="col-md-4">
                                     <label for="cursa-create-km-maps-gol" class="form-label">Km Maps gol</label>
@@ -847,23 +849,25 @@
                                     {{ $isEditing ? $errors->first('km_bord_descarcare') : '' }}
                                 </div>
                             </div>
-                            <div class="col-md-4">
-                                <label for="{{ $editPrefix }}km-maps" class="form-label">Km Maps</label>
-                                <input
-                                    type="text"
-                                    name="km_maps"
-                                    id="{{ $editPrefix }}km-maps"
-                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_maps') ? 'is-invalid' : '' }}"
-                                    value="{{ $editKmMaps }}"
-                                    maxlength="255"
-                                >
-                                <div
-                                    class="invalid-feedback {{ $isEditing && $errors->has('km_maps') ? 'd-block' : '' }}"
-                                    data-error-for="km_maps"
-                                >
-                                    {{ $isEditing ? $errors->first('km_maps') : '' }}
+                            @unless ($isFlashDivision)
+                                <div class="col-md-4">
+                                    <label for="{{ $editPrefix }}km-maps" class="form-label">Km Maps</label>
+                                    <input
+                                        type="text"
+                                        name="km_maps"
+                                        id="{{ $editPrefix }}km-maps"
+                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_maps') ? 'is-invalid' : '' }}"
+                                        value="{{ $editKmMaps }}"
+                                        maxlength="255"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isEditing && $errors->has('km_maps') ? 'd-block' : '' }}"
+                                        data-error-for="km_maps"
+                                    >
+                                        {{ $isEditing ? $errors->first('km_maps') : '' }}
+                                    </div>
                                 </div>
-                            </div>
+                            @endunless
                             @if ($isFlashDivision)
                                 <div class="col-md-4">
                                     <label for="{{ $editPrefix }}km-maps-gol" class="form-label">Km Maps gol</label>

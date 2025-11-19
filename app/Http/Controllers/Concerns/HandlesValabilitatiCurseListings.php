@@ -94,6 +94,8 @@ trait HandlesValabilitatiCurseListings
     {
         $curseCollection = $this->resolveCurseCollection($curse);
 
+        $isFlashDivision = optional($valabilitate->divizie)->id === 1;
+
         $kmPlecare = $curseCollection
             ->pluck('km_bord_incarcare')
             ->filter(static fn ($value) => $value !== null && $value !== '')
@@ -108,11 +110,26 @@ trait HandlesValabilitatiCurseListings
             ? (float) $kmSosire - (float) $kmPlecare
             : null;
 
-        $totalKmMaps = $curseCollection
+        $kmMapsValues = $curseCollection
             ->pluck('km_maps')
             ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
-            ->map(static fn ($value) => (float) $value)
-            ->sum();
+            ->map(static fn ($value) => (float) $value);
+
+        $totalKmMaps = $kmMapsValues->sum();
+
+        $kmMapsGolValues = $curseCollection
+            ->pluck('km_maps_gol')
+            ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+            ->map(static fn ($value) => (float) $value);
+
+        $totalKmMapsGol = $kmMapsGolValues->sum();
+
+        $kmMapsPlinValues = $curseCollection
+            ->pluck('km_maps_plin')
+            ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+            ->map(static fn ($value) => (float) $value);
+
+        $totalKmMapsPlin = $kmMapsPlinValues->sum();
 
         $totalKmBord2 = $curseCollection
             ->map(static function ($cursa) {
@@ -182,11 +199,33 @@ trait HandlesValabilitatiCurseListings
             'diferenta' => $groupFinancials->pluck('diferenta')->filter(static fn ($v) => $v !== null)->sum(),
         ];
 
+        if ($isFlashDivision) {
+            $kmPlecare = $valabilitate->km_plecare !== null
+                ? (float) $valabilitate->km_plecare
+                : null;
+
+            $kmSosire = $valabilitate->km_sosire !== null
+                ? (float) $valabilitate->km_sosire
+                : null;
+
+            $kmTotal = $kmPlecare !== null && $kmSosire !== null
+                ? $kmSosire - $kmPlecare
+                : null;
+
+            $totalKmMaps = ($totalKmMapsGol ?? 0.0) + ($totalKmMapsPlin ?? 0.0);
+            $totalKmBord2 = $kmTotal;
+            $totalKmDiff = $kmTotal !== null
+                ? $kmTotal - $totalKmMaps
+                : null;
+        }
+
         return [
             'kmPlecare' => $kmPlecare,
             'kmSosire' => $kmSosire,
             'kmTotal' => $kmTotal,
             'totalKmMaps' => $totalKmMaps,
+            'totalKmMapsGol' => $totalKmMapsGol,
+            'totalKmMapsPlin' => $totalKmMapsPlin,
             'totalKmBord2' => $totalKmBord2,
             'totalKmDiff' => $totalKmDiff,
             'totalZile' => $totalZile,
@@ -220,6 +259,7 @@ trait HandlesValabilitatiCurseListings
             'valabilitate' => $valabilitate,
             'summary' => $summary,
             'showGroupSummary' => $this->displayGroupSummaryInResponses(),
+            'isFlashDivision' => optional($valabilitate->divizie)->id === 1,
         ])->render();
     }
 
