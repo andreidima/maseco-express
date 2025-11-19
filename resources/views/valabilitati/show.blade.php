@@ -48,6 +48,14 @@
                     <h6 class="text-muted text-uppercase mb-2">Informații generale</h6>
                     <p class="mb-1"><strong>Divizie:</strong> {{ $valabilitate->divizie->nume ?? '—' }}</p>
                     <p class="mb-1"><strong>Număr auto:</strong> {{ $valabilitate->numar_auto }}</p>
+                    <p class="mb-1">
+                        <strong>KM plecare:</strong>
+                        {{ $valabilitate->km_plecare !== null ? number_format((int) $valabilitate->km_plecare, 0, ',', '.') : '—' }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>KM sosire:</strong>
+                        {{ $valabilitate->km_sosire !== null ? number_format((int) $valabilitate->km_sosire, 0, ',', '.') : '—' }}
+                    </p>
                     <p class="mb-0"><strong>Șofer:</strong> {{ $valabilitate->sofer->name ?? '—' }}</p>
                 </div>
             </div>

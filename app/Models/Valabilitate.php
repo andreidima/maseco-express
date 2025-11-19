@@ -23,11 +23,15 @@ class Valabilitate extends Model
         'divizie_id',
         'data_inceput',
         'data_sfarsit',
+        'km_plecare',
+        'km_sosire',
     ];
 
     protected $casts = [
         'data_inceput' => 'date',
         'data_sfarsit' => 'date',
+        'km_plecare' => 'integer',
+        'km_sosire' => 'integer',
     ];
 
     public function sofer(): BelongsTo
