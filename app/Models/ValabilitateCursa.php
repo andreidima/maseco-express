@@ -29,6 +29,11 @@ class ValabilitateCursa extends Model
         'km_bord_incarcare',
         'km_bord_descarcare',
         'km_maps',
+        'km_maps_gol',
+        'km_maps_plin',
+        'km_cu_taxa',
+        'km_flash_gol',
+        'km_flash_plin',
     ];
 
     protected $casts = [
@@ -37,6 +42,11 @@ class ValabilitateCursa extends Model
         'data_cursa' => 'datetime',
         'km_bord_incarcare' => 'integer',
         'km_bord_descarcare' => 'integer',
+        'km_maps_gol' => 'integer',
+        'km_maps_plin' => 'integer',
+        'km_cu_taxa' => 'integer',
+        'km_flash_gol' => 'integer',
+        'km_flash_plin' => 'integer',
     ];
 
     public function incarcareTara(): BelongsTo

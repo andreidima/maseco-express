@@ -30,6 +30,12 @@ class ValabilitateCursaFactory extends Factory
             'observatii' => fake()->optional()->sentence(),
             'km_bord_incarcare' => fake()->numberBetween(0, 500000),
             'km_bord_descarcare' => fake()->numberBetween(0, 500000),
+            'km_maps' => (string) fake()->numberBetween(0, 5000),
+            'km_maps_gol' => fake()->numberBetween(0, 5000),
+            'km_maps_plin' => fake()->numberBetween(0, 5000),
+            'km_cu_taxa' => fake()->numberBetween(0, 5000),
+            'km_flash_gol' => fake()->numberBetween(0, 5000),
+            'km_flash_plin' => fake()->numberBetween(0, 5000),
         ];
     }
 }

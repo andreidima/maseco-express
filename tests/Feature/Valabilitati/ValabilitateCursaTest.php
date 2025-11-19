@@ -37,6 +37,12 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Livrare completă',
             'km_bord_incarcare' => 12345,
             'km_bord_descarcare' => 12500,
+            'km_maps' => '150',
+            'km_maps_gol' => 50,
+            'km_maps_plin' => 100,
+            'km_cu_taxa' => 25,
+            'km_flash_gol' => 48,
+            'km_flash_plin' => 98,
         ]);
 
         $response->assertRedirect(route('valabilitati.curse.index', $valabilitate));
@@ -55,6 +61,12 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Livrare completă',
             'km_bord_incarcare' => 12345,
             'km_bord_descarcare' => 12500,
+            'km_maps' => '150',
+            'km_maps_gol' => 50,
+            'km_maps_plin' => 100,
+            'km_cu_taxa' => 25,
+            'km_flash_gol' => 48,
+            'km_flash_plin' => 98,
         ]);
 
         $cursa = ValabilitateCursa::firstOrFail();
@@ -97,6 +109,12 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Actualizare detalii',
             'km_bord_incarcare' => 98765,
             'km_bord_descarcare' => 99000,
+            'km_maps' => '300',
+            'km_maps_gol' => 120,
+            'km_maps_plin' => 180,
+            'km_cu_taxa' => 60,
+            'km_flash_gol' => 110,
+            'km_flash_plin' => 175,
         ]);
 
         $response->assertRedirect(route('valabilitati.curse.index', $cursa->valabilitate));
@@ -115,6 +133,12 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Actualizare detalii',
             'km_bord_incarcare' => 98765,
             'km_bord_descarcare' => 99000,
+            'km_maps' => '300',
+            'km_maps_gol' => 120,
+            'km_maps_plin' => 180,
+            'km_cu_taxa' => 60,
+            'km_flash_gol' => 110,
+            'km_flash_plin' => 175,
         ]);
     }
 

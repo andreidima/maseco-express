@@ -36,6 +36,11 @@ class ValabilitateCursaRequest extends FormRequest
             'km_bord_incarcare' => ['nullable', 'integer', 'min:0'],
             'km_bord_descarcare' => ['nullable', 'integer', 'min:0'],
             'km_maps' => ['nullable', 'string', 'max:255'],
+            'km_maps_gol' => ['nullable', 'numeric', 'min:0'],
+            'km_maps_plin' => ['nullable', 'numeric', 'min:0'],
+            'km_cu_taxa' => ['nullable', 'numeric', 'min:0'],
+            'km_flash_gol' => ['nullable', 'numeric', 'min:0'],
+            'km_flash_plin' => ['nullable', 'numeric', 'min:0'],
             'cursa_grup_id' => [
                 'nullable',
                 Rule::exists('valabilitati_cursa_grupuri', 'id')->where(function ($query) use ($valabilitate) {
