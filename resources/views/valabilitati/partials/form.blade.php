@@ -109,6 +109,41 @@
         </div>
     </div>
 
+    <div class="row g-3 mb-3">
+        <div class="col-md-6">
+            <label for="valabilitate-km-plecare" class="form-label">KM plecare</label>
+            <input
+                type="number"
+                name="km_plecare"
+                id="valabilitate-km-plecare"
+                class="form-control bg-white rounded-3 @error('km_plecare') is-invalid @enderror"
+                value="{{ old('km_plecare', optional($valabilitate)->km_plecare) }}"
+                min="0"
+                step="1"
+                inputmode="numeric"
+            >
+            @error('km_plecare')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col-md-6">
+            <label for="valabilitate-km-sosire" class="form-label">KM sosire</label>
+            <input
+                type="number"
+                name="km_sosire"
+                id="valabilitate-km-sosire"
+                class="form-control bg-white rounded-3 @error('km_sosire') is-invalid @enderror"
+                value="{{ old('km_sosire', optional($valabilitate)->km_sosire) }}"
+                min="0"
+                step="1"
+                inputmode="numeric"
+            >
+            @error('km_sosire')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+    </div>
+
     @include('valabilitati.partials.road-taxes-form', [
         'entries' => old('taxe_drum', $valabilitate ? $valabilitate->taxeDrum : []),
         'formPrefix' => '',
