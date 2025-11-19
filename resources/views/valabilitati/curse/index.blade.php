@@ -96,6 +96,7 @@
         $curseRoute = route('valabilitati.curse.index', $valabilitate);
         $isGroupsContext = request()->routeIs('valabilitati.grupuri.*');
         $hasGrupuri = $valabilitate->cursaGrupuri->count() > 0;
+        $isFlashDivision = optional($valabilitate->divizie)->id === 1;
     @endphp
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center text-center text-lg-start" style="border-radius: 40px 40px 0px 0px;">
@@ -200,21 +201,37 @@
                                 <th rowspan="2" class="curse-nowrap">Nr. cursă</th>
                                 <th rowspan="2">Cursa</th>
                                 <th rowspan="2" class="curse-nowrap">Dată transport</th>
-                                <th rowspan="2" class="text-end curse-nowrap">KM Maps</th>
-                                <th colspan="2" class="text-center curse-nowrap">
-                                    KM Bord (plecare / sosire)
-                                </th>
-                                <th colspan="2" class="text-center curse-nowrap">KM Bord 2</th>
-                                <th rowspan="2" class="text-end curse-nowrap">
-                                    Diferența KM<br>(Bord – Maps)
-                                </th>
+                                @if ($isFlashDivision)
+                                    <th colspan="2" class="text-center curse-nowrap">KM Maps</th>
+                                    <th rowspan="2" class="text-end curse-nowrap">KM cu taxă</th>
+                                    <th colspan="2" class="text-center curse-nowrap">KM Flash</th>
+                                    <th colspan="2" class="text-center curse-nowrap">Diferența KM<br>(Maps – Flash)</th>
+                                @else
+                                    <th rowspan="2" class="text-end curse-nowrap">KM Maps</th>
+                                    <th colspan="2" class="text-center curse-nowrap">
+                                        KM Bord (plecare / sosire)
+                                    </th>
+                                    <th colspan="2" class="text-center curse-nowrap">KM Bord 2</th>
+                                    <th rowspan="2" class="text-end curse-nowrap">
+                                        Diferența KM<br>(Bord – Maps)
+                                    </th>
+                                @endif
                                 <th rowspan="2" class="text-end curse-nowrap">Acțiuni</th>
                             </tr>
                             <tr class="curse-data-header-bottom">
-                                <th class="text-end curse-nowrap">Plecare</th>
-                                <th class="text-end curse-nowrap">Sosire</th>
-                                <th class="text-end curse-nowrap">Km gol</th>
-                                <th class="text-end curse-nowrap">Km plin</th>
+                                @if ($isFlashDivision)
+                                    <th class="text-end curse-nowrap">Km gol</th>
+                                    <th class="text-end curse-nowrap">Km plin</th>
+                                    <th class="text-end curse-nowrap">Km gol</th>
+                                    <th class="text-end curse-nowrap">Km plin</th>
+                                    <th class="text-end curse-nowrap">Km gol</th>
+                                    <th class="text-end curse-nowrap">Km plin</th>
+                                @else
+                                    <th class="text-end curse-nowrap">Plecare</th>
+                                    <th class="text-end curse-nowrap">Sosire</th>
+                                    <th class="text-end curse-nowrap">Km gol</th>
+                                    <th class="text-end curse-nowrap">Km plin</th>
+                                @endif
                             </tr>
                         </thead>
 
@@ -223,7 +240,7 @@
                                 @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                             @else
                                 <tr>
-                                    <td colspan="12" class="text-center py-4">
+                                    <td colspan="{{ $isFlashDivision ? 13 : 12 }}" class="text-center py-4">
                                         Nu există curse care să respecte criteriile selectate.
                                     </td>
                                 </tr>

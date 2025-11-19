@@ -1,4 +1,6 @@
 @php
+    $isFlashDivision = optional($valabilitate->divizie)->id === 1;
+    $tableColumnCount = $isFlashDivision ? 13 : 12;
     $previousKmSosire = null;
     $currentGroupKey = '__none__';
     $resolveRowTextColor = static function ($value): string {
@@ -56,15 +58,33 @@
 
         $kmMapsDisplay = filled($cursa->km_maps) ? $cursa->km_maps : '—';
         $kmMapsValue = is_numeric($cursa->km_maps) ? (float) $cursa->km_maps : null;
+        $kmMapsGolValue = is_numeric($cursa->km_maps_gol) ? (float) $cursa->km_maps_gol : null;
+        $kmMapsPlinValue = is_numeric($cursa->km_maps_plin) ? (float) $cursa->km_maps_plin : null;
+        $kmFlashGolValue = is_numeric($cursa->km_flash_gol) ? (float) $cursa->km_flash_gol : null;
+        $kmFlashPlinValue = is_numeric($cursa->km_flash_plin) ? (float) $cursa->km_flash_plin : null;
+        $kmCuTaxaValue = is_numeric($cursa->km_cu_taxa) ? (float) $cursa->km_cu_taxa : null;
 
         // Km plin
         $kmPlin = $kmPlecare !== null && $kmSosire !== null ? $kmSosire - $kmPlecare : null;
         $kmGol = $previousKmSosire !== null && $kmPlecare !== null ? $kmPlecare - $previousKmSosire : null;
         $kmDifference = $kmPlin !== null && $kmMapsValue !== null ? $kmPlin - $kmMapsValue : null;
 
+        $kmMapsFlashGolDiff = $kmMapsGolValue !== null && $kmFlashGolValue !== null
+            ? $kmMapsGolValue - $kmFlashGolValue
+            : null;
+        $kmMapsFlashPlinDiff = $kmMapsPlinValue !== null && $kmFlashPlinValue !== null
+            ? $kmMapsPlinValue - $kmFlashPlinValue
+            : null;
+
         $diffClass = $kmDifference === null
             ? ''
             : ($kmDifference < 0 ? 'text-danger' : ($kmDifference > 0 ? 'text-success' : ''));
+        $diffFlashGolClass = $kmMapsFlashGolDiff === null
+            ? ''
+            : ($kmMapsFlashGolDiff < 0 ? 'text-danger' : ($kmMapsFlashGolDiff > 0 ? 'text-success' : ''));
+        $diffFlashPlinClass = $kmMapsFlashPlinDiff === null
+            ? ''
+            : ($kmMapsFlashPlinDiff < 0 ? 'text-danger' : ($kmMapsFlashPlinDiff > 0 ? 'text-success' : ''));
 
         $canMoveUp = ! $loop->first;
         $canMoveDown = ! $loop->last;
@@ -107,7 +127,7 @@
 
     @if ($isNewGroup)
         <tr class="curse-group-heading curse-group-heading--emphasis" style="background-color: {{ $groupColor }}; color: {{ $groupTextColor }};">
-            <th colspan="12">
+            <th colspan="{{ $tableColumnCount }}">
                 <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
                     <div class="fw-semibold fs-6 text-uppercase">{{ $groupName }}</div>
                     <div class="d-flex flex-wrap gap-3 small curse-group-heading__meta">
@@ -203,35 +223,66 @@
             {{ $dataTransport ?: '—' }}
         </td>
 
-        {{-- KM Maps --}}
-        <td class="text-end text-nowrap align-middle">
-            {{ $kmMapsDisplay }}
-        </td>
+        @if ($isFlashDivision)
+            {{-- KM Maps gol/plin --}}
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmMapsGolValue !== null ? $kmMapsGolValue : '—' }}
+            </td>
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmMapsPlinValue !== null ? $kmMapsPlinValue : '—' }}
+            </td>
 
-        {{-- KM Plecare --}}
-        <td class="text-end text-nowrap align-middle">
-            {{ $kmPlecare !== null ? $kmPlecare : '—' }}
-        </td>
+            {{-- KM cu taxă --}}
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmCuTaxaValue !== null ? $kmCuTaxaValue : '—' }}
+            </td>
 
-        {{-- KM Sosire --}}
-        <td class="text-end text-nowrap align-middle">
-            {{ $kmSosire !== null ? $kmSosire : '—' }}
-        </td>
+            {{-- KM Flash gol/plin --}}
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmFlashGolValue !== null ? $kmFlashGolValue : '—' }}
+            </td>
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmFlashPlinValue !== null ? $kmFlashPlinValue : '—' }}
+            </td>
 
-        {{-- KM Bord 2 – Km gol --}}
-        <td class="text-end text-nowrap align-middle">
-            {{ $kmGol !== null ? $kmGol : '—' }}
-        </td>
+            {{-- Diferența KM (Maps – Flash) --}}
+            <td class="text-end text-nowrap align-middle {{ $diffFlashGolClass }}">
+                {{ $kmMapsFlashGolDiff !== null ? $kmMapsFlashGolDiff : '—' }}
+            </td>
+            <td class="text-end text-nowrap align-middle {{ $diffFlashPlinClass }}">
+                {{ $kmMapsFlashPlinDiff !== null ? $kmMapsFlashPlinDiff : '—' }}
+            </td>
+        @else
+            {{-- KM Maps --}}
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmMapsDisplay }}
+            </td>
 
-        {{-- KM Bord 2 – Km plin --}}
-        <td class="text-end text-nowrap align-middle">
-            {{ $kmPlin !== null ? $kmPlin : '—' }}
-        </td>
+            {{-- KM Plecare --}}
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmPlecare !== null ? $kmPlecare : '—' }}
+            </td>
 
-        {{-- Diferența KM (Bord – Maps) --}}
-        <td class="text-end text-nowrap align-middle {{ $diffClass }}">
-            {{ $kmDifference !== null ? $kmDifference : '—' }}
-        </td>
+            {{-- KM Sosire --}}
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmSosire !== null ? $kmSosire : '—' }}
+            </td>
+
+            {{-- KM Bord 2 – Km gol --}}
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmGol !== null ? $kmGol : '—' }}
+            </td>
+
+            {{-- KM Bord 2 – Km plin --}}
+            <td class="text-end text-nowrap align-middle">
+                {{ $kmPlin !== null ? $kmPlin : '—' }}
+            </td>
+
+            {{-- Diferența KM (Bord – Maps) --}}
+            <td class="text-end text-nowrap align-middle {{ $diffClass }}">
+                {{ $kmDifference !== null ? $kmDifference : '—' }}
+            </td>
+        @endif
 
         {{-- Acțiuni --}}
         <td class="text-end align-middle">
