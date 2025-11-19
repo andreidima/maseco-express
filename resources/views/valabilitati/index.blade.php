@@ -143,6 +143,8 @@
     </div>
 </div>
 
+@include('valabilitati.partials.divizie-prices-modal')
+
 @push('page-scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -181,19 +183,13 @@
                 }
             };
 
-            const clearFeedback = () => {
-                if (feedbackContainer) {
-                    feedbackContainer.innerHTML = '';
-                }
-            };
-
-            const showError = (message) => {
+            const renderFeedback = (message, type = 'success') => {
                 if (!feedbackContainer || !message) {
                     return;
                 }
 
                 const alert = document.createElement('div');
-                alert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+                alert.className = `alert alert-${type} alert-dismissible fade show mt-3`;
                 alert.setAttribute('role', 'alert');
                 alert.textContent = message;
 
@@ -206,6 +202,16 @@
 
                 feedbackContainer.innerHTML = '';
                 feedbackContainer.appendChild(alert);
+            };
+
+            const clearFeedback = () => {
+                if (feedbackContainer) {
+                    feedbackContainer.innerHTML = '';
+                }
+            };
+
+            const showError = (message) => {
+                renderFeedback(message, 'danger');
             };
 
             const appendRows = (html) => {
@@ -291,6 +297,297 @@
                 });
 
                 observer.observe(loadMoreTrigger);
+            }
+
+            const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const divizieModalElement = document.getElementById('valabilitati-divizie-modal');
+            const divizieModalInstance = divizieModalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal
+                ? new bootstrap.Modal(divizieModalElement)
+                : null;
+            const divizieForm = divizieModalElement?.querySelector('[data-divizie-form]') ?? null;
+            const modalLoading = divizieModalElement?.querySelector('[data-modal-loading]') ?? null;
+            const modalFormWrapper = divizieModalElement?.querySelector('[data-modal-form-wrapper]') ?? null;
+            const modalAlert = divizieModalElement?.querySelector('[data-modal-alert]') ?? null;
+            const modalName = divizieModalElement?.querySelector('[data-divizie-name]') ?? null;
+            const submitButton = divizieModalElement?.querySelector('[data-modal-submit]') ?? null;
+            const submitSpinner = divizieModalElement?.querySelector('[data-modal-submit-spinner]') ?? null;
+            const submitLabel = divizieModalElement?.querySelector('[data-modal-submit-label]') ?? null;
+
+            const decimalFields = ['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa'];
+            const fieldInputs = {};
+            const fieldErrors = {};
+
+            decimalFields.forEach(field => {
+                fieldInputs[field] = divizieForm ? divizieForm.querySelector(`[name="${field}"]`) : null;
+                fieldErrors[field] = divizieForm ? divizieForm.querySelector(`[data-error-for="${field}"]`) : null;
+            });
+
+            const formatDecimalValue = (value) => {
+                if (value === null || value === undefined || value === '') {
+                    return '';
+                }
+
+                const numberValue = Number(value);
+                if (Number.isNaN(numberValue)) {
+                    return '';
+                }
+
+                return numberValue.toFixed(3);
+            };
+
+            const resetModalState = () => {
+                decimalFields.forEach(field => {
+                    const input = fieldInputs[field];
+                    const errorElement = fieldErrors[field];
+
+                    if (input) {
+                        input.value = '';
+                        input.classList.remove('is-invalid');
+                    }
+
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                    }
+                });
+            };
+
+            const toggleModalLoading = (loading) => {
+                if (modalLoading) {
+                    modalLoading.classList.toggle('d-none', !loading);
+                }
+
+                if (modalFormWrapper) {
+                    modalFormWrapper.classList.toggle('d-none', loading);
+                }
+            };
+
+            const setModalAlert = (message = '', type = 'danger') => {
+                if (!modalAlert) {
+                    return;
+                }
+
+                modalAlert.classList.remove('alert-danger', 'alert-success');
+                modalAlert.classList.add(`alert-${type}`);
+
+                if (!message) {
+                    modalAlert.classList.add('d-none');
+                    modalAlert.textContent = '';
+                    return;
+                }
+
+                modalAlert.textContent = message;
+                modalAlert.classList.remove('d-none');
+            };
+
+            const setModalSavingState = (saving) => {
+                if (!submitButton) {
+                    return;
+                }
+
+                submitButton.disabled = saving;
+
+                if (submitSpinner) {
+                    submitSpinner.classList.toggle('d-none', !saving);
+                }
+
+                if (submitLabel) {
+                    submitLabel.textContent = saving ? 'Se salvează...' : 'Salvează';
+                }
+            };
+
+            const fillFormValues = (divizie = {}) => {
+                decimalFields.forEach(field => {
+                    const input = fieldInputs[field];
+                    const errorElement = fieldErrors[field];
+
+                    if (input) {
+                        input.value = formatDecimalValue(divizie[field]);
+                        input.classList.remove('is-invalid');
+                    }
+
+                    if (errorElement) {
+                        errorElement.textContent = '';
+                    }
+                });
+            };
+
+            const handleValidationErrors = (errors = {}) => {
+                decimalFields.forEach(field => {
+                    const messages = Array.isArray(errors[field]) ? errors[field] : [];
+                    const input = fieldInputs[field];
+                    const errorElement = fieldErrors[field];
+
+                    if (input) {
+                        input.classList.toggle('is-invalid', messages.length > 0);
+                    }
+
+                    if (errorElement) {
+                        errorElement.textContent = messages.length ? messages[0] : '';
+                    }
+                });
+            };
+
+            const openDivizieModal = (trigger) => {
+                if (!divizieModalInstance || !divizieForm) {
+                    return;
+                }
+
+                const fetchUrl = trigger.getAttribute('data-fetch-url') || '';
+                const updateUrl = trigger.getAttribute('data-update-url') || '';
+
+                if (!fetchUrl || !updateUrl) {
+                    return;
+                }
+
+                divizieForm.dataset.updateUrl = updateUrl;
+
+                if (modalName) {
+                    modalName.textContent = trigger.getAttribute('data-divizie-name') || '';
+                }
+
+                resetModalState();
+                handleValidationErrors();
+                setModalAlert('');
+                toggleModalLoading(true);
+
+                divizieModalInstance.show();
+
+                fetch(fetchUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    credentials: 'same-origin',
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Request failed with status ${response.status}`);
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        fillFormValues(data.divizie || {});
+                    })
+                    .catch(error => {
+                        console.error('Valabilități divizie fetch error', error);
+                        setModalAlert('Nu am putut încărca tarifele diviziei. Reîncercați.');
+                    })
+                    .finally(() => {
+                        toggleModalLoading(false);
+                    });
+            };
+
+            if (tableBody && divizieModalInstance) {
+                tableBody.addEventListener('click', event => {
+                    const trigger = event.target.closest('[data-divizie-prices-trigger]');
+                    if (!trigger) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    openDivizieModal(trigger);
+                });
+            }
+
+            if (divizieForm) {
+                decimalFields.forEach(field => {
+                    const input = fieldInputs[field];
+                    if (!input) {
+                        return;
+                    }
+
+                    input.addEventListener('blur', () => {
+                        if (input.value === '') {
+                            return;
+                        }
+
+                        const numericValue = Number(input.value);
+                        if (Number.isNaN(numericValue)) {
+                            return;
+                        }
+
+                        input.value = numericValue.toFixed(3);
+                    });
+                });
+
+                divizieForm.addEventListener('submit', event => {
+                    event.preventDefault();
+
+                    const updateUrl = divizieForm.dataset.updateUrl || '';
+                    if (!updateUrl) {
+                        return;
+                    }
+
+                    handleValidationErrors();
+                    setModalAlert('');
+                    setModalSavingState(true);
+
+                    const payload = {};
+                    decimalFields.forEach(field => {
+                        const input = fieldInputs[field];
+                        const value = input ? input.value.trim() : '';
+                        payload[field] = value === '' ? null : value;
+                    });
+
+                    fetch(updateUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(payload),
+                    })
+                        .then(async response => {
+                            const data = await response.json().catch(() => ({}));
+
+                            if (!response.ok) {
+                                if (response.status === 422) {
+                                    handleValidationErrors(data.errors || {});
+                                    setModalAlert(data.message || 'Verifică datele introduse.');
+                                    throw new Error('validation');
+                                }
+
+                                throw new Error(data.message || `Request failed with status ${response.status}`);
+                            }
+
+                            return data;
+                        })
+                        .then(data => {
+                            if (divizieModalInstance) {
+                                divizieModalInstance.hide();
+                            }
+
+                            renderFeedback(data.message || 'Tarifele diviziei au fost actualizate.', 'success');
+                        })
+                        .catch(error => {
+                            if (error.message === 'validation') {
+                                return;
+                            }
+
+                            console.error('Valabilități divizie save error', error);
+                            setModalAlert('Nu am putut salva tarifele diviziei. Reîncercați.');
+                        })
+                        .finally(() => {
+                            setModalSavingState(false);
+                        });
+                });
+            }
+
+            if (divizieModalElement) {
+                divizieModalElement.addEventListener('hidden.bs.modal', () => {
+                    resetModalState();
+                    handleValidationErrors();
+                    setModalAlert('');
+                    toggleModalLoading(true);
+
+                    if (divizieForm) {
+                        delete divizieForm.dataset.updateUrl;
+                    }
+                });
             }
         });
     </script>

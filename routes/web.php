@@ -50,6 +50,7 @@ use App\Http\Controllers\SoferValabilitateCursaController;
 use App\Http\Controllers\ValabilitateController;
 use App\Http\Controllers\ValabilitateCursaController;
 use App\Http\Controllers\ValabilitateCursaGrupController;
+use App\Http\Controllers\ValabilitatiDivizieController;
 
 
 /*
@@ -351,6 +352,11 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['permission:valabilitati', 'role:super-admin,admin,dispecer'])->group(function () {
         Route::get('valabilitati/paginate', [ValabilitateController::class, 'paginate'])
             ->name('valabilitati.paginate');
+
+        Route::get('valabilitati/divizii/{divizie}', [ValabilitatiDivizieController::class, 'show'])
+            ->name('valabilitati.divizii.show');
+        Route::put('valabilitati/divizii/{divizie}', [ValabilitatiDivizieController::class, 'update'])
+            ->name('valabilitati.divizii.update');
 
         Route::get('valabilitati/create', [ValabilitateController::class, 'create'])
             ->name('valabilitati.create');

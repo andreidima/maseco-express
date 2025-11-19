@@ -16,6 +16,9 @@ class ValabilitatiDivizieFactory extends Factory
     {
         return [
             'nume' => fake()->unique()->company(),
+            'pret_km_gol' => fake()->randomFloat(3, 0, 10),
+            'pret_km_plin' => fake()->randomFloat(3, 0, 15),
+            'pret_km_cu_taxa' => fake()->randomFloat(3, 0, 20),
         ];
     }
 }

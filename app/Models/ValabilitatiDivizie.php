@@ -14,6 +14,15 @@ class ValabilitatiDivizie extends Model
 
     protected $fillable = [
         'nume',
+        'pret_km_gol',
+        'pret_km_plin',
+        'pret_km_cu_taxa',
+    ];
+
+    protected $casts = [
+        'pret_km_gol' => 'decimal:3',
+        'pret_km_plin' => 'decimal:3',
+        'pret_km_cu_taxa' => 'decimal:3',
     ];
 
     public function valabilitati(): HasMany
