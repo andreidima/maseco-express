@@ -36,11 +36,6 @@
         <td class="text-end curse-nowrap">
             @if ($summary['totalKmMaps'] !== null)
                 {{ $summary['totalKmMaps'] }}
-                @if ($isFlashDivision)
-                    <div class="small text-muted">
-                        (= {{ $summary['totalKmMapsGol'] ?? 0 }} km gol + {{ $summary['totalKmMapsPlin'] ?? 0 }} km plin)
-                    </div>
-                @endif
             @else
                 —
             @endif
@@ -57,17 +52,18 @@
             {{ $summary['kmSosire'] !== null ? $summary['kmSosire'] : '—' }}
         </td>
 
-        <th class="text-end curse-summary-label">KM Bord 2 total</th>
+        <th class="text-end curse-summary-label">
+            {{ $isFlashDivision ? 'KM FLASH total' : 'KM Bord 2 total' }}
+        </th>
         <td class="text-end curse-nowrap">
-            @if ($summary['totalKmBord2'] !== null)
-                {{ $summary['totalKmBord2'] }}
-                @if ($isFlashDivision && $summary['kmTotal'] !== null)
-                    <div class="small text-muted">
-                        (= {{ $summary['kmSosire'] !== null ? $summary['kmSosire'] : '—' }} - {{ $summary['kmPlecare'] !== null ? $summary['kmPlecare'] : '—' }})
-                    </div>
-                @endif
+            @php
+                $flashTotal = $summary['totalKmFlash'] ?? null;
+                $bordTotal = $summary['totalKmBord2'] ?? null;
+            @endphp
+            @if ($isFlashDivision)
+                {{ $flashTotal !== null ? $flashTotal : '—' }}
             @else
-                —
+                {{ $bordTotal !== null ? $bordTotal : '—' }}
             @endif
         </td>
     </tr>
@@ -81,25 +77,17 @@
         <td class="text-end curse-nowrap">
             @if ($summary['kmTotal'] !== null)
                 {{ $summary['kmTotal'] }}
-                @if ($isFlashDivision)
-                    <div class="small text-muted">
-                        (= {{ $summary['kmSosire'] !== null ? $summary['kmSosire'] : '—' }} - {{ $summary['kmPlecare'] !== null ? $summary['kmPlecare'] : '—' }})
-                    </div>
-                @endif
             @else
                 —
             @endif
         </td>
 
-        <th class="text-end curse-summary-label">Diferență totală (Bord–Maps)</th>
+        <th class="text-end curse-summary-label">
+            {{ $isFlashDivision ? 'Total Flash - Maps' : 'Diferență totală (Bord–Maps)' }}
+        </th>
         <td class="text-end curse-nowrap">
             @if ($summary['totalKmDiff'] !== null)
                 {{ $summary['totalKmDiff'] }}
-                @if ($isFlashDivision)
-                    <div class="small text-muted">
-                        (= {{ $summary['totalKmBord2'] !== null ? $summary['totalKmBord2'] : '—' }} - {{ $summary['totalKmMaps'] !== null ? $summary['totalKmMaps'] : '—' }})
-                    </div>
-                @endif
             @else
                 —
             @endif

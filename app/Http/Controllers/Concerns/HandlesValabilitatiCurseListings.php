@@ -131,6 +131,22 @@ trait HandlesValabilitatiCurseListings
 
         $totalKmMapsPlin = $kmMapsPlinValues->sum();
 
+        $kmFlashGolValues = $curseCollection
+            ->pluck('km_flash_gol')
+            ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+            ->map(static fn ($value) => (float) $value);
+
+        $totalKmFlashGol = $kmFlashGolValues->sum();
+
+        $kmFlashPlinValues = $curseCollection
+            ->pluck('km_flash_plin')
+            ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+            ->map(static fn ($value) => (float) $value);
+
+        $totalKmFlashPlin = $kmFlashPlinValues->sum();
+
+        $totalKmFlash = $totalKmFlashGol + $totalKmFlashPlin;
+
         $totalKmBord2 = $curseCollection
             ->map(static function ($cursa) {
                 $start = $cursa->km_bord_incarcare !== null && $cursa->km_bord_incarcare !== ''
@@ -212,11 +228,10 @@ trait HandlesValabilitatiCurseListings
                 ? $kmSosire - $kmPlecare
                 : null;
 
-            $totalKmMaps = ($totalKmMapsGol ?? 0.0) + ($totalKmMapsPlin ?? 0.0);
-            $totalKmBord2 = $kmTotal;
-            $totalKmDiff = $kmTotal !== null
-                ? $kmTotal - $totalKmMaps
-                : null;
+            $totalKmMaps = $totalKmMapsGol + $totalKmMapsPlin;
+            $totalKmFlash = $totalKmFlashGol + $totalKmFlashPlin;
+            $totalKmBord2 = $totalKmFlash;
+            $totalKmDiff = $totalKmFlash - $totalKmMaps;
         }
 
         return [
@@ -226,6 +241,9 @@ trait HandlesValabilitatiCurseListings
             'totalKmMaps' => $totalKmMaps,
             'totalKmMapsGol' => $totalKmMapsGol,
             'totalKmMapsPlin' => $totalKmMapsPlin,
+            'totalKmFlashGol' => $totalKmFlashGol,
+            'totalKmFlashPlin' => $totalKmFlashPlin,
+            'totalKmFlash' => $totalKmFlash,
             'totalKmBord2' => $totalKmBord2,
             'totalKmDiff' => $totalKmDiff,
             'totalZile' => $totalZile,

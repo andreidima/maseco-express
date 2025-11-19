@@ -1,6 +1,6 @@
 @php
     $isFlashDivision = optional($valabilitate->divizie)->id === 1;
-    $tableColumnCount = $isFlashDivision ? 14 : 12;
+    $tableColumnCount = $isFlashDivision ? 17 : 12;
     $divizie = $valabilitate->divizie;
     $priceKmGol = $divizie && $divizie->pret_km_gol !== null ? (float) $divizie->pret_km_gol : null;
     $priceKmPlin = $divizie && $divizie->pret_km_plin !== null ? (float) $divizie->pret_km_plin : null;
@@ -284,27 +284,11 @@
                 {{ $kmMapsFlashPlinDiff !== null ? $kmMapsFlashPlinDiff : '—' }}
             </td>
 
-            {{-- Sumă calculată --}}
-            <td class="text-end align-middle text-nowrap">
-                <div class="d-flex flex-column gap-1 small text-end">
-                    <div>
-                        <span>km gol:</span>
-                        <strong>{{ $formatCalculatedValue($kmMapsGolAmount) }}</strong>
-                    </div>
-                    <div>
-                        <span>km plin:</span>
-                        <strong>{{ $formatCalculatedValue($kmMapsPlinAmount) }}</strong>
-                    </div>
-                    <div>
-                        <span>km cu taxă:</span>
-                        <strong>{{ $formatCalculatedValue($kmMapsCuTaxaAmount) }}</strong>
-                    </div>
-                    <div>
-                        <span>total km:</span>
-                        <strong>{{ $formatCalculatedValue($calculatedTotalAmount) }}</strong>
-                    </div>
-                </div>
-            </td>
+            {{-- Sumă calculată subcoloane --}}
+            <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($kmMapsGolAmount) }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($kmMapsPlinAmount) }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($kmMapsCuTaxaAmount) }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($calculatedTotalAmount) }}</td>
         @else
             {{-- KM Maps --}}
             <td class="text-end text-nowrap align-middle">
