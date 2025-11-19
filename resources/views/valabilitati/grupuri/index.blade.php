@@ -70,7 +70,7 @@
         };
         $isFlashDivision = optional($valabilitate->divizie)->id === 1
             && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
-        $hideDifferenceColumn = optional($valabilitate->divizie)->id === 2;
+        $hideDifferenceColumn = $isFlashDivision || optional($valabilitate->divizie)->id === 2;
 
         $tableColumnCount = 1; // Index column
         $tableColumnCount += $isFlashDivision ? 1 : 2; // RR or Grup + Format
