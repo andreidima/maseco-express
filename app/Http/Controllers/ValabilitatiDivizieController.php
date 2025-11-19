@@ -36,6 +36,7 @@ class ValabilitatiDivizieController extends Controller
             'pret_km_gol' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
             'pret_km_plin' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
             'pret_km_cu_taxa' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'contributie_zilnica' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
         ]);
 
         return $this->formatPrices($validated);
@@ -48,7 +49,7 @@ class ValabilitatiDivizieController extends Controller
      */
     private function formatPrices(array $values): array
     {
-        foreach (['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa'] as $field) {
+        foreach (['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa', 'contributie_zilnica'] as $field) {
             if (! array_key_exists($field, $values)) {
                 continue;
             }
@@ -79,6 +80,7 @@ class ValabilitatiDivizieController extends Controller
             'pret_km_gol' => $this->formatPrice($divizie->pret_km_gol),
             'pret_km_plin' => $this->formatPrice($divizie->pret_km_plin),
             'pret_km_cu_taxa' => $this->formatPrice($divizie->pret_km_cu_taxa),
+            'contributie_zilnica' => $this->formatPrice($divizie->contributie_zilnica),
         ];
     }
 }

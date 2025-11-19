@@ -313,7 +313,7 @@
             const submitSpinner = divizieModalElement?.querySelector('[data-modal-submit-spinner]') ?? null;
             const submitLabel = divizieModalElement?.querySelector('[data-modal-submit-label]') ?? null;
 
-            const decimalFields = ['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa'];
+            const decimalFields = ['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa', 'contributie_zilnica'];
             const fieldInputs = {};
             const fieldErrors = {};
 

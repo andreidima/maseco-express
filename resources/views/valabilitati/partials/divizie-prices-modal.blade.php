@@ -81,6 +81,24 @@
                             </div>
                             <div class="form-text">Valoare cu până la trei zecimale.</div>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="divizie-contributie-zilnica" class="form-label">Contribuție zilnică</label>
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="divizie-contributie-zilnica"
+                                    name="contributie_zilnica"
+                                    step="0.001"
+                                    min="0"
+                                    data-format-decimal
+                                >
+                                <span class="input-group-text">/ zi</span>
+                                <div class="invalid-feedback" data-error-for="contributie_zilnica"></div>
+                            </div>
+                            <div class="form-text">Valoare cu până la trei zecimale.</div>
+                        </div>
                     </form>
                 </div>
             </div>
