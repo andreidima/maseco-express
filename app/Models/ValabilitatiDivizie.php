@@ -17,12 +17,14 @@ class ValabilitatiDivizie extends Model
         'pret_km_gol',
         'pret_km_plin',
         'pret_km_cu_taxa',
+        'contributie_zilnica',
     ];
 
     protected $casts = [
         'pret_km_gol' => 'decimal:3',
         'pret_km_plin' => 'decimal:3',
         'pret_km_cu_taxa' => 'decimal:3',
+        'contributie_zilnica' => 'decimal:3',
     ];
 
     public function valabilitati(): HasMany
