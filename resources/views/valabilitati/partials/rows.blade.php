@@ -11,7 +11,22 @@
         $statusClass = $isActive ? 'bg-success' : 'bg-secondary';
     @endphp
     <tr>
-        <td class="fw-semibold">{{ $valabilitate->divizie->nume ?? '—' }}</td>
+        <td class="fw-semibold">
+            @if ($valabilitate->divizie)
+                <button
+                    type="button"
+                    class="btn btn-link p-0 align-baseline text-decoration-none fw-semibold"
+                    data-divizie-prices-trigger
+                    data-divizie-name="{{ $valabilitate->divizie->nume }}"
+                    data-fetch-url="{{ route('valabilitati.divizii.show', $valabilitate->divizie) }}"
+                    data-update-url="{{ route('valabilitati.divizii.update', $valabilitate->divizie) }}"
+                >
+                    {{ $valabilitate->divizie->nume }}
+                </button>
+            @else
+                —
+            @endif
+        </td>
         <td class="text-nowrap">{{ $valabilitate->numar_auto }}</td>
         <td>{{ $valabilitate->sofer->name ?? '—' }}</td>
         <td class="text-nowrap">{{ optional($dataInceput)->format('d.m.Y') ?? '—' }}</td>
