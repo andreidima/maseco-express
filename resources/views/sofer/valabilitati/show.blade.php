@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
-@php($isFlashDivizie = (bool) ($isFlashDivizie ?? false))
+@php
+    $isFlashDivizie = (bool) ($isFlashDivizie ?? false);
+@endphp
 
 @section('content')
 <div class="container py-4 py-md-5 sofer-valabilitati">
