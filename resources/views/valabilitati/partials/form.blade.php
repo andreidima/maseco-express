@@ -14,7 +14,7 @@
     @endif
 
     <div class="row g-3 mb-3">
-        <div class="col-md-6">
+        <div class="col-md-3">
             <label for="valabilitate-divizie" class="form-label">Divizie<span class="text-danger">*</span></label>
             <select
                 name="divizie_id"
@@ -38,7 +38,7 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
-        <div class="col-md-6">
+        <div class="col-md-3">
             <label for="valabilitate-numar-auto" class="form-label">Număr auto<span class="text-danger">*</span></label>
             <input
                 type="text"
@@ -53,10 +53,7 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
-    </div>
-
-    <div class="row g-3 mb-3">
-        <div class="col-md-6">
+        <div class="col-md-4">
             <label for="valabilitate-sofer" class="form-label">Șofer<span class="text-danger">*</span></label>
             <select
                 name="sofer_id"
@@ -104,6 +101,38 @@
                 value="{{ old('data_sfarsit', optional(optional($valabilitate)->data_sfarsit)->format('Y-m-d')) }}"
             >
             @error('data_sfarsit')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col-md-3">
+            <label for="valabilitate-km-plecare" class="form-label">KM plecare</label>
+            <input
+                type="number"
+                name="km_plecare"
+                id="valabilitate-km-plecare"
+                class="form-control bg-white rounded-3 @error('km_plecare') is-invalid @enderror"
+                value="{{ old('km_plecare', optional($valabilitate)->km_plecare) }}"
+                min="0"
+                step="1"
+                inputmode="numeric"
+            >
+            @error('km_plecare')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+        <div class="col-md-3">
+            <label for="valabilitate-km-sosire" class="form-label">KM sosire</label>
+            <input
+                type="number"
+                name="km_sosire"
+                id="valabilitate-km-sosire"
+                class="form-control bg-white rounded-3 @error('km_sosire') is-invalid @enderror"
+                value="{{ old('km_sosire', optional($valabilitate)->km_sosire) }}"
+                min="0"
+                step="1"
+                inputmode="numeric"
+            >
+            @error('km_sosire')
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
