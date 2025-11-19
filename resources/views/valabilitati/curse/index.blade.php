@@ -174,6 +174,7 @@
                     'valabilitate' => $valabilitate,
                     'summary' => $summary,
                     'showGroupSummary' => false,
+                    'isFlashDivision' => $isFlashDivision,
                 ])
             </div>
 
@@ -206,6 +207,12 @@
                                     <th rowspan="2" class="text-end curse-nowrap">KM cu taxă</th>
                                     <th colspan="2" class="text-center curse-nowrap">KM Flash</th>
                                     <th colspan="2" class="text-center curse-nowrap">Diferența KM<br>(Maps – Flash)</th>
+                                    <th rowspan="2" class="text-end curse-nowrap">
+                                        <div class="d-flex flex-column text-end">
+                                            <span class="text-uppercase">Sumă calculată</span>
+                                            <small>km gol / km plin / km cu taxă / total km</small>
+                                        </div>
+                                    </th>
                                 @else
                                     <th rowspan="2" class="text-end curse-nowrap">KM Maps</th>
                                     <th colspan="2" class="text-center curse-nowrap">
@@ -240,7 +247,7 @@
                                 @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
                             @else
                                 <tr>
-                                    <td colspan="{{ $isFlashDivision ? 13 : 12 }}" class="text-center py-4">
+                                    <td colspan="{{ $isFlashDivision ? 14 : 12 }}" class="text-center py-4">
                                         Nu există curse care să respecte criteriile selectate.
                                     </td>
                                 </tr>
