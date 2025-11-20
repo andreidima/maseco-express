@@ -58,7 +58,8 @@
 
         .curse-data-header-top th,
         .curse-data-header-bottom th {
-            background-color: #f8f9fa;
+            background-color: inherit;
+            color: inherit;
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.75rem;
@@ -208,7 +209,7 @@
             <div class="px-3">
                 <div class="curse-table-wrapper table-responsive">
                     <table class="table table-sm curse-data-table align-middle">
-                        <thead>
+                        <thead class="text-white culoare2">
                             <tr class="curse-data-header-top">
                                 <th rowspan="2" class="text-center curse-nowrap align-middle">
                                     <div class="form-check mb-0">
