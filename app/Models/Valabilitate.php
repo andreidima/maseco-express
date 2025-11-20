@@ -76,6 +76,15 @@ class Valabilitate extends Model
             ->orderByDesc('id');
     }
 
+    /**
+     * Alias required for Laravel's scoped implicit bindings which expect the
+     * pluralised child parameter ("alimentares") when resolving nested bindings.
+     */
+    public function alimentares(): HasMany
+    {
+        return $this->alimentari();
+    }
+
     public function cursaGrupuri(): HasMany
     {
         return $this->hasMany(ValabilitateCursaGrup::class)
