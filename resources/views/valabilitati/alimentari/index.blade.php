@@ -125,9 +125,9 @@
                 ])
             </div>
 
-            <div class="px-3">
+            <div class="px-3 col-12 col-lg-8 mx-auto">
                 <div class="table-responsive">
-                    <table class="table table-sm alimentari-table align-middle">
+                    <table class="table table-sm align-middle culoare1">
                         <thead>
                             @php
                                 $totalLitri = $alimentariMetrics['totalLitri'];
@@ -136,21 +136,27 @@
                                 $consum = $alimentariMetrics['consum'];
                             @endphp
                             <tr class="bg-secondary bg-opacity-25">
-                                <th colspan="2" class="text-start">TOTAL LITRI</th>
-                                <th class="text-end">{{ number_format($totalLitri, 2) }}</th>
-                                <th class="text-start">MEDIE PREȚ</th>
-                                <th class="text-end">
-                                    {{ $averagePret !== null ? number_format($averagePret, 4) : '—' }}
-                                </th>
+                                <th class="text-center">TOTAL LITRI</th>
+                                <th class="text-center">MEDIE PREȚ</th>
+                                <th class="text-center">TOTAL PREȚ</th>
+                                <th class="text-center">CONSUM</th>
                             </tr>
                             <tr class="bg-secondary bg-opacity-25">
-                                <th colspan="2" class="text-start">TOTAL PREȚ</th>
-                                <th class="text-end">{{ number_format($totalPret, 4) }}</th>
-                                <th class="text-start">CONSUM</th>
-                                <th class="text-end">
+                                <th class="text-center">{{ number_format($totalLitri, 2) }}</th>
+                                <th class="text-center">
+                                    {{ $averagePret !== null ? number_format($averagePret, 4) : '—' }}
+                                </th>
+                                <th class="text-center">{{ number_format($totalPret, 4) }}</th>
+                                <th class="text-center">
                                     {{ $consum !== null ? number_format($consum, 2) : '—' }}
                                 </th>
                             </tr>
+                        </thead>
+                    </table>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm alimentari-table align-middle">
+                        <thead>
                             <tr>
                                 <th>Dată / oră alimentare</th>
                                 <th class="text-end">Litrii</th>
