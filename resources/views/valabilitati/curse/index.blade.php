@@ -22,11 +22,6 @@
             vertical-align: middle;
         }
 
-        .curse-data-table td {
-            white-space: nowrap;
-            font-size: 0.75rem;
-        }
-
         .curse-summary-table th {
             background-color: #f8f9fa;
             font-weight: 600;
@@ -188,7 +183,7 @@
             <div id="curse-feedback" class="px-3"></div>
 
             <div class="px-3">
-                <div class="table-responsive" style="max-height: 70vh; overflow-y: auto;">
+                <div class="table-responsive">
                     <table class="table table-sm curse-data-table align-middle">
                         <thead>
                             <tr class="curse-data-header-top">
