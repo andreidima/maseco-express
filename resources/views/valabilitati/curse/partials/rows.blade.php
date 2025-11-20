@@ -232,22 +232,25 @@
     <tr @class(['curse-group-row' => (bool) $group]) style="background-color: {{ $group ? $groupColor : 'transparent' }}; color: {{ $group ? $groupTextColor : '#111' }};">
         <td class="text-center align-middle">
             <div class="d-flex flex-column align-items-center gap-1">
-                <div class="form-check mb-0">
-                    <input
-                        type="checkbox"
-                        class="form-check-input curse-row-checkbox"
-                        id="{{ $checkboxId }}"
-                        value="{{ $cursa->id }}"
-                        data-cursa-id="{{ $cursa->id }}"
-                    >
-                    <label class="visually-hidden" for="{{ $checkboxId }}">
-                        Selectează cursa #{{ $cursa->nr_ordine }}
-                    </label>
+                <div class="d-flex align-items-center gap-2 fw-semibold">
+                    <div class="form-check mb-0">
+                        <input
+                            type="checkbox"
+                            class="form-check-input curse-row-checkbox"
+                            id="{{ $checkboxId }}"
+                            value="{{ $cursa->id }}"
+                            data-cursa-id="{{ $cursa->id }}"
+                        >
+                        <label class="form-check-label" for="{{ $checkboxId }}">{{ $cursa->nr_ordine }}</label>
+                        {{-- <label class="visually-hidden" for="{{ $checkboxId }}">
+                            Selectează cursa #{{ $cursa->nr_ordine }}
+                        </label> --}}
+                    </div>                    
                 </div>
 
-                {{-- # + up/down controls --}}
+
+                {{-- up/down controls --}}
                 <div class="d-flex align-items-center gap-2 fw-semibold">
-                    <span>#{{ $cursa->nr_ordine }}</span>
                     @if ($hasMultipleCurse)
                         <div class="d-flex gap-1">
                             <form
@@ -380,7 +383,7 @@
 
         {{-- Acțiuni --}}
         <td class="text-end align-middle">
-            <div class="d-flex flex-wrap justify-content-end">
+            <div class="d-flex flex-wrap align-content-start justify-content-end">
                 <div class="ms-1">
                     <a
                         href="#" data-bs-toggle="modal"
@@ -407,7 +410,6 @@
                         <span class="badge bg-danger d-inline-flex align-items-center justify-content-center" aria-hidden="true">
                             <i class="fa-solid fa-trash"></i>
                         </span>
-                        <span class="visually-hidden">Șterge</span>
                     </a>
                 </div>
             </div>

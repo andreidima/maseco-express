@@ -36,7 +36,7 @@
         .curse-data-table th,
         .curse-data-table td {
             border: 1px solid #000000ff;
-            padding: 0.4rem 0.6rem;
+            padding: 0.4rem 0.1rem;
             line-height: 1.1;
             vertical-align: middle;
         }
@@ -162,14 +162,6 @@
             </div>
             <div class="col-12 col-lg-4 text-lg-end mt-3 mt-lg-0">
                 <div class="d-flex align-items-stretch align-items-lg-end gap-2 flex-wrap justify-content-center justify-content-lg-end">
-                    {{-- <button
-                        type="button"
-                        class="btn btn-sm btn-outline-primary border border-dark rounded-3"
-                        data-bs-toggle="modal"
-                        data-bs-target="#cursaGroupCreateModal"
-                    >
-                        <i class="fa-solid fa-layer-group me-1"></i>Crează grup
-                    </button> --}}
                     <button
                         type="button"
                         class="btn btn-sm btn-success text-white border border-dark rounded-3"
@@ -231,7 +223,7 @@
                                                 Selectează toate cursele afișate
                                             </label>
                                         </div>
-                                        <span class="fw-semibold">#</span>
+                                        {{-- <span class="fw-semibold">#</span> --}}
                                     </div>
                                 </th>
                                 <th rowspan="2" class="text-center curse-nowrap">Nr. cursă</th>
