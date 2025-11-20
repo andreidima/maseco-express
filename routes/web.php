@@ -50,6 +50,7 @@ use App\Http\Controllers\SoferValabilitateCursaController;
 use App\Http\Controllers\ValabilitateController;
 use App\Http\Controllers\ValabilitateCursaController;
 use App\Http\Controllers\ValabilitateCursaGrupController;
+use App\Http\Controllers\ValabilitateAlimentareController;
 use App\Http\Controllers\ValabilitatiDivizieController;
 
 
@@ -372,6 +373,8 @@ Route::middleware(['auth'])->group(function () {
                 ->name('valabilitati.curse.paginate');
             Route::get('valabilitati/{valabilitate}/curse', [ValabilitateCursaController::class, 'index'])
                 ->name('valabilitati.curse.index');
+            Route::get('valabilitati/{valabilitate}/alimentari', [ValabilitateAlimentareController::class, 'index'])
+                ->name('valabilitati.alimentari.index');
             Route::get('valabilitati/{valabilitate}/grupuri', [ValabilitateCursaGrupController::class, 'index'])
                 ->name('valabilitati.grupuri.index');
             Route::post('valabilitati/{valabilitate}/curse/bulk-assign', [ValabilitateCursaController::class, 'bulkAssign'])
@@ -384,6 +387,13 @@ Route::middleware(['auth'])->group(function () {
                 ->name('valabilitati.curse.reorder');
             Route::delete('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'destroy'])
                 ->name('valabilitati.curse.destroy');
+
+            Route::post('valabilitati/{valabilitate}/alimentari', [ValabilitateAlimentareController::class, 'store'])
+                ->name('valabilitati.alimentari.store');
+            Route::put('valabilitati/{valabilitate}/alimentari/{alimentare}', [ValabilitateAlimentareController::class, 'update'])
+                ->name('valabilitati.alimentari.update');
+            Route::delete('valabilitati/{valabilitate}/alimentari/{alimentare}', [ValabilitateAlimentareController::class, 'destroy'])
+                ->name('valabilitati.alimentari.destroy');
 
             Route::post('valabilitati/{valabilitate}/curse/grupuri', [ValabilitateCursaGrupController::class, 'store'])
                 ->name('valabilitati.curse.grupuri.store');
