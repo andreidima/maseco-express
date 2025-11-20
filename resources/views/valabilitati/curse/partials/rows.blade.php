@@ -230,13 +230,8 @@
     @php
         $checkboxId = 'cursa-select-' . $cursa->id;
     @endphp
-    <tr
-        @class(['curse-group-row' => (bool) $group])
-        style="background-color: {{ $group ? $groupColor : 'transparent' }}; color: {{ $group ? $groupTextColor : '#111' }};"
-        data-nav-row
-        tabindex="-1"
-    >
-        <td class="text-center align-middle curse-sticky-col curse-col-select">
+    <tr @class(['curse-group-row' => (bool) $group]) style="background-color: {{ $group ? $groupColor : 'transparent' }}; color: {{ $group ? $groupTextColor : '#111' }};">
+        <td class="text-center align-middle">
             <div class="form-check mb-0">
                 <input
                     type="checkbox"
@@ -251,7 +246,7 @@
             </div>
         </td>
         {{-- # + up/down controls --}}
-        <td class="text-center fw-semibold curse-col-order curse-compact-cell">
+        <td class="text-center fw-semibold">
             <div class="align-items-center gap-2">
                 <span>#{{ $cursa->nr_ordine }}</span>
                 @if ($hasMultipleCurse)
@@ -296,95 +291,95 @@
         </td>
 
         {{-- Nr. cursă --}}
-        <td class="text-nowrap align-middle curse-col-number curse-compact-cell">
+        <td class="text-nowrap align-middle">
             {{ $cursa->nr_cursa ?: '—' }}
         </td>
 
         {{-- Cursa (descriere) --}}
-        <td class="small align-middle curse-col-route curse-compact-cell">
+        <td class="small align-middle">
             {{ $cursaDescriere }}
         </td>
 
         {{-- Dată transport --}}
-        <td class="small text-center align-middle curse-col-date curse-compact-cell">
+        <td class="small text-center align-middle">
             {{ $dataTransport ?: '—' }}
         </td>
 
         @if ($isFlashDivision)
             {{-- KM Maps gol/plin --}}
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmMapsGolValue !== null ? $kmMapsGolValue : '—' }}
             </td>
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmMapsPlinValue !== null ? $kmMapsPlinValue : '—' }}
             </td>
 
             {{-- KM cu taxă --}}
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmCuTaxaValue !== null ? $kmCuTaxaValue : '—' }}
             </td>
 
             {{-- KM Flash gol/plin --}}
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-hide-lg curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmFlashGolValue !== null ? $kmFlashGolValue : '—' }}
             </td>
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-hide-lg curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmFlashPlinValue !== null ? $kmFlashPlinValue : '—' }}
             </td>
 
             {{-- Diferența KM (Maps – Flash) --}}
-            <td class="text-end text-nowrap align-middle {{ $diffFlashGolClass }} curse-col-numeric curse-hide-lg curse-compact-cell">
+            <td class="text-end text-nowrap align-middle {{ $diffFlashGolClass }}">
                 {{ $kmMapsFlashGolDiff !== null ? $kmMapsFlashGolDiff : '—' }}
             </td>
-            <td class="text-end text-nowrap align-middle {{ $diffFlashPlinClass }} curse-col-numeric curse-hide-lg curse-compact-cell">
+            <td class="text-end text-nowrap align-middle {{ $diffFlashPlinClass }}">
                 {{ $kmMapsFlashPlinDiff !== null ? $kmMapsFlashPlinDiff : '—' }}
             </td>
 
             {{-- Sumă calculată subcoloane --}}
-            <td class="text-end align-middle text-nowrap curse-col-numeric curse-hide-md curse-compact-cell">{{ $formatCalculatedValue($kmMapsGolAmount) }}</td>
-            <td class="text-end align-middle text-nowrap curse-col-numeric curse-hide-md curse-compact-cell">{{ $formatCalculatedValue($kmMapsPlinAmount) }}</td>
-            <td class="text-end align-middle text-nowrap curse-col-numeric curse-hide-md curse-compact-cell">{{ $formatCalculatedValue($kmMapsCuTaxaAmount) }}</td>
-            <td class="text-end align-middle text-nowrap curse-col-numeric curse-hide-md curse-compact-cell">{{ $formatCalculatedValue($calculatedTotalAmount) }}</td>
-            <td class="text-end align-middle text-nowrap curse-col-numeric curse-compact-cell">{{ $alteTaxe !== null ? number_format($alteTaxe, 2) : '—' }}</td>
-            <td class="text-end align-middle text-nowrap curse-col-numeric curse-compact-cell">{{ $fuelTax !== null ? number_format($fuelTax, 2) : '—' }}</td>
-            <td class="text-end align-middle text-nowrap curse-col-numeric curse-compact-cell">{{ $sumaIncasata !== null ? number_format($sumaIncasata, 2) : '—' }}</td>
-            <td class="text-end align-middle text-nowrap {{ $priceDiffClass }} curse-col-numeric curse-hide-sm curse-compact-cell">{{ $diferentaPret !== null ? number_format($diferentaPret, 2) : '—' }}</td>
-            <td class="text-end align-middle text-nowrap curse-col-numeric curse-hide-sm curse-compact-cell">{{ $dailyContributionCalculat !== null ? number_format($dailyContributionCalculat, 2) : '—' }}</td>
-            <td class="text-end align-middle text-nowrap {{ $dailyContributionClass }} curse-col-numeric curse-hide-sm curse-compact-cell">{{ $dailyContributionIncasata !== null ? number_format($dailyContributionIncasata, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($kmMapsGolAmount) }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($kmMapsPlinAmount) }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($kmMapsCuTaxaAmount) }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($calculatedTotalAmount) }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $alteTaxe !== null ? number_format($alteTaxe, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $fuelTax !== null ? number_format($fuelTax, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $sumaIncasata !== null ? number_format($sumaIncasata, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap {{ $priceDiffClass }}">{{ $diferentaPret !== null ? number_format($diferentaPret, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $dailyContributionCalculat !== null ? number_format($dailyContributionCalculat, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap {{ $dailyContributionClass }}">{{ $dailyContributionIncasata !== null ? number_format($dailyContributionIncasata, 2) : '—' }}</td>
         @else
             {{-- KM Maps --}}
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmMapsDisplay }}
             </td>
 
             {{-- KM Plecare --}}
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmPlecare !== null ? $kmPlecare : '—' }}
             </td>
 
             {{-- KM Sosire --}}
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmSosire !== null ? $kmSosire : '—' }}
             </td>
 
             {{-- KM Bord 2 – Km gol --}}
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-hide-md curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmGol !== null ? $kmGol : '—' }}
             </td>
 
             {{-- KM Bord 2 – Km plin --}}
-            <td class="text-end text-nowrap align-middle curse-col-numeric curse-hide-md curse-compact-cell">
+            <td class="text-end text-nowrap align-middle">
                 {{ $kmPlin !== null ? $kmPlin : '—' }}
             </td>
 
             {{-- Diferența KM (Bord – Maps) --}}
-            <td class="text-end text-nowrap align-middle {{ $diffClass }} curse-col-numeric curse-hide-lg curse-compact-cell">
+            <td class="text-end text-nowrap align-middle {{ $diffClass }}">
                 {{ $kmDifference !== null ? $kmDifference : '—' }}
             </td>
         @endif
 
         {{-- Acțiuni --}}
-        <td class="text-end align-middle curse-col-actions curse-compact-cell">
+        <td class="text-end align-middle">
             <div class="d-flex flex-wrap justify-content-end">
                 <div class="ms-1">
                     <a
