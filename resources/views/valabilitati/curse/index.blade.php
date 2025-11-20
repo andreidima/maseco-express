@@ -125,10 +125,7 @@
     @php
         $grupuriRoute = route('valabilitati.grupuri.index', $valabilitate);
         $curseRoute = route('valabilitati.curse.index', $valabilitate);
-        $alimentariRoute = route('valabilitati.alimentari.index', $valabilitate);
         $isGroupsContext = request()->routeIs('valabilitati.grupuri.*');
-        $isAlimentariContext = request()->routeIs('valabilitati.alimentari.*');
-        $isCurseContext = ! ($isGroupsContext || $isAlimentariContext);
         $hasGrupuri = $valabilitate->cursaGrupuri->count() > 0;
         $isFlashDivision = optional($valabilitate->divizie)->id === 1
             && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
@@ -151,7 +148,7 @@
                 <div class="d-flex justify-content-center gap-2">
                     <a
                         href="{{ $curseRoute }}"
-                        class="btn btn-sm {{ $isCurseContext ? 'btn-primary text-white' : 'btn-outline-primary' }} border border-dark rounded-3"
+                        class="btn btn-sm {{ $isGroupsContext ? 'btn-outline-primary' : 'btn-primary text-white' }} border border-dark rounded-3"
                     >
                         <i class="fa-solid fa-truck-fast me-1"></i>Curse
                     </a>
@@ -160,12 +157,6 @@
                         class="btn btn-sm {{ $isGroupsContext ? 'btn-primary text-white' : 'btn-outline-primary' }} border border-dark rounded-3"
                     >
                         <i class="fa-solid fa-layer-group me-1"></i>Grupuri
-                    </a>
-                    <a
-                        href="{{ $alimentariRoute }}"
-                        class="btn btn-sm {{ $isAlimentariContext ? 'btn-primary text-white' : 'btn-outline-primary' }} border border-dark rounded-3"
-                    >
-                        <i class="fa-solid fa-gas-pump me-1"></i>Alimentari
                     </a>
                 </div>
             </div>
