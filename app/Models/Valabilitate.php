@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\ValabilitatiAlimentare;
 use App\Models\User;
 use App\Models\ValabilitateTaxaDrum;
 use App\Models\ValabilitateCursaGrup;
@@ -66,6 +67,13 @@ class Valabilitate extends Model
         return $this->hasMany(ValabilitateTaxaDrum::class)
             ->orderBy('data')
             ->orderBy('id');
+    }
+
+    public function alimentari(): HasMany
+    {
+        return $this->hasMany(ValabilitatiAlimentare::class)
+            ->orderByDesc('data_ora_alimentare')
+            ->orderByDesc('id');
     }
 
     public function cursaGrupuri(): HasMany
