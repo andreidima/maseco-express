@@ -3,6 +3,10 @@
 @section('content')
     {{-- Page-specific styling – stays only in this file --}}
     <style>
+        :root {
+            --curse-header-first-row-height: 3.1rem;
+        }
+
         /* Excel-style summary + main table */
 
         .curse-summary-table,
@@ -17,7 +21,7 @@
         .curse-data-table th,
         .curse-data-table td {
             border: 1px solid #000000ff;
-            padding: 0.4rem 0.6rem;
+            padding: 0.35rem 0.5rem;
             line-height: 1.1;
             vertical-align: middle;
         }
@@ -50,10 +54,18 @@
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.75rem;
+            position: sticky;
+            z-index: 5;
         }
 
         .curse-data-header-bottom th {
             border-top: none;
+            top: var(--curse-header-first-row-height);
+            z-index: 4;
+        }
+
+        .curse-data-header-top th {
+            top: 0;
         }
 
         .curse-data-table tbody tr:not(.curse-group-heading):not(.curse-group-row):nth-child(even) {
@@ -88,6 +100,105 @@
 
         .curse-nowrap {
             white-space: nowrap;
+        }
+
+        .curse-table-shell {
+            position: relative;
+        }
+
+        .curse-table-scroll {
+            overflow-x: auto;
+            overflow-y: auto;
+            max-height: 70vh;
+            border: 1px solid #dee2e6;
+            border-radius: 0.75rem;
+            background-color: #ffffff;
+            scroll-behavior: smooth;
+        }
+
+        .curse-table-scroll:focus {
+            outline: 3px solid #cfe2ff;
+            outline-offset: 2px;
+        }
+
+        .curse-sticky-col {
+            position: sticky;
+            left: 0;
+            z-index: 6;
+            background-color: inherit;
+        }
+
+        .curse-col-select {
+            width: 46px;
+            min-width: 46px;
+        }
+
+        .curse-col-order {
+            min-width: 92px;
+            width: 105px;
+        }
+
+        .curse-col-number {
+            min-width: 110px;
+        }
+
+        .curse-col-route {
+            min-width: 240px;
+        }
+
+        .curse-col-date {
+            min-width: 150px;
+        }
+
+        .curse-col-numeric {
+            min-width: 120px;
+        }
+
+        .curse-col-actions {
+            min-width: 120px;
+        }
+
+        .curse-back-to-top {
+            position: absolute;
+            right: 0.75rem;
+            bottom: 0.75rem;
+            z-index: 8;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .curse-compact-cell {
+            padding-top: 0.25rem;
+            padding-bottom: 0.25rem;
+        }
+
+        @media (max-width: 1200px) {
+            .curse-hide-lg {
+                display: none;
+            }
+        }
+
+        @media (max-width: 992px) {
+            :root {
+                --curse-header-first-row-height: 3.6rem;
+            }
+
+            .curse-hide-md {
+                display: none;
+            }
+
+            .curse-table-scroll {
+                max-height: 65vh;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .curse-hide-sm {
+                display: none;
+            }
+
+            .curse-table-scroll {
+                max-height: 60vh;
+            }
         }
     </style>
 
@@ -183,11 +294,15 @@
             <div id="curse-feedback" class="px-3"></div>
 
             <div class="px-3">
-                <div class="table-responsive">
-                    <table class="table table-sm curse-data-table align-middle">
+                <div class="curse-table-shell">
+                    <div id="curse-table-container" class="curse-table-scroll" tabindex="0">
+                        <table class="table table-sm curse-data-table align-middle">
                         <thead>
                             <tr class="curse-data-header-top">
-                                <th rowspan="2" class="text-center curse-nowrap align-middle">
+                                <th
+                                    rowspan="2"
+                                    class="text-center curse-nowrap align-middle curse-col-select curse-sticky-col"
+                                >
                                     <div class="form-check mb-0">
                                         <input
                                             type="checkbox"
@@ -200,52 +315,52 @@
                                         </label>
                                     </div>
                                 </th>
-                                <th rowspan="2" class="text-center curse-nowrap">#</th>
-                                <th rowspan="2" class="text-center curse-nowrap">Nr. cursă</th>
-                                <th rowspan="2">Cursa</th>
-                                <th rowspan="2" class="text-center curse-nowrap">Dată<br>transport</th>
+                                <th rowspan="2" class="text-center curse-nowrap curse-col-order">#</th>
+                                <th rowspan="2" class="text-center curse-nowrap curse-col-number">Nr. cursă</th>
+                                <th rowspan="2" class="curse-col-route">Cursa</th>
+                                <th rowspan="2" class="text-center curse-nowrap curse-col-date">Dată<br>transport</th>
                                 @if ($isFlashDivision)
                                     <th colspan="2" class="text-center curse-nowrap">KM Maps</th>
                                     <th rowspan="2" class="text-center curse-nowrap">KM cu<br>taxă</th>
-                                    <th colspan="2" class="text-center curse-nowrap">KM Flash</th>
-                                    <th colspan="2" class="text-center curse-nowrap">Diferența KM<br>(Maps – Flash)</th>
-                                    <th colspan="4" class="text-center curse-nowrap">Sumă calculată</th>
+                                    <th colspan="2" class="text-center curse-nowrap curse-hide-lg">KM Flash</th>
+                                    <th colspan="2" class="text-center curse-nowrap curse-hide-lg">Diferența KM<br>(Maps – Flash)</th>
+                                    <th colspan="4" class="text-center curse-nowrap curse-hide-md">Sumă calculată</th>
                                     <th rowspan="2" class="text-end curse-nowrap">Alte taxe</th>
                                     <th rowspan="2" class="text-end curse-nowrap">Fuel tax</th>
                                     <th rowspan="2" class="text-center curse-nowrap">Sumă<br>încasată</th>
-                                    <th rowspan="2" class="text-center curse-nowrap">Diferența preț<br>(încasat –<br> calculat)</th>
-                                    <th colspan="2" class="text-center curse-nowrap">Daily contribution</th>
+                                    <th rowspan="2" class="text-center curse-nowrap curse-hide-sm">Diferența preț<br>(încasat –<br> calculat)</th>
+                                    <th colspan="2" class="text-center curse-nowrap curse-hide-sm">Daily contribution</th>
                                 @else
-                                    <th rowspan="2" class="text-end curse-nowrap">KM Maps</th>
-                                    <th colspan="2" class="text-center curse-nowrap">
+                                    <th rowspan="2" class="text-end curse-nowrap curse-col-numeric">KM Maps</th>
+                                    <th colspan="2" class="text-center curse-nowrap curse-col-numeric">
                                         KM Bord (plecare / sosire)
                                     </th>
-                                    <th colspan="2" class="text-center curse-nowrap">KM Bord 2</th>
-                                    <th rowspan="2" class="text-end curse-nowrap">
+                                    <th colspan="2" class="text-center curse-nowrap curse-hide-md">KM Bord 2</th>
+                                    <th rowspan="2" class="text-end curse-nowrap curse-hide-lg">
                                         Diferența KM<br>(Bord – Maps)
                                     </th>
                                 @endif
-                                <th rowspan="2" class="text-end curse-nowrap">Acțiuni</th>
+                                <th rowspan="2" class="text-end curse-nowrap curse-col-actions">Acțiuni</th>
                             </tr>
                             <tr class="curse-data-header-bottom">
                                 @if ($isFlashDivision)
-                                    <th class="text-end curse-nowrap">Km gol</th>
-                                    <th class="text-end curse-nowrap">Km plin</th>
-                                    <th class="text-end curse-nowrap">Km gol</th>
-                                    <th class="text-end curse-nowrap">Km plin</th>
-                                    <th class="text-end curse-nowrap">Km gol</th>
-                                    <th class="text-end curse-nowrap">Km plin</th>
-                                    <th class="text-end curse-nowrap">Km gol</th>
-                                    <th class="text-end curse-nowrap">Km plin</th>
-                                    <th class="text-end curse-nowrap">Km cu taxă</th>
-                                    <th class="text-end curse-nowrap">Total km</th>
-                                    <th class="text-end curse-nowrap">Calculat</th>
-                                    <th class="text-end curse-nowrap">Încasat</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric">Km gol</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric">Km plin</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric">Km gol</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric">Km plin</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric curse-hide-lg">Km gol</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric curse-hide-lg">Km plin</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric curse-hide-lg">Km gol</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric curse-hide-lg">Km plin</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric">Km cu taxă</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric">Total km</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric curse-hide-md">Calculat</th>
+                                    <th class="text-end curse-nowrap curse-col-numeric curse-hide-md">Încasat</th>
                                 @else
                                     <th class="text-end curse-nowrap">Plecare</th>
                                     <th class="text-end curse-nowrap">Sosire</th>
-                                    <th class="text-end curse-nowrap">Km gol</th>
-                                    <th class="text-end curse-nowrap">Km plin</th>
+                                    <th class="text-end curse-nowrap curse-hide-md">Km gol</th>
+                                    <th class="text-end curse-nowrap curse-hide-md">Km plin</th>
                                 @endif
                             </tr>
                         </thead>
@@ -262,6 +377,15 @@
                             @endif
                         </tbody>
                     </table>
+                    </div>
+                    <button
+                        type="button"
+                        id="curse-back-to-top"
+                        class="btn btn-sm btn-outline-secondary d-none curse-back-to-top"
+                        aria-label="Înapoi sus"
+                    >
+                        <i class="fa-solid fa-arrow-up"></i>
+                    </button>
                 </div>
             </div>
 
@@ -298,6 +422,8 @@
                 const bootstrapModal = bootstrap && bootstrap.Modal ? bootstrap.Modal : null;
                 const modalsContainer = document.getElementById('curse-modals');
                 const tableBody = document.getElementById('curse-table-body');
+                const tableContainer = document.getElementById('curse-table-container');
+                const backToTopButton = document.getElementById('curse-back-to-top');
                 const feedbackContainer = document.getElementById('curse-feedback');
                 const summaryContainer = document.getElementById('curse-summary');
                 const bulkTriggerButton = document.getElementById('curse-bulk-trigger');
@@ -360,6 +486,122 @@
                     observer: null,
                     nextUrl: null,
                     loading: false,
+                };
+
+                let navigableRows = [];
+                let activeRowIndex = 0;
+                let navigationBound = false;
+
+                const focusTableContainer = (resetScroll = false) => {
+                    if (!tableContainer) {
+                        return;
+                    }
+
+                    if (resetScroll) {
+                        tableContainer.scrollTop = 0;
+                    }
+
+                    tableContainer.focus({ preventScroll: true });
+                };
+
+                const refreshNavigableRows = () => {
+                    navigableRows = tableBody ? Array.from(tableBody.querySelectorAll('[data-nav-row]')) : [];
+                    navigableRows.forEach(row => {
+                        row.setAttribute('tabindex', '-1');
+                    });
+
+                    if (!navigableRows.length) {
+                        activeRowIndex = 0;
+                        return;
+                    }
+
+                    activeRowIndex = Math.min(activeRowIndex, Math.max(navigableRows.length - 1, 0));
+                };
+
+                const focusRowByIndex = (index) => {
+                    if (!navigableRows.length) {
+                        return;
+                    }
+
+                    const clampedIndex = Math.max(0, Math.min(index, navigableRows.length - 1));
+                    const row = navigableRows[clampedIndex];
+
+                    if (row) {
+                        activeRowIndex = clampedIndex;
+                        row.focus({ preventScroll: false });
+                        row.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                    }
+                };
+
+                const handleTableKeydown = (event) => {
+                    if (!tableContainer || !navigableRows.length) {
+                        return;
+                    }
+
+                    const targetTag = (event.target.tagName || '').toLowerCase();
+                    if (['input', 'textarea', 'select', 'button'].includes(targetTag)) {
+                        return;
+                    }
+
+                    if (!['ArrowDown', 'ArrowUp', 'Home', 'End', 'PageDown', 'PageUp'].includes(event.key)) {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    const pageJump = 5;
+                    if (event.key === 'ArrowDown') {
+                        focusRowByIndex(activeRowIndex + 1);
+                    } else if (event.key === 'ArrowUp') {
+                        focusRowByIndex(activeRowIndex - 1);
+                    } else if (event.key === 'Home') {
+                        focusRowByIndex(0);
+                    } else if (event.key === 'End') {
+                        focusRowByIndex(navigableRows.length - 1);
+                    } else if (event.key === 'PageDown') {
+                        focusRowByIndex(activeRowIndex + pageJump);
+                    } else if (event.key === 'PageUp') {
+                        focusRowByIndex(activeRowIndex - pageJump);
+                    }
+                };
+
+                const handleTableScroll = () => {
+                    if (!tableContainer || !backToTopButton) {
+                        return;
+                    }
+
+                    const shouldShow = tableContainer.scrollTop > 120;
+                    backToTopButton.classList.toggle('d-none', !shouldShow);
+                };
+
+                const handleBackToTop = () => {
+                    if (!tableContainer) {
+                        return;
+                    }
+
+                    tableContainer.scrollTo({ top: 0, behavior: 'smooth' });
+                    focusTableContainer();
+                };
+
+                const bindTableNavigation = () => {
+                    if (!tableContainer || navigationBound) {
+                        return;
+                    }
+
+                    tableContainer.addEventListener('keydown', handleTableKeydown);
+                    tableContainer.addEventListener('scroll', handleTableScroll);
+
+                    if (backToTopButton) {
+                        backToTopButton.addEventListener('click', handleBackToTop);
+                    }
+
+                    navigationBound = true;
+                };
+
+                const setupTableNavigation = () => {
+                    refreshNavigableRows();
+                    bindTableNavigation();
+                    handleTableScroll();
                 };
 
                 const updateBulkAssignUi = () => {
@@ -1123,6 +1365,8 @@
                     bindBulkCheckboxes();
                     updateBulkAssignUi();
                     clearBulkAssignError();
+                    setupTableNavigation();
+                    focusTableContainer(true);
 
                     if (supportsAjax()) {
                         attachFormHandlers();
@@ -1321,6 +1565,10 @@
                             if (supportsAjax()) {
                                 attachFormHandlers();
                             }
+
+                            refreshNavigableRows();
+                            handleTableScroll();
+                            focusTableContainer();
                         })
                         .catch(() => {
                             if (loadState.button) {
@@ -1404,6 +1652,8 @@
                 initCountryInputs();
                 initLoadMore();
                 initBulkAssignControls();
+                setupTableNavigation();
+                focusTableContainer();
 
                 if (supportsAjax()) {
                     attachFormHandlers();
