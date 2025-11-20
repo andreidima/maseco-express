@@ -124,9 +124,6 @@
 
         <div class="card-body px-0 py-3">
             @include('errors')
-            @if (session('status'))
-                <div class="alert alert-success mx-3">{{ session('status') }}</div>
-            @endif
 
             <div id="alimentari-summary" class="px-3 mb-3">
                 @include('valabilitati.curse.partials.summary', [
