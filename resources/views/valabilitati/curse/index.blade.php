@@ -12,6 +12,18 @@
             font-size: 0.875rem;
         }
 
+        .curse-table-wrapper {
+            overflow: auto;
+            max-height: 70vh;
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            background-color: #fff;
+        }
+
+        .curse-data-table {
+            min-width: 1200px;
+        }
+
         .curse-summary-table th,
         .curse-summary-table td,
         .curse-data-table th,
@@ -50,10 +62,21 @@
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.75rem;
+            position: sticky;
+            z-index: 2;
+        }
+
+        .curse-data-header-top th {
+            top: 0;
         }
 
         .curse-data-header-bottom th {
+            top: 2.75rem;
             border-top: none;
+        }
+
+        .curse-data-table thead th:first-child {
+            z-index: 3;
         }
 
         .curse-data-table tbody tr:not(.curse-group-heading):not(.curse-group-row):nth-child(even) {
@@ -183,7 +206,7 @@
             <div id="curse-feedback" class="px-3"></div>
 
             <div class="px-3">
-                <div class="table-responsive">
+                <div class="curse-table-wrapper table-responsive">
                     <table class="table table-sm curse-data-table align-middle">
                         <thead>
                             <tr class="curse-data-header-top">
