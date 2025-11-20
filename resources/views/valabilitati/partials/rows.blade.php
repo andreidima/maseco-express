@@ -42,6 +42,11 @@
                     </a>
                 </div>
                 <div class="ms-1">
+                    <a href="{{ route('valabilitati.alimentari.index', $valabilitate) }}" class="flex">
+                        <span class="badge bg-warning text-dark">Alimentari</span>
+                    </a>
+                </div>
+                <div class="ms-1">
                     <a href="{{ route('valabilitati.show', $valabilitate) }}" class="flex">
                         <span class="badge bg-success">Vezi</span>
                     </a>
