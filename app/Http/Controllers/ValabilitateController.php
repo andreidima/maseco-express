@@ -162,12 +162,7 @@ class ValabilitateController extends Controller
             'numar_auto',
             'sofer',
             'divizie',
-            'inceput_start',
-            'inceput_end',
-            'sfarsit_start',
-            'sfarsit_end',
-            'interval_start',
-            'interval_end',
+            'status',
         ]));
     }
 
@@ -211,21 +206,15 @@ class ValabilitateController extends Controller
             $query->whereRaw('LOWER(numar_auto) LIKE ?', ["%{$numarAuto}%"]);
         }
 
-        if ($filters['inceput_start']) {
-            $query->whereDate('data_inceput', '>=', $filters['inceput_start']);
-        }
+        $query->when(
+            $filters['status'] === 'active',
+            static fn (Builder $builder): Builder => $builder->whereNull('data_sfarsit')
+        );
 
-        if ($filters['inceput_end']) {
-            $query->whereDate('data_inceput', '<=', $filters['inceput_end']);
-        }
-
-        if ($filters['sfarsit_start']) {
-            $query->whereDate('data_sfarsit', '>=', $filters['sfarsit_start']);
-        }
-
-        if ($filters['sfarsit_end']) {
-            $query->whereDate('data_sfarsit', '<=', $filters['sfarsit_end']);
-        }
+        $query->when(
+            $filters['status'] === 'finished',
+            static fn (Builder $builder): Builder => $builder->whereNotNull('data_sfarsit')
+        );
 
         return $query;
     }
@@ -271,27 +260,16 @@ class ValabilitateController extends Controller
             'numar_auto' => ['nullable', 'string', 'max:255'],
             'sofer' => ['nullable', 'string', 'max:255'],
             'divizie' => ['nullable', 'string', 'max:255'],
-            'inceput_start' => ['nullable', 'date'],
-            'inceput_end' => ['nullable', 'date', 'after_or_equal:inceput_start'],
-            'sfarsit_start' => ['nullable', 'date'],
-            'sfarsit_end' => ['nullable', 'date', 'after_or_equal:sfarsit_start'],
-            'interval_start' => ['nullable', 'date'],
-            'interval_end' => ['nullable', 'date', 'after_or_equal:interval_start'],
+            'status' => ['nullable', 'string', 'in:active,finished,all'],
         ]);
 
         $validated = $validator->validate();
-
-        $inceputStart = $validated['inceput_start'] ?? $validated['interval_start'] ?? null;
-        $inceputEnd = $validated['inceput_end'] ?? $validated['interval_end'] ?? null;
 
         return [
             'numar_auto' => trim((string) ($validated['numar_auto'] ?? '')),
             'sofer' => trim((string) ($validated['sofer'] ?? '')),
             'divizie' => trim((string) ($validated['divizie'] ?? '')),
-            'inceput_start' => $inceputStart,
-            'inceput_end' => $inceputEnd,
-            'sfarsit_start' => $validated['sfarsit_start'] ?? null,
-            'sfarsit_end' => $validated['sfarsit_end'] ?? null,
+            'status' => $validated['status'] ?? 'active',
         ];
     }
 
