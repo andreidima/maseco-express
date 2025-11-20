@@ -1,10 +1,13 @@
 @php
     $isFlashDivision = optional($valabilitate->divizie)->id === 1;
-    $tableColumnCount = $isFlashDivision ? 17 : 12;
+    $tableColumnCount = $isFlashDivision ? 23 : 12;
     $divizie = $valabilitate->divizie;
     $priceKmGol = $divizie && $divizie->pret_km_gol !== null ? (float) $divizie->pret_km_gol : null;
     $priceKmPlin = $divizie && $divizie->pret_km_plin !== null ? (float) $divizie->pret_km_plin : null;
     $priceKmCuTaxa = $divizie && $divizie->pret_km_cu_taxa !== null ? (float) $divizie->pret_km_cu_taxa : null;
+    $dailyContributionUnit = $divizie && $divizie->contributie_zilnica !== null
+        ? (float) $divizie->contributie_zilnica
+        : null;
     $formatCalculatedValue = static function (?float $value): string {
         if ($value === null) {
             return '—';
@@ -154,6 +157,40 @@
                 'zile_calculate' => $zileCalculate,
             ];
         }
+
+        $alteTaxe = is_numeric($cursa->alte_taxe) ? (float) $cursa->alte_taxe : null;
+        $fuelTax = is_numeric($cursa->fuel_tax) ? (float) $cursa->fuel_tax : null;
+        $sumaIncasata = is_numeric($cursa->suma_incasata) ? (float) $cursa->suma_incasata : null;
+
+        $diferentaPret = null;
+        if ($sumaIncasata !== null || $calculatedTotalAmount !== null || $alteTaxe !== null || $fuelTax !== null) {
+            $diferentaPret = round(
+                ($sumaIncasata ?? 0.0)
+                - ($calculatedTotalAmount ?? 0.0)
+                - ($alteTaxe ?? 0.0)
+                - ($fuelTax ?? 0.0),
+                2
+            );
+        }
+
+        $dailyContributionCalculat = null;
+        if ($group && is_numeric($group->zile_calculate) && $dailyContributionUnit !== null) {
+            $dailyContributionCalculat = round(((float) $group->zile_calculate) * $dailyContributionUnit, 2);
+        }
+
+        $dailyContributionIncasata = is_numeric($cursa->daily_contribution_incasata)
+            ? (float) $cursa->daily_contribution_incasata
+            : null;
+
+        $dailyContributionClass = $dailyContributionCalculat !== null
+                && $dailyContributionIncasata !== null
+                && $dailyContributionIncasata < $dailyContributionCalculat
+            ? 'text-danger fw-semibold'
+            : '';
+
+        $priceDiffClass = $diferentaPret !== null && $diferentaPret < 0
+            ? 'text-danger fw-semibold'
+            : '';
     @endphp
 
     @if ($isNewGroup)
@@ -162,7 +199,9 @@
                 <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
                     <div class="fw-semibold fs-6 text-uppercase">{{ $groupName }}</div>
                     <div class="d-flex flex-wrap gap-3 small curse-group-heading__meta">
-                        <span>Format: <strong>{{ $groupFormat }}</strong></span>
+                        @unless ($isFlashDivision)
+                            <span>Format: <strong>{{ $groupFormat }}</strong></span>
+                        @endunless
                         <span>Factură: <strong>{{ $groupInvoice }}</strong></span>
                         @if ($groupFinancialMeta)
                             <span>Sumă încasată: <strong>{{ $groupFinancialMeta['suma_incasata'] ?? '—' }}</strong></span>
@@ -289,6 +328,12 @@
             <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($kmMapsPlinAmount) }}</td>
             <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($kmMapsCuTaxaAmount) }}</td>
             <td class="text-end align-middle text-nowrap">{{ $formatCalculatedValue($calculatedTotalAmount) }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $alteTaxe !== null ? number_format($alteTaxe, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $fuelTax !== null ? number_format($fuelTax, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $sumaIncasata !== null ? number_format($sumaIncasata, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap {{ $priceDiffClass }}">{{ $diferentaPret !== null ? number_format($diferentaPret, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap">{{ $dailyContributionCalculat !== null ? number_format($dailyContributionCalculat, 2) : '—' }}</td>
+            <td class="text-end align-middle text-nowrap {{ $dailyContributionClass }}">{{ $dailyContributionIncasata !== null ? number_format($dailyContributionIncasata, 2) : '—' }}</td>
         @else
             {{-- KM Maps --}}
             <td class="text-end text-nowrap align-middle">

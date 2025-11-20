@@ -41,6 +41,10 @@ class ValabilitateCursaRequest extends FormRequest
             'km_cu_taxa' => ['nullable', 'numeric', 'min:0'],
             'km_flash_gol' => ['nullable', 'numeric', 'min:0'],
             'km_flash_plin' => ['nullable', 'numeric', 'min:0'],
+            'alte_taxe' => ['nullable', 'numeric', 'min:0'],
+            'fuel_tax' => ['nullable', 'numeric', 'min:0'],
+            'suma_incasata' => ['nullable', 'numeric', 'min:0'],
+            'daily_contribution_incasata' => ['nullable', 'numeric', 'min:0'],
             'cursa_grup_id' => [
                 'nullable',
                 Rule::exists('valabilitati_cursa_grupuri', 'id')->where(function ($query) use ($valabilitate) {

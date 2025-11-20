@@ -186,6 +186,12 @@
                             $createKmCuTaxa = $isCreateActive ? old('km_cu_taxa', '') : '';
                             $createKmFlashGol = $isCreateActive ? old('km_flash_gol', '') : '';
                             $createKmFlashPlin = $isCreateActive ? old('km_flash_plin', '') : '';
+                            $createAlteTaxe = $isCreateActive ? old('alte_taxe', '') : '';
+                            $createFuelTax = $isCreateActive ? old('fuel_tax', '') : '';
+                            $createSumaIncasata = $isCreateActive ? old('suma_incasata', '') : '';
+                            $createDailyContributionIncasata = $isCreateActive
+                                ? old('daily_contribution_incasata', '')
+                                : '';
                             $createDataDateValue = $isCreateActive ? old('data_cursa_date', '') : '';
                             $createDataTimeValue = $isCreateActive ? old('data_cursa_time', '') : '';
                             if ($isCreateActive) {
@@ -506,6 +512,78 @@
                                         {{ $isCreateActive ? $errors->first('km_flash_plin') : '' }}
                                     </div>
                                 </div>
+                                <div class="col-md-3">
+                                    <label for="cursa-create-alte-taxe" class="form-label">Alte taxe</label>
+                                    <input
+                                        type="number"
+                                        name="alte_taxe"
+                                        id="cursa-create-alte-taxe"
+                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('alte_taxe') ? 'is-invalid' : '' }}"
+                                        value="{{ $createAlteTaxe }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isCreateActive && $errors->has('alte_taxe') ? 'd-block' : '' }}"
+                                        data-error-for="alte_taxe"
+                                    >
+                                        {{ $isCreateActive ? $errors->first('alte_taxe') : '' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="cursa-create-fuel-tax" class="form-label">Fuel tax</label>
+                                    <input
+                                        type="number"
+                                        name="fuel_tax"
+                                        id="cursa-create-fuel-tax"
+                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('fuel_tax') ? 'is-invalid' : '' }}"
+                                        value="{{ $createFuelTax }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isCreateActive && $errors->has('fuel_tax') ? 'd-block' : '' }}"
+                                        data-error-for="fuel_tax"
+                                    >
+                                        {{ $isCreateActive ? $errors->first('fuel_tax') : '' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="cursa-create-suma-incasata" class="form-label">Sumă încasată</label>
+                                    <input
+                                        type="number"
+                                        name="suma_incasata"
+                                        id="cursa-create-suma-incasata"
+                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('suma_incasata') ? 'is-invalid' : '' }}"
+                                        value="{{ $createSumaIncasata }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isCreateActive && $errors->has('suma_incasata') ? 'd-block' : '' }}"
+                                        data-error-for="suma_incasata"
+                                    >
+                                        {{ $isCreateActive ? $errors->first('suma_incasata') : '' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="cursa-create-daily-contribution" class="form-label">Daily contribution (încasat)</label>
+                                    <input
+                                        type="number"
+                                        name="daily_contribution_incasata"
+                                        id="cursa-create-daily-contribution"
+                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('daily_contribution_incasata') ? 'is-invalid' : '' }}"
+                                        value="{{ $createDailyContributionIncasata }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isCreateActive && $errors->has('daily_contribution_incasata') ? 'd-block' : '' }}"
+                                        data-error-for="daily_contribution_incasata"
+                                    >
+                                        {{ $isCreateActive ? $errors->first('daily_contribution_incasata') : '' }}
+                                    </div>
+                                </div>
                             @endif
                             <div class="col-12">
                                 <label for="cursa-create-grup" class="form-label">Grup cursă</label>
@@ -620,6 +698,24 @@
         $editKmFlashPlin = $isEditing ? old('km_flash_plin', $cursa->km_flash_plin) : $cursa->km_flash_plin;
         if ($editKmFlashPlin === null) {
             $editKmFlashPlin = '';
+        }
+        $editAlteTaxe = $isEditing ? old('alte_taxe', $cursa->alte_taxe) : $cursa->alte_taxe;
+        if ($editAlteTaxe === null) {
+            $editAlteTaxe = '';
+        }
+        $editFuelTax = $isEditing ? old('fuel_tax', $cursa->fuel_tax) : $cursa->fuel_tax;
+        if ($editFuelTax === null) {
+            $editFuelTax = '';
+        }
+        $editSumaIncasata = $isEditing ? old('suma_incasata', $cursa->suma_incasata) : $cursa->suma_incasata;
+        if ($editSumaIncasata === null) {
+            $editSumaIncasata = '';
+        }
+        $editDailyContributionIncasata = $isEditing
+            ? old('daily_contribution_incasata', $cursa->daily_contribution_incasata)
+            : $cursa->daily_contribution_incasata;
+        if ($editDailyContributionIncasata === null) {
+            $editDailyContributionIncasata = '';
         }
         $editNrCursa = $isEditing ? old('nr_cursa', $cursa->nr_cursa) : $cursa->nr_cursa;
         if ($editNrCursa === null) {
@@ -962,6 +1058,78 @@
                                         data-error-for="km_flash_plin"
                                     >
                                         {{ $isEditing ? $errors->first('km_flash_plin') : '' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="{{ $editPrefix }}alte-taxe" class="form-label">Alte taxe</label>
+                                    <input
+                                        type="number"
+                                        name="alte_taxe"
+                                        id="{{ $editPrefix }}alte-taxe"
+                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('alte_taxe') ? 'is-invalid' : '' }}"
+                                        value="{{ $editAlteTaxe }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isEditing && $errors->has('alte_taxe') ? 'd-block' : '' }}"
+                                        data-error-for="alte_taxe"
+                                    >
+                                        {{ $isEditing ? $errors->first('alte_taxe') : '' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="{{ $editPrefix }}fuel-tax" class="form-label">Fuel tax</label>
+                                    <input
+                                        type="number"
+                                        name="fuel_tax"
+                                        id="{{ $editPrefix }}fuel-tax"
+                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('fuel_tax') ? 'is-invalid' : '' }}"
+                                        value="{{ $editFuelTax }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isEditing && $errors->has('fuel_tax') ? 'd-block' : '' }}"
+                                        data-error-for="fuel_tax"
+                                    >
+                                        {{ $isEditing ? $errors->first('fuel_tax') : '' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="{{ $editPrefix }}suma-incasata" class="form-label">Sumă încasată</label>
+                                    <input
+                                        type="number"
+                                        name="suma_incasata"
+                                        id="{{ $editPrefix }}suma-incasata"
+                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('suma_incasata') ? 'is-invalid' : '' }}"
+                                        value="{{ $editSumaIncasata }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isEditing && $errors->has('suma_incasata') ? 'd-block' : '' }}"
+                                        data-error-for="suma_incasata"
+                                    >
+                                        {{ $isEditing ? $errors->first('suma_incasata') : '' }}
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label for="{{ $editPrefix }}daily-contribution" class="form-label">Daily contribution (încasat)</label>
+                                    <input
+                                        type="number"
+                                        name="daily_contribution_incasata"
+                                        id="{{ $editPrefix }}daily-contribution"
+                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('daily_contribution_incasata') ? 'is-invalid' : '' }}"
+                                        value="{{ $editDailyContributionIncasata }}"
+                                        min="0"
+                                        step="0.01"
+                                    >
+                                    <div
+                                        class="invalid-feedback {{ $isEditing && $errors->has('daily_contribution_incasata') ? 'd-block' : '' }}"
+                                        data-error-for="daily_contribution_incasata"
+                                    >
+                                        {{ $isEditing ? $errors->first('daily_contribution_incasata') : '' }}
                                     </div>
                                 </div>
                             @endif
