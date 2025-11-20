@@ -1,5 +1,8 @@
 @php
-    $isFlashDivision = $isFlashDivision ?? (optional($valabilitate->divizie)->id === 1);
+    $isFlashDivision = $isFlashDivision ?? (
+        optional($valabilitate->divizie)->id === 1
+        && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0
+    );
 @endphp
 
 <table class="curse-summary-table">

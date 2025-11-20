@@ -10,6 +10,15 @@
     $redirectTo = $redirectTo ?? '';
     $isFlashDivision = optional($valabilitate->divizie)->id === 1
         && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
+    $resolveGroupLabel = static function ($grup) use ($isFlashDivision): string {
+        if (! $grup) {
+            return '—';
+        }
+
+        return $isFlashDivision
+            ? ((string) ($grup->rr ?? '—'))
+            : ((string) ($grup->nume ?? 'Fără nume'));
+    };
     $normalizeColorHex = static function ($value): string {
         if (! is_string($value) || $value === '') {
             return '';
@@ -108,7 +117,7 @@
                     >
                         <option value="">Selectează grupul</option>
                         @foreach ($grupuri as $grup)
-                            <option value="{{ $grup->id }}">{{ $grup->nume }}</option>
+                            <option value="{{ $grup->id }}">{{ $resolveGroupLabel($grup) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -202,6 +211,11 @@
                                 if ($createDataTimeValue === '' && $oldCombinedValue !== '') {
                                     $createDataTimeValue = $formatDateTimeValue($oldCombinedValue, 'H:i');
                                 }
+                            }
+                            $createDataDateTimeValue = '';
+                            if ($createDataDateValue !== '') {
+                                $createDataDateTimeValue = $createDataDateValue;
+                                $createDataDateTimeValue .= 'T' . ($createDataTimeValue !== '' ? $createDataTimeValue : '00:00');
                             }
                         @endphp
                         <div class="row g-3">
@@ -334,29 +348,44 @@
                             </div>
                             <div class="col-md-8">
                                 <label for="cursa-create-data-date" class="form-label">Data și ora cursei</label>
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <input
-                                            type="date"
-                                            name="data_cursa_date"
-                                            id="cursa-create-data-date"
-                                            class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
-                                            value="{{ $createDataDateValue }}"
-                                            data-error-proxy="data_cursa"
-                                        >
+                                @if ($isFlashDivision)
+                                    <input
+                                        type="datetime-local"
+                                        name="data_cursa_datetime"
+                                        id="cursa-create-data-datetime"
+                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                        value="{{ $createDataDateTimeValue }}"
+                                        data-error-proxy="data_cursa"
+                                        data-datetime-sync="#cursa-create-data-date,#cursa-create-data-time"
+                                        step="60"
+                                    >
+                                    <input type="hidden" name="data_cursa_date" id="cursa-create-data-date" value="{{ $createDataDateValue }}">
+                                    <input type="hidden" name="data_cursa_time" id="cursa-create-data-time" value="{{ $createDataTimeValue }}">
+                                @else
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <input
+                                                type="date"
+                                                name="data_cursa_date"
+                                                id="cursa-create-data-date"
+                                                class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                                value="{{ $createDataDateValue }}"
+                                                data-error-proxy="data_cursa"
+                                            >
+                                        </div>
+                                        <div class="col-6">
+                                            <input
+                                                type="time"
+                                                name="data_cursa_time"
+                                                id="cursa-create-data-time"
+                                                class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                                value="{{ $createDataTimeValue }}"
+                                                step="60"
+                                                data-error-proxy="data_cursa"
+                                            >
+                                        </div>
                                     </div>
-                                    <div class="col-6">
-                                        <input
-                                            type="time"
-                                            name="data_cursa_time"
-                                            id="cursa-create-data-time"
-                                            class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
-                                            value="{{ $createDataTimeValue }}"
-                                            step="60"
-                                            data-error-proxy="data_cursa"
-                                        >
-                                    </div>
-                                </div>
+                                @endif
                                 <div
                                     class="invalid-feedback {{ $isCreateActive && $errors->has('data_cursa') ? 'd-block' : '' }}"
                                     data-error-for="data_cursa"
@@ -595,7 +624,7 @@
                                     <option value="">Fără grup</option>
                                     @foreach ($grupuri as $grup)
                                         <option value="{{ $grup->id }}" @selected((string) $createCursaGrupId === (string) $grup->id)>
-                                            {{ $grup->nume ?? 'Fără nume' }}
+                                            {{ $resolveGroupLabel($grup) }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -652,6 +681,11 @@
             if ($editDataTimeValue === '' && $oldCombinedValue !== '') {
                 $editDataTimeValue = $formatDateTimeValue($oldCombinedValue, 'H:i');
             }
+        }
+        $editDataDateTimeValue = '';
+        if ($editDataDateValue !== '') {
+            $editDataDateTimeValue = $editDataDateValue;
+            $editDataDateTimeValue .= 'T' . ($editDataTimeValue !== '' ? $editDataTimeValue : '00:00');
         }
         $baseIncarcareTaraId = $cursa->incarcare_tara_id;
         $editIncarcareTaraId = $isEditing ? old('incarcare_tara_id', $baseIncarcareTaraId) : $baseIncarcareTaraId;
@@ -882,29 +916,44 @@
                             </div>
                             <div class="col-md-8">
                                 <label for="{{ $editPrefix }}data-date" class="form-label">Data și ora cursei</label>
-                                <div class="row g-2">
-                                    <div class="col-6">
-                                        <input
-                                            type="date"
-                                            name="data_cursa_date"
-                                            id="{{ $editPrefix }}data-date"
-                                            class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
-                                            value="{{ $editDataDateValue }}"
-                                            data-error-proxy="data_cursa"
-                                        >
+                                @if ($isFlashDivision)
+                                    <input
+                                        type="datetime-local"
+                                        name="data_cursa_datetime"
+                                        id="{{ $editPrefix }}data-datetime"
+                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                        value="{{ $editDataDateTimeValue }}"
+                                        data-error-proxy="data_cursa"
+                                        data-datetime-sync="#{{ $editPrefix }}data-date,#{{ $editPrefix }}data-time"
+                                        step="60"
+                                    >
+                                    <input type="hidden" name="data_cursa_date" id="{{ $editPrefix }}data-date" value="{{ $editDataDateValue }}">
+                                    <input type="hidden" name="data_cursa_time" id="{{ $editPrefix }}data-time" value="{{ $editDataTimeValue }}">
+                                @else
+                                    <div class="row g-2">
+                                        <div class="col-6">
+                                            <input
+                                                type="date"
+                                                name="data_cursa_date"
+                                                id="{{ $editPrefix }}data-date"
+                                                class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                                value="{{ $editDataDateValue }}"
+                                                data-error-proxy="data_cursa"
+                                            >
+                                        </div>
+                                        <div class="col-6">
+                                            <input
+                                                type="time"
+                                                name="data_cursa_time"
+                                                id="{{ $editPrefix }}data-time"
+                                                class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
+                                                value="{{ $editDataTimeValue }}"
+                                                step="60"
+                                                data-error-proxy="data_cursa"
+                                            >
+                                        </div>
                                     </div>
-                                    <div class="col-6">
-                                        <input
-                                            type="time"
-                                            name="data_cursa_time"
-                                            id="{{ $editPrefix }}data-time"
-                                            class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('data_cursa') ? 'is-invalid' : '' }}"
-                                            value="{{ $editDataTimeValue }}"
-                                            step="60"
-                                            data-error-proxy="data_cursa"
-                                        >
-                                    </div>
-                                </div>
+                                @endif
                                 <div
                                     class="invalid-feedback {{ $isEditing && $errors->has('data_cursa') ? 'd-block' : '' }}"
                                     data-error-for="data_cursa"
@@ -1143,7 +1192,7 @@
                                     <option value="">Fără grup</option>
                                     @foreach ($grupuri as $grup)
                                         <option value="{{ $grup->id }}" @selected((string) $editCursaGrupId === (string) $grup->id)>
-                                            {{ $grup->nume ?? 'Fără nume' }}
+                                            {{ $resolveGroupLabel($grup) }}
                                         </option>
                                     @endforeach
                                 </select>
@@ -1668,3 +1717,53 @@
         </div>
     @endforeach
 @endif
+
+@push('scripts')
+    <script>
+        (() => {
+            const syncDateTimeInputs = () => {
+                const inputs = document.querySelectorAll('[data-datetime-sync]');
+
+                inputs.forEach(input => {
+                    const targets = (input.getAttribute('data-datetime-sync') || '')
+                        .split(',')
+                        .map(selector => selector.trim())
+                        .filter(Boolean);
+
+                    if (!targets.length) {
+                        return;
+                    }
+
+                    const updateTargets = () => {
+                        const value = input.value || '';
+                        const [datePart = '', timePart = ''] = value.split('T');
+
+                        targets.forEach((selector, index) => {
+                            const target = document.querySelector(selector);
+
+                            if (!target) {
+                                return;
+                            }
+
+                            if (index === 0) {
+                                target.value = datePart;
+                            } else if (index === 1) {
+                                target.value = timePart;
+                            }
+                        });
+                    };
+
+                    updateTargets();
+                    input.addEventListener('input', updateTargets);
+                    input.addEventListener('change', updateTargets);
+                });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', syncDateTimeInputs);
+            } else {
+                syncDateTimeInputs();
+            }
+        })();
+    </script>
+@endpush
