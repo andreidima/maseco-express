@@ -23,15 +23,32 @@ class ValabilitateAlimentareController extends Controller
         $valabilitate->loadMissing(['sofer', 'taxeDrum', 'divizie', 'curse']);
         $summary = $this->buildSummaryData($valabilitate, $valabilitate->curse);
 
-        $alimentari = $valabilitate
-            ->alimentari()
+        $alimentariQuery = $valabilitate->alimentari();
+
+        $alimentari = (clone $alimentariQuery)
             ->paginate(self::PER_PAGE)
             ->withQueryString();
+
+        $alimentariAggregates = $alimentariQuery
+            ->selectRaw('SUM(litrii) as total_litri, AVG(pret_pe_litru) as average_pret_pe_litru, SUM(total_pret) as total_pret')
+            ->first();
+
+        $totalLitri = (float) ($alimentariAggregates->total_litri ?? 0);
+        $kmTotal = $summary['kmTotal'] ?? null;
+        $consum = $kmTotal !== null ? ($totalLitri * $kmTotal) / 100 : null;
 
         return view('valabilitati.alimentari.index', [
             'valabilitate' => $valabilitate,
             'summary' => $summary,
             'alimentari' => $alimentari,
+            'alimentariMetrics' => [
+                'totalLitri' => $totalLitri,
+                'averagePret' => $alimentariAggregates->average_pret_pe_litru !== null
+                    ? (float) $alimentariAggregates->average_pret_pe_litru
+                    : null,
+                'totalPret' => (float) ($alimentariAggregates->total_pret ?? 0),
+                'consum' => $consum,
+            ],
             'backUrl' => route('valabilitati.index'),
         ]);
     }

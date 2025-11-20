@@ -129,12 +129,33 @@
                 <div class="table-responsive">
                     <table class="table table-sm alimentari-table align-middle">
                         <thead>
+                            @php
+                                $totalLitri = $alimentariMetrics['totalLitri'];
+                                $averagePret = $alimentariMetrics['averagePret'];
+                                $totalPret = $alimentariMetrics['totalPret'];
+                                $consum = $alimentariMetrics['consum'];
+                            @endphp
+                            <tr class="bg-secondary bg-opacity-25">
+                                <th colspan="2" class="text-start">TOTAL LITRI</th>
+                                <th class="text-end">{{ number_format($totalLitri, 2) }}</th>
+                                <th class="text-start">MEDIE PREȚ</th>
+                                <th class="text-end">
+                                    {{ $averagePret !== null ? number_format($averagePret, 4) : '—' }}
+                                </th>
+                            </tr>
+                            <tr class="bg-secondary bg-opacity-25">
+                                <th colspan="2" class="text-start">TOTAL PREȚ</th>
+                                <th class="text-end">{{ number_format($totalPret, 4) }}</th>
+                                <th class="text-start">CONSUM</th>
+                                <th class="text-end">
+                                    {{ $consum !== null ? number_format($consum, 2) : '—' }}
+                                </th>
+                            </tr>
                             <tr>
                                 <th>Dată / oră alimentare</th>
                                 <th class="text-end">Litrii</th>
                                 <th class="text-end">Preț / litru</th>
                                 <th class="text-end">Total preț</th>
-                                <th>Observații</th>
                                 <th class="actions-column text-center">Acțiuni</th>
                             </tr>
                         </thead>
@@ -145,7 +166,6 @@
                                     <td class="text-end">{{ number_format((float) $alimentare->litrii, 2) }}</td>
                                     <td class="text-end">{{ number_format((float) $alimentare->pret_pe_litru, 4) }}</td>
                                     <td class="text-end">{{ number_format((float) $alimentare->total_pret, 4) }}</td>
-                                    <td>{{ $alimentare->observatii ?? '—' }}</td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center flex-wrap alimentari-actions">
                                             <button
@@ -173,7 +193,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4">Nu există alimentări salvate.</td>
+                                    <td colspan="5" class="text-center py-4">Nu există alimentări salvate.</td>
                                 </tr>
                             @endforelse
                         </tbody>
