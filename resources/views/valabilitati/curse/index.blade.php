@@ -96,7 +96,8 @@
         $curseRoute = route('valabilitati.curse.index', $valabilitate);
         $isGroupsContext = request()->routeIs('valabilitati.grupuri.*');
         $hasGrupuri = $valabilitate->cursaGrupuri->count() > 0;
-        $isFlashDivision = optional($valabilitate->divizie)->id === 1;
+        $isFlashDivision = optional($valabilitate->divizie)->id === 1
+            && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
         $tableColumnCount = $isFlashDivision ? 23 : 12;
     @endphp
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">

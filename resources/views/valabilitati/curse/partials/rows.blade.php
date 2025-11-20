@@ -1,5 +1,6 @@
 @php
-    $isFlashDivision = optional($valabilitate->divizie)->id === 1;
+    $isFlashDivision = optional($valabilitate->divizie)->id === 1
+        && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
     $tableColumnCount = $isFlashDivision ? 23 : 12;
     $divizie = $valabilitate->divizie;
     $priceKmGol = $divizie && $divizie->pret_km_gol !== null ? (float) $divizie->pret_km_gol : null;
@@ -131,6 +132,9 @@
         $groupName = $group->nume ?? 'Fără grup';
         $groupFormat = $group?->formatDocumenteLabel() ?? '—';
         $groupInvoice = $group?->numar_factura ?? '—';
+        $groupInvoiceNumber = $group?->numar_factura ?? '—';
+        $groupInvoiceDate = $group?->data_factura?->format('d.m.Y') ?? '—';
+        $groupRr = $group->rr ?? '—';
         if ($groupInvoice !== '—' && $group?->data_factura) {
             $groupInvoice .= ' / ' . optional($group->data_factura)->format('d.m.Y');
         } elseif ($groupInvoice === '—' && $group?->data_factura) {
@@ -157,6 +161,7 @@
                 'zile_calculate' => $zileCalculate,
             ];
         }
+        $groupCalculatedDays = $groupFinancialMeta['zile_calculate'] ?? '—';
 
         $alteTaxe = is_numeric($cursa->alte_taxe) ? (float) $cursa->alte_taxe : null;
         $fuelTax = is_numeric($cursa->fuel_tax) ? (float) $cursa->fuel_tax : null;
@@ -196,21 +201,28 @@
     @if ($isNewGroup)
         <tr class="curse-group-heading curse-group-heading--emphasis" style="background-color: {{ $groupColor }}; color: {{ $groupTextColor }};">
             <th colspan="{{ $tableColumnCount }}">
-                <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
-                    <div class="fw-semibold fs-6 text-uppercase">{{ $groupName }}</div>
-                    <div class="d-flex flex-wrap gap-3 small curse-group-heading__meta">
-                        @unless ($isFlashDivision)
-                            <span>Format: <strong>{{ $groupFormat }}</strong></span>
-                        @endunless
-                        <span>Factură: <strong>{{ $groupInvoice }}</strong></span>
-                        @if ($groupFinancialMeta)
-                            <span>Sumă încasată: <strong>{{ $groupFinancialMeta['suma_incasata'] ?? '—' }}</strong></span>
-                            <span>Sumă calculată: <strong>{{ $groupFinancialMeta['suma_calculata'] ?? '—' }}</strong></span>
-                            <span>Diferență: <strong>{{ $groupFinancialMeta['diferenta'] ?? '—' }}</strong></span>
-                            <span>Zile calculate: <strong>{{ $groupFinancialMeta['zile_calculate'] ?? '—' }}</strong></span>
-                        @endif
+                @if ($isFlashDivision)
+                    <div class="d-flex flex-wrap gap-3 align-items-center small">
+                        <span class="fw-semibold text-uppercase">RR: {{ $groupRr }}</span>
+                        <span>Număr factură: <strong>{{ $groupInvoiceNumber }}</strong></span>
+                        <span>Data facturii: <strong>{{ $groupInvoiceDate }}</strong></span>
+                        <span>Zile calculate: <strong>{{ $groupCalculatedDays }}</strong></span>
                     </div>
-                </div>
+                @else
+                    <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
+                        <div class="fw-semibold fs-6 text-uppercase">{{ $groupName }}</div>
+                        <div class="d-flex flex-wrap gap-3 small curse-group-heading__meta">
+                            <span>Format: <strong>{{ $groupFormat }}</strong></span>
+                            <span>Factură: <strong>{{ $groupInvoice }}</strong></span>
+                            @if ($groupFinancialMeta)
+                                <span>Sumă încasată: <strong>{{ $groupFinancialMeta['suma_incasata'] ?? '—' }}</strong></span>
+                                <span>Sumă calculată: <strong>{{ $groupFinancialMeta['suma_calculata'] ?? '—' }}</strong></span>
+                                <span>Diferență: <strong>{{ $groupFinancialMeta['diferenta'] ?? '—' }}</strong></span>
+                                <span>Zile calculate: <strong>{{ $groupFinancialMeta['zile_calculate'] ?? '—' }}</strong></span>
+                            @endif
+                        </div>
+                    </div>
+                @endif
             </th>
         </tr>
     @endif
