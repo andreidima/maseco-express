@@ -12,8 +12,8 @@ return new class extends Migration {
             $table->foreignId('valabilitate_id')->constrained('valabilitati')->cascadeOnDelete();
             $table->dateTime('data_ora_alimentare');
             $table->decimal('litrii', 10, 2);
-            $table->decimal('pret_pe_litru', 10, 2);
-            $table->decimal('total_pret', 12, 2);
+            $table->decimal('pret_pe_litru', 12, 4);
+            $table->decimal('total_pret', 12, 4);
             $table->text('observatii')->nullable();
             $table->timestamps();
 
