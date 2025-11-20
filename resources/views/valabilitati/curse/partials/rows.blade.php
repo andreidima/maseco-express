@@ -235,7 +235,7 @@
         </td>
         {{-- # + up/down controls --}}
         <td class="text-center fw-semibold">
-            <div class="d-inline-flex align-items-center gap-2">
+            <div class="align-items-center gap-2">
                 <span>#{{ $cursa->nr_ordine }}</span>
                 @if ($hasMultipleCurse)
                     <div class="d-flex gap-1">
@@ -289,7 +289,7 @@
         </td>
 
         {{-- Dată transport --}}
-        <td class="text-nowrap align-middle">
+        <td class="small text-center align-middle">
             {{ $dataTransport ?: '—' }}
         </td>
 

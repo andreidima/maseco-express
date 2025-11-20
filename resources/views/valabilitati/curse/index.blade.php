@@ -200,19 +200,19 @@
                                     </div>
                                 </th>
                                 <th rowspan="2" class="text-center curse-nowrap">#</th>
-                                <th rowspan="2" class="curse-nowrap">Nr. cursă</th>
+                                <th rowspan="2" class="text-center curse-nowrap">Nr. cursă</th>
                                 <th rowspan="2">Cursa</th>
-                                <th rowspan="2" class="curse-nowrap">Dată transport</th>
+                                <th rowspan="2" class="text-center curse-nowrap">Dată<br>transport</th>
                                 @if ($isFlashDivision)
                                     <th colspan="2" class="text-center curse-nowrap">KM Maps</th>
-                                    <th rowspan="2" class="text-end curse-nowrap">KM cu taxă</th>
+                                    <th rowspan="2" class="text-center curse-nowrap">KM cu<br>taxă</th>
                                     <th colspan="2" class="text-center curse-nowrap">KM Flash</th>
                                     <th colspan="2" class="text-center curse-nowrap">Diferența KM<br>(Maps – Flash)</th>
                                     <th colspan="4" class="text-center curse-nowrap">Sumă calculată</th>
                                     <th rowspan="2" class="text-end curse-nowrap">Alte taxe</th>
                                     <th rowspan="2" class="text-end curse-nowrap">Fuel tax</th>
-                                    <th rowspan="2" class="text-end curse-nowrap">Sumă încasată</th>
-                                    <th rowspan="2" class="text-end curse-nowrap">Diferența preț<br>(încasat – calculat)</th>
+                                    <th rowspan="2" class="text-center curse-nowrap">Sumă<br>încasată</th>
+                                    <th rowspan="2" class="text-center curse-nowrap">Diferența preț<br>(încasat –<br> calculat)</th>
                                     <th colspan="2" class="text-center curse-nowrap">Daily contribution</th>
                                 @else
                                     <th rowspan="2" class="text-end curse-nowrap">KM Maps</th>
