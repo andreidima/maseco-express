@@ -154,7 +154,7 @@
                                                 data-bs-toggle="modal"
                                                 data-bs-target="#alimentareEditModal-{{ $alimentare->id }}"
                                             >
-                                                <i class="fa-solid fa-pen-to-square me-1"></i>Editează
+                                                <i class="fa-solid fa-pen-to-square me-1"></i>
                                             </button>
                                             <form
                                                 method="POST"
@@ -165,7 +165,7 @@
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-sm btn-outline-danger border border-dark">
-                                                    <i class="fa-solid fa-trash me-1"></i>Șterge
+                                                    <i class="fa-solid fa-trash me-1"></i>
                                                 </button>
                                             </form>
                                         </div>
