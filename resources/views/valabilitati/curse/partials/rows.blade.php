@@ -1,7 +1,7 @@
 @php
     $isFlashDivision = optional($valabilitate->divizie)->id === 1
         && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
-    $tableColumnCount = $isFlashDivision ? 23 : 12;
+    $tableColumnCount = $isFlashDivision ? 22 : 11;
     $divizie = $valabilitate->divizie;
     $priceKmGol = $divizie && $divizie->pret_km_gol !== null ? (float) $divizie->pret_km_gol : null;
     $priceKmPlin = $divizie && $divizie->pret_km_plin !== null ? (float) $divizie->pret_km_plin : null;
@@ -231,61 +231,62 @@
     @endphp
     <tr @class(['curse-group-row' => (bool) $group]) style="background-color: {{ $group ? $groupColor : 'transparent' }}; color: {{ $group ? $groupTextColor : '#111' }};">
         <td class="text-center align-middle">
-            <div class="form-check mb-0">
-                <input
-                    type="checkbox"
-                    class="form-check-input curse-row-checkbox"
-                    id="{{ $checkboxId }}"
-                    value="{{ $cursa->id }}"
-                    data-cursa-id="{{ $cursa->id }}"
-                >
-                <label class="visually-hidden" for="{{ $checkboxId }}">
-                    Selectează cursa #{{ $cursa->nr_ordine }}
-                </label>
-            </div>
-        </td>
-        {{-- # + up/down controls --}}
-        <td class="text-center fw-semibold">
-            <div class="align-items-center gap-2">
-                <span>#{{ $cursa->nr_ordine }}</span>
-                @if ($hasMultipleCurse)
-                    <div class="d-flex gap-1">
-                        <form
-                            method="POST"
-                            action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
-                            class="mb-0"
-                        >
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="direction" value="up">
-                            <button
-                                type="submit"
-                                class="btn btn-sm btn-outline-secondary p-0"
-                                title="Mută cursa mai sus"
-                                @disabled(! $canMoveUp)
+            <div class="d-flex flex-column align-items-center gap-1">
+                <div class="form-check mb-0">
+                    <input
+                        type="checkbox"
+                        class="form-check-input curse-row-checkbox"
+                        id="{{ $checkboxId }}"
+                        value="{{ $cursa->id }}"
+                        data-cursa-id="{{ $cursa->id }}"
+                    >
+                    <label class="visually-hidden" for="{{ $checkboxId }}">
+                        Selectează cursa #{{ $cursa->nr_ordine }}
+                    </label>
+                </div>
+
+                {{-- # + up/down controls --}}
+                <div class="d-flex align-items-center gap-2 fw-semibold">
+                    <span>#{{ $cursa->nr_ordine }}</span>
+                    @if ($hasMultipleCurse)
+                        <div class="d-flex gap-1">
+                            <form
+                                method="POST"
+                                action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
+                                class="mb-0"
                             >
-                                <i class="fa-solid fa-arrow-up"></i>
-                            </button>
-                        </form>
-                        <form
-                            method="POST"
-                            action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
-                            class="mb-0"
-                        >
-                            @csrf
-                            @method('PATCH')
-                            <input type="hidden" name="direction" value="down">
-                            <button
-                                type="submit"
-                                class="btn btn-sm btn-outline-secondary p-0"
-                                title="Mută cursa mai jos"
-                                @disabled(! $canMoveDown)
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="direction" value="up">
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-outline-secondary p-0"
+                                    title="Mută cursa mai sus"
+                                    @disabled(! $canMoveUp)
+                                >
+                                    <i class="fa-solid fa-arrow-up"></i>
+                                </button>
+                            </form>
+                            <form
+                                method="POST"
+                                action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
+                                class="mb-0"
                             >
-                                <i class="fa-solid fa-arrow-down"></i>
-                            </button>
-                        </form>
-                    </div>
-                @endif
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="direction" value="down">
+                                <button
+                                    type="submit"
+                                    class="btn btn-sm btn-outline-secondary p-0"
+                                    title="Mută cursa mai jos"
+                                    @disabled(! $canMoveDown)
+                                >
+                                    <i class="fa-solid fa-arrow-down"></i>
+                                </button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
             </div>
         </td>
 

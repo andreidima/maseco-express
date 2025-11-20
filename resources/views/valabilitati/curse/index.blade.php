@@ -12,6 +12,25 @@
             font-size: 0.875rem;
         }
 
+        .curse-table-wrapper {
+            overflow: auto;
+            max-height: 70vh;
+            border: 1px solid #e9ecef;
+            border-radius: 0.5rem;
+            background-color: #fff;
+        }
+
+        .curse-data-table {
+            min-width: 1200px;
+        }
+
+        .curse-data-table thead {
+            --curse-header-bg: #6a6ba0;
+            --curse-header-text: #ffffff;
+            background-color: var(--curse-header-bg);
+            color: var(--curse-header-text);
+        }
+
         .curse-summary-table th,
         .curse-summary-table td,
         .curse-data-table th,
@@ -46,14 +65,26 @@
 
         .curse-data-header-top th,
         .curse-data-header-bottom th {
-            background-color: #f8f9fa;
+            background-color: var(--curse-header-bg, #6a6ba0);
+            color: var(--curse-header-text, #ffffff);
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.75rem;
+            position: sticky;
+            z-index: 2;
+        }
+
+        .curse-data-header-top th {
+            top: 0;
         }
 
         .curse-data-header-bottom th {
+            top: 2.75rem;
             border-top: none;
+        }
+
+        .curse-data-table thead th:first-child {
+            z-index: 3;
         }
 
         .curse-data-table tbody tr:not(.curse-group-heading):not(.curse-group-row):nth-child(even) {
@@ -98,7 +129,7 @@
         $hasGrupuri = $valabilitate->cursaGrupuri->count() > 0;
         $isFlashDivision = optional($valabilitate->divizie)->id === 1
             && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
-        $tableColumnCount = $isFlashDivision ? 23 : 12;
+        $tableColumnCount = $isFlashDivision ? 22 : 11;
     @endphp
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center text-center text-lg-start" style="border-radius: 40px 40px 0px 0px;">
@@ -183,24 +214,26 @@
             <div id="curse-feedback" class="px-3"></div>
 
             <div class="px-3">
-                <div class="table-responsive">
+                <div class="curse-table-wrapper table-responsive">
                     <table class="table table-sm curse-data-table align-middle">
-                        <thead>
+                        <thead class="text-white culoare2">
                             <tr class="curse-data-header-top">
                                 <th rowspan="2" class="text-center curse-nowrap align-middle">
-                                    <div class="form-check mb-0">
-                                        <input
-                                            type="checkbox"
-                                            class="form-check-input"
-                                            id="curse-table-select-all"
-                                            @disabled($curse->count() === 0)
-                                        >
-                                        <label class="visually-hidden" for="curse-table-select-all">
-                                            Selectează toate cursele afișate
-                                        </label>
+                                    <div class="d-flex flex-column align-items-center gap-1">
+                                        <div class="form-check mb-0">
+                                            <input
+                                                type="checkbox"
+                                                class="form-check-input"
+                                                id="curse-table-select-all"
+                                                @disabled($curse->count() === 0)
+                                            >
+                                            <label class="visually-hidden" for="curse-table-select-all">
+                                                Selectează toate cursele afișate
+                                            </label>
+                                        </div>
+                                        <span class="fw-semibold">#</span>
                                     </div>
                                 </th>
-                                <th rowspan="2" class="text-center curse-nowrap">#</th>
                                 <th rowspan="2" class="text-center curse-nowrap">Nr. cursă</th>
                                 <th rowspan="2">Cursa</th>
                                 <th rowspan="2" class="text-center curse-nowrap">Dată<br>transport</th>
@@ -225,7 +258,10 @@
                                         Diferența KM<br>(Bord – Maps)
                                     </th>
                                 @endif
-                                <th rowspan="2" class="text-end curse-nowrap">Acțiuni</th>
+                                <th rowspan="2" class="text-end curse-nowrap" title="Acțiuni">
+                                    <i class="fa-solid fa-gear" aria-hidden="true"></i>
+                                    <span class="visually-hidden">Acțiuni</span>
+                                </th>
                             </tr>
                             <tr class="curse-data-header-bottom">
                                 @if ($isFlashDivision)
