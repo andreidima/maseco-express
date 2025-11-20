@@ -204,8 +204,7 @@
                 @if ($isFlashDivision)
                     <div class="d-flex flex-wrap gap-3 align-items-center small">
                         <span class="fw-semibold text-uppercase">RR: {{ $groupRr }}</span>
-                        <span>Număr factură: <strong>{{ $groupInvoiceNumber }}</strong></span>
-                        <span>Data facturii: <strong>{{ $groupInvoiceDate }}</strong></span>
+                        <span>Factură: <strong>{{ $groupInvoiceNumber }} / {{ $groupInvoiceDate }}</strong></span>
                         <span>Zile calculate: <strong>{{ $groupCalculatedDays }}</strong></span>
                     </div>
                 @else
