@@ -11,17 +11,6 @@
 
             return $trimmed === '-0' ? '0' : $trimmed;
         };
-        $editingAlimentareId = old('alimentare_id') !== null
-            ? (int) old('alimentare_id')
-            : (request()->has('edit') ? (int) request('edit') : null);
-
-        $shouldShowErrorsForRow = function (?int $rowId) use ($editingAlimentareId, $errors): bool {
-            return $errors->any() && (($rowId === null && $editingAlimentareId === null) || $editingAlimentareId === $rowId);
-        };
-
-        $inputError = function (string $field, ?int $rowId = null) use ($shouldShowErrorsForRow, $errors): ?string {
-            return $shouldShowErrorsForRow($rowId) ? $errors->first($field) : null;
-        };
     @endphp
 
     <style>
@@ -73,15 +62,9 @@
     </style>
 
     @php
-        $filterQueryParams = fn (array $params) => array_filter($params, fn ($value) => $value !== null && $value !== '');
-
-        $paginationQuery = $filterQueryParams(request()->only('page'));
         $curseRoute = route('valabilitati.curse.index', $valabilitate);
         $grupuriRoute = route('valabilitati.grupuri.index', $valabilitate);
-        $alimentariRoute = route('valabilitati.alimentari.index', $filterQueryParams([
-            'valabilitate' => $valabilitate,
-            ...$paginationQuery,
-        ]));
+        $alimentariRoute = route('valabilitati.alimentari.index', $valabilitate);
     @endphp
 
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
@@ -121,12 +104,14 @@
             </div>
             <div class="col-12 col-lg-4 text-lg-end mt-3 mt-lg-0">
                 <div class="d-flex align-items-stretch align-items-lg-end gap-2 flex-wrap justify-content-center justify-content-lg-end">
-                    <a
-                        href="#alimentari-create-row"
+                    <button
+                        type="button"
                         class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                        data-bs-toggle="modal"
+                        data-bs-target="#alimentareCreateModal"
                     >
                         <i class="fas fa-plus-square text-white me-1"></i>Adaugă alimentare
-                    </a>
+                    </button>
                     <a
                         href="{{ $backUrl }}"
                         class="btn btn-sm btn-outline-secondary border border-dark rounded-3"
@@ -179,14 +164,6 @@
                     </table>
                 </div>
                 <div class="table-responsive">
-                    <form
-                        id="alimentareCreateForm"
-                        method="POST"
-                        action="{{ route('valabilitati.alimentari.store', $valabilitate) }}"
-                        class="d-none"
-                    >
-                        @csrf
-                    </form>
                     <table class="table table-sm alimentari-table align-middle">
                         <thead>
                             <tr>
@@ -194,270 +171,44 @@
                                 <th class="text-end">Litrii</th>
                                 <th class="text-end">Preț / litru</th>
                                 <th class="text-end">Total preț</th>
-                                <th>Observații</th>
                                 <th class="actions-column text-center">Acțiuni</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr class="table-light" id="alimentari-create-row">
-                                <td>
-                                    <input
-                                        type="datetime-local"
-                                        name="data_ora_alimentare"
-                                        class="form-control form-control-sm {{ $inputError('data_ora_alimentare') ? 'is-invalid' : '' }}"
-                                        value="{{ old('data_ora_alimentare') }}"
-                                        form="alimentareCreateForm"
-                                        required
-                                    >
-                                    @if ($error = $inputError('data_ora_alimentare'))
-                                        <div class="invalid-feedback d-block">{{ $error }}</div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
-                                        name="litrii"
-                                        class="form-control form-control-sm text-end {{ $inputError('litrii') ? 'is-invalid' : '' }}"
-                                        value="{{ $formatNumber(old('litrii'), 2) }}"
-                                        form="alimentareCreateForm"
-                                        required
-                                    >
-                                    @if ($error = $inputError('litrii'))
-                                        <div class="invalid-feedback d-block text-start">{{ $error }}</div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <input
-                                        type="number"
-                                        step="0.0001"
-                                        min="0"
-                                        name="pret_pe_litru"
-                                        class="form-control form-control-sm text-end {{ $inputError('pret_pe_litru') ? 'is-invalid' : '' }}"
-                                        value="{{ $formatNumber(old('pret_pe_litru'), 4) }}"
-                                        form="alimentareCreateForm"
-                                        required
-                                    >
-                                    @if ($error = $inputError('pret_pe_litru'))
-                                        <div class="invalid-feedback d-block text-start">{{ $error }}</div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <input
-                                        type="number"
-                                        step="0.0001"
-                                        min="0"
-                                        name="total_pret"
-                                        class="form-control form-control-sm text-end {{ $inputError('total_pret') ? 'is-invalid' : '' }}"
-                                        value="{{ $formatNumber(old('total_pret'), 4) }}"
-                                        form="alimentareCreateForm"
-                                        required
-                                    >
-                                    @if ($error = $inputError('total_pret'))
-                                        <div class="invalid-feedback d-block text-start">{{ $error }}</div>
-                                    @endif
-                                </td>
-                                <td>
-                                    <textarea
-                                        name="observatii"
-                                        class="form-control form-control-sm {{ $inputError('observatii') ? 'is-invalid' : '' }}"
-                                        rows="1"
-                                        placeholder="Opțional"
-                                        form="alimentareCreateForm"
-                                    >{{ old('observatii') }}</textarea>
-                                    @if ($error = $inputError('observatii'))
-                                        <div class="invalid-feedback d-block">{{ $error }}</div>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    <div class="d-flex justify-content-center flex-wrap alimentari-actions">
-                                        <button
-                                            type="submit"
-                                            class="btn btn-sm btn-success text-white border border-dark"
-                                            form="alimentareCreateForm"
-                                        >
-                                            <i class="fas fa-plus-square text-white me-1"></i>Adaugă
-                                        </button>
-                                        <a
-                                            href="{{ $alimentariRoute }}"
-                                            class="btn btn-sm btn-outline-secondary border border-dark"
-                                        >
-                                            Resetează
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
                             @forelse ($alimentari as $alimentare)
-                                @php
-                                    $isEditing = $editingAlimentareId === $alimentare->id;
-                                    $editFormId = "alimentareEditForm-{$alimentare->id}";
-                                    $editRoute = route('valabilitati.alimentari.index', $filterQueryParams([
-                                        'valabilitate' => $valabilitate,
-                                        ...$paginationQuery,
-                                        'edit' => $alimentare->id,
-                                    ]));
-                                    $clearEditRoute = route('valabilitati.alimentari.index', $filterQueryParams([
-                                        'valabilitate' => $valabilitate,
-                                        ...$paginationQuery,
-                                    ]));
-                                @endphp
-                                <form
-                                    id="{{ $editFormId }}"
-                                    method="POST"
-                                    action="{{ route('valabilitati.alimentari.update', $filterQueryParams([
-                                        'valabilitate' => $valabilitate,
-                                        'alimentare' => $alimentare,
-                                        ...$paginationQuery,
-                                        'edit' => $alimentare->id,
-                                    ])) }}"
-                                    class="d-none"
-                                >
-                                    @csrf
-                                    @method('PUT')
-                                    <input type="hidden" name="alimentare_id" value="{{ $alimentare->id }}">
-                                </form>
-                                <tr class="{{ $isEditing ? 'table-primary' : '' }}">
-                                    <td>
-                                        @if ($isEditing)
-                                            <input
-                                                type="datetime-local"
-                                                name="data_ora_alimentare"
-                                                class="form-control form-control-sm {{ $inputError('data_ora_alimentare', $alimentare->id) ? 'is-invalid' : '' }}"
-                                                value="{{ $editingAlimentareId === $alimentare->id && old('data_ora_alimentare') !== null
-                                                    ? old('data_ora_alimentare')
-                                                    : optional($alimentare->data_ora_alimentare)->format('Y-m-d\\TH:i') }}"
-                                                form="{{ $editFormId }}"
-                                                required
-                                            >
-                                            @if ($error = $inputError('data_ora_alimentare', $alimentare->id))
-                                                <div class="invalid-feedback d-block">{{ $error }}</div>
-                                            @endif
-                                        @else
-                                            <span class="fw-semibold">{{ optional($alimentare->data_ora_alimentare)->format('d.m.Y H:i') }}</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-end">
-                                        @if ($isEditing)
-                                            <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
-                                                name="litrii"
-                                                class="form-control form-control-sm text-end {{ $inputError('litrii', $alimentare->id) ? 'is-invalid' : '' }}"
-                                                value="{{ $editingAlimentareId === $alimentare->id ? $formatNumber(old('litrii'), 2) : $formatNumber($alimentare->litrii, 2) }}"
-                                                form="{{ $editFormId }}"
-                                                required
-                                            >
-                                            @if ($error = $inputError('litrii', $alimentare->id))
-                                                <div class="invalid-feedback d-block text-start">{{ $error }}</div>
-                                            @endif
-                                        @else
-                                            {{ $formatNumber($alimentare->litrii, 2) }}
-                                        @endif
-                                    </td>
-                                    <td class="text-end">
-                                        @if ($isEditing)
-                                            <input
-                                                type="number"
-                                                step="0.0001"
-                                                min="0"
-                                                name="pret_pe_litru"
-                                                class="form-control form-control-sm text-end {{ $inputError('pret_pe_litru', $alimentare->id) ? 'is-invalid' : '' }}"
-                                                value="{{ $editingAlimentareId === $alimentare->id ? $formatNumber(old('pret_pe_litru'), 4) : $formatNumber($alimentare->pret_pe_litru, 4) }}"
-                                                form="{{ $editFormId }}"
-                                                required
-                                            >
-                                            @if ($error = $inputError('pret_pe_litru', $alimentare->id))
-                                                <div class="invalid-feedback d-block text-start">{{ $error }}</div>
-                                            @endif
-                                        @else
-                                            {{ $formatNumber($alimentare->pret_pe_litru, 4) }}
-                                        @endif
-                                    </td>
-                                    <td class="text-end">
-                                        @if ($isEditing)
-                                            <input
-                                                type="number"
-                                                step="0.0001"
-                                                min="0"
-                                                name="total_pret"
-                                                class="form-control form-control-sm text-end {{ $inputError('total_pret', $alimentare->id) ? 'is-invalid' : '' }}"
-                                                value="{{ $editingAlimentareId === $alimentare->id ? $formatNumber(old('total_pret'), 4) : $formatNumber($alimentare->total_pret, 4) }}"
-                                                form="{{ $editFormId }}"
-                                                required
-                                            >
-                                            @if ($error = $inputError('total_pret', $alimentare->id))
-                                                <div class="invalid-feedback d-block text-start">{{ $error }}</div>
-                                            @endif
-                                        @else
-                                            {{ $formatNumber($alimentare->total_pret, 4) }}
-                                        @endif
-                                    </td>
-                                    <td>
-                                        @if ($isEditing)
-                                            <textarea
-                                                name="observatii"
-                                                class="form-control form-control-sm {{ $inputError('observatii', $alimentare->id) ? 'is-invalid' : '' }}"
-                                                rows="1"
-                                                form="{{ $editFormId }}"
-                                                placeholder="Opțional"
-                                            >{{ $editingAlimentareId === $alimentare->id && old('observatii') !== null ? old('observatii') : $alimentare->observatii }}</textarea>
-                                            @if ($error = $inputError('observatii', $alimentare->id))
-                                                <div class="invalid-feedback d-block">{{ $error }}</div>
-                                            @endif
-                                        @else
-                                            <div class="text-wrap" style="max-width: 260px;">
-                                                @if ($alimentare->observatii)
-                                                    <small class="text-muted">{!! nl2br(e($alimentare->observatii)) !!}</small>
-                                                @else
-                                                    <span class="text-muted">—</span>
-                                                @endif
-                                            </div>
-                                        @endif
-                                    </td>
+                                <tr>
+                                    <td class="fw-semibold">{{ optional($alimentare->data_ora_alimentare)->format('d.m.Y H:i') }}</td>
+                                    <td class="text-end">{{ $formatNumber($alimentare->litrii, 2) }}</td>
+                                    <td class="text-end">{{ $formatNumber($alimentare->pret_pe_litru, 4) }}</td>
+                                    <td class="text-end">{{ $formatNumber($alimentare->total_pret, 4) }}</td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center flex-wrap alimentari-actions">
-                                            @if ($isEditing)
-                                                <button
-                                                    type="submit"
-                                                    class="btn btn-sm btn-primary border border-dark"
-                                                    form="{{ $editFormId }}"
-                                                >
-                                                    <i class="fa-solid fa-floppy-disk me-1"></i>Salvează
+                                            <button
+                                                class="btn btn-sm btn-outline-primary border border-dark"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#alimentareEditModal-{{ $alimentare->id }}"
+                                            >
+                                                <i class="fa-solid fa-pen-to-square me-1"></i>
+                                            </button>
+                                            <form
+                                                method="POST"
+                                                action="{{ route('valabilitati.alimentari.destroy', [$valabilitate, $alimentare]) }}"
+                                                class="d-inline"
+                                                onsubmit="return confirm('Sigur ștergi această alimentare?');"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger border border-dark">
+                                                    <i class="fa-solid fa-trash me-1"></i>
                                                 </button>
-                                                <a
-                                                    href="{{ $clearEditRoute }}"
-                                                    class="btn btn-sm btn-outline-secondary border border-dark"
-                                                >
-                                                    Renunță
-                                                </a>
-                                            @else
-                                                <a
-                                                    href="{{ $editRoute }}"
-                                                    class="btn btn-sm btn-outline-primary border border-dark"
-                                                >
-                                                    <i class="fa-solid fa-pen-to-square me-1"></i>
-                                                </a>
-                                                <form
-                                                    method="POST"
-                                                    action="{{ route('valabilitati.alimentari.destroy', [$valabilitate, $alimentare]) }}"
-                                                    class="d-inline"
-                                                    onsubmit="return confirm('Sigur ștergi această alimentare?');"
-                                                >
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger border border-dark">
-                                                        <i class="fa-solid fa-trash me-1"></i>
-                                                    </button>
-                                                </form>
-                                            @endif
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center py-4">Nu există alimentări salvate.</td>
+                                    <td colspan="5" class="text-center py-4">Nu există alimentări salvate.</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -468,6 +219,195 @@
                     {{ $alimentari->links() }}
                 </div>
             </div>
+
+            {{-- Create modal --}}
+            <div
+                class="modal fade"
+                id="alimentareCreateModal"
+                tabindex="-1"
+                aria-labelledby="alimentareCreateModalLabel"
+                aria-hidden="true"
+            >
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="alimentareCreateModalLabel">Adaugă alimentare</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <form method="POST" action="{{ route('valabilitati.alimentari.store', $valabilitate) }}">
+                            @csrf
+                            <div class="modal-body">
+                                <div class="row g-3">
+                                    <div class="col-12 col-lg-3">
+                                        <label class="form-label alimentari-form-label" for="data_ora_alimentare">Dată / oră alimentare</label>
+                                        <input
+                                            type="datetime-local"
+                                            name="data_ora_alimentare"
+                                            id="data_ora_alimentare"
+                                            class="form-control"
+                                            value="{{ old('data_ora_alimentare') }}"
+                                            required
+                                        >
+                                    </div>
+                                    <div class="col-12 col-lg-3">
+                                        <label class="form-label alimentari-form-label" for="litrii">Litrii</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            name="litrii"
+                                            id="litrii"
+                                            class="form-control"
+                                            value="{{ $formatNumber(old('litrii'), 2) }}"
+                                            required
+                                        >
+                                    </div>
+                                    <div class="col-12 col-lg-3">
+                                        <label class="form-label alimentari-form-label" for="pret_pe_litru">Preț / litru</label>
+                                        <input
+                                            type="number"
+                                            step="0.0001"
+                                            min="0"
+                                            name="pret_pe_litru"
+                                            id="pret_pe_litru"
+                                            class="form-control"
+                                            value="{{ $formatNumber(old('pret_pe_litru'), 4) }}"
+                                            required
+                                        >
+                                    </div>
+                                    <div class="col-12 col-lg-3">
+                                        <label class="form-label alimentari-form-label" for="total_pret">Total preț</label>
+                                        <input
+                                            type="number"
+                                            step="0.0001"
+                                            min="0"
+                                            name="total_pret"
+                                            id="total_pret"
+                                            class="form-control"
+                                            value="{{ $formatNumber(old('total_pret'), 4) }}"
+                                            required
+                                        >
+                                    </div>
+                                    <div class="col-12">
+                                        <label class="form-label alimentari-form-label" for="observatii">Observații</label>
+                                        <textarea
+                                            name="observatii"
+                                            id="observatii"
+                                            class="form-control"
+                                            rows="2"
+                                            placeholder="Opțional"
+                                        >{{ old('observatii') }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Renunță</button>
+                                <button type="submit" class="btn btn-success text-white border border-dark">
+                                    <i class="fas fa-plus-square text-white me-1"></i>Salvează alimentarea
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Edit modals --}}
+            @foreach ($alimentari as $alimentare)
+                @php
+                    $shouldPrefillFromOld = (int) old('alimentare_id') === $alimentare->id;
+                @endphp
+                <div
+                    class="modal fade"
+                    id="alimentareEditModal-{{ $alimentare->id }}"
+                    tabindex="-1"
+                    aria-labelledby="alimentareEditModalLabel-{{ $alimentare->id }}"
+                    aria-hidden="true"
+                >
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="alimentareEditModalLabel-{{ $alimentare->id }}">Editează alimentarea</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form method="POST" action="{{ route('valabilitati.alimentari.update', [$valabilitate, $alimentare]) }}">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="alimentare_id" value="{{ $alimentare->id }}">
+                                <div class="modal-body">
+                                    <div class="row g-3">
+                                        <div class="col-12 col-lg-3">
+                                            <label class="form-label alimentari-form-label" for="data_ora_alimentare_{{ $alimentare->id }}">Dată / oră alimentare</label>
+                                            <input
+                                                type="datetime-local"
+                                                name="data_ora_alimentare"
+                                                id="data_ora_alimentare_{{ $alimentare->id }}"
+                                                class="form-control"
+                                                value="{{ $shouldPrefillFromOld ? old('data_ora_alimentare') : optional($alimentare->data_ora_alimentare)->format('Y-m-d\\TH:i') }}"
+                                                required
+                                            >
+                                        </div>
+                                        <div class="col-12 col-lg-3">
+                                            <label class="form-label alimentari-form-label" for="litrii_{{ $alimentare->id }}">Litrii</label>
+                                            <input
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                name="litrii"
+                                                id="litrii_{{ $alimentare->id }}"
+                                                class="form-control"
+                                                value="{{ $shouldPrefillFromOld ? $formatNumber(old('litrii'), 2) : $formatNumber($alimentare->litrii, 2) }}"
+                                                required
+                                            >
+                                        </div>
+                                        <div class="col-12 col-lg-3">
+                                            <label class="form-label alimentari-form-label" for="pret_pe_litru_{{ $alimentare->id }}">Preț / litru</label>
+                                            <input
+                                                type="number"
+                                                step="0.0001"
+                                                min="0"
+                                                name="pret_pe_litru"
+                                                id="pret_pe_litru_{{ $alimentare->id }}"
+                                                class="form-control"
+                                                value="{{ $shouldPrefillFromOld ? $formatNumber(old('pret_pe_litru'), 4) : $formatNumber($alimentare->pret_pe_litru, 4) }}"
+                                                required
+                                            >
+                                        </div>
+                                        <div class="col-12 col-lg-3">
+                                            <label class="form-label alimentari-form-label" for="total_pret_{{ $alimentare->id }}">Total preț</label>
+                                            <input
+                                                type="number"
+                                                step="0.0001"
+                                                min="0"
+                                                name="total_pret"
+                                                id="total_pret_{{ $alimentare->id }}"
+                                                class="form-control"
+                                                value="{{ $shouldPrefillFromOld ? $formatNumber(old('total_pret'), 4) : $formatNumber($alimentare->total_pret, 4) }}"
+                                                required
+                                            >
+                                        </div>
+                                        <div class="col-12">
+                                            <label class="form-label alimentari-form-label" for="observatii_{{ $alimentare->id }}">Observații</label>
+                                            <textarea
+                                                name="observatii"
+                                                id="observatii_{{ $alimentare->id }}"
+                                                class="form-control"
+                                                rows="2"
+                                                placeholder="Opțional"
+                                            >{{ $shouldPrefillFromOld ? old('observatii') : $alimentare->observatii }}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Renunță</button>
+                                    <button type="submit" class="btn btn-primary border border-dark">
+                                        <i class="fa-solid fa-floppy-disk me-1"></i>Actualizează
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
         </div>
     </div>
 @endsection
