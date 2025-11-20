@@ -22,43 +22,13 @@
                     <div class="col-lg-3 col-md-6 mb-2 mb-lg-0">
                         <input type="text" class="form-control rounded-3" id="filter-divizie" name="divizie" placeholder="Divizie" value="{{ $filters['divizie'] }}">
                     </div>
-                @php
-                    $inceputRangeFilter = implode(',', array_filter([
-                        $filters['inceput_start'] ?? null,
-                        $filters['inceput_end'] ?? null,
-                    ]));
-                    $sfarsitRangeFilter = implode(',', array_filter([
-                        $filters['sfarsit_start'] ?? null,
-                        $filters['sfarsit_end'] ?? null,
-                    ]));
-                @endphp
                     <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
-                        <label for="filter-interval-inceput" class="form-label mb-0 ps-3">Început</label>
-                        <vue-datepicker-next
-                            id="filter-interval-inceput"
-                            data-veche="{{ $inceputRangeFilter }}"
-                            tip="date"
-                            value-type="YYYY-MM-DD"
-                            format="DD.MM.YYYY"
-                            :latime="{ width: '100%' }"
-                            :range="true"
-                            range-start-name="inceput_start"
-                            range-end-name="inceput_end"
-                        ></vue-datepicker-next>
-                    </div>
-                    <div class="col-lg-2 col-md-6 mb-2 mb-lg-0">
-                        <label for="filter-interval-sfarsit" class="form-label mb-0 ps-3">Sfârșit</label>
-                        <vue-datepicker-next
-                            id="filter-interval-sfarsit"
-                            data-veche="{{ $sfarsitRangeFilter }}"
-                            tip="date"
-                            value-type="YYYY-MM-DD"
-                            format="DD.MM.YYYY"
-                            :latime="{ width: '100%' }"
-                            :range="true"
-                            range-start-name="sfarsit_start"
-                            range-end-name="sfarsit_end"
-                        ></vue-datepicker-next>
+                        <label for="filter-status" class="form-label mb-0 ps-3">Status</label>
+                        <select id="filter-status" name="status" class="form-select rounded-3">
+                            <option value="active" @selected($filters['status'] === 'active')>În lucru</option>
+                            <option value="finished" @selected($filters['status'] === 'finished')>Finalizate</option>
+                            <option value="all" @selected($filters['status'] === 'all')>Toate</option>
+                        </select>
                     </div>
                     <div class="col-lg-3 col-md-4 mb-2 mb-md-0">
                         <button class="btn btn-sm w-100 btn-primary text-white border border-dark rounded-3" type="submit">

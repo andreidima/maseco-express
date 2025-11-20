@@ -14,72 +14,82 @@ class ValabilitateFilterTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_filters_by_inceput_and_sfarsit_ranges(): void
+    public function test_shows_only_active_valabilitati_by_default(): void
     {
         $user = $this->createValabilitatiUser();
 
-        $matchingDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Divizie potrivită']);
-        $beforeDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Înainte de interval']);
-        $afterDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'După interval']);
+        $activeDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'În lucru']);
+        $finishedDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Finalizată']);
 
-        $matching = Valabilitate::factory()->create([
-            'divizie_id' => $matchingDivizie->id,
-            'data_inceput' => '2025-01-15',
-            'data_sfarsit' => '2025-02-12',
+        $active = Valabilitate::factory()->create([
+            'divizie_id' => $activeDivizie->id,
+            'data_sfarsit' => null,
         ]);
 
         Valabilitate::factory()->create([
-            'divizie_id' => $beforeDivizie->id,
-            'data_inceput' => '2025-01-05',
+            'divizie_id' => $finishedDivizie->id,
             'data_sfarsit' => '2025-02-12',
         ]);
 
-        Valabilitate::factory()->create([
-            'divizie_id' => $afterDivizie->id,
-            'data_inceput' => '2025-01-18',
-            'data_sfarsit' => '2025-02-25',
-        ]);
-
-        $response = $this->actingAs($user)->get(route('valabilitati.index', [
-            'inceput_start' => '2025-01-10',
-            'inceput_end' => '2025-01-20',
-            'sfarsit_start' => '2025-02-05',
-            'sfarsit_end' => '2025-02-20',
-        ]));
+        $response = $this->actingAs($user)->get(route('valabilitati.index'));
 
         $response->assertOk();
-        $response->assertSeeText($matchingDivizie->nume);
-        $response->assertDontSeeText($beforeDivizie->nume);
-        $response->assertDontSeeText($afterDivizie->nume);
+        $response->assertSeeText($activeDivizie->nume);
+        $response->assertDontSeeText($finishedDivizie->nume);
+        $this->assertTrue($active->fresh()->data_sfarsit === null);
     }
 
-    public function test_legacy_interval_parameters_are_supported(): void
+    public function test_can_filter_finished_valabilitati(): void
     {
         $user = $this->createValabilitatiUser();
 
-        $insideDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Compatibil Legacy']);
-        $outsideDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'În afara Legacy']);
+        $finishedDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Terminate']);
+        $activeDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Active']);
 
-        $inside = Valabilitate::factory()->create([
-            'divizie_id' => $insideDivizie->id,
-            'data_inceput' => '2025-03-10',
+        $finished = Valabilitate::factory()->create([
+            'divizie_id' => $finishedDivizie->id,
             'data_sfarsit' => '2025-03-20',
         ]);
 
         Valabilitate::factory()->create([
-            'divizie_id' => $outsideDivizie->id,
-            'data_inceput' => '2025-03-25',
-            'data_sfarsit' => '2025-03-28',
+            'divizie_id' => $activeDivizie->id,
+            'data_sfarsit' => null,
         ]);
 
         $response = $this->actingAs($user)->get(route('valabilitati.index', [
-            'interval_start' => '2025-03-05',
-            'interval_end' => '2025-03-15',
+            'status' => 'finished',
         ]));
 
         $response->assertOk();
-        $response->assertSeeText($insideDivizie->nume);
-        $response->assertDontSeeText($outsideDivizie->nume);
+        $response->assertSeeText($finishedDivizie->nume);
+        $response->assertDontSeeText($activeDivizie->nume);
+        $this->assertNotNull($finished->fresh()->data_sfarsit);
+    }
+
+    public function test_can_list_all_valabilitati_when_requested(): void
+    {
+        $user = $this->createValabilitatiUser();
+
+        $finishedDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Listată']);
+        $activeDivizie = ValabilitatiDivizie::factory()->create(['nume' => 'Tot listată']);
+
+        Valabilitate::factory()->create([
+            'divizie_id' => $finishedDivizie->id,
+            'data_sfarsit' => '2025-04-01',
+        ]);
+
+        Valabilitate::factory()->create([
+            'divizie_id' => $activeDivizie->id,
+            'data_sfarsit' => null,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('valabilitati.index', [
+            'status' => 'all',
+        ]));
+
+        $response->assertOk();
+        $response->assertSeeText($finishedDivizie->nume);
+        $response->assertSeeText($activeDivizie->nume);
     }
 
     private function createValabilitatiUser(): User
