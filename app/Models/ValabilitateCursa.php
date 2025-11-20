@@ -34,6 +34,10 @@ class ValabilitateCursa extends Model
         'km_cu_taxa',
         'km_flash_gol',
         'km_flash_plin',
+        'alte_taxe',
+        'fuel_tax',
+        'suma_incasata',
+        'daily_contribution_incasata',
     ];
 
     protected $casts = [
@@ -47,6 +51,10 @@ class ValabilitateCursa extends Model
         'km_cu_taxa' => 'integer',
         'km_flash_gol' => 'integer',
         'km_flash_plin' => 'integer',
+        'alte_taxe' => 'decimal:2',
+        'fuel_tax' => 'decimal:2',
+        'suma_incasata' => 'decimal:2',
+        'daily_contribution_incasata' => 'decimal:2',
     ];
 
     public function incarcareTara(): BelongsTo
