@@ -1,6 +1,18 @@
 @extends('layouts.app')
 
 @section('content')
+    @php
+        $formatNumber = function ($value, int $decimals = 2): string {
+            if ($value === null || $value === '') {
+                return '';
+            }
+
+            $trimmed = rtrim(rtrim(number_format((float) $value, $decimals, '.', ''), '0'), '.');
+
+            return $trimmed === '-0' ? '0' : $trimmed;
+        };
+    @endphp
+
     <style>
         .curse-summary-table,
         .alimentari-table {
@@ -142,13 +154,13 @@
                                 <th class="text-center">CONSUM</th>
                             </tr>
                             <tr class="bg-secondary bg-opacity-25">
-                                <th class="text-center">{{ number_format($totalLitri, 2) }}</th>
+                                <th class="text-center">{{ $formatNumber($totalLitri, 2) }}</th>
                                 <th class="text-center">
-                                    {{ $averagePret !== null ? number_format($averagePret, 4) : '—' }}
+                                    {{ $averagePret !== null ? $formatNumber($averagePret, 4) : '—' }}
                                 </th>
-                                <th class="text-center">{{ number_format($totalPret, 4) }}</th>
+                                <th class="text-center">{{ $formatNumber($totalPret, 4) }}</th>
                                 <th class="text-center">
-                                    {{ $consum !== null ? number_format($consum, 2) : '—' }}
+                                    {{ $consum !== null ? $formatNumber($consum, 2) : '—' }}
                                 </th>
                             </tr>
                         </thead>
@@ -169,9 +181,9 @@
                             @forelse ($alimentari as $alimentare)
                                 <tr>
                                     <td class="fw-semibold">{{ optional($alimentare->data_ora_alimentare)->format('d.m.Y H:i') }}</td>
-                                    <td class="text-end">{{ number_format((float) $alimentare->litrii, 2) }}</td>
-                                    <td class="text-end">{{ number_format((float) $alimentare->pret_pe_litru, 4) }}</td>
-                                    <td class="text-end">{{ number_format((float) $alimentare->total_pret, 4) }}</td>
+                                    <td class="text-end">{{ $formatNumber($alimentare->litrii, 2) }}</td>
+                                    <td class="text-end">{{ $formatNumber($alimentare->pret_pe_litru, 4) }}</td>
+                                    <td class="text-end">{{ $formatNumber($alimentare->total_pret, 4) }}</td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center flex-wrap alimentari-actions">
                                             <button
@@ -249,7 +261,7 @@
                                             name="litrii"
                                             id="litrii"
                                             class="form-control"
-                                            value="{{ old('litrii') }}"
+                                            value="{{ $formatNumber(old('litrii'), 2) }}"
                                             required
                                         >
                                     </div>
@@ -262,7 +274,7 @@
                                             name="pret_pe_litru"
                                             id="pret_pe_litru"
                                             class="form-control"
-                                            value="{{ old('pret_pe_litru') }}"
+                                            value="{{ $formatNumber(old('pret_pe_litru'), 4) }}"
                                             required
                                         >
                                     </div>
@@ -275,7 +287,7 @@
                                             name="total_pret"
                                             id="total_pret"
                                             class="form-control"
-                                            value="{{ old('total_pret') }}"
+                                            value="{{ $formatNumber(old('total_pret'), 4) }}"
                                             required
                                         >
                                     </div>
@@ -346,7 +358,7 @@
                                                 name="litrii"
                                                 id="litrii_{{ $alimentare->id }}"
                                                 class="form-control"
-                                                value="{{ $shouldPrefillFromOld ? old('litrii') : $alimentare->litrii }}"
+                                                value="{{ $shouldPrefillFromOld ? $formatNumber(old('litrii'), 2) : $formatNumber($alimentare->litrii, 2) }}"
                                                 required
                                             >
                                         </div>
@@ -359,7 +371,7 @@
                                                 name="pret_pe_litru"
                                                 id="pret_pe_litru_{{ $alimentare->id }}"
                                                 class="form-control"
-                                                value="{{ $shouldPrefillFromOld ? old('pret_pe_litru') : $alimentare->pret_pe_litru }}"
+                                                value="{{ $shouldPrefillFromOld ? $formatNumber(old('pret_pe_litru'), 4) : $formatNumber($alimentare->pret_pe_litru, 4) }}"
                                                 required
                                             >
                                         </div>
@@ -372,7 +384,7 @@
                                                 name="total_pret"
                                                 id="total_pret_{{ $alimentare->id }}"
                                                 class="form-control"
-                                                value="{{ $shouldPrefillFromOld ? old('total_pret') : $alimentare->total_pret }}"
+                                                value="{{ $shouldPrefillFromOld ? $formatNumber(old('total_pret'), 4) : $formatNumber($alimentare->total_pret, 4) }}"
                                                 required
                                             >
                                         </div>
