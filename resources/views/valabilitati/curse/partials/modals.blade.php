@@ -549,7 +549,6 @@
                                         id="cursa-create-alte-taxe"
                                         class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('alte_taxe') ? 'is-invalid' : '' }}"
                                         value="{{ $createAlteTaxe }}"
-                                        min="0"
                                         step="0.01"
                                     >
                                     <div
@@ -567,7 +566,6 @@
                                         id="cursa-create-fuel-tax"
                                         class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('fuel_tax') ? 'is-invalid' : '' }}"
                                         value="{{ $createFuelTax }}"
-                                        min="0"
                                         step="0.01"
                                     >
                                     <div
@@ -585,7 +583,6 @@
                                         id="cursa-create-suma-incasata"
                                         class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('suma_incasata') ? 'is-invalid' : '' }}"
                                         value="{{ $createSumaIncasata }}"
-                                        min="0"
                                         step="0.01"
                                     >
                                     <div
@@ -603,7 +600,6 @@
                                         id="cursa-create-daily-contribution"
                                         class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('daily_contribution_incasata') ? 'is-invalid' : '' }}"
                                         value="{{ $createDailyContributionIncasata }}"
-                                        min="0"
                                         step="0.01"
                                     >
                                     <div
@@ -1117,7 +1113,6 @@
                                         id="{{ $editPrefix }}alte-taxe"
                                         class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('alte_taxe') ? 'is-invalid' : '' }}"
                                         value="{{ $editAlteTaxe }}"
-                                        min="0"
                                         step="0.01"
                                     >
                                     <div
@@ -1135,7 +1130,6 @@
                                         id="{{ $editPrefix }}fuel-tax"
                                         class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('fuel_tax') ? 'is-invalid' : '' }}"
                                         value="{{ $editFuelTax }}"
-                                        min="0"
                                         step="0.01"
                                     >
                                     <div
@@ -1153,7 +1147,6 @@
                                         id="{{ $editPrefix }}suma-incasata"
                                         class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('suma_incasata') ? 'is-invalid' : '' }}"
                                         value="{{ $editSumaIncasata }}"
-                                        min="0"
                                         step="0.01"
                                     >
                                     <div
@@ -1171,7 +1164,6 @@
                                         id="{{ $editPrefix }}daily-contribution"
                                         class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('daily_contribution_incasata') ? 'is-invalid' : '' }}"
                                         value="{{ $editDailyContributionIncasata }}"
-                                        min="0"
                                         step="0.01"
                                     >
                                     <div
