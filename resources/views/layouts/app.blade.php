@@ -55,7 +55,9 @@
             {{-- style="background-color: #2f5c8f" --}}
         >
             <div class="container">
-                <a class="navbar-brand me-5" href="{{ $brandHref }}">
+                <a class="navbar-brand me-5"
+                    {{-- href="{{ $brandHref }}" --}}
+                    >
                     {{ config('app.name', 'Laravel') }}
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
