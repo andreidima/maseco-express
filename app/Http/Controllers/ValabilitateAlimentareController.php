@@ -8,7 +8,10 @@ use App\Models\ValabilitatiAlimentare;
 use App\Models\Valabilitate;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class ValabilitateAlimentareController extends Controller
 {
@@ -82,6 +85,55 @@ class ValabilitateAlimentareController extends Controller
             ->with('status', 'Alimentarea a fost actualizată.');
     }
 
+    public function updateField(
+        Request $request,
+        Valabilitate $valabilitate,
+        ValabilitatiAlimentare $alimentare
+    ): JsonResponse {
+        $this->assertBelongsToValabilitate($valabilitate, $alimentare);
+
+        $this->authorize('update', $valabilitate);
+
+        $field = $request->input('field');
+
+        $rules = match ($field) {
+            'data_ora_alimentare' => ['required', 'date'],
+            'litrii', 'pret_pe_litru', 'total_pret' => ['required', 'numeric', 'min:0'],
+            'observatii' => ['nullable', 'string'],
+            default => null,
+        };
+
+        if ($rules === null) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Câmp invalid.',
+            ], 422);
+        }
+
+        $validator = Validator::make($request->only('value'), ['value' => $rules]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first('value'),
+            ], 422);
+        }
+
+        $value = $validator->validated()['value'];
+
+        if ($field === 'data_ora_alimentare') {
+            $value = Carbon::parse($value);
+        }
+
+        $alimentare->update([$field => $value]);
+
+        return response()->json([
+            'status' => 'success',
+            'value' => $this->normalizeFieldValue($alimentare, $field),
+            'displayValue' => $this->formatField($alimentare, $field),
+        ]);
+    }
+
     public function destroy(
         Valabilitate $valabilitate,
         ValabilitatiAlimentare $alimentare
@@ -102,6 +154,41 @@ class ValabilitateAlimentareController extends Controller
         if ($alimentare->valabilitate_id !== $valabilitate->getKey()) {
             abort(404);
         }
+    }
+
+    private function formatField(ValabilitatiAlimentare $alimentare, string $field): string
+    {
+        return match ($field) {
+            'data_ora_alimentare' => optional($alimentare->data_ora_alimentare)?->format('d.m.Y H:i') ?? '',
+            'litrii' => $this->formatNumber($alimentare->litrii, 2),
+            'pret_pe_litru' => $this->formatNumber($alimentare->pret_pe_litru, 4),
+            'total_pret' => $this->formatNumber($alimentare->total_pret, 4),
+            'observatii' => (string) $alimentare->observatii,
+            default => '',
+        };
+    }
+
+    private function normalizeFieldValue(ValabilitatiAlimentare $alimentare, string $field): string
+    {
+        return match ($field) {
+            'data_ora_alimentare' => optional($alimentare->data_ora_alimentare)?->format('Y-m-d\\TH:i') ?? '',
+            'litrii' => $this->formatNumber($alimentare->litrii, 2),
+            'pret_pe_litru' => $this->formatNumber($alimentare->pret_pe_litru, 4),
+            'total_pret' => $this->formatNumber($alimentare->total_pret, 4),
+            'observatii' => (string) $alimentare->observatii,
+            default => '',
+        };
+    }
+
+    private function formatNumber($value, int $decimals = 2): string
+    {
+        if ($value === null || $value === '') {
+            return '';
+        }
+
+        $trimmed = rtrim(rtrim(number_format((float) $value, $decimals, '.', ''), '0'), '.');
+
+        return $trimmed === '-0' ? '0' : $trimmed;
     }
 
     protected function perPage(): int
