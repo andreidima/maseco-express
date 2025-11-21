@@ -390,6 +390,8 @@ Route::middleware(['auth'])->group(function () {
 
             Route::post('valabilitati/{valabilitate}/alimentari', [ValabilitateAlimentareController::class, 'store'])
                 ->name('valabilitati.alimentari.store');
+            Route::patch('valabilitati/{valabilitate}/alimentari/{alimentare}/field', [ValabilitateAlimentareController::class, 'updateField'])
+                ->name('valabilitati.alimentari.update-field');
             Route::put('valabilitati/{valabilitate}/alimentari/{alimentare}', [ValabilitateAlimentareController::class, 'update'])
                 ->name('valabilitati.alimentari.update');
             Route::delete('valabilitati/{valabilitate}/alimentari/{alimentare}', [ValabilitateAlimentareController::class, 'destroy'])
