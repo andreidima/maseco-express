@@ -163,31 +163,57 @@
                         </thead>
                     </table>
                 </div>
-                @php
-                    $alimentariRows = collect($alimentari->items())
-                        ->map(function ($alimentare) use ($formatNumber, $valabilitate) {
-                            return [
-                                'id' => $alimentare->id,
-                                'values' => [
-                                    'data_ora_alimentare' => optional($alimentare->data_ora_alimentare)?->format('Y-m-d\\TH:i'),
-                                    'litrii' => $formatNumber($alimentare->litrii, 2),
-                                    'pret_pe_litru' => $formatNumber($alimentare->pret_pe_litru, 4),
-                                    'total_pret' => $formatNumber($alimentare->total_pret, 4),
-                                ],
-                                'display_values' => [
-                                    'data_ora_alimentare' => optional($alimentare->data_ora_alimentare)?->format('d.m.Y H:i') ?? '',
-                                    'litrii' => $formatNumber($alimentare->litrii, 2),
-                                    'pret_pe_litru' => $formatNumber($alimentare->pret_pe_litru, 4),
-                                    'total_pret' => $formatNumber($alimentare->total_pret, 4),
-                                ],
-                                'update_url' => route('valabilitati.alimentari.update-field', [$valabilitate, $alimentare]),
-                                'delete_url' => route('valabilitati.alimentari.destroy', [$valabilitate, $alimentare]),
-                            ];
-                        })
-                        ->values();
-                @endphp
-
-                <alimentari-table :rows='@json($alimentariRows)' csrf-token="{{ csrf_token() }}"></alimentari-table>
+                <div class="table-responsive">
+                    <table class="table table-sm alimentari-table align-middle">
+                        <thead>
+                            <tr>
+                                <th>Dată / oră alimentare</th>
+                                <th class="text-end">Litrii</th>
+                                <th class="text-end">Preț / litru</th>
+                                <th class="text-end">Total preț</th>
+                                <th class="actions-column text-center">Acțiuni</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse ($alimentari as $alimentare)
+                                <tr>
+                                    <td class="fw-semibold">{{ optional($alimentare->data_ora_alimentare)->format('d.m.Y H:i') }}</td>
+                                    <td class="text-end">{{ $formatNumber($alimentare->litrii, 2) }}</td>
+                                    <td class="text-end">{{ $formatNumber($alimentare->pret_pe_litru, 4) }}</td>
+                                    <td class="text-end">{{ $formatNumber($alimentare->total_pret, 4) }}</td>
+                                    <td class="text-center">
+                                        <div class="d-flex justify-content-center flex-wrap alimentari-actions">
+                                            <button
+                                                class="btn btn-sm btn-outline-primary border border-dark"
+                                                type="button"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#alimentareEditModal-{{ $alimentare->id }}"
+                                            >
+                                                <i class="fa-solid fa-pen-to-square me-1"></i>
+                                            </button>
+                                            <form
+                                                method="POST"
+                                                action="{{ route('valabilitati.alimentari.destroy', [$valabilitate, $alimentare]) }}"
+                                                class="d-inline"
+                                                onsubmit="return confirm('Sigur ștergi această alimentare?');"
+                                            >
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger border border-dark">
+                                                    <i class="fa-solid fa-trash me-1"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center py-4">Nu există alimentări salvate.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
                 <div class="mt-3">
                     {{ $alimentari->links() }}
