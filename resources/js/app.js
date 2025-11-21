@@ -25,14 +25,12 @@ const AsyncDirectoryTree = defineAsyncComponent(() => import('./components/fileM
 const AsyncInlineObservatiiEditor = defineAsyncComponent(() => import('./components/keyPerformanceIndicators/InlineObservatiiEditor.vue'));
 const AsyncTogglePredat = defineAsyncComponent(() => import('./components/intermedieri/TogglePredat.vue'));
 const AsyncDatepicker = defineAsyncComponent(() => import('./components/DatePicker.vue'));
-const AsyncAlimentariTable = defineAsyncComponent(() => import('./components/valabilitati/AlimentariTable.vue'));
 
 // Create Vue app
 const app = createApp({});
 
 // Register components globally (optional but recommended for reuse)
 app.component('VueDatepickerNext', AsyncDatepicker);
-app.component('AlimentariTable', AsyncAlimentariTable);
 // app.component('TiptapEditor', AsyncTiptapEditor);
 
 /**
