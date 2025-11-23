@@ -63,12 +63,6 @@ if (root) {
 
         cropperImage.onload = () => {
             destroyCropper();
-            // cropper = new Cropper(cropperImage, {
-            //     viewMode: 1,
-            //     autoCropArea: 1,
-            //     responsive: true,
-            //     background: false,
-            // });
             cropper = new Cropper(cropperImage, {
                 viewMode: 1,
                 autoCropArea: 1,
@@ -77,21 +71,19 @@ if (root) {
 
                 // Run when Cropper finished initializing
                 ready() {
-                    // Only auto‑zoom for *new* uploads
-                    if (mode !== 'create') {
-                        return;
-                    }
-
-                    const instance = this.cropper; // official way to get the instance :contentReference[oaicite:0]{index=0}
+                    const instance = this.cropper;
                     const imageData = instance.getImageData();
+                    const containerData = instance.getContainerData();
 
-                    // Current zoom ratio = rendered width / natural width
+                    // Ensure the image covers the cropper container (width or height) without shrinking.
                     const currentRatio = imageData.width / imageData.naturalWidth;
+                    const coverRatio = Math.max(
+                        containerData.width / imageData.naturalWidth,
+                        containerData.height / imageData.naturalHeight
+                    );
+                    const targetRatio = Math.max(currentRatio, coverRatio);
 
-                    // Increase it. 2x is a nice start; tweak this multiplier to taste.
-                    const targetRatio = Math.min(currentRatio * 2, 1); // clamp to 1 so we don't go crazy
-
-                    instance.zoomTo(targetRatio); // recommended to call zoomTo in ready() :contentReference[oaicite:1]{index=1}
+                    instance.zoomTo(targetRatio);
                 },
             });
 
