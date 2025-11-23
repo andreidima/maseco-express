@@ -50,6 +50,7 @@ use App\Http\Controllers\SoferValabilitateCursaController;
 use App\Http\Controllers\SoferValabilitateCursaImageController;
 use App\Http\Controllers\ValabilitateController;
 use App\Http\Controllers\ValabilitateCursaController;
+use App\Http\Controllers\ValabilitateCursaImageController;
 use App\Http\Controllers\ValabilitateCursaGrupController;
 use App\Http\Controllers\ValabilitateAlimentareController;
 use App\Http\Controllers\ValabilitatiDivizieController;
@@ -403,6 +404,13 @@ Route::middleware(['auth'])->group(function () {
                 ->name('valabilitati.curse.reorder');
             Route::delete('valabilitati/{valabilitate}/curse/{cursa}', [ValabilitateCursaController::class, 'destroy'])
                 ->name('valabilitati.curse.destroy');
+            Route::get('valabilitati/{valabilitate}/curse/{cursa}/imagini', [ValabilitateCursaImageController::class, 'index'])
+                ->name('valabilitati.curse.images.index');
+            Route::get(
+                'valabilitati/{valabilitate}/curse/{cursa}/imagini/{imagine}/download',
+                [ValabilitateCursaImageController::class, 'download']
+            )
+                ->name('valabilitati.curse.images.download');
 
             Route::post('valabilitati/{valabilitate}/alimentari', [ValabilitateAlimentareController::class, 'store'])
                 ->name('valabilitati.alimentari.store');

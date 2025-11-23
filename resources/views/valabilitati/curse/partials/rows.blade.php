@@ -374,35 +374,53 @@
 
         {{-- Acțiuni --}}
         <td class="text-end align-middle">
-            <div class="d-flex flex-wrap align-content-start justify-content-end">
-                <div class="ms-1">
-                    <a
-                        href="#" data-bs-toggle="modal"
-                        data-bs-target="#cursaEditModal{{ $cursa->id }}"
-                        class="flex"
-                        title="Modifică cursa"
-                        aria-label="Modifică cursa"
-                    >
-                        <span class="badge bg-primary d-inline-flex align-items-center justify-content-center" aria-hidden="true">
-                            <i class="fa-solid fa-pen-to-square"></i>
-                        </span>
-                        <span class="visually-hidden">Modifică</span>
-                    </a>
+            <div class="d-flex flex-column align-items-end gap-2">
+                <div class="d-flex flex-wrap align-content-start justify-content-end">
+                    <div class="ms-1">
+                        <a
+                            href="#" data-bs-toggle="modal"
+                            data-bs-target="#cursaEditModal{{ $cursa->id }}"
+                            class="flex"
+                            title="Modifică cursa"
+                            aria-label="Modifică cursa"
+                        >
+                            <span class="badge bg-primary d-inline-flex align-items-center justify-content-center" aria-hidden="true">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </span>
+                            <span class="visually-hidden">Modifică</span>
+                        </a>
+                    </div>
+                    <div class="ms-1">
+                        <a
+                            href="#"
+                            data-bs-toggle="modal"
+                            data-bs-target="#cursaDeleteModal{{ $cursa->id }}"
+                            class="flex"
+                            title="Șterge cursa"
+                            aria-label="Șterge cursa"
+                        >
+                            <span class="badge bg-danger d-inline-flex align-items-center justify-content-center" aria-hidden="true">
+                                <i class="fa-solid fa-trash"></i>
+                            </span>
+                        </a>
+                    </div>
                 </div>
-                <div class="ms-1">
-                    <a
-                        href="#"
-                        data-bs-toggle="modal"
-                        data-bs-target="#cursaDeleteModal{{ $cursa->id }}"
-                        class="flex"
-                        title="Șterge cursa"
-                        aria-label="Șterge cursa"
-                    >
-                        <span class="badge bg-danger d-inline-flex align-items-center justify-content-center" aria-hidden="true">
-                            <i class="fa-solid fa-trash"></i>
-                        </span>
-                    </a>
-                </div>
+
+                @if ($cursa->images->count())
+                    <div class="ms-1 d-flex align-items-center">
+                        <a
+                            href="{{ route('valabilitati.curse.images.index', [$valabilitate, $cursa]) }}"
+                            class="flex"
+                            title="Vezi imaginile cursei"
+                            aria-label="Vezi imaginile cursei"
+                        >
+                            <span class="badge bg-info text-dark d-inline-flex align-items-center justify-content-center" aria-hidden="true">
+                                <i class="fa-solid fa-images"></i>
+                            </span>
+                            <span class="visually-hidden">Imagini cursă</span>
+                        </a>
+                    </div>
+                @endif
             </div>
         </td>
     </tr>
