@@ -16,10 +16,9 @@
       "resources/js/components/fileManager/DirectoryTree.vue",
       "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.vue",
       "resources/js/components/intermedieri/TogglePredat.vue",
-      "resources/js/components/DatePicker.vue",
-      "resources/js/components/valabilitati/AlimentariTable.vue"
+      "resources/js/components/DatePicker.vue"
     ],
-    "file": "assets/app-a006bb0d.js",
+    "file": "assets/app-8cd23456.js",
     "isEntry": true,
     "src": "resources/js/app.js"
   },
@@ -31,7 +30,7 @@
     "css": [
       "assets/DatePicker-3bf3781e.css"
     ],
-    "file": "assets/DatePicker-8396e60b.js",
+    "file": "assets/DatePicker-b2d882ad.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -47,7 +46,7 @@
     "css": [
       "assets/JspreadsheetComponent-2623a89e.css"
     ],
-    "file": "assets/JspreadsheetComponent-619d8436.js",
+    "file": "assets/JspreadsheetComponent-bdec8fe1.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -56,14 +55,14 @@
     "src": "resources/js/components/JspreadsheetComponent.vue"
   },
   "resources/js/components/TiptapEditor.css": {
-    "file": "assets/TiptapEditor-c427340f.css",
+    "file": "assets/TiptapEditor-ddb98adb.css",
     "src": "resources/js/components/TiptapEditor.css"
   },
   "resources/js/components/TiptapEditor.vue": {
     "css": [
-      "assets/TiptapEditor-c427340f.css"
+      "assets/TiptapEditor-ddb98adb.css"
     ],
-    "file": "assets/TiptapEditor-f6af9442.js",
+    "file": "assets/TiptapEditor-00674abb.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -79,7 +78,7 @@
     "css": [
       "assets/DirectoryTree-8d647b14.css"
     ],
-    "file": "assets/DirectoryTree-2d2455df.js",
+    "file": "assets/DirectoryTree-0aaf2f6b.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -95,7 +94,7 @@
     "css": [
       "assets/TogglePredat-65267045.css"
     ],
-    "file": "assets/TogglePredat-c0a56e15.js",
+    "file": "assets/TogglePredat-d8115c2f.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -111,7 +110,7 @@
     "css": [
       "assets/InlineObservatiiEditor-4365ca00.css"
     ],
-    "file": "assets/InlineObservatiiEditor-dd9a911d.js",
+    "file": "assets/InlineObservatiiEditor-dc7ca431.js",
     "imports": [
       "resources/js/app.js",
       "__plugin-vue_export-helper-c27b6911.js"
@@ -119,13 +118,17 @@
     "isDynamicEntry": true,
     "src": "resources/js/components/keyPerformanceIndicators/InlineObservatiiEditor.vue"
   },
-  "resources/js/components/valabilitati/AlimentariTable.vue": {
-    "file": "assets/AlimentariTable-15df55f6.js",
-    "imports": [
-      "resources/js/app.js"
+  "resources/js/sofer-valabilitate-imagini.css": {
+    "file": "assets/sofer-valabilitate-imagini-5164ddd1.css",
+    "src": "resources/js/sofer-valabilitate-imagini.css"
+  },
+  "resources/js/sofer-valabilitate-imagini.js": {
+    "css": [
+      "assets/sofer-valabilitate-imagini-5164ddd1.css"
     ],
-    "isDynamicEntry": true,
-    "src": "resources/js/components/valabilitati/AlimentariTable.vue"
+    "file": "assets/sofer-valabilitate-imagini-846fdfdd.js",
+    "isEntry": true,
+    "src": "resources/js/sofer-valabilitate-imagini.js"
   },
   "resources/sass/app.scss": {
     "file": "assets/app-67dcdfd2.css",

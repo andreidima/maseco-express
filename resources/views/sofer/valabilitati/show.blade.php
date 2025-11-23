@@ -230,6 +230,14 @@
                                                 <span class="d-none d-sm-inline ms-1">Editează</span>
                                             </a>
 
+                                            <a
+                                                href="{{ route('sofer.valabilitati.curse.imagini.index', [$valabilitate, $cursa]) }}"
+                                                class="btn btn-outline-secondary btn-sm"
+                                            >
+                                                <i class="fa-solid fa-images"></i>
+                                                <span class="d-none d-sm-inline ms-1">Imagini</span>
+                                            </a>
+
                                             <button
                                                 type="button"
                                                 class="btn btn-outline-danger btn-sm"

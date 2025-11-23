@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\ValabilitateCursaImage;
 use App\Models\ValabilitateCursaGrup;
 
 class ValabilitateCursa extends Model
@@ -75,6 +77,11 @@ class ValabilitateCursa extends Model
     public function cursaGrup(): BelongsTo
     {
         return $this->belongsTo(ValabilitateCursaGrup::class, 'cursa_grup_id');
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(ValabilitateCursaImage::class, 'valabilitate_cursa_id');
     }
 
     protected static function booted(): void

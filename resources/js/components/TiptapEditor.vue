@@ -925,7 +925,7 @@ export default {
 }
 .editor-container table th,
 .editor-container table td {
-  border: 1px solid #ddd;
+  border: 1px solid #000;
   padding: 5px;
   text-align: left;
 }

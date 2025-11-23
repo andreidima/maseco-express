@@ -79,7 +79,7 @@
         }
 
         .curse-data-header-bottom th {
-            top: 2.75rem;
+            top: 1.65rem;
             border-top: none;
         }
 

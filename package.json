@@ -30,6 +30,7 @@
         "@tiptap/extension-underline": "^2.11.0",
         "@tiptap/starter-kit": "^2.11.0",
         "@tiptap/vue-3": "^2.11.0",
+        "cropperjs": "^1.6.2",
         "jspreadsheet-ce": "^4.15.0",
         "vue-datepicker-next": "^1.0.2"
     }

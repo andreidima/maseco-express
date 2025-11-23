@@ -47,6 +47,7 @@ use App\Http\Controllers\Tech\MigrationCenterController;
 use App\Http\Controllers\Tech\SeederCenterController;
 use App\Http\Controllers\SoferDashboardController;
 use App\Http\Controllers\SoferValabilitateCursaController;
+use App\Http\Controllers\SoferValabilitateCursaImageController;
 use App\Http\Controllers\ValabilitateController;
 use App\Http\Controllers\ValabilitateCursaController;
 use App\Http\Controllers\ValabilitateCursaGrupController;
@@ -111,6 +112,21 @@ Route::middleware(['auth'])->group(function () {
             ->name('sofer.valabilitati.curse.reorder');
         Route::delete('sofer/valabilitati/{valabilitate}/curse/{cursa}', [SoferValabilitateCursaController::class, 'destroy'])
             ->name('sofer.valabilitati.curse.destroy');
+
+        Route::prefix('sofer/valabilitati/{valabilitate}/curse/{cursa}/imagini')
+            ->name('sofer.valabilitati.curse.imagini.')
+            ->group(function () {
+                Route::get('', [SoferValabilitateCursaImageController::class, 'index'])
+                    ->name('index');
+                Route::post('', [SoferValabilitateCursaImageController::class, 'store'])
+                    ->name('store');
+                Route::get('{imagine}/stream', [SoferValabilitateCursaImageController::class, 'stream'])
+                    ->name('stream');
+                Route::put('{imagine}', [SoferValabilitateCursaImageController::class, 'update'])
+                    ->name('update');
+                Route::delete('{imagine}', [SoferValabilitateCursaImageController::class, 'destroy'])
+                    ->name('destroy');
+            });
     });
 
     Route::middleware('permission:dashboard')->group(function () {
@@ -466,6 +482,4 @@ Route::middleware(['auth'])->group(function () {
         return 'All caches cleared';
     });
 });
-
-
 
