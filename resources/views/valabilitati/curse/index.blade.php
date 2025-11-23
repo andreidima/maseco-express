@@ -274,8 +274,8 @@
                             </tr>
                             <tr class="curse-data-header-bottom">
                                 @if ($isFlashDivision)
-                                    <th class="text-end curse-nowrap">Km gol</th>
-                                    <th class="text-end curse-nowrap">Km plin</th>
+                                    <th class="text-end curse-nowrap">Km Maps gol</th>
+                                    <th class="text-end curse-nowrap">Km Maps plin</th>
                                     <th class="text-end curse-nowrap">Km gol</th>
                                     <th class="text-end curse-nowrap">Km plin</th>
                                     <th class="text-end curse-nowrap">Km gol</th>
@@ -287,8 +287,8 @@
                                     <th class="text-end curse-nowrap">Calculat</th>
                                     <th class="text-end curse-nowrap">Încasat</th>
                                 @else
-                                    <th class="text-end curse-nowrap">Km gol</th>
-                                    <th class="text-end curse-nowrap">Km plin</th>
+                                    <th class="text-end curse-nowrap">Km Maps gol</th>
+                                    <th class="text-end curse-nowrap">Km Maps plin</th>
                                     <th class="text-end curse-nowrap">Plecare</th>
                                     <th class="text-end curse-nowrap">Sosire</th>
                                     <th class="text-end curse-nowrap">Km gol</th>
