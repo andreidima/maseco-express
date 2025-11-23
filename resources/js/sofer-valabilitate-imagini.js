@@ -119,14 +119,22 @@ if (root) {
                 );
                 const fallbackRatio = imageData.width / imageData.naturalWidth;
                 const targetRatio = containRatio > 0 ? containRatio : fallbackRatio;
-                const targetWidth = imageData.naturalWidth * targetRatio;
-                const targetHeight = imageData.naturalHeight * targetRatio;
-                const left = Math.max((containerWidth - targetWidth) / 2, 0) + paddingLeft;
-                const top = Math.max((containerHeight - targetHeight) / 2, 0) + paddingTop;
+                const scaledWidth = imageData.naturalWidth * targetRatio;
+                const scaledHeight = imageData.naturalHeight * targetRatio;
+                const finalWidth = Math.min(scaledWidth, availableWidth);
+                const finalHeight = Math.min(scaledHeight, availableHeight);
+                const left = Math.max((containerWidth - finalWidth) / 2, 0) + paddingLeft;
+                const top = Math.max((containerHeight - finalHeight) / 2, 0) + paddingTop;
 
                 instance.setCanvasData({
-                    width: targetWidth,
-                    height: targetHeight,
+                    width: finalWidth,
+                    height: finalHeight,
+                    left,
+                    top,
+                });
+                instance.setCropBoxData({
+                    width: finalWidth,
+                    height: finalHeight,
                     left,
                     top,
                 });
