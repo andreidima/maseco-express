@@ -69,6 +69,7 @@ if (root) {
             autoCropArea: 1,
             responsive: true,
             background: false,
+            restore: false,
 
             // Run when Cropper finished initializing
             ready() {
@@ -77,8 +78,12 @@ if (root) {
                 const containerData = instance.getContainerData();
                 const containerRect = cropperContainer?.getBoundingClientRect();
                 const containerStyle = window.getComputedStyle(cropperContainer);
-                const paddingX = parseFloat(containerStyle.paddingLeft || '0') + parseFloat(containerStyle.paddingRight || '0');
-                const paddingY = parseFloat(containerStyle.paddingTop || '0') + parseFloat(containerStyle.paddingBottom || '0');
+                const paddingLeft = parseFloat(containerStyle.paddingLeft || '0');
+                const paddingRight = parseFloat(containerStyle.paddingRight || '0');
+                const paddingTop = parseFloat(containerStyle.paddingTop || '0');
+                const paddingBottom = parseFloat(containerStyle.paddingBottom || '0');
+                const paddingX = paddingLeft + paddingRight;
+                const paddingY = paddingTop + paddingBottom;
 
                 // Fit the image inside the cropper container without overflowing it (account for padding).
                 const availableWidth = Math.max((containerRect?.width || containerData.width) - paddingX - 2, 0); // small margin to avoid bleed
@@ -91,8 +96,10 @@ if (root) {
                 const targetRatio = containRatio > 0 ? containRatio : fallbackRatio;
                 const targetWidth = imageData.naturalWidth * targetRatio;
                 const targetHeight = imageData.naturalHeight * targetRatio;
-                const left = Math.max((containerData.width - targetWidth) / 2, 0);
-                const top = Math.max((containerData.height - targetHeight) / 2, 0);
+                const containerWidth = Math.max((containerRect?.width || containerData.width) - paddingX, 0);
+                const containerHeight = Math.max((containerRect?.height || containerData.height) - paddingY, 0);
+                const left = Math.max((containerWidth - targetWidth) / 2, 0) + paddingLeft;
+                const top = Math.max((containerHeight - targetHeight) / 2, 0) + paddingTop;
 
                 instance.zoomTo(targetRatio);
                 instance.setCanvasData({

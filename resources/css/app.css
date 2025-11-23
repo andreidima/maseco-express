@@ -101,3 +101,36 @@
     background-color: #fd7e14 !important;
     color: #fff !important;
 }
+
+#cropperContainer.cropper-wrapper {
+    max-height: 70vh;
+    height: 70vh;
+    max-width: 100%;
+    width: 100%;
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+}
+
+.cropper-wrapper .cropper-container,
+.cropper-wrapper .cropper-wrap-box,
+.cropper-wrapper .cropper-drag-box,
+.cropper-wrapper .cropper-crop-box,
+.cropper-wrapper .cropper-canvas {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+.cropper-wrapper .cropper-container {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.cropper-image {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}

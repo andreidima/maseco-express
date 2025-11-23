@@ -141,14 +141,13 @@
             <div class="modal-body">
                 <div
                     id="cropperContainer"
-                    class="bg-light rounded mb-3 d-flex justify-content-center align-items-center p-2 overflow-hidden"
-                    style="max-height: 70vh; height: 70vh; max-width: 100%; width: 100%; margin: 0 auto;"
+                    class="bg-light rounded mb-3 d-flex justify-content-center align-items-center p-2 overflow-hidden cropper-wrapper"
                 >
                     <img
                         id="cropperImage"
                         src=""
                         alt="Crop imagine"
-                        style="object-fit: contain; max-width: 100%; max-height: 100%; width: 100%; height: 100%; display: block;"
+                        class="cropper-image"
                     >
                 </div>
                 <p class="small text-muted mb-0">
