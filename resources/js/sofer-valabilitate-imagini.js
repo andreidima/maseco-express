@@ -114,14 +114,15 @@ if (root) {
                 );
                 const fallbackRatio = imageData.width / imageData.naturalWidth;
                 const targetRatio = containRatio > 0 ? containRatio : fallbackRatio;
-                const targetWidth = imageData.naturalWidth * targetRatio;
-                const targetHeight = imageData.naturalHeight * targetRatio;
+                const insetRatio = targetRatio * 0.95; // show the image slightly smaller inside the container
+                const targetWidth = imageData.naturalWidth * insetRatio;
+                const targetHeight = imageData.naturalHeight * insetRatio;
                 const containerWidth = Math.max((containerRect?.width || containerData.width) - paddingX, 0);
                 const containerHeight = Math.max((containerRect?.height || containerData.height) - paddingY, 0);
                 const left = Math.max((containerWidth - targetWidth) / 2, 0) + paddingLeft;
                 const top = Math.max((containerHeight - targetHeight) / 2, 0) + paddingTop;
 
-                instance.zoomTo(targetRatio);
+                instance.zoomTo(insetRatio);
                 instance.setCanvasData({
                     width: targetWidth,
                     height: targetHeight,
