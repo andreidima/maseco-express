@@ -257,24 +257,6 @@ class ValabilitateCursaTest extends TestCase
         $response->assertSeeText('75');
     }
 
-    public function test_legacy_km_maps_value_populates_split_fields_for_display(): void
-    {
-        $user = $this->createValabilitatiUser();
-        $valabilitate = Valabilitate::factory()->create();
-        $cursa = ValabilitateCursa::factory()->for($valabilitate)->create([
-            'km_maps_gol' => null,
-            'km_maps_plin' => null,
-        ]);
-
-        $cursa->forceFill(['km_maps' => 175])->save();
-
-        $response = $this->actingAs($user)->get(route('valabilitati.curse.index', $valabilitate));
-
-        $this->assertSame(175, $cursa->fresh()->km_maps_plin);
-        $response->assertOk();
-        $response->assertSeeText('175');
-    }
-
     public function test_index_lists_curse_in_chronological_order(): void
     {
         $user = $this->createValabilitatiUser();

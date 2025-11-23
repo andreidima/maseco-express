@@ -111,19 +111,7 @@ class ValabilitateCursa extends Model
     protected function kmMapsPlin(): Attribute
     {
         return Attribute::make(
-            get: function ($value, array $attributes) {
-                $resolvedValue = $value;
-
-                if ($resolvedValue === '' || $resolvedValue === null) {
-                    $resolvedValue = $attributes['km_maps'] ?? null;
-                }
-
-                if ($resolvedValue === '' || $resolvedValue === null) {
-                    return null;
-                }
-
-                return (int) $resolvedValue;
-            }
+            get: fn ($value) => $value !== '' && $value !== null ? (int) $value : null
         );
     }
 }
