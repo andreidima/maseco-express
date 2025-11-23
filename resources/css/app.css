@@ -103,10 +103,9 @@
 }
 
 #cropperContainer.cropper-wrapper {
-    max-height: 70vh;
-    height: 70vh;
-    max-width: 100%;
+    max-width: min(850px, 92vw);
     width: 100%;
+    max-height: 70vh;
     margin: 0 auto;
     position: relative;
     overflow: hidden;
