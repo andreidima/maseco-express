@@ -23,6 +23,26 @@ if (root) {
 
     const defaultSaveLabel = saveButton.innerHTML;
 
+    const updateContainerSize = () => {
+        if (!cropperContainer || !cropperImage) {
+            return;
+        }
+
+        const naturalWidth = cropperImage.naturalWidth || 1;
+        const naturalHeight = cropperImage.naturalHeight || 1;
+        const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+        const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+
+        const targetMaxWidth = Math.min(viewportWidth * 0.94, 900);
+        const aspectRatio = naturalHeight / naturalWidth;
+        const targetWidth = targetMaxWidth;
+        const targetHeight = Math.min(targetWidth * aspectRatio, viewportHeight * 0.72);
+
+        cropperContainer.style.maxWidth = `${targetMaxWidth}px`;
+        cropperContainer.style.height = `${targetHeight}px`;
+        cropperContainer.style.maxHeight = `${Math.min(viewportHeight * 0.75, targetHeight)}px`;
+    };
+
     const mimeToExtension = (mime) => {
         if (mime?.includes('png')) return 'png';
         if (mime?.includes('webp')) return 'webp';
@@ -94,14 +114,15 @@ if (root) {
                 );
                 const fallbackRatio = imageData.width / imageData.naturalWidth;
                 const targetRatio = containRatio > 0 ? containRatio : fallbackRatio;
-                const targetWidth = imageData.naturalWidth * targetRatio;
-                const targetHeight = imageData.naturalHeight * targetRatio;
+                const insetRatio = targetRatio * 0.95; // show the image slightly smaller inside the container
+                const targetWidth = imageData.naturalWidth * insetRatio;
+                const targetHeight = imageData.naturalHeight * insetRatio;
                 const containerWidth = Math.max((containerRect?.width || containerData.width) - paddingX, 0);
                 const containerHeight = Math.max((containerRect?.height || containerData.height) - paddingY, 0);
                 const left = Math.max((containerWidth - targetWidth) / 2, 0) + paddingLeft;
                 const top = Math.max((containerHeight - targetHeight) / 2, 0) + paddingTop;
 
-                instance.zoomTo(targetRatio);
+                instance.zoomTo(insetRatio);
                 instance.setCanvasData({
                     width: targetWidth,
                     height: targetHeight,
@@ -122,6 +143,7 @@ if (root) {
 
         cropperImage.onload = () => {
             imageLoaded = true;
+            updateContainerSize();
             tryInitCropper();
         };
 
@@ -171,8 +193,11 @@ if (root) {
     });
 
     modalElement.addEventListener('shown.bs.modal', () => {
+        updateContainerSize();
         tryInitCropper();
     });
+
+    window.addEventListener('resize', updateContainerSize);
 
     saveButton?.addEventListener('click', () => {
         if (!cropper) {
