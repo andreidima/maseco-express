@@ -37,7 +37,6 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Livrare completă',
             'km_bord_incarcare' => 12345,
             'km_bord_descarcare' => 12500,
-            'km_maps' => '150',
             'km_maps_gol' => 50,
             'km_maps_plin' => 100,
             'km_cu_taxa' => 25,
@@ -61,7 +60,6 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Livrare completă',
             'km_bord_incarcare' => 12345,
             'km_bord_descarcare' => 12500,
-            'km_maps' => '150',
             'km_maps_gol' => 50,
             'km_maps_plin' => 100,
             'km_cu_taxa' => 25,
@@ -72,6 +70,8 @@ class ValabilitateCursaTest extends TestCase
         $cursa = ValabilitateCursa::firstOrFail();
         $this->assertInstanceOf(Carbon::class, $cursa->data_cursa);
         $this->assertSame('2025-05-01 08:30:00', $cursa->data_cursa->format('Y-m-d H:i:s'));
+        $this->assertSame(50, $cursa->km_maps_gol);
+        $this->assertSame(100, $cursa->km_maps_plin);
     }
 
     public function test_user_can_update_cursa_fields(): void
@@ -109,7 +109,6 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Actualizare detalii',
             'km_bord_incarcare' => 98765,
             'km_bord_descarcare' => 99000,
-            'km_maps' => '300',
             'km_maps_gol' => 120,
             'km_maps_plin' => 180,
             'km_cu_taxa' => 60,
@@ -133,13 +132,15 @@ class ValabilitateCursaTest extends TestCase
             'observatii' => 'Actualizare detalii',
             'km_bord_incarcare' => 98765,
             'km_bord_descarcare' => 99000,
-            'km_maps' => '300',
             'km_maps_gol' => 120,
             'km_maps_plin' => 180,
             'km_cu_taxa' => 60,
             'km_flash_gol' => 110,
             'km_flash_plin' => 175,
         ]);
+
+        $this->assertSame(120, $cursa->fresh()->km_maps_gol);
+        $this->assertSame(180, $cursa->fresh()->km_maps_plin);
     }
 
     public function test_ajax_update_returns_json_payload(): void
@@ -233,6 +234,45 @@ class ValabilitateCursaTest extends TestCase
         $response->assertSeeText('10.06.2025 16:20');
         $response->assertSeeText('15400');
         $response->assertSeeText('15900');
+    }
+
+    public function test_index_displays_split_maps_columns_and_values(): void
+    {
+        $user = $this->createValabilitatiUser();
+        $valabilitate = Valabilitate::factory()->create();
+        ValabilitateCursa::factory()->for($valabilitate)->create([
+            'nr_ordine' => 4,
+            'km_maps_gol' => 40,
+            'km_maps_plin' => 75,
+            'km_bord_incarcare' => 1000,
+            'km_bord_descarcare' => 1200,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('valabilitati.curse.index', $valabilitate));
+
+        $response->assertOk();
+        $response->assertSeeText('Km Maps gol');
+        $response->assertSeeText('Km Maps plin');
+        $response->assertSeeText('40');
+        $response->assertSeeText('75');
+    }
+
+    public function test_legacy_km_maps_value_populates_split_fields_for_display(): void
+    {
+        $user = $this->createValabilitatiUser();
+        $valabilitate = Valabilitate::factory()->create();
+        $cursa = ValabilitateCursa::factory()->for($valabilitate)->create([
+            'km_maps_gol' => null,
+            'km_maps_plin' => null,
+        ]);
+
+        $cursa->forceFill(['km_maps' => 175])->save();
+
+        $response = $this->actingAs($user)->get(route('valabilitati.curse.index', $valabilitate));
+
+        $this->assertSame(175, $cursa->fresh()->km_maps_plin);
+        $response->assertOk();
+        $response->assertSeeText('175');
     }
 
     public function test_index_lists_curse_in_chronological_order(): void

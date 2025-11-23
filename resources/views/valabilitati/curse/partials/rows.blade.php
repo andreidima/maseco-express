@@ -73,17 +73,12 @@
 
         $kmMapsGolValue = is_numeric($cursa->km_maps_gol) ? (float) $cursa->km_maps_gol : null;
         $kmMapsPlinValue = is_numeric($cursa->km_maps_plin) ? (float) $cursa->km_maps_plin : null;
-        $kmMapsValue = is_numeric($cursa->km_maps) ? (float) $cursa->km_maps : null;
         $kmMapsTotal = null;
         if ($kmMapsGolValue !== null || $kmMapsPlinValue !== null) {
             $kmMapsTotal = ($kmMapsGolValue ?? 0) + ($kmMapsPlinValue ?? 0);
-        } elseif ($kmMapsValue !== null) {
-            $kmMapsTotal = $kmMapsValue;
         }
         $kmMapsGolDisplay = $kmMapsGolValue !== null ? $kmMapsGolValue : '—';
-        $kmMapsPlinDisplay = $kmMapsPlinValue !== null
-            ? $kmMapsPlinValue
-            : ($kmMapsValue !== null ? $kmMapsValue : '—');
+        $kmMapsPlinDisplay = $kmMapsPlinValue !== null ? $kmMapsPlinValue : '—';
         $kmFlashGolValue = is_numeric($cursa->km_flash_gol) ? (float) $cursa->km_flash_gol : null;
         $kmFlashPlinValue = is_numeric($cursa->km_flash_plin) ? (float) $cursa->km_flash_plin : null;
         $kmCuTaxaValue = is_numeric($cursa->km_cu_taxa) ? (float) $cursa->km_cu_taxa : null;
