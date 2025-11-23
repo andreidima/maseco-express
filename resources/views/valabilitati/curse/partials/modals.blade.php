@@ -756,6 +756,9 @@
         if ($editCursaGrupId === null) {
             $editCursaGrupId = '';
         }
+        $hasMultipleCurse = $loop->count > 1;
+        $canMoveUp = $hasMultipleCurse && ! $loop->first;
+        $canMoveDown = $hasMultipleCurse && ! $loop->last;
     @endphp
     <div
         class="modal fade text-dark"
@@ -1222,6 +1225,80 @@
             </div>
         </div>
     </div>
+
+    @if ($hasMultipleCurse)
+        <div
+            class="modal fade text-dark"
+            id="cursaMoveUpModal{{ $cursa->id }}"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="cursaMoveUpModalLabel{{ $cursa->id }}"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-secondary text-white">
+                        <h5 class="modal-title" id="cursaMoveUpModalLabel{{ $cursa->id }}">Mută cursa mai sus</h5>
+                        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <form
+                        action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
+                        method="POST"
+                        class="curse-modal-form"
+                    >
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="direction" value="up">
+                        <div class="modal-body">
+                            Ești sigur că dorești să muți această cursă mai sus?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                            <button type="submit" class="btn btn-secondary text-white border border-dark rounded-3" @disabled(! $canMoveUp)>
+                                <i class="fa-solid fa-arrow-up me-1"></i>Mută mai sus
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div
+            class="modal fade text-dark"
+            id="cursaMoveDownModal{{ $cursa->id }}"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="cursaMoveDownModalLabel{{ $cursa->id }}"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-secondary text-white">
+                        <h5 class="modal-title" id="cursaMoveDownModalLabel{{ $cursa->id }}">Mută cursa mai jos</h5>
+                        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <form
+                        action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
+                        method="POST"
+                        class="curse-modal-form"
+                    >
+                        @csrf
+                        @method('PATCH')
+                        <input type="hidden" name="direction" value="down">
+                        <div class="modal-body">
+                            Ești sigur că dorești să muți această cursă mai jos?
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                            <button type="submit" class="btn btn-secondary text-white border border-dark rounded-3" @disabled(! $canMoveDown)>
+                                <i class="fa-solid fa-arrow-down me-1"></i>Mută mai jos
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div
         class="modal fade text-dark"
