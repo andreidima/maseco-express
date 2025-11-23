@@ -27,6 +27,7 @@ trait HandlesValabilitatiCurseListings
                 'incarcareTara',
                 'descarcareTara',
                 'cursaGrup',
+                'images',
             ])
             ->reorder()
             ->orderBy('nr_ordine')
