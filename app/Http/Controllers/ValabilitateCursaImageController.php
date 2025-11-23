@@ -5,12 +5,26 @@ namespace App\Http\Controllers;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
 use App\Models\ValabilitateCursaImage;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\PDF;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ValabilitateCursaImageController extends Controller
 {
+    public function index(Valabilitate $valabilitate, ValabilitateCursa $cursa): View
+    {
+        $this->authorize('view', $valabilitate);
+
+        $this->assertBelongsToValabilitate($valabilitate, $cursa);
+        $cursa->loadMissing('images');
+
+        return view('valabilitati.curse.imagini.index', [
+            'valabilitate' => $valabilitate,
+            'cursa' => $cursa,
+        ]);
+    }
+
     public function download(Valabilitate $valabilitate, ValabilitateCursa $cursa, ValabilitateCursaImage $imagine): StreamedResponse
     {
         $this->authorize('view', $valabilitate);

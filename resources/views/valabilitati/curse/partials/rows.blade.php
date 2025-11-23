@@ -407,28 +407,18 @@
                 </div>
 
                 @if ($cursa->images->count())
-                    <div class="d-flex flex-column align-items-end gap-1 w-100">
-                        @foreach ($cursa->images as $imagine)
-                            <div class="d-flex align-items-center justify-content-end gap-2 w-100">
-                                <div class="rounded overflow-hidden border" style="width: 64px; height: 64px;">
-                                    <img
-                                        src="{{ \Illuminate\Support\Facades\Storage::url($imagine->path) }}"
-                                        alt="{{ $imagine->original_name ?? 'Imagine cursă' }}"
-                                        class="img-fluid w-100 h-100 object-fit-cover"
-                                    >
-                                </div>
-                                <div class="d-flex flex-column align-items-end text-end small">
-                                    <span class="fw-semibold">{{ $imagine->original_name ?? 'Imagine cursă' }}</span>
-                                    <a
-                                        href="{{ route('valabilitati.curse.images.download', [$valabilitate, $cursa, $imagine]) }}"
-                                        class="link-primary d-inline-flex align-items-center gap-1"
-                                    >
-                                        <i class="fa-solid fa-file-arrow-down"></i>
-                                        <span>Descarcă PDF</span>
-                                    </a>
-                                </div>
-                            </div>
-                        @endforeach
+                    <div class="ms-1 d-flex align-items-center">
+                        <a
+                            href="{{ route('valabilitati.curse.images.index', [$valabilitate, $cursa]) }}"
+                            class="flex"
+                            title="Vezi imaginile cursei"
+                            aria-label="Vezi imaginile cursei"
+                        >
+                            <span class="badge bg-info text-dark d-inline-flex align-items-center justify-content-center" aria-hidden="true">
+                                <i class="fa-solid fa-images"></i>
+                            </span>
+                            <span class="visually-hidden">Imagini cursă</span>
+                        </a>
                     </div>
                 @endif
             </div>

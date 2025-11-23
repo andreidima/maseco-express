@@ -385,6 +385,35 @@ class ValabilitateCursaTest extends TestCase
         $this->assertStringContainsString('%PDF', $response->getContent());
     }
 
+    public function test_user_can_view_cursa_images_page(): void
+    {
+        $user = $this->createValabilitatiUser();
+        $valabilitate = Valabilitate::factory()->create();
+        $cursa = ValabilitateCursa::factory()->for($valabilitate)->create();
+
+        Storage::fake();
+
+        $path = 'valabilitati/curse/preview-image.png';
+        Storage::put($path, 'dummy');
+
+        $imagine = ValabilitateCursaImage::create([
+            'valabilitate_cursa_id' => $cursa->id,
+            'uploaded_by_user_id' => $user->id,
+            'path' => $path,
+            'mime_type' => 'image/png',
+            'size_bytes' => 5,
+            'original_name' => 'preview-image.png',
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            route('valabilitati.curse.images.index', [$valabilitate, $cursa])
+        );
+
+        $response->assertOk();
+        $response->assertSee('preview-image.png', false);
+        $response->assertSee(route('valabilitati.curse.images.download', [$valabilitate, $cursa, $imagine]), false);
+    }
+
     public function test_download_is_forbidden_without_permissions(): void
     {
         $valabilitate = Valabilitate::factory()->create();
