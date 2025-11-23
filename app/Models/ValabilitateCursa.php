@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Models\ValabilitateCursaImage;
 use App\Models\ValabilitateCursaGrup;
 
@@ -30,7 +31,6 @@ class ValabilitateCursa extends Model
         'observatii',
         'km_bord_incarcare',
         'km_bord_descarcare',
-        'km_maps',
         'km_maps_gol',
         'km_maps_plin',
         'km_cu_taxa',
@@ -93,5 +93,25 @@ class ValabilitateCursa extends Model
         static::deleted(static function (ValabilitateCursa $cursa): void {
             $cursa->valabilitate?->syncSummary();
         });
+    }
+
+    protected function kmMapsGol(): Attribute
+    {
+        return Attribute::make(
+            get: static function ($value) {
+                if ($value === '' || $value === null) {
+                    return null;
+                }
+
+                return (int) $value;
+            }
+        );
+    }
+
+    protected function kmMapsPlin(): Attribute
+    {
+        return Attribute::make(
+            get: fn ($value) => $value !== '' && $value !== null ? (int) $value : null
+        );
     }
 }
