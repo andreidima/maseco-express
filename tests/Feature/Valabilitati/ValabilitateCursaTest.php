@@ -8,8 +8,10 @@ use App\Models\User;
 use App\Models\Tara;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
+use App\Models\ValabilitateCursaImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ValabilitateCursaTest extends TestCase
@@ -350,6 +352,64 @@ class ValabilitateCursaTest extends TestCase
             'id' => $third->id,
             'nr_ordine' => 3,
         ]);
+    }
+
+    public function test_user_can_download_cursa_image_as_pdf(): void
+    {
+        $user = $this->createValabilitatiUser();
+        $valabilitate = Valabilitate::factory()->create();
+        $cursa = ValabilitateCursa::factory()->for($valabilitate)->create();
+
+        Storage::fake();
+
+        $path = 'valabilitati/curse/sample-image.png';
+        $imageBinary = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABAwEAffQF/QAAAABJRU5ErkJggg==');
+        Storage::put($path, $imageBinary);
+
+        $imagine = ValabilitateCursaImage::create([
+            'valabilitate_cursa_id' => $cursa->id,
+            'uploaded_by_user_id' => $user->id,
+            'path' => $path,
+            'mime_type' => 'image/png',
+            'size_bytes' => strlen($imageBinary),
+            'original_name' => 'sample-image.png',
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            route('valabilitati.curse.images.download', [$valabilitate, $cursa, $imagine])
+        );
+
+        $response->assertOk();
+        $this->assertStringContainsString('application/pdf', $response->headers->get('content-type'));
+        $this->assertStringContainsString('attachment; filename="sample-image.pdf"', $response->headers->get('content-disposition'));
+        $this->assertStringContainsString('%PDF', $response->getContent());
+    }
+
+    public function test_download_is_forbidden_without_permissions(): void
+    {
+        $valabilitate = Valabilitate::factory()->create();
+        $cursa = ValabilitateCursa::factory()->for($valabilitate)->create();
+        $user = User::factory()->create();
+
+        Storage::fake();
+        $path = 'valabilitati/curse/blocked.png';
+        $imageBinary = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABAwEAffQF/QAAAABJRU5ErkJggg==');
+        Storage::put($path, $imageBinary);
+
+        $imagine = ValabilitateCursaImage::create([
+            'valabilitate_cursa_id' => $cursa->id,
+            'uploaded_by_user_id' => $user->id,
+            'path' => $path,
+            'mime_type' => 'image/png',
+            'size_bytes' => strlen($imageBinary),
+            'original_name' => 'blocked.png',
+        ]);
+
+        $response = $this->actingAs($user)->get(
+            route('valabilitati.curse.images.download', [$valabilitate, $cursa, $imagine])
+        );
+
+        $response->assertForbidden();
     }
 
     private function createValabilitatiUser(): User

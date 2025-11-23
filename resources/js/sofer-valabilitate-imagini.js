@@ -138,6 +138,12 @@ if (root) {
                     left,
                     top,
                 });
+                instance.setCropBoxData({
+                    width: Math.min(targetWidth, availableWidth),
+                    height: Math.min(targetHeight, availableHeight),
+                    left: Math.max((containerWidth - Math.min(targetWidth, availableWidth)) / 2, 0) + paddingLeft,
+                    top: Math.max((containerHeight - Math.min(targetHeight, availableHeight)) / 2, 0) + paddingTop,
+                });
             },
         });
     };
