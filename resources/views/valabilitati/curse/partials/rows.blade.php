@@ -241,11 +241,10 @@
                             value="{{ $cursa->id }}"
                             data-cursa-id="{{ $cursa->id }}"
                         >
-                        <label class="form-check-label" for="{{ $checkboxId }}">{{ $cursa->nr_ordine }}</label>
-                    </div>                    
-                </div>
+                    </div>                 
 
-                <div class="d-flex align-items-center gap-2 fw-semibold">
+                    {{ $cursa->nr_ordine }}
+
                     @if ($hasMultipleCurse)
                         <div class="d-flex gap-1">
                             <button
