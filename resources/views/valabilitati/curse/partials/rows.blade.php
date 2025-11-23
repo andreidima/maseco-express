@@ -253,40 +253,26 @@
                 <div class="d-flex align-items-center gap-2 fw-semibold">
                     @if ($hasMultipleCurse)
                         <div class="d-flex gap-1">
-                            <form
-                                method="POST"
-                                action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
-                                class="mb-0"
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary p-0"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cursaMoveUpModal{{ $cursa->id }}"
+                                title="Mută cursa mai sus"
+                                @disabled(! $canMoveUp)
                             >
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="direction" value="up">
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm btn-outline-secondary p-0"
-                                    title="Mută cursa mai sus"
-                                    @disabled(! $canMoveUp)
-                                >
-                                    <i class="fa-solid fa-arrow-up"></i>
-                                </button>
-                            </form>
-                            <form
-                                method="POST"
-                                action="{{ route('valabilitati.curse.reorder', [$valabilitate, $cursa]) }}"
-                                class="mb-0"
+                                <i class="fa-solid fa-arrow-up"></i>
+                            </button>
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-outline-secondary p-0"
+                                data-bs-toggle="modal"
+                                data-bs-target="#cursaMoveDownModal{{ $cursa->id }}"
+                                title="Mută cursa mai jos"
+                                @disabled(! $canMoveDown)
                             >
-                                @csrf
-                                @method('PATCH')
-                                <input type="hidden" name="direction" value="down">
-                                <button
-                                    type="submit"
-                                    class="btn btn-sm btn-outline-secondary p-0"
-                                    title="Mută cursa mai jos"
-                                    @disabled(! $canMoveDown)
-                                >
-                                    <i class="fa-solid fa-arrow-down"></i>
-                                </button>
-                            </form>
+                                <i class="fa-solid fa-arrow-down"></i>
+                            </button>
                         </div>
                     @endif
                 </div>
