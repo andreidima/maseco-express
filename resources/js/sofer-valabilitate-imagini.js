@@ -33,10 +33,10 @@ if (root) {
         const viewportWidth = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
         const viewportHeight = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
 
-        const targetMaxWidth = Math.min(viewportWidth * 0.94, 900);
+        const targetMaxWidth = Math.min(viewportWidth * 0.9, 850);
         const aspectRatio = naturalHeight / naturalWidth;
         const targetWidth = targetMaxWidth;
-        const targetHeight = Math.min(targetWidth * aspectRatio, viewportHeight * 0.72);
+        const targetHeight = Math.min(targetWidth * aspectRatio, viewportHeight * 0.68);
 
         cropperContainer.style.maxWidth = `${targetMaxWidth}px`;
         cropperContainer.style.height = `${targetHeight}px`;
@@ -106,15 +106,15 @@ if (root) {
                 const paddingY = paddingTop + paddingBottom;
 
                 // Fit the image inside the cropper container without overflowing it (account for padding).
-                const availableWidth = Math.max((containerRect?.width || containerData.width) - paddingX - 2, 0); // small margin to avoid bleed
-                const availableHeight = Math.max((containerRect?.height || containerData.height) - paddingY - 2, 0);
+                const availableWidth = Math.max((containerRect?.width || containerData.width) - paddingX - 12, 0); // extra margin to avoid bleed
+                const availableHeight = Math.max((containerRect?.height || containerData.height) - paddingY - 12, 0);
                 const containRatio = Math.min(
                     availableWidth / imageData.naturalWidth,
                     availableHeight / imageData.naturalHeight
                 );
                 const fallbackRatio = imageData.width / imageData.naturalWidth;
                 const targetRatio = containRatio > 0 ? containRatio : fallbackRatio;
-                const insetRatio = targetRatio * 0.95; // show the image slightly smaller inside the container
+                const insetRatio = targetRatio * 0.9; // show the image smaller inside the container
                 const targetWidth = imageData.naturalWidth * insetRatio;
                 const targetHeight = imageData.naturalHeight * insetRatio;
                 const containerWidth = Math.max((containerRect?.width || containerData.width) - paddingX, 0);
