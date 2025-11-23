@@ -189,7 +189,6 @@
 
                             $createKmBordIncarcare = $isCreateActive ? old('km_bord_incarcare', '') : '';
                             $createKmBordDescarcare = $isCreateActive ? old('km_bord_descarcare', '') : '';
-                            $createKmMaps = $isCreateActive ? old('km_maps', '') : '';
                             $createKmMapsGol = $isCreateActive ? old('km_maps_gol', '') : '';
                             $createKmMapsPlin = $isCreateActive ? old('km_maps_plin', '') : '';
                             $createKmCuTaxa = $isCreateActive ? old('km_cu_taxa', '') : '';
@@ -393,100 +392,79 @@
                                     {{ $isCreateActive ? $errors->first('data_cursa') : '' }}
                                 </div>
                             </div>
-                            @unless ($isFlashDivision)
-                                <div class="col-md-4">
-                                    <label for="cursa-create-km-bord-incarcare" class="form-label">Km bord încărcare</label>
-                                    <input
-                                        type="number"
-                                        name="km_bord_incarcare"
-                                        id="cursa-create-km-bord-incarcare"
-                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_bord_incarcare') ? 'is-invalid' : '' }}"
-                                        value="{{ $createKmBordIncarcare }}"
-                                        min="0"
-                                        step="1"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isCreateActive && $errors->has('km_bord_incarcare') ? 'd-block' : '' }}"
-                                        data-error-for="km_bord_incarcare"
-                                    >
-                                        {{ $isCreateActive ? $errors->first('km_bord_incarcare') : '' }}
-                                    </div>
+                            <div class="col-md-4">
+                                <label for="cursa-create-km-bord-incarcare" class="form-label">Km bord încărcare</label>
+                                <input
+                                    type="number"
+                                    name="km_bord_incarcare"
+                                    id="cursa-create-km-bord-incarcare"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_bord_incarcare') ? 'is-invalid' : '' }}"
+                                    value="{{ $createKmBordIncarcare }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_bord_incarcare') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord_incarcare"
+                                >
+                                    {{ $isCreateActive ? $errors->first('km_bord_incarcare') : '' }}
                                 </div>
-                                <div class="col-md-4">
-                                    <label for="cursa-create-km-bord-descarcare" class="form-label">Km bord descărcare</label>
-                                    <input
-                                        type="number"
-                                        name="km_bord_descarcare"
-                                        id="cursa-create-km-bord-descarcare"
-                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_bord_descarcare') ? 'is-invalid' : '' }}"
-                                        value="{{ $createKmBordDescarcare }}"
-                                        min="0"
-                                        step="1"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isCreateActive && $errors->has('km_bord_descarcare') ? 'd-block' : '' }}"
-                                        data-error-for="km_bord_descarcare"
-                                    >
-                                        {{ $isCreateActive ? $errors->first('km_bord_descarcare') : '' }}
-                                    </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="cursa-create-km-bord-descarcare" class="form-label">Km bord descărcare</label>
+                                <input
+                                    type="number"
+                                    name="km_bord_descarcare"
+                                    id="cursa-create-km-bord-descarcare"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_bord_descarcare') ? 'is-invalid' : '' }}"
+                                    value="{{ $createKmBordDescarcare }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_bord_descarcare') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord_descarcare"
+                                >
+                                    {{ $isCreateActive ? $errors->first('km_bord_descarcare') : '' }}
                                 </div>
-                            @endunless
-                            @unless ($isFlashDivision)
-                                <div class="col-md-4">
-                                    <label for="cursa-create-km-maps" class="form-label">Km Maps</label>
-                                    <input
-                                        type="text"
-                                        name="km_maps"
-                                        id="cursa-create-km-maps"
-                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_maps') ? 'is-invalid' : '' }}"
-                                        value="{{ $createKmMaps }}"
-                                        maxlength="255"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isCreateActive && $errors->has('km_maps') ? 'd-block' : '' }}"
-                                        data-error-for="km_maps"
-                                    >
-                                        {{ $isCreateActive ? $errors->first('km_maps') : '' }}
-                                    </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="cursa-create-km-maps-gol" class="form-label">Km Maps gol</label>
+                                <input
+                                    type="number"
+                                    name="km_maps_gol"
+                                    id="cursa-create-km-maps-gol"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_maps_gol') ? 'is-invalid' : '' }}"
+                                    value="{{ $createKmMapsGol }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_maps_gol') ? 'd-block' : '' }}"
+                                    data-error-for="km_maps_gol"
+                                >
+                                    {{ $isCreateActive ? $errors->first('km_maps_gol') : '' }}
                                 </div>
-                            @endunless
+                            </div>
+                            <div class="col-md-4">
+                                <label for="cursa-create-km-maps-plin" class="form-label">Km Maps plin</label>
+                                <input
+                                    type="number"
+                                    name="km_maps_plin"
+                                    id="cursa-create-km-maps-plin"
+                                    class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_maps_plin') ? 'is-invalid' : '' }}"
+                                    value="{{ $createKmMapsPlin }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isCreateActive && $errors->has('km_maps_plin') ? 'd-block' : '' }}"
+                                    data-error-for="km_maps_plin"
+                                >
+                                    {{ $isCreateActive ? $errors->first('km_maps_plin') : '' }}
+                                </div>
+                            </div>
                             @if ($isFlashDivision)
-                                <div class="col-md-4">
-                                    <label for="cursa-create-km-maps-gol" class="form-label">Km Maps gol</label>
-                                    <input
-                                        type="number"
-                                        name="km_maps_gol"
-                                        id="cursa-create-km-maps-gol"
-                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_maps_gol') ? 'is-invalid' : '' }}"
-                                        value="{{ $createKmMapsGol }}"
-                                        min="0"
-                                        step="1"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isCreateActive && $errors->has('km_maps_gol') ? 'd-block' : '' }}"
-                                        data-error-for="km_maps_gol"
-                                    >
-                                        {{ $isCreateActive ? $errors->first('km_maps_gol') : '' }}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="cursa-create-km-maps-plin" class="form-label">Km Maps plin</label>
-                                    <input
-                                        type="number"
-                                        name="km_maps_plin"
-                                        id="cursa-create-km-maps-plin"
-                                        class="form-control bg-white rounded-3 {{ $isCreateActive && $errors->has('km_maps_plin') ? 'is-invalid' : '' }}"
-                                        value="{{ $createKmMapsPlin }}"
-                                        min="0"
-                                        step="1"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isCreateActive && $errors->has('km_maps_plin') ? 'd-block' : '' }}"
-                                        data-error-for="km_maps_plin"
-                                    >
-                                        {{ $isCreateActive ? $errors->first('km_maps_plin') : '' }}
-                                    </div>
-                                </div>
                                 <div class="col-md-4">
                                     <label for="cursa-create-km-cu-taxa" class="form-label">Km cu taxă</label>
                                     <input
@@ -704,10 +682,6 @@
         $editKmBordDescarcare = $isEditing ? old('km_bord_descarcare', $cursa->km_bord_descarcare) : $cursa->km_bord_descarcare;
         if ($editKmBordDescarcare === null) {
             $editKmBordDescarcare = '';
-        }
-        $editKmMaps = $isEditing ? old('km_maps', $cursa->km_maps) : $cursa->km_maps;
-        if ($editKmMaps === null) {
-            $editKmMaps = '';
         }
         $editKmMapsGol = $isEditing ? old('km_maps_gol', $cursa->km_maps_gol) : $cursa->km_maps_gol;
         if ($editKmMapsGol === null) {
@@ -960,100 +934,79 @@
                                     {{ $isEditing ? $errors->first('data_cursa') : '' }}
                                 </div>
                             </div>
-                            @unless ($isFlashDivision)
-                                <div class="col-md-4">
-                                    <label for="{{ $editPrefix }}km-bord-incarcare" class="form-label">Km bord încărcare</label>
-                                    <input
-                                        type="number"
-                                        name="km_bord_incarcare"
-                                        id="{{ $editPrefix }}km-bord-incarcare"
-                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_bord_incarcare') ? 'is-invalid' : '' }}"
-                                        value="{{ $editKmBordIncarcare }}"
-                                        min="0"
-                                        step="1"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isEditing && $errors->has('km_bord_incarcare') ? 'd-block' : '' }}"
-                                        data-error-for="km_bord_incarcare"
-                                    >
-                                        {{ $isEditing ? $errors->first('km_bord_incarcare') : '' }}
-                                    </div>
+                            <div class="col-md-4">
+                                <label for="{{ $editPrefix }}km-bord-incarcare" class="form-label">Km bord încărcare</label>
+                                <input
+                                    type="number"
+                                    name="km_bord_incarcare"
+                                    id="{{ $editPrefix }}km-bord-incarcare"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_bord_incarcare') ? 'is-invalid' : '' }}"
+                                    value="{{ $editKmBordIncarcare }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('km_bord_incarcare') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord_incarcare"
+                                >
+                                    {{ $isEditing ? $errors->first('km_bord_incarcare') : '' }}
                                 </div>
-                                <div class="col-md-4">
-                                    <label for="{{ $editPrefix }}km-bord-descarcare" class="form-label">Km bord descărcare</label>
-                                    <input
-                                        type="number"
-                                        name="km_bord_descarcare"
-                                        id="{{ $editPrefix }}km-bord-descarcare"
-                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_bord_descarcare') ? 'is-invalid' : '' }}"
-                                        value="{{ $editKmBordDescarcare }}"
-                                        min="0"
-                                        step="1"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isEditing && $errors->has('km_bord_descarcare') ? 'd-block' : '' }}"
-                                        data-error-for="km_bord_descarcare"
-                                    >
-                                        {{ $isEditing ? $errors->first('km_bord_descarcare') : '' }}
-                                    </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ $editPrefix }}km-bord-descarcare" class="form-label">Km bord descărcare</label>
+                                <input
+                                    type="number"
+                                    name="km_bord_descarcare"
+                                    id="{{ $editPrefix }}km-bord-descarcare"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_bord_descarcare') ? 'is-invalid' : '' }}"
+                                    value="{{ $editKmBordDescarcare }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('km_bord_descarcare') ? 'd-block' : '' }}"
+                                    data-error-for="km_bord_descarcare"
+                                >
+                                    {{ $isEditing ? $errors->first('km_bord_descarcare') : '' }}
                                 </div>
-                            @endunless
-                            @unless ($isFlashDivision)
-                                <div class="col-md-4">
-                                    <label for="{{ $editPrefix }}km-maps" class="form-label">Km Maps</label>
-                                    <input
-                                        type="text"
-                                        name="km_maps"
-                                        id="{{ $editPrefix }}km-maps"
-                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_maps') ? 'is-invalid' : '' }}"
-                                        value="{{ $editKmMaps }}"
-                                        maxlength="255"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isEditing && $errors->has('km_maps') ? 'd-block' : '' }}"
-                                        data-error-for="km_maps"
-                                    >
-                                        {{ $isEditing ? $errors->first('km_maps') : '' }}
-                                    </div>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ $editPrefix }}km-maps-gol" class="form-label">Km Maps gol</label>
+                                <input
+                                    type="number"
+                                    name="km_maps_gol"
+                                    id="{{ $editPrefix }}km-maps-gol"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_maps_gol') ? 'is-invalid' : '' }}"
+                                    value="{{ $editKmMapsGol }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('km_maps_gol') ? 'd-block' : '' }}"
+                                    data-error-for="km_maps_gol"
+                                >
+                                    {{ $isEditing ? $errors->first('km_maps_gol') : '' }}
                                 </div>
-                            @endunless
+                            </div>
+                            <div class="col-md-4">
+                                <label for="{{ $editPrefix }}km-maps-plin" class="form-label">Km Maps plin</label>
+                                <input
+                                    type="number"
+                                    name="km_maps_plin"
+                                    id="{{ $editPrefix }}km-maps-plin"
+                                    class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_maps_plin') ? 'is-invalid' : '' }}"
+                                    value="{{ $editKmMapsPlin }}"
+                                    min="0"
+                                    step="1"
+                                >
+                                <div
+                                    class="invalid-feedback {{ $isEditing && $errors->has('km_maps_plin') ? 'd-block' : '' }}"
+                                    data-error-for="km_maps_plin"
+                                >
+                                    {{ $isEditing ? $errors->first('km_maps_plin') : '' }}
+                                </div>
+                            </div>
                             @if ($isFlashDivision)
-                                <div class="col-md-4">
-                                    <label for="{{ $editPrefix }}km-maps-gol" class="form-label">Km Maps gol</label>
-                                    <input
-                                        type="number"
-                                        name="km_maps_gol"
-                                        id="{{ $editPrefix }}km-maps-gol"
-                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_maps_gol') ? 'is-invalid' : '' }}"
-                                        value="{{ $editKmMapsGol }}"
-                                        min="0"
-                                        step="1"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isEditing && $errors->has('km_maps_gol') ? 'd-block' : '' }}"
-                                        data-error-for="km_maps_gol"
-                                    >
-                                        {{ $isEditing ? $errors->first('km_maps_gol') : '' }}
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <label for="{{ $editPrefix }}km-maps-plin" class="form-label">Km Maps plin</label>
-                                    <input
-                                        type="number"
-                                        name="km_maps_plin"
-                                        id="{{ $editPrefix }}km-maps-plin"
-                                        class="form-control bg-white rounded-3 {{ $isEditing && $errors->has('km_maps_plin') ? 'is-invalid' : '' }}"
-                                        value="{{ $editKmMapsPlin }}"
-                                        min="0"
-                                        step="1"
-                                    >
-                                    <div
-                                        class="invalid-feedback {{ $isEditing && $errors->has('km_maps_plin') ? 'd-block' : '' }}"
-                                        data-error-for="km_maps_plin"
-                                    >
-                                        {{ $isEditing ? $errors->first('km_maps_plin') : '' }}
-                                    </div>
-                                </div>
                                 <div class="col-md-4">
                                     <label for="{{ $editPrefix }}km-cu-taxa" class="form-label">Km cu taxă</label>
                                     <input

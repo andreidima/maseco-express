@@ -141,7 +141,7 @@
         $hasGrupuri = $valabilitate->cursaGrupuri->count() > 0;
         $isFlashDivision = optional($valabilitate->divizie)->id === 1
             && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
-        $tableColumnCount = $isFlashDivision ? 22 : 11;
+        $tableColumnCount = $isFlashDivision ? 22 : 12;
     @endphp
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
         <div class="row card-header align-items-center text-center text-lg-start" style="border-radius: 40px 40px 0px 0px;">
@@ -258,7 +258,7 @@
                                     <th rowspan="2" class="text-center curse-nowrap">Diferența preț<br>(încasat –<br> calculat)</th>
                                     <th colspan="2" class="text-center curse-nowrap">Daily contribution</th>
                                 @else
-                                    <th rowspan="2" class="text-end curse-nowrap">KM Maps</th>
+                                    <th colspan="2" class="text-center curse-nowrap">KM Maps</th>
                                     <th colspan="2" class="text-center curse-nowrap">
                                         KM Bord (plecare / sosire)
                                     </th>
@@ -287,6 +287,8 @@
                                     <th class="text-end curse-nowrap">Calculat</th>
                                     <th class="text-end curse-nowrap">Încasat</th>
                                 @else
+                                    <th class="text-end curse-nowrap">Km gol</th>
+                                    <th class="text-end curse-nowrap">Km plin</th>
                                     <th class="text-end curse-nowrap">Plecare</th>
                                     <th class="text-end curse-nowrap">Sosire</th>
                                     <th class="text-end curse-nowrap">Km gol</th>

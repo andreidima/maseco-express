@@ -110,13 +110,6 @@ trait HandlesValabilitatiCurseListings
             ? (float) $kmSosire - (float) $kmPlecare
             : null;
 
-        $kmMapsValues = $curseCollection
-            ->pluck('km_maps')
-            ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
-            ->map(static fn ($value) => (float) $value);
-
-        $totalKmMaps = $kmMapsValues->sum();
-
         $kmMapsGolValues = $curseCollection
             ->pluck('km_maps_gol')
             ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
@@ -128,6 +121,16 @@ trait HandlesValabilitatiCurseListings
             ->pluck('km_maps_plin')
             ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
             ->map(static fn ($value) => (float) $value);
+
+        $kmMapsValues = $curseCollection
+            ->pluck('km_maps')
+            ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+            ->map(static fn ($value) => (float) $value);
+
+        $hasSplitMaps = $kmMapsGolValues->isNotEmpty() || $kmMapsPlinValues->isNotEmpty();
+        $totalKmMapsSplit = $kmMapsGolValues->sum() + $kmMapsPlinValues->sum();
+        $totalKmMapsSingle = $kmMapsValues->sum();
+        $totalKmMaps = $hasSplitMaps ? $totalKmMapsSplit : $totalKmMapsSingle;
 
         $totalKmMapsPlin = $kmMapsPlinValues->sum();
 
@@ -169,11 +172,18 @@ trait HandlesValabilitatiCurseListings
                 $end = $cursa->km_bord_descarcare !== null && $cursa->km_bord_descarcare !== ''
                     ? (float) $cursa->km_bord_descarcare
                     : null;
-                $maps = is_numeric($cursa->km_maps) ? (float) $cursa->km_maps : null;
+                $mapsTotal = null;
+                $mapsGol = is_numeric($cursa->km_maps_gol) ? (float) $cursa->km_maps_gol : null;
+                $mapsPlin = is_numeric($cursa->km_maps_plin) ? (float) $cursa->km_maps_plin : null;
+                if ($mapsGol !== null || $mapsPlin !== null) {
+                    $mapsTotal = ($mapsGol ?? 0) + ($mapsPlin ?? 0);
+                } elseif (is_numeric($cursa->km_maps)) {
+                    $mapsTotal = (float) $cursa->km_maps;
+                }
 
                 $bord2 = $start !== null && $end !== null ? $end - $start : null;
 
-                return $bord2 !== null && $maps !== null ? $bord2 - $maps : null;
+                return $bord2 !== null && $mapsTotal !== null ? $bord2 - $mapsTotal : null;
             })
             ->filter(static fn ($value) => $value !== null)
             ->sum();
