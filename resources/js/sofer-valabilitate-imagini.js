@@ -37,19 +37,10 @@ if (root) {
         const aspectRatio = naturalHeight / naturalWidth;
         const targetWidth = targetMaxWidth;
         const targetHeight = Math.min(targetWidth * aspectRatio, viewportHeight * 0.68);
-        const containerStyles = window.getComputedStyle(cropperContainer);
-        const paddingX = (parseFloat(containerStyles.paddingLeft || '0') + parseFloat(containerStyles.paddingRight || '0'));
-        const paddingY = (parseFloat(containerStyles.paddingTop || '0') + parseFloat(containerStyles.paddingBottom || '0'));
 
         cropperContainer.style.maxWidth = `${targetMaxWidth}px`;
         cropperContainer.style.height = `${targetHeight}px`;
         cropperContainer.style.maxHeight = `${Math.min(viewportHeight * 0.75, targetHeight)}px`;
-
-        const innerWidth = Math.max(targetMaxWidth - paddingX, 0);
-        const innerHeight = Math.max(targetHeight - paddingY, 0);
-
-        cropperImage.style.maxWidth = `${innerWidth}px`;
-        cropperImage.style.maxHeight = `${innerHeight}px`;
     };
 
     const mimeToExtension = (mime) => {
