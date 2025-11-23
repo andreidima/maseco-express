@@ -3,6 +3,15 @@
 @section('content')
     {{-- Page-specific styling – stays only in this file --}}
     <style>
+        /* Fallback: keep modals hidden if Bootstrap CSS fails, so they don’t leave a huge gap. */
+        .modal {
+            display: none;
+        }
+
+        .modal.show {
+            display: block;
+        }
+
         /* Excel-style summary + main table */
 
         .curse-summary-table,
@@ -232,7 +241,6 @@
                                                 Selectează toate cursele afișate
                                             </label>
                                         </div>
-                                        {{-- <span class="fw-semibold">#</span> --}}
                                     </div>
                                 </th>
                                 <th rowspan="2" class="text-center curse-nowrap">Nr. cursă</th>

@@ -141,7 +141,7 @@
             <div class="modal-body">
                 <div
                     id="cropperContainer"
-                    class="bg-light rounded mb-3 d-flex justify-content-center align-items-center p-2"
+                    class="bg-light rounded mb-3 d-flex justify-content-center align-items-center p-2 overflow-hidden"
                     style="max-height: 70vh; height: 70vh; max-width: 100%; width: 100%; margin: 0 auto;"
                 >
                     <img

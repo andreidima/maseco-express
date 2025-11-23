@@ -54,41 +54,68 @@ if (root) {
         statusElement.textContent = message;
     };
 
+    let imageLoaded = false;
+
+    const tryInitCropper = () => {
+        const isModalVisible = modalElement.classList.contains('show');
+
+        if (!imageLoaded || !isModalVisible) {
+            return;
+        }
+
+        destroyCropper();
+        cropper = new Cropper(cropperImage, {
+            viewMode: 2,
+            autoCropArea: 1,
+            responsive: true,
+            background: false,
+
+            // Run when Cropper finished initializing
+            ready() {
+                const instance = this.cropper;
+                const imageData = instance.getImageData();
+                const containerData = instance.getContainerData();
+                const containerRect = cropperContainer?.getBoundingClientRect();
+                const containerStyle = window.getComputedStyle(cropperContainer);
+                const paddingX = parseFloat(containerStyle.paddingLeft || '0') + parseFloat(containerStyle.paddingRight || '0');
+                const paddingY = parseFloat(containerStyle.paddingTop || '0') + parseFloat(containerStyle.paddingBottom || '0');
+
+                // Fit the image inside the cropper container without overflowing it (account for padding).
+                const availableWidth = Math.max((containerRect?.width || containerData.width) - paddingX - 2, 0); // small margin to avoid bleed
+                const availableHeight = Math.max((containerRect?.height || containerData.height) - paddingY - 2, 0);
+                const containRatio = Math.min(
+                    availableWidth / imageData.naturalWidth,
+                    availableHeight / imageData.naturalHeight
+                );
+                const fallbackRatio = imageData.width / imageData.naturalWidth;
+                const targetRatio = containRatio > 0 ? containRatio : fallbackRatio;
+                const targetWidth = imageData.naturalWidth * targetRatio;
+                const targetHeight = imageData.naturalHeight * targetRatio;
+                const left = Math.max((containerData.width - targetWidth) / 2, 0);
+                const top = Math.max((containerData.height - targetHeight) / 2, 0);
+
+                instance.zoomTo(targetRatio);
+                instance.setCanvasData({
+                    width: targetWidth,
+                    height: targetHeight,
+                    left,
+                    top,
+                });
+            },
+        });
+    };
+
     const openCropper = (src, title) => {
         titleElement.textContent = title;
         statusElement.textContent = '';
 
         destroyCropper();
+        imageLoaded = false;
         cropperImage.src = src;
 
         cropperImage.onload = () => {
-            destroyCropper();
-            cropper = new Cropper(cropperImage, {
-                viewMode: 1,
-                autoCropArea: 1,
-                responsive: true,
-                background: false,
-
-                // Run when Cropper finished initializing
-                ready() {
-                    const instance = this.cropper;
-                    const imageData = instance.getImageData();
-                    const containerData = instance.getContainerData();
-
-                    // Ensure the image covers the cropper container (width or height) without shrinking.
-                    const currentRatio = imageData.width / imageData.naturalWidth;
-                    const coverRatio = Math.max(
-                        containerData.width / imageData.naturalWidth,
-                        containerData.height / imageData.naturalHeight
-                    );
-                    const targetRatio = Math.max(currentRatio, coverRatio);
-
-                    instance.zoomTo(targetRatio);
-                },
-            });
-
-
-            modal.show();
+            imageLoaded = true;
+            tryInitCropper();
         };
 
         modal.show();
@@ -134,6 +161,10 @@ if (root) {
         statusElement.textContent = '';
         saveButton.innerHTML = defaultSaveLabel;
         fileInput.value = '';
+    });
+
+    modalElement.addEventListener('shown.bs.modal', () => {
+        tryInitCropper();
     });
 
     saveButton?.addEventListener('click', () => {

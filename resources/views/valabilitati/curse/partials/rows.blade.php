@@ -242,14 +242,9 @@
                             data-cursa-id="{{ $cursa->id }}"
                         >
                         <label class="form-check-label" for="{{ $checkboxId }}">{{ $cursa->nr_ordine }}</label>
-                        {{-- <label class="visually-hidden" for="{{ $checkboxId }}">
-                            Selectează cursa #{{ $cursa->nr_ordine }}
-                        </label> --}}
                     </div>                    
                 </div>
 
-
-                {{-- up/down controls --}}
                 <div class="d-flex align-items-center gap-2 fw-semibold">
                     @if ($hasMultipleCurse)
                         <div class="d-flex gap-1">
