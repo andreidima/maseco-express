@@ -104,30 +104,37 @@ if (root) {
                 const paddingBottom = parseFloat(containerStyle.paddingBottom || '0');
                 const paddingX = paddingLeft + paddingRight;
                 const paddingY = paddingTop + paddingBottom;
+                const containerWidth = Math.max((containerRect?.width || containerData.width) - paddingX, 0);
+                const containerHeight = Math.max((containerRect?.height || containerData.height) - paddingY, 0);
 
-                // Fit the image inside the cropper container without overflowing it (account for padding).
-                const availableWidth = Math.max((containerRect?.width || containerData.width) - paddingX - 12, 0); // extra margin to avoid bleed
-                const availableHeight = Math.max((containerRect?.height || containerData.height) - paddingY - 12, 0);
+                // Fit the image inside the cropper container without overflowing it (account for padding),
+                // then center it with a visible inset so the canvas never bleeds past the edges.
+                const visualPadding = 20;
+                const availableWidth = Math.max(containerWidth - visualPadding * 2, 0);
+                const availableHeight = Math.max(containerHeight - visualPadding * 2, 0);
                 const containRatio = Math.min(
                     availableWidth / imageData.naturalWidth,
-                    availableHeight / imageData.naturalHeight
+                    availableHeight / imageData.naturalHeight,
+                    1
                 );
                 const fallbackRatio = imageData.width / imageData.naturalWidth;
                 const targetRatio = containRatio > 0 ? containRatio : fallbackRatio;
-                const insetRatio = targetRatio * 0.9; // show the image smaller inside the container
-                const targetWidth = imageData.naturalWidth * insetRatio;
-                const targetHeight = imageData.naturalHeight * insetRatio;
-                const containerWidth = Math.max((containerRect?.width || containerData.width) - paddingX, 0);
-                const containerHeight = Math.max((containerRect?.height || containerData.height) - paddingY, 0);
+                const targetWidth = imageData.naturalWidth * targetRatio;
+                const targetHeight = imageData.naturalHeight * targetRatio;
                 const left = Math.max((containerWidth - targetWidth) / 2, 0) + paddingLeft;
                 const top = Math.max((containerHeight - targetHeight) / 2, 0) + paddingTop;
 
-                instance.zoomTo(insetRatio);
                 instance.setCanvasData({
                     width: targetWidth,
                     height: targetHeight,
                     left,
                     top,
+                });
+                instance.setCropBoxData({
+                    width: Math.min(targetWidth, availableWidth),
+                    height: Math.min(targetHeight, availableHeight),
+                    left: Math.max((containerWidth - Math.min(targetWidth, availableWidth)) / 2, 0) + paddingLeft,
+                    top: Math.max((containerHeight - Math.min(targetHeight, availableHeight)) / 2, 0) + paddingTop,
                 });
             },
         });
