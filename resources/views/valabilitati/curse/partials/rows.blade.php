@@ -44,6 +44,8 @@
 
         return $luminance > 150 ? '#111111' : '#ffffff';
     };
+
+    $groupFinancialsById = collect($groupFinancials ?? [])->keyBy('id');
 @endphp
 
 @foreach ($curse as $cursa)
@@ -154,14 +156,15 @@
         }
         $groupFinancialMeta = null;
         if ($isNewGroup && $group) {
-            $incasata = $group->suma_incasata !== null ? number_format((float) $group->suma_incasata, 2) : null;
-            $calculata = $group->suma_calculata !== null ? number_format((float) $group->suma_calculata, 2) : null;
-            $diferenta = null;
-            if ($group->suma_incasata !== null || $group->suma_calculata !== null) {
-                $rawDiff = (float) ($group->suma_incasata ?? 0) - (float) ($group->suma_calculata ?? 0);
-                $diferenta = number_format($rawDiff, 2);
-            }
-            $zileCalculate = is_numeric($group->zile_calculate) ? (int) $group->zile_calculate : null;
+            $financials = $groupFinancialsById->get($group->id, []);
+            $incasata = $financials['suma_incasata'] ?? ($group->suma_incasata !== null ? (float) $group->suma_incasata : null);
+            $calculata = $financials['suma_calculata'] ?? null;
+            $diferenta = $financials['diferenta'] ?? null;
+            $zileCalculate = $financials['zile_calculate'] ?? (is_numeric($group->zile_calculate) ? (int) $group->zile_calculate : null);
+
+            $incasata = $incasata !== null ? number_format((float) $incasata, 2) : null;
+            $calculata = $calculata !== null ? number_format((float) $calculata, 2) : null;
+            $diferenta = $diferenta !== null ? number_format((float) $diferenta, 2) : null;
             $groupFinancialMeta = [
                 'suma_incasata' => $incasata,
                 'suma_calculata' => $calculata,

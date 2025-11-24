@@ -292,7 +292,11 @@
 
                         <tbody id="curse-table-body">
                             @if ($curse->count())
-                                @include('valabilitati.curse.partials.rows', ['curse' => $curse, 'valabilitate' => $valabilitate])
+                                @include('valabilitati.curse.partials.rows', [
+                                    'curse' => $curse,
+                                    'valabilitate' => $valabilitate,
+                                    'groupFinancials' => $groupFinancials ?? collect(),
+                                ])
                             @else
                                 <tr>
                                     <td colspan="{{ $tableColumnCount }}" class="text-center py-4">
