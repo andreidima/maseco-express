@@ -106,11 +106,13 @@
 
                                 <div class="row g-3 align-items-start">
                                     <div class="col-12 col-lg-12">
-                                        <div class="row g-2 small text-muted mb-2">
-                                        <div class="col-12">
-                                            <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă: {{ $cursa->nr_cursa ?? '—' }}</p>
-                                        </div>
-                                        </div>
+                                        @unless ($isFlashDivizie)
+                                            <div class="row g-2 small text-muted mb-2">
+                                                <div class="col-12">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă: {{ $cursa->nr_cursa ?? '—' }}</p>
+                                                </div>
+                                            </div>
+                                        @endunless
                                         @unless ($isFlashDivizie)
                                             {{-- Încărcare left, Descărcare right (always 50% / 50%) --}}
                                             <div class="row g-2 small text-muted cursa-card__locations">
@@ -146,9 +148,36 @@
                                                     ->sortBy('position');
                                             @endphp
 
-                                            <div class="row g-2 small text-muted mt-2">
+                                            <div class="row g-2 small text-muted mt-1">
+                                                <div class="col-12 col-sm-6">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Țara încărcării</p>
+                                                    <p class="mb-0">
+                                                        <span class="text-body-secondary">{{ $cursa->incarcareTara?->nume ?? '—' }}</span>
+                                                    </p>
+                                                </div>
+
+                                                <div class="col-12 col-sm-6 text-sm-end">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Țara descărcării</p>
+                                                    <p class="mb-0">
+                                                        <span class="text-body-secondary">{{ $cursa->descarcareTara?->nume ?? '—' }}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-2 small text-muted mt-1">
+                                                <div class="col-12">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Data și ora cursei</p>
+                                                    <p class="mb-0">
+                                                        <span class="text-body-secondary">
+                                                            {{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? '—' }}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="row g-3 small text-muted mt-1">
                                                 <div class="col-12 col-md-6">
-                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Încărcări (ordonate)</p>
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Încărcări</p>
                                                     <ol class="mb-0 ps-3">
                                                         @forelse ($incarcareStops as $stop)
                                                             <li class="text-body-secondary">
@@ -164,7 +193,7 @@
                                                 </div>
 
                                                 <div class="col-12 col-md-6 text-md-end">
-                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Descărcări (ordonate)</p>
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Descărcări</p>
                                                     <ol class="mb-0 ps-3">
                                                         @forelse ($descarcareStops as $stop)
                                                             <li class="text-body-secondary">
@@ -180,17 +209,6 @@
                                                 </div>
                                             </div>
                                         @endunless
-
-                                        <div class="row g-2 small text-muted mt-2">
-                                            <div class="col-12">
-                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Data și ora cursei</p>
-                                                <p class="mb-0">
-                                                    <span class="text-body-secondary">
-                                                        {{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? '—' }}
-                                                    </span>
-                                                </p>
-                                            </div>
-                                        </div>
 
                                         @unless ($isFlashDivizie)
                                             <div class="row g-2 small text-muted mt-2">
