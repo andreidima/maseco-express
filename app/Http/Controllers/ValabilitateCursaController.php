@@ -20,7 +20,7 @@ class ValabilitateCursaController extends Controller
 {
     use HandlesValabilitatiCurseListings;
 
-    private const PER_PAGE = 20;
+    private const PER_PAGE = 200;
 
     public function index(Request $request, Valabilitate $valabilitate): View
     {

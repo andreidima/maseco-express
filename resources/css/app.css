@@ -122,11 +122,6 @@
     max-height: 100%;
 }
 
-.cropper-wrapper .cropper-container {
-    width: 100% !important;
-    height: 100% !important;
-}
-
 .cropper-image {
     display: block;
     max-width: 100%;
