@@ -14,7 +14,6 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SoferValabilitateCursaImageController extends Controller
 {
-    private const STORAGE_DISK = 'public';
     private const MAX_IMAGES_PER_CURSA = 10;
     private const MAX_FILE_SIZE_KB = 10240; // 10 MB
     private const ALLOWED_MIMES = ['jpeg', 'jpg', 'png', 'webp'];
@@ -50,7 +49,7 @@ class SoferValabilitateCursaImageController extends Controller
         $file = $validated['image'];
         $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
         $directory = "valabilitati_curse/{$cursa->id}";
-        $path = $file->storeAs($directory, $filename, ['disk' => self::STORAGE_DISK]);
+        $path = $file->storeAs($directory, $filename);
 
         [$width, $height] = $this->extractDimensions($file);
 
@@ -80,7 +79,7 @@ class SoferValabilitateCursaImageController extends Controller
         $file = $validated['image'];
         $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
         $directory = "valabilitati_curse/{$cursa->id}";
-        $path = $file->storeAs($directory, $filename, ['disk' => self::STORAGE_DISK]);
+        $path = $file->storeAs($directory, $filename);
 
         [$width, $height] = $this->extractDimensions($file);
 
@@ -118,9 +117,9 @@ class SoferValabilitateCursaImageController extends Controller
 
         abort_if($imagine->trashed(), 404);
 
-        abort_unless(Storage::disk(self::STORAGE_DISK)->exists($imagine->path), 404);
+        abort_unless(Storage::exists($imagine->path), 404);
 
-        $stream = Storage::disk(self::STORAGE_DISK)->readStream($imagine->path);
+        $stream = Storage::readStream($imagine->path);
         abort_if($stream === false, 404);
         $mime = $imagine->mime_type ?: 'application/octet-stream';
 
@@ -164,8 +163,8 @@ class SoferValabilitateCursaImageController extends Controller
 
     private function removeFileIfExists(?string $path): void
     {
-        if ($path && Storage::disk(self::STORAGE_DISK)->exists($path)) {
-            Storage::disk(self::STORAGE_DISK)->delete($path);
+        if ($path && Storage::exists($path)) {
+            Storage::delete($path);
         }
     }
 }
