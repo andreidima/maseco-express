@@ -16,17 +16,15 @@ if (root) {
     const modal = new window.bootstrap.Modal(modalElement);
 
     let cropper = null;
-    const state = {
-        mode: 'create',
-        endpoint: root.dataset.uploadUrl,
-        mimeType: 'image/jpeg',
-        originalName: 'imagine.jpg',
-    };
+    let mode = 'create';
+    let endpoint = root.dataset.uploadUrl;
+    let mimeType = 'image/jpeg';
+    let originalName = 'imagine.jpg';
 
     const defaultSaveLabel = saveButton.innerHTML;
 
     const updateContainerSize = () => {
-        if (!cropperContainer || !cropperImage || !imageLoaded) {
+        if (!cropperContainer || !cropperImage) {
             return;
         }
 
@@ -44,16 +42,6 @@ if (root) {
         cropperContainer.style.height = `${targetHeight}px`;
         cropperContainer.style.maxHeight = `${Math.min(viewportHeight * 0.75, targetHeight)}px`;
     };
-
-    const debounce = (fn, delay = 150) => {
-        let timer;
-        return (...args) => {
-            clearTimeout(timer);
-            timer = window.setTimeout(() => fn(...args), delay);
-        };
-    };
-
-    const debouncedUpdateContainerSize = debounce(updateContainerSize);
 
     const mimeToExtension = (mime) => {
         if (mime?.includes('png')) return 'png';
@@ -138,9 +126,6 @@ if (root) {
                 const left = Math.max((containerWidth - finalWidth) / 2, 0) + paddingLeft;
                 const top = Math.max((containerHeight - finalHeight) / 2, 0) + paddingTop;
 
-                const cropBoxWidth = Math.min(finalWidth, availableWidth);
-                const cropBoxHeight = Math.min(finalHeight, availableHeight);
-
                 instance.setCanvasData({
                     width: finalWidth,
                     height: finalHeight,
@@ -148,19 +133,19 @@ if (root) {
                     top,
                 });
                 instance.setCropBoxData({
-                    width: cropBoxWidth,
-                    height: cropBoxHeight,
-                    left: Math.max((containerWidth - cropBoxWidth) / 2, 0) + paddingLeft,
-                    top: Math.max((containerHeight - cropBoxHeight) / 2, 0) + paddingTop,
+                    width: finalWidth,
+                    height: finalHeight,
+                    left,
+                    top,
+                });
+                instance.setCropBoxData({
+                    width: Math.min(targetWidth, availableWidth),
+                    height: Math.min(targetHeight, availableHeight),
+                    left: Math.max((containerWidth - Math.min(targetWidth, availableWidth)) / 2, 0) + paddingLeft,
+                    top: Math.max((containerHeight - Math.min(targetHeight, availableHeight)) / 2, 0) + paddingTop,
                 });
             },
         });
-    };
-
-    const handleImageLoad = () => {
-        imageLoaded = true;
-        updateContainerSize();
-        tryInitCropper();
     };
 
     const openCropper = (src, title) => {
@@ -169,9 +154,13 @@ if (root) {
 
         destroyCropper();
         imageLoaded = false;
-        cropperImage.removeEventListener('load', handleImageLoad);
-        cropperImage.addEventListener('load', handleImageLoad, { once: true });
         cropperImage.src = src;
+
+        cropperImage.onload = () => {
+            imageLoaded = true;
+            updateContainerSize();
+            tryInitCropper();
+        };
 
         modal.show();
     };
@@ -186,10 +175,10 @@ if (root) {
             return;
         }
 
-        state.mode = 'create';
-        state.endpoint = root.dataset.uploadUrl;
-        state.mimeType = file.type || 'image/jpeg';
-        state.originalName = file.name || '';
+        mode = 'create';
+        endpoint = root.dataset.uploadUrl;
+        mimeType = file.type || 'image/jpeg';
+        originalName = file.name || '';
 
         const objectUrl = URL.createObjectURL(file);
         openCropper(objectUrl, 'Incarca imagine');
@@ -197,19 +186,13 @@ if (root) {
 
     document.querySelectorAll('[data-recrop]').forEach((button) => {
         button.addEventListener('click', () => {
-            state.mode = 'update';
-            state.endpoint = button.dataset.updateUrl;
-            state.mimeType = button.dataset.mime || 'image/jpeg';
-            state.originalName = button.dataset.originalName || '';
-
-            if (!state.endpoint) {
-                statusElement.textContent = 'Nu am putut pregăti salvarea acestei imagini.';
-                return;
-            }
+            mode = 'update';
+            endpoint = button.dataset.updateUrl;
+            mimeType = button.dataset.mime || 'image/jpeg';
+            originalName = button.dataset.originalName || '';
 
             const src = button.dataset.streamUrl;
             if (!src) {
-                statusElement.textContent = 'Nu am putut găsi imaginea pentru editare.';
                 return;
             }
 
@@ -222,16 +205,14 @@ if (root) {
         statusElement.textContent = '';
         saveButton.innerHTML = defaultSaveLabel;
         fileInput.value = '';
-        cropperImage.removeEventListener('load', handleImageLoad);
-        window.removeEventListener('resize', debouncedUpdateContainerSize);
-        imageLoaded = false;
     });
 
     modalElement.addEventListener('shown.bs.modal', () => {
         updateContainerSize();
         tryInitCropper();
-        window.addEventListener('resize', debouncedUpdateContainerSize);
     });
+
+    window.addEventListener('resize', updateContainerSize);
 
     saveButton?.addEventListener('click', () => {
         if (!cropper) {
@@ -241,11 +222,6 @@ if (root) {
 
         setSaving(true);
 
-        if (!state.endpoint) {
-            setSaving(false, 'Nu am putut găsi adresa de salvare. Reîncarcă pagina.');
-            return;
-        }
-
         cropper.getCroppedCanvas().toBlob(
             async (blob) => {
                 if (!blob) {
@@ -253,18 +229,18 @@ if (root) {
                     return;
                 }
 
-                const ext = mimeToExtension(state.mimeType);
+                const ext = mimeToExtension(mimeType);
                 const formData = new FormData();
 
                 formData.append('_token', root.dataset.csrf);
-                if (state.mode === 'update') {
+                if (mode === 'update') {
                     formData.append('_method', 'PUT');
                 }
 
-                formData.append('image', blob, formatFilename(state.originalName, ext));
+                formData.append('image', blob, formatFilename(originalName, ext));
 
                 try {
-                    const response = await fetch(state.endpoint, {
+                    const response = await fetch(endpoint, {
                         method: 'POST',
                         headers: {
                             Accept: 'application/json',
@@ -277,16 +253,14 @@ if (root) {
                         return;
                     }
 
-                    const contentType = response.headers.get('content-type');
-                    const canParseJson = contentType && contentType.includes('application/json');
-                    const json = canParseJson ? await response.json().catch(() => null) : null;
+                    const json = await response.json().catch(() => null);
                     const message = json?.message || 'Incarcarea a esuat. Verifica dimensiunea si formatul imaginii.';
                     setSaving(false, message);
                 } catch (error) {
                     setSaving(false, 'A aparut o eroare de retea. Incearca din nou.');
                 }
             },
-            state.mimeType || 'image/jpeg'
+            mimeType || 'image/jpeg'
         );
     });
 }
