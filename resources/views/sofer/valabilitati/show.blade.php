@@ -111,32 +111,32 @@
                                             <p class="fw-semibold text-uppercase text-dark small mb-1">Număr cursă: {{ $cursa->nr_cursa ?? '—' }}</p>
                                         </div>
                                         </div>
-                                        {{-- Încărcare left, Descărcare right (always 50% / 50%) --}}
-                                        <div class="row g-2 small text-muted cursa-card__locations">
-                                            <div class="col-6">
-                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Încărcare</p>
-                                                <p class="mb-0">
-                                                    <span class="text-body-secondary">
-                                                        {{ $cursa->incarcare_localitate ?? '—' }}<br>
-                                                        {{ $cursa->incarcare_cod_postal ?? '—' }}<br>
-                                                        {{ $cursa->incarcareTara?->nume ?? '—' }}
-                                                    </span>
-                                                </p>
-                                            </div>
+                                        @unless ($isFlashDivizie)
+                                            {{-- Încărcare left, Descărcare right (always 50% / 50%) --}}
+                                            <div class="row g-2 small text-muted cursa-card__locations">
+                                                <div class="col-6">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Încărcare</p>
+                                                    <p class="mb-0">
+                                                        <span class="text-body-secondary">
+                                                            {{ $cursa->incarcare_localitate ?? '—' }}<br>
+                                                            {{ $cursa->incarcare_cod_postal ?? '—' }}<br>
+                                                            {{ $cursa->incarcareTara?->nume ?? '—' }}
+                                                        </span>
+                                                    </p>
+                                                </div>
 
-                                            <div class="col-6 text-end">
-                                                <p class="fw-semibold text-uppercase text-dark small mb-1">Descărcare</p>
-                                                <p class="mb-0">
-                                                    <span class="text-body-secondary">
-                                                        {{ $cursa->descarcare_localitate ?? '—' }}<br>
-                                                        {{ $cursa->descarcare_cod_postal ?? '—' }}<br>
-                                                        {{ $cursa->descarcareTara?->nume ?? '—' }}
-                                                    </span>
-                                                </p>
+                                                <div class="col-6 text-end">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Descărcare</p>
+                                                    <p class="mb-0">
+                                                        <span class="text-body-secondary">
+                                                            {{ $cursa->descarcare_localitate ?? '—' }}<br>
+                                                            {{ $cursa->descarcare_cod_postal ?? '—' }}<br>
+                                                            {{ $cursa->descarcareTara?->nume ?? '—' }}
+                                                        </span>
+                                                    </p>
+                                                </div>
                                             </div>
-                                        </div>
-
-                                        @if ($isFlashDivizie)
+                                        @else
                                             @php
                                                 $incarcareStops = $cursa->stops
                                                     ->where('type', 'incarcare')
@@ -179,7 +179,7 @@
                                                     </ol>
                                                 </div>
                                             </div>
-                                        @endif
+                                        @endunless
 
                                         <div class="row g-2 small text-muted mt-2">
                                             <div class="col-12">
