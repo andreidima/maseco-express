@@ -26,9 +26,12 @@
                     <p class="text-muted">
                         Introdu tarifele pe kilometru cu trei zecimale. Lasă câmpul gol dacă nu se aplică.
                     </p>
+                    <p class="text-muted d-none" data-modal-empty-state>
+                        Nu există câmpuri configurabile pentru această divizie.
+                    </p>
                     <form id="valabilitati-divizie-form" data-divizie-form novalidate>
                         @csrf
-                        <div class="mb-3">
+                        <div class="mb-3" data-field-wrapper="pret_km_gol">
                             <label for="divizie-pret-km-gol" class="form-label">Preț km gol</label>
                             <div class="input-group">
                                 <input
@@ -46,7 +49,7 @@
                             <div class="form-text">Valoare cu până la trei zecimale.</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" data-field-wrapper="pret_km_plin">
                             <label for="divizie-pret-km-plin" class="form-label">Preț km plin</label>
                             <div class="input-group">
                                 <input
@@ -64,7 +67,7 @@
                             <div class="form-text">Valoare cu până la trei zecimale.</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" data-field-wrapper="pret_km_cu_taxa">
                             <label for="divizie-pret-km-taxa" class="form-label">Preț km cu taxă</label>
                             <div class="input-group">
                                 <input
@@ -82,7 +85,7 @@
                             <div class="form-text">Valoare cu până la trei zecimale.</div>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" data-field-wrapper="contributie_zilnica">
                             <label for="divizie-contributie-zilnica" class="form-label">Contribuție zilnică</label>
                             <div class="input-group">
                                 <input
@@ -96,6 +99,42 @@
                                 >
                                 <span class="input-group-text">/ zi</span>
                                 <div class="invalid-feedback" data-error-for="contributie_zilnica"></div>
+                            </div>
+                            <div class="form-text">Valoare cu până la trei zecimale.</div>
+                        </div>
+
+                        <div class="mb-3" data-field-wrapper="pret_km_bord">
+                            <label for="divizie-pret-km-bord" class="form-label">Preț km bord</label>
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="divizie-pret-km-bord"
+                                    name="pret_km_bord"
+                                    step="0.001"
+                                    min="0"
+                                    data-format-decimal
+                                >
+                                <span class="input-group-text">/ km</span>
+                                <div class="invalid-feedback" data-error-for="pret_km_bord"></div>
+                            </div>
+                            <div class="form-text">Valoare cu până la trei zecimale.</div>
+                        </div>
+
+                        <div class="mb-3" data-field-wrapper="pret_nr_zile_lucrate">
+                            <label for="divizie-pret-zile-lucrate" class="form-label">Preț nr zile lucrate</label>
+                            <div class="input-group">
+                                <input
+                                    type="number"
+                                    class="form-control"
+                                    id="divizie-pret-zile-lucrate"
+                                    name="pret_nr_zile_lucrate"
+                                    step="0.001"
+                                    min="0"
+                                    data-format-decimal
+                                >
+                                <span class="input-group-text">/ zi</span>
+                                <div class="invalid-feedback" data-error-for="pret_nr_zile_lucrate"></div>
                             </div>
                             <div class="form-text">Valoare cu până la trei zecimale.</div>
                         </div>

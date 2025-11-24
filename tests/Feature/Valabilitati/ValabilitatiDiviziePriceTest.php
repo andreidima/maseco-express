@@ -21,6 +21,8 @@ class ValabilitatiDiviziePriceTest extends TestCase
             'pret_km_gol' => 1.234,
             'pret_km_plin' => 2.345,
             'pret_km_cu_taxa' => 3.456,
+            'pret_km_bord' => 4.567,
+            'pret_nr_zile_lucrate' => 5.678,
         ]);
 
         $response = $this->actingAs($user)->getJson(route('valabilitati.divizii.show', $divizie));
@@ -31,6 +33,8 @@ class ValabilitatiDiviziePriceTest extends TestCase
         $response->assertJsonPath('divizie.pret_km_gol', '1.234');
         $response->assertJsonPath('divizie.pret_km_plin', '2.345');
         $response->assertJsonPath('divizie.pret_km_cu_taxa', '3.456');
+        $response->assertJsonPath('divizie.pret_km_bord', '4.567');
+        $response->assertJsonPath('divizie.pret_nr_zile_lucrate', '5.678');
     }
 
     public function test_user_can_update_divizie_prices(): void
@@ -40,12 +44,16 @@ class ValabilitatiDiviziePriceTest extends TestCase
             'pret_km_gol' => null,
             'pret_km_plin' => null,
             'pret_km_cu_taxa' => null,
+            'pret_km_bord' => null,
+            'pret_nr_zile_lucrate' => null,
         ]);
 
         $payload = [
             'pret_km_gol' => '10.123',
             'pret_km_plin' => '20.456',
             'pret_km_cu_taxa' => '30.789',
+            'pret_km_bord' => '40.123',
+            'pret_nr_zile_lucrate' => '15.500',
         ];
 
         $response = $this->actingAs($user)->putJson(route('valabilitati.divizii.update', $divizie), $payload);
@@ -54,12 +62,16 @@ class ValabilitatiDiviziePriceTest extends TestCase
         $response->assertJsonPath('divizie.pret_km_gol', '10.123');
         $response->assertJsonPath('divizie.pret_km_plin', '20.456');
         $response->assertJsonPath('divizie.pret_km_cu_taxa', '30.789');
+        $response->assertJsonPath('divizie.pret_km_bord', '40.123');
+        $response->assertJsonPath('divizie.pret_nr_zile_lucrate', '15.500');
 
         $this->assertDatabaseHas('valabilitati_divizii', [
             'id' => $divizie->id,
             'pret_km_gol' => 10.123,
             'pret_km_plin' => 20.456,
             'pret_km_cu_taxa' => 30.789,
+            'pret_km_bord' => 40.123,
+            'pret_nr_zile_lucrate' => 15.500,
         ]);
     }
 
