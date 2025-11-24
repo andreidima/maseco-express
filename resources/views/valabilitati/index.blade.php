@@ -279,18 +279,35 @@
             const modalFormWrapper = divizieModalElement?.querySelector('[data-modal-form-wrapper]') ?? null;
             const modalAlert = divizieModalElement?.querySelector('[data-modal-alert]') ?? null;
             const modalName = divizieModalElement?.querySelector('[data-divizie-name]') ?? null;
+            const modalEmptyState = divizieModalElement?.querySelector('[data-modal-empty-state]') ?? null;
             const submitButton = divizieModalElement?.querySelector('[data-modal-submit]') ?? null;
             const submitSpinner = divizieModalElement?.querySelector('[data-modal-submit-spinner]') ?? null;
             const submitLabel = divizieModalElement?.querySelector('[data-modal-submit-label]') ?? null;
 
-            const decimalFields = ['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa', 'contributie_zilnica'];
+            const priceFields = ['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa', 'pret_km_bord', 'pret_nr_zile_lucrate', 'contributie_zilnica'];
             const fieldInputs = {};
             const fieldErrors = {};
+            const fieldWrappers = {};
 
-            decimalFields.forEach(field => {
+            priceFields.forEach(field => {
                 fieldInputs[field] = divizieForm ? divizieForm.querySelector(`[name="${field}"]`) : null;
                 fieldErrors[field] = divizieForm ? divizieForm.querySelector(`[data-error-for="${field}"]`) : null;
+                fieldWrappers[field] = divizieForm ? divizieForm.querySelector(`[data-field-wrapper="${field}"]`) : null;
             });
+
+            const getVisibleFieldsForDivizie = (divizieId) => {
+                if (divizieId === 1) {
+                    return ['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa', 'contributie_zilnica'];
+                }
+
+                if (divizieId === 3) {
+                    return ['pret_km_bord', 'pret_nr_zile_lucrate'];
+                }
+
+                return [];
+            };
+
+            let visibleFields = new Set();
 
             const formatDecimalValue = (value) => {
                 if (value === null || value === undefined || value === '') {
@@ -305,8 +322,31 @@
                 return numberValue.toFixed(3);
             };
 
+            const updateFieldVisibility = (divizieId) => {
+                const fields = getVisibleFieldsForDivizie(divizieId);
+                visibleFields = new Set(fields);
+
+                priceFields.forEach(field => {
+                    const wrapper = fieldWrappers[field];
+                    const input = fieldInputs[field];
+                    const isVisible = visibleFields.has(field);
+
+                    if (wrapper) {
+                        wrapper.classList.toggle('d-none', !isVisible);
+                    }
+
+                    if (input) {
+                        input.disabled = !isVisible;
+                    }
+                });
+
+                if (modalEmptyState) {
+                    modalEmptyState.classList.toggle('d-none', visibleFields.size > 0);
+                }
+            };
+
             const resetModalState = () => {
-                decimalFields.forEach(field => {
+                priceFields.forEach(field => {
                     const input = fieldInputs[field];
                     const errorElement = fieldErrors[field];
 
@@ -319,6 +359,8 @@
                         errorElement.textContent = '';
                     }
                 });
+
+                updateFieldVisibility(null);
             };
 
             const toggleModalLoading = (loading) => {
@@ -366,7 +408,7 @@
             };
 
             const fillFormValues = (divizie = {}) => {
-                decimalFields.forEach(field => {
+                priceFields.forEach(field => {
                     const input = fieldInputs[field];
                     const errorElement = fieldErrors[field];
 
@@ -382,7 +424,7 @@
             };
 
             const handleValidationErrors = (errors = {}) => {
-                decimalFields.forEach(field => {
+                priceFields.forEach(field => {
                     const messages = Array.isArray(errors[field]) ? errors[field] : [];
                     const input = fieldInputs[field];
                     const errorElement = fieldErrors[field];
@@ -416,11 +458,11 @@
                 }
 
                 resetModalState();
-                handleValidationErrors();
-                setModalAlert('');
-                toggleModalLoading(true);
+                    handleValidationErrors();
+                    setModalAlert('');
+                    toggleModalLoading(true);
 
-                divizieModalInstance.show();
+                    divizieModalInstance.show();
 
                 fetch(fetchUrl, {
                     headers: {
@@ -437,7 +479,11 @@
                         return response.json();
                     })
                     .then(data => {
-                        fillFormValues(data.divizie || {});
+                        const divizie = data.divizie || {};
+                        const divizieId = Number(divizie.id);
+
+                        updateFieldVisibility(Number.isNaN(divizieId) ? null : divizieId);
+                        fillFormValues(divizie);
                     })
                     .catch(error => {
                         console.error('Valabilități divizie fetch error', error);
@@ -461,7 +507,7 @@
             }
 
             if (divizieForm) {
-                decimalFields.forEach(field => {
+                priceFields.forEach(field => {
                     const input = fieldInputs[field];
                     if (!input) {
                         return;
@@ -494,7 +540,7 @@
                     setModalSavingState(true);
 
                     const payload = {};
-                    decimalFields.forEach(field => {
+                    visibleFields.forEach(field => {
                         const input = fieldInputs[field];
                         const value = input ? input.value.trim() : '';
                         payload[field] = value === '' ? null : value;

@@ -17,6 +17,8 @@ class ValabilitatiDivizie extends Model
         'pret_km_gol',
         'pret_km_plin',
         'pret_km_cu_taxa',
+        'pret_km_bord',
+        'pret_nr_zile_lucrate',
         'contributie_zilnica',
     ];
 
@@ -24,6 +26,8 @@ class ValabilitatiDivizie extends Model
         'pret_km_gol' => 'decimal:3',
         'pret_km_plin' => 'decimal:3',
         'pret_km_cu_taxa' => 'decimal:3',
+        'pret_km_bord' => 'decimal:3',
+        'pret_nr_zile_lucrate' => 'decimal:3',
         'contributie_zilnica' => 'decimal:3',
     ];
 
