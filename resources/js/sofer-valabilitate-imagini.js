@@ -119,6 +119,7 @@ if (root) {
                     maxCanvasHeight / imageData.naturalHeight,
                     1
                 );
+                // Keep the scale uniform so the image never exceeds the container on a single axis.
                 const fallbackRatio = imageData.width / imageData.naturalWidth;
                 const targetRatio = containRatio > 0 ? containRatio : fallbackRatio;
                 const finalWidth = imageData.naturalWidth * targetRatio;
