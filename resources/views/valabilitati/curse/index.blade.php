@@ -38,6 +38,9 @@
             --curse-header-text: #ffffff;
             background-color: var(--curse-header-bg);
             color: var(--curse-header-text);
+            position: sticky;
+            top: 0;
+            z-index: 3;
         }
 
         .curse-summary-table th,
@@ -79,21 +82,10 @@
             font-weight: 600;
             text-transform: uppercase;
             font-size: 0.75rem;
-            position: sticky;
-            z-index: 2;
-        }
-
-        .curse-data-header-top th {
-            top: 0;
         }
 
         .curse-data-header-bottom th {
-            top: 1.65rem;
             border-top: none;
-        }
-
-        .curse-data-table thead th:first-child {
-            z-index: 3;
         }
 
         .curse-data-table tbody tr:not(.curse-group-heading):not(.curse-group-row):nth-child(even) {
