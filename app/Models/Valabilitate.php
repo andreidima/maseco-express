@@ -22,6 +22,12 @@ class Valabilitate extends Model
         'numar_auto',
         'sofer_id',
         'divizie_id',
+        'flash_pret_km_gol',
+        'flash_pret_km_plin',
+        'flash_pret_km_cu_taxa',
+        'flash_contributie_zilnica',
+        'timestar_pret_km_bord',
+        'timestar_pret_nr_zile_lucrate',
         'data_inceput',
         'data_sfarsit',
         'km_plecare',
@@ -33,6 +39,12 @@ class Valabilitate extends Model
         'data_sfarsit' => 'date',
         'km_plecare' => 'integer',
         'km_sosire' => 'integer',
+        'flash_pret_km_gol' => 'decimal:3',
+        'flash_pret_km_plin' => 'decimal:3',
+        'flash_pret_km_cu_taxa' => 'decimal:3',
+        'flash_contributie_zilnica' => 'decimal:3',
+        'timestar_pret_km_bord' => 'decimal:3',
+        'timestar_pret_nr_zile_lucrate' => 'decimal:3',
     ];
 
     public function sofer(): BelongsTo

@@ -3,12 +3,11 @@
         && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
     $hideFormatColumn = $isFlashDivision || optional($valabilitate->divizie)->id === 3;
     $tableColumnCount = $isFlashDivision ? 22 : 12;
-    $divizie = $valabilitate->divizie;
-    $priceKmGol = $divizie && $divizie->pret_km_gol !== null ? (float) $divizie->pret_km_gol : null;
-    $priceKmPlin = $divizie && $divizie->pret_km_plin !== null ? (float) $divizie->pret_km_plin : null;
-    $priceKmCuTaxa = $divizie && $divizie->pret_km_cu_taxa !== null ? (float) $divizie->pret_km_cu_taxa : null;
-    $dailyContributionUnit = $divizie && $divizie->contributie_zilnica !== null
-        ? (float) $divizie->contributie_zilnica
+    $priceKmGol = $valabilitate->flash_pret_km_gol !== null ? (float) $valabilitate->flash_pret_km_gol : null;
+    $priceKmPlin = $valabilitate->flash_pret_km_plin !== null ? (float) $valabilitate->flash_pret_km_plin : null;
+    $priceKmCuTaxa = $valabilitate->flash_pret_km_cu_taxa !== null ? (float) $valabilitate->flash_pret_km_cu_taxa : null;
+    $dailyContributionUnit = $valabilitate->flash_contributie_zilnica !== null
+        ? (float) $valabilitate->flash_contributie_zilnica
         : null;
     $formatCalculatedValue = static function (?float $value): string {
         if ($value === null) {

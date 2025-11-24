@@ -33,12 +33,12 @@ class ValabilitatiDivizieController extends Controller
     private function validatePrices(Request $request): array
     {
         $validated = $request->validate([
-            'pret_km_gol' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
-            'pret_km_plin' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
-            'pret_km_cu_taxa' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
-            'pret_km_bord' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
-            'pret_nr_zile_lucrate' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
-            'contributie_zilnica' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_pret_km_gol' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_pret_km_plin' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_pret_km_cu_taxa' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_contributie_zilnica' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'timestar_pret_km_bord' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'timestar_pret_nr_zile_lucrate' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
         ]);
 
         return $this->formatPrices($validated);
@@ -51,7 +51,14 @@ class ValabilitatiDivizieController extends Controller
      */
     private function formatPrices(array $values): array
     {
-        foreach (['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa', 'pret_km_bord', 'pret_nr_zile_lucrate', 'contributie_zilnica'] as $field) {
+        foreach ([
+            'flash_pret_km_gol',
+            'flash_pret_km_plin',
+            'flash_pret_km_cu_taxa',
+            'flash_contributie_zilnica',
+            'timestar_pret_km_bord',
+            'timestar_pret_nr_zile_lucrate',
+        ] as $field) {
             if (! array_key_exists($field, $values)) {
                 continue;
             }
@@ -79,12 +86,12 @@ class ValabilitatiDivizieController extends Controller
         return [
             'id' => $divizie->id,
             'nume' => $divizie->nume,
-            'pret_km_gol' => $this->formatPrice($divizie->pret_km_gol),
-            'pret_km_plin' => $this->formatPrice($divizie->pret_km_plin),
-            'pret_km_cu_taxa' => $this->formatPrice($divizie->pret_km_cu_taxa),
-            'pret_km_bord' => $this->formatPrice($divizie->pret_km_bord),
-            'pret_nr_zile_lucrate' => $this->formatPrice($divizie->pret_nr_zile_lucrate),
-            'contributie_zilnica' => $this->formatPrice($divizie->contributie_zilnica),
+            'flash_pret_km_gol' => $this->formatPrice($divizie->flash_pret_km_gol),
+            'flash_pret_km_plin' => $this->formatPrice($divizie->flash_pret_km_plin),
+            'flash_pret_km_cu_taxa' => $this->formatPrice($divizie->flash_pret_km_cu_taxa),
+            'flash_contributie_zilnica' => $this->formatPrice($divizie->flash_contributie_zilnica),
+            'timestar_pret_km_bord' => $this->formatPrice($divizie->timestar_pret_km_bord),
+            'timestar_pret_nr_zile_lucrate' => $this->formatPrice($divizie->timestar_pret_nr_zile_lucrate),
         ];
     }
 }

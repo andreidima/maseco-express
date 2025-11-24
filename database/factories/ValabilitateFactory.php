@@ -22,6 +22,12 @@ class ValabilitateFactory extends Factory
             'numar_auto' => strtoupper(fake()->bothify('??##???')),
             'sofer_id' => User::factory(),
             'divizie_id' => ValabilitatiDivizie::factory(),
+            'flash_pret_km_gol' => fake()->randomFloat(3, 0, 10),
+            'flash_pret_km_plin' => fake()->randomFloat(3, 0, 15),
+            'flash_pret_km_cu_taxa' => fake()->randomFloat(3, 0, 20),
+            'flash_contributie_zilnica' => fake()->randomFloat(3, 0, 20),
+            'timestar_pret_km_bord' => fake()->randomFloat(3, 0, 20),
+            'timestar_pret_nr_zile_lucrate' => fake()->randomFloat(3, 0, 30),
             'data_inceput' => $startDate->format('Y-m-d'),
             'data_sfarsit' => fake()->boolean(40)
                 ? fake()->dateTimeBetween($startDate, '+2 months')->format('Y-m-d')

@@ -92,6 +92,15 @@ class ValabilitateController extends Controller
         ]);
     }
 
+    public function showPrices(Valabilitate $valabilitate): JsonResponse
+    {
+        $valabilitate->loadMissing('divizie');
+
+        return response()->json([
+            'valabilitate' => $this->transformValabilitatePrices($valabilitate),
+        ]);
+    }
+
     public function store(Request $request): RedirectResponse|JsonResponse
     {
         $validated = $this->validateValabilitate($request);
@@ -130,6 +139,18 @@ class ValabilitateController extends Controller
         $valabilitate->refresh();
 
         return $this->respondAfterMutation($request, 'Valabilitatea a fost actualizată.', $valabilitate);
+    }
+
+    public function updatePrices(Request $request, Valabilitate $valabilitate): JsonResponse
+    {
+        $validated = $this->validateValabilitatePrices($request);
+
+        $valabilitate->update($validated);
+
+        return response()->json([
+            'message' => 'Tarifele valabilității au fost actualizate.',
+            'valabilitate' => $this->transformValabilitatePrices($valabilitate->fresh()),
+        ]);
     }
 
     public function destroy(Request $request, Valabilitate $valabilitate): RedirectResponse|JsonResponse
@@ -312,6 +333,12 @@ class ValabilitateController extends Controller
             'data_sfarsit' => ['nullable', 'date', 'after_or_equal:data_inceput'],
             'km_plecare' => ['nullable', 'integer', 'min:0'],
             'km_sosire' => ['nullable', 'integer', 'min:0'],
+            'flash_pret_km_gol' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_pret_km_plin' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_pret_km_cu_taxa' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_contributie_zilnica' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'timestar_pret_km_bord' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'timestar_pret_nr_zile_lucrate' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
             'taxe_drum' => ['array'],
             'taxe_drum.*.nume' => ['required', 'string', 'max:255'],
             'taxe_drum.*.tara' => ['nullable', 'string', 'max:255'],
@@ -327,6 +354,12 @@ class ValabilitateController extends Controller
             'data_sfarsit' => 'data de sfârșit',
             'km_plecare' => 'km plecare',
             'km_sosire' => 'km sosire',
+            'flash_pret_km_gol' => 'FLASH - preț km gol',
+            'flash_pret_km_plin' => 'FLASH - preț km plin',
+            'flash_pret_km_cu_taxa' => 'FLASH - preț km cu taxă',
+            'flash_contributie_zilnica' => 'FLASH - contribuție zilnică',
+            'timestar_pret_km_bord' => 'TIMESTAR - preț km bord',
+            'timestar_pret_nr_zile_lucrate' => 'TIMESTAR - preț nr zile lucrate',
             'taxe_drum' => 'taxe de drum',
             'taxe_drum.*.nume' => 'nume',
             'taxe_drum.*.tara' => 'țară',
@@ -346,6 +379,7 @@ class ValabilitateController extends Controller
 
         try {
             $validated = $validator->validate();
+            $validated = $this->formatPrices($validated);
             $validated['taxe_drum'] = $this->normalizeRoadTaxesForStorage($sanitizedRoadTaxes);
 
             return $validated;
@@ -390,6 +424,73 @@ class ValabilitateController extends Controller
         }
 
         return response()->json($response);
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     *
+     * @return array<string, mixed>
+     */
+    private function formatPrices(array $values): array
+    {
+        foreach ([
+            'flash_pret_km_gol',
+            'flash_pret_km_plin',
+            'flash_pret_km_cu_taxa',
+            'flash_contributie_zilnica',
+            'timestar_pret_km_bord',
+            'timestar_pret_nr_zile_lucrate',
+        ] as $field) {
+            if (! array_key_exists($field, $values)) {
+                continue;
+            }
+
+            $values[$field] = $this->formatPrice($values[$field]);
+        }
+
+        return $values;
+    }
+
+    private function formatPrice(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        return number_format((float) $value, 3, '.', '');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function transformValabilitatePrices(Valabilitate $valabilitate): array
+    {
+        return [
+            'id' => $valabilitate->id,
+            'divizie_id' => $valabilitate->divizie_id,
+            'divizie' => $valabilitate->divizie?->nume,
+            'numar_auto' => $valabilitate->numar_auto,
+            'flash_pret_km_gol' => $this->formatPrice($valabilitate->flash_pret_km_gol),
+            'flash_pret_km_plin' => $this->formatPrice($valabilitate->flash_pret_km_plin),
+            'flash_pret_km_cu_taxa' => $this->formatPrice($valabilitate->flash_pret_km_cu_taxa),
+            'flash_contributie_zilnica' => $this->formatPrice($valabilitate->flash_contributie_zilnica),
+            'timestar_pret_km_bord' => $this->formatPrice($valabilitate->timestar_pret_km_bord),
+            'timestar_pret_nr_zile_lucrate' => $this->formatPrice($valabilitate->timestar_pret_nr_zile_lucrate),
+        ];
+    }
+
+    private function validateValabilitatePrices(Request $request): array
+    {
+        $validated = $request->validate([
+            'flash_pret_km_gol' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_pret_km_plin' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_pret_km_cu_taxa' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'flash_contributie_zilnica' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'timestar_pret_km_bord' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+            'timestar_pret_nr_zile_lucrate' => ['nullable', 'numeric', 'min:0', 'max:9999999.999'],
+        ]);
+
+        return $this->formatPrices($validated);
     }
 
     /**

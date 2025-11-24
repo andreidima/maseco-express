@@ -370,6 +370,10 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware(['permission:valabilitati', 'role:super-admin,admin,dispecer'])->group(function () {
         Route::get('valabilitati/paginate', [ValabilitateController::class, 'paginate'])
             ->name('valabilitati.paginate');
+        Route::get('valabilitati/{valabilitate}/prices', [ValabilitateController::class, 'showPrices'])
+            ->name('valabilitati.prices.show');
+        Route::put('valabilitati/{valabilitate}/prices', [ValabilitateController::class, 'updatePrices'])
+            ->name('valabilitati.prices.update');
 
         Route::get('valabilitati/divizii/{divizie}', [ValabilitatiDivizieController::class, 'show'])
             ->name('valabilitati.divizii.show');

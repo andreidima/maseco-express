@@ -114,6 +114,7 @@
 </div>
 
 @include('valabilitati.partials.divizie-prices-modal')
+@include('valabilitati.partials.valabilitate-prices-modal')
 
 @push('page-scripts')
     <script>
@@ -270,44 +271,31 @@
             }
 
             const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-            const divizieModalElement = document.getElementById('valabilitati-divizie-modal');
-            const divizieModalInstance = divizieModalElement && typeof bootstrap !== 'undefined' && bootstrap.Modal
-                ? new bootstrap.Modal(divizieModalElement)
-                : null;
-            const divizieForm = divizieModalElement?.querySelector('[data-divizie-form]') ?? null;
-            const modalLoading = divizieModalElement?.querySelector('[data-modal-loading]') ?? null;
-            const modalFormWrapper = divizieModalElement?.querySelector('[data-modal-form-wrapper]') ?? null;
-            const modalAlert = divizieModalElement?.querySelector('[data-modal-alert]') ?? null;
-            const modalName = divizieModalElement?.querySelector('[data-divizie-name]') ?? null;
-            const modalEmptyState = divizieModalElement?.querySelector('[data-modal-empty-state]') ?? null;
-            const submitButton = divizieModalElement?.querySelector('[data-modal-submit]') ?? null;
-            const submitSpinner = divizieModalElement?.querySelector('[data-modal-submit-spinner]') ?? null;
-            const submitLabel = divizieModalElement?.querySelector('[data-modal-submit-label]') ?? null;
-
-            const priceFields = ['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa', 'pret_km_bord', 'pret_nr_zile_lucrate', 'contributie_zilnica'];
-            const fieldInputs = {};
-            const fieldErrors = {};
-            const fieldWrappers = {};
-
-            priceFields.forEach(field => {
-                fieldInputs[field] = divizieForm ? divizieForm.querySelector(`[name="${field}"]`) : null;
-                fieldErrors[field] = divizieForm ? divizieForm.querySelector(`[data-error-for="${field}"]`) : null;
-                fieldWrappers[field] = divizieForm ? divizieForm.querySelector(`[data-field-wrapper="${field}"]`) : null;
-            });
+            const priceFields = [
+                'flash_pret_km_gol',
+                'flash_pret_km_plin',
+                'flash_pret_km_cu_taxa',
+                'flash_contributie_zilnica',
+                'timestar_pret_km_bord',
+                'timestar_pret_nr_zile_lucrate',
+            ];
 
             const getVisibleFieldsForDivizie = (divizieId) => {
                 if (divizieId === 1) {
-                    return ['pret_km_gol', 'pret_km_plin', 'pret_km_cu_taxa', 'contributie_zilnica'];
+                    return [
+                        'flash_pret_km_gol',
+                        'flash_pret_km_plin',
+                        'flash_pret_km_cu_taxa',
+                        'flash_contributie_zilnica',
+                    ];
                 }
 
                 if (divizieId === 3) {
-                    return ['pret_km_bord', 'pret_nr_zile_lucrate'];
+                    return ['timestar_pret_km_bord', 'timestar_pret_nr_zile_lucrate'];
                 }
 
                 return [];
             };
-
-            let visibleFields = new Set();
 
             const formatDecimalValue = (value) => {
                 if (value === null || value === undefined || value === '') {
@@ -322,288 +310,369 @@
                 return numberValue.toFixed(3);
             };
 
-            const updateFieldVisibility = (divizieId) => {
-                const fields = getVisibleFieldsForDivizie(divizieId);
-                visibleFields = new Set(fields);
+            const createPriceModalController = ({
+                modalElement,
+                formSelector,
+                triggerSelector,
+                fetchUrlAttr,
+                updateUrlAttr,
+                nameSelector,
+                extractPayload,
+            }) => {
+                if (!modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+                    return null;
+                }
+
+                const modalInstance = new bootstrap.Modal(modalElement);
+                const form = modalElement.querySelector(formSelector);
+                const modalLoading = modalElement.querySelector('[data-modal-loading]');
+                const modalFormWrapper = modalElement.querySelector('[data-modal-form-wrapper]');
+                const modalAlert = modalElement.querySelector('[data-modal-alert]');
+                const modalName = modalElement.querySelector(nameSelector);
+                const modalEmptyState = modalElement.querySelector('[data-modal-empty-state]');
+                const submitButton = modalElement.querySelector('[data-modal-submit]');
+                const submitSpinner = modalElement.querySelector('[data-modal-submit-spinner]');
+                const submitLabel = modalElement.querySelector('[data-modal-submit-label]');
+
+                const fieldInputs = {};
+                const fieldErrors = {};
+                const fieldWrappers = {};
 
                 priceFields.forEach(field => {
-                    const wrapper = fieldWrappers[field];
-                    const input = fieldInputs[field];
-                    const isVisible = visibleFields.has(field);
-
-                    if (wrapper) {
-                        wrapper.classList.toggle('d-none', !isVisible);
-                    }
-
-                    if (input) {
-                        input.disabled = !isVisible;
-                    }
+                    fieldInputs[field] = form ? form.querySelector(`[name="${field}"]`) : null;
+                    fieldErrors[field] = form ? form.querySelector(`[data-error-for="${field}"]`) : null;
+                    fieldWrappers[field] = form ? form.querySelector(`[data-field-wrapper="${field}"]`) : null;
                 });
 
-                if (modalEmptyState) {
-                    modalEmptyState.classList.toggle('d-none', visibleFields.size > 0);
-                }
-            };
+                let visibleFields = new Set();
 
-            const resetModalState = () => {
-                priceFields.forEach(field => {
-                    const input = fieldInputs[field];
-                    const errorElement = fieldErrors[field];
+                const updateFieldVisibility = (divizieId) => {
+                    const fields = getVisibleFieldsForDivizie(divizieId);
+                    visibleFields = new Set(fields);
 
-                    if (input) {
-                        input.value = '';
-                        input.classList.remove('is-invalid');
-                    }
-
-                    if (errorElement) {
-                        errorElement.textContent = '';
-                    }
-                });
-
-                updateFieldVisibility(null);
-            };
-
-            const toggleModalLoading = (loading) => {
-                if (modalLoading) {
-                    modalLoading.classList.toggle('d-none', !loading);
-                }
-
-                if (modalFormWrapper) {
-                    modalFormWrapper.classList.toggle('d-none', loading);
-                }
-            };
-
-            const setModalAlert = (message = '', type = 'danger') => {
-                if (!modalAlert) {
-                    return;
-                }
-
-                modalAlert.classList.remove('alert-danger', 'alert-success');
-                modalAlert.classList.add(`alert-${type}`);
-
-                if (!message) {
-                    modalAlert.classList.add('d-none');
-                    modalAlert.textContent = '';
-                    return;
-                }
-
-                modalAlert.textContent = message;
-                modalAlert.classList.remove('d-none');
-            };
-
-            const setModalSavingState = (saving) => {
-                if (!submitButton) {
-                    return;
-                }
-
-                submitButton.disabled = saving;
-
-                if (submitSpinner) {
-                    submitSpinner.classList.toggle('d-none', !saving);
-                }
-
-                if (submitLabel) {
-                    submitLabel.textContent = saving ? 'Se salvează...' : 'Salvează';
-                }
-            };
-
-            const fillFormValues = (divizie = {}) => {
-                priceFields.forEach(field => {
-                    const input = fieldInputs[field];
-                    const errorElement = fieldErrors[field];
-
-                    if (input) {
-                        input.value = formatDecimalValue(divizie[field]);
-                        input.classList.remove('is-invalid');
-                    }
-
-                    if (errorElement) {
-                        errorElement.textContent = '';
-                    }
-                });
-            };
-
-            const handleValidationErrors = (errors = {}) => {
-                priceFields.forEach(field => {
-                    const messages = Array.isArray(errors[field]) ? errors[field] : [];
-                    const input = fieldInputs[field];
-                    const errorElement = fieldErrors[field];
-
-                    if (input) {
-                        input.classList.toggle('is-invalid', messages.length > 0);
-                    }
-
-                    if (errorElement) {
-                        errorElement.textContent = messages.length ? messages[0] : '';
-                    }
-                });
-            };
-
-            const openDivizieModal = (trigger) => {
-                if (!divizieModalInstance || !divizieForm) {
-                    return;
-                }
-
-                const fetchUrl = trigger.getAttribute('data-fetch-url') || '';
-                const updateUrl = trigger.getAttribute('data-update-url') || '';
-
-                if (!fetchUrl || !updateUrl) {
-                    return;
-                }
-
-                divizieForm.dataset.updateUrl = updateUrl;
-
-                if (modalName) {
-                    modalName.textContent = trigger.getAttribute('data-divizie-name') || '';
-                }
-
-                resetModalState();
-                    handleValidationErrors();
-                    setModalAlert('');
-                    toggleModalLoading(true);
-
-                    divizieModalInstance.show();
-
-                fetch(fetchUrl, {
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'Accept': 'application/json',
-                    },
-                    credentials: 'same-origin',
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error(`Request failed with status ${response.status}`);
-                        }
-
-                        return response.json();
-                    })
-                    .then(data => {
-                        const divizie = data.divizie || {};
-                        const divizieId = Number(divizie.id);
-
-                        updateFieldVisibility(Number.isNaN(divizieId) ? null : divizieId);
-                        fillFormValues(divizie);
-                    })
-                    .catch(error => {
-                        console.error('Valabilități divizie fetch error', error);
-                        setModalAlert('Nu am putut încărca tarifele diviziei. Reîncercați.');
-                    })
-                    .finally(() => {
-                        toggleModalLoading(false);
-                    });
-            };
-
-            if (tableBody && divizieModalInstance) {
-                tableBody.addEventListener('click', event => {
-                    const trigger = event.target.closest('[data-divizie-prices-trigger]');
-                    if (!trigger) {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    openDivizieModal(trigger);
-                });
-            }
-
-            if (divizieForm) {
-                priceFields.forEach(field => {
-                    const input = fieldInputs[field];
-                    if (!input) {
-                        return;
-                    }
-
-                    input.addEventListener('blur', () => {
-                        if (input.value === '') {
-                            return;
-                        }
-
-                        const numericValue = Number(input.value);
-                        if (Number.isNaN(numericValue)) {
-                            return;
-                        }
-
-                        input.value = numericValue.toFixed(3);
-                    });
-                });
-
-                divizieForm.addEventListener('submit', event => {
-                    event.preventDefault();
-
-                    const updateUrl = divizieForm.dataset.updateUrl || '';
-                    if (!updateUrl) {
-                        return;
-                    }
-
-                    handleValidationErrors();
-                    setModalAlert('');
-                    setModalSavingState(true);
-
-                    const payload = {};
-                    visibleFields.forEach(field => {
+                    priceFields.forEach(field => {
+                        const wrapper = fieldWrappers[field];
                         const input = fieldInputs[field];
-                        const value = input ? input.value.trim() : '';
-                        payload[field] = value === '' ? null : value;
+                        const isVisible = visibleFields.has(field);
+
+                        if (wrapper) {
+                            wrapper.classList.toggle('d-none', !isVisible);
+                        }
+
+                        if (input) {
+                            input.disabled = !isVisible;
+                        }
                     });
 
-                    fetch(updateUrl, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': csrfToken,
-                        },
-                        credentials: 'same-origin',
-                        body: JSON.stringify(payload),
-                    })
-                        .then(async response => {
-                            const data = await response.json().catch(() => ({}));
+                    if (modalEmptyState) {
+                        modalEmptyState.classList.toggle('d-none', visibleFields.size > 0);
+                    }
+                };
 
-                            if (!response.ok) {
-                                if (response.status === 422) {
-                                    handleValidationErrors(data.errors || {});
-                                    setModalAlert(data.message || 'Verifică datele introduse.');
-                                    throw new Error('validation');
-                                }
+                const resetModalState = () => {
+                    priceFields.forEach(field => {
+                        const input = fieldInputs[field];
+                        const errorElement = fieldErrors[field];
 
-                                throw new Error(data.message || `Request failed with status ${response.status}`);
-                            }
+                        if (input) {
+                            input.value = '';
+                            input.classList.remove('is-invalid');
+                        }
 
-                            return data;
-                        })
-                        .then(data => {
-                            if (divizieModalInstance) {
-                                divizieModalInstance.hide();
-                            }
+                        if (errorElement) {
+                            errorElement.textContent = '';
+                        }
+                    });
 
-                            renderFeedback(data.message || 'Tarifele diviziei au fost actualizate.', 'success');
-                        })
-                        .catch(error => {
-                            if (error.message === 'validation') {
-                                return;
-                            }
+                    updateFieldVisibility(null);
+                };
 
-                            console.error('Valabilități divizie save error', error);
-                            setModalAlert('Nu am putut salva tarifele diviziei. Reîncercați.');
-                        })
-                        .finally(() => {
-                            setModalSavingState(false);
-                        });
-                });
-            }
+                const toggleModalLoading = (loading) => {
+                    if (modalLoading) {
+                        modalLoading.classList.toggle('d-none', !loading);
+                    }
 
-            if (divizieModalElement) {
-                divizieModalElement.addEventListener('hidden.bs.modal', () => {
+                    if (modalFormWrapper) {
+                        modalFormWrapper.classList.toggle('d-none', loading);
+                    }
+                };
+
+                const setModalAlert = (message = '', type = 'danger') => {
+                    if (!modalAlert) {
+                        return;
+                    }
+
+                    modalAlert.classList.remove('alert-danger', 'alert-success');
+                    modalAlert.classList.add(`alert-${type}`);
+
+                    if (!message) {
+                        modalAlert.classList.add('d-none');
+                        modalAlert.textContent = '';
+                        return;
+                    }
+
+                    modalAlert.textContent = message;
+                    modalAlert.classList.remove('d-none');
+                };
+
+                const setModalSavingState = (saving) => {
+                    if (!submitButton) {
+                        return;
+                    }
+
+                    submitButton.disabled = saving;
+
+                    if (submitSpinner) {
+                        submitSpinner.classList.toggle('d-none', !saving);
+                    }
+
+                    if (submitLabel) {
+                        submitLabel.textContent = saving ? 'Se salvează...' : 'Salvează';
+                    }
+                };
+
+                const fillFormValues = (values = {}) => {
+                    priceFields.forEach(field => {
+                        const input = fieldInputs[field];
+                        const errorElement = fieldErrors[field];
+
+                        if (input) {
+                            input.value = formatDecimalValue(values[field]);
+                            input.classList.remove('is-invalid');
+                        }
+
+                        if (errorElement) {
+                            errorElement.textContent = '';
+                        }
+                    });
+                };
+
+                const handleValidationErrors = (errors = {}) => {
+                    priceFields.forEach(field => {
+                        const messages = Array.isArray(errors[field]) ? errors[field] : [];
+                        const input = fieldInputs[field];
+                        const errorElement = fieldErrors[field];
+
+                        if (input) {
+                            input.classList.toggle('is-invalid', messages.length > 0);
+                        }
+
+                        if (errorElement) {
+                            errorElement.textContent = messages.length ? messages[0] : '';
+                        }
+                    });
+                };
+
+                const openModal = (trigger) => {
+                    if (!form) {
+                        return;
+                    }
+
+                    const fetchUrl = trigger.getAttribute(fetchUrlAttr) || '';
+                    const updateUrl = trigger.getAttribute(updateUrlAttr) || '';
+
+                    if (!fetchUrl || !updateUrl) {
+                        return;
+                    }
+
+                    form.dataset.updateUrl = updateUrl;
+
                     resetModalState();
                     handleValidationErrors();
                     setModalAlert('');
                     toggleModalLoading(true);
 
-                    if (divizieForm) {
-                        delete divizieForm.dataset.updateUrl;
+                    const initialName = trigger.getAttribute('data-price-modal-name') || '';
+                    if (modalName && initialName) {
+                        modalName.textContent = initialName;
+                    }
+
+                    modalInstance.show();
+
+                    fetch(fetchUrl, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`Request failed with status ${response.status}`);
+                            }
+
+                            return response.json();
+                        })
+                        .then(data => {
+                            const payload = extractPayload(data, trigger) || {};
+                            const divizieId = Number(payload.divizieId);
+
+                            if (modalName && payload.name) {
+                                modalName.textContent = payload.name;
+                            }
+
+                            updateFieldVisibility(Number.isNaN(divizieId) ? null : divizieId);
+                            fillFormValues(payload.values || {});
+                        })
+                        .catch(error => {
+                            console.error('Valabilități tarife fetch error', error);
+                            setModalAlert('Nu am putut încărca tarifele. Reîncercați.');
+                        })
+                        .finally(() => {
+                            toggleModalLoading(false);
+                        });
+                };
+
+                if (form) {
+                    priceFields.forEach(field => {
+                        const input = fieldInputs[field];
+                        if (!input) {
+                            return;
+                        }
+
+                        input.addEventListener('blur', () => {
+                            if (input.value === '') {
+                                return;
+                            }
+
+                            const numericValue = Number(input.value);
+                            if (Number.isNaN(numericValue)) {
+                                return;
+                            }
+
+                            input.value = numericValue.toFixed(3);
+                        });
+                    });
+
+                    form.addEventListener('submit', event => {
+                        event.preventDefault();
+
+                        const updateUrl = form.dataset.updateUrl || '';
+                        if (!updateUrl) {
+                            return;
+                        }
+
+                        handleValidationErrors();
+                        setModalAlert('');
+                        setModalSavingState(true);
+
+                        const payload = {};
+                        visibleFields.forEach(field => {
+                            const input = fieldInputs[field];
+                            const value = input ? input.value.trim() : '';
+                            payload[field] = value === '' ? null : value;
+                        });
+
+                        fetch(updateUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': csrfToken,
+                            },
+                            credentials: 'same-origin',
+                            body: JSON.stringify(payload),
+                        })
+                            .then(async response => {
+                                const data = await response.json().catch(() => ({}));
+
+                                if (!response.ok) {
+                                    if (response.status === 422) {
+                                        handleValidationErrors(data.errors || {});
+                                        setModalAlert(data.message || 'Verifică datele introduse.');
+                                        throw new Error('validation');
+                                    }
+
+                                    throw new Error(data.message || `Request failed with status ${response.status}`);
+                                }
+
+                                return data;
+                            })
+                            .then(data => {
+                                modalInstance.hide();
+                                renderFeedback(data.message || 'Tarifele au fost actualizate.', 'success');
+                            })
+                            .catch(error => {
+                                if (error.message === 'validation') {
+                                    return;
+                                }
+
+                                console.error('Valabilități tarife save error', error);
+                                setModalAlert('Nu am putut salva tarifele. Reîncercați.');
+                            })
+                            .finally(() => {
+                                setModalSavingState(false);
+                            });
+                    });
+                }
+
+                modalElement.addEventListener('hidden.bs.modal', () => {
+                    resetModalState();
+                    handleValidationErrors();
+                    setModalAlert('');
+                    toggleModalLoading(true);
+
+                    if (form) {
+                        delete form.dataset.updateUrl;
                     }
                 });
+
+                return {
+                    attach(container) {
+                        container?.addEventListener('click', event => {
+                            const trigger = event.target.closest(triggerSelector);
+                            if (!trigger) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            openModal(trigger);
+                        });
+                    },
+                };
+            };
+
+            const divizieModalController = createPriceModalController({
+                modalElement: document.getElementById('valabilitati-divizie-modal'),
+                formSelector: '[data-divizie-form]',
+                triggerSelector: '[data-divizie-prices-trigger]',
+                fetchUrlAttr: 'data-fetch-url',
+                updateUrlAttr: 'data-update-url',
+                nameSelector: '[data-price-modal-name]',
+                extractPayload: (data, trigger) => {
+                    const divizie = data.divizie || {};
+
+                    return {
+                        values: divizie,
+                        divizieId: Number(divizie.id),
+                        name: trigger?.getAttribute('data-divizie-name') || divizie.nume || '',
+                    };
+                },
+            });
+
+            const valabilitateModalController = createPriceModalController({
+                modalElement: document.getElementById('valabilitati-price-modal'),
+                formSelector: '[data-valabilitate-form]',
+                triggerSelector: '[data-valabilitate-prices-trigger]',
+                fetchUrlAttr: 'data-fetch-url',
+                updateUrlAttr: 'data-update-url',
+                nameSelector: '[data-price-modal-name]',
+                extractPayload: (data, trigger) => {
+                    const valabilitate = data.valabilitate || {};
+                    const divizieId = Number(valabilitate.divizie_id ?? trigger?.getAttribute('data-divizie-id'));
+
+                    return {
+                        values: valabilitate,
+                        divizieId,
+                        name: valabilitate.numar_auto || trigger?.getAttribute('data-valabilitate-numar-auto') || '',
+                    };
+                },
+            });
+
+            if (tableBody) {
+                divizieModalController?.attach(tableBody);
+                valabilitateModalController?.attach(tableBody);
             }
         });
     </script>
