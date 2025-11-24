@@ -18,6 +18,52 @@
     };
     $previousKmSosire = null;
     $currentGroupKey = '__none__';
+    $showGroupKmTotals = optional($valabilitate->divizie)->id === 3;
+    $groupKmTotals = [];
+
+    if ($showGroupKmTotals) {
+        $curseCollection = $curse instanceof \Illuminate\Contracts\Pagination\Paginator
+            || $curse instanceof \Illuminate\Contracts\Pagination\LengthAwarePaginator
+            ? $curse->getCollection()
+            : collect($curse);
+
+        foreach ($curseCollection as $cursaItem) {
+            $groupId = $cursaItem->cursa_grup_id;
+
+            if (! $groupId) {
+                continue;
+            }
+
+            $kmStart = is_numeric($cursaItem->km_bord_incarcare)
+                ? (float) $cursaItem->km_bord_incarcare
+                : null;
+            $kmEnd = is_numeric($cursaItem->km_bord_descarcare)
+                ? (float) $cursaItem->km_bord_descarcare
+                : null;
+
+            if (! array_key_exists($groupId, $groupKmTotals)) {
+                $groupKmTotals[$groupId] = [
+                    'first' => null,
+                    'last' => null,
+                    'total' => null,
+                ];
+            }
+
+            if ($kmStart !== null && $groupKmTotals[$groupId]['first'] === null) {
+                $groupKmTotals[$groupId]['first'] = $kmStart;
+            }
+
+            if ($kmEnd !== null) {
+                $groupKmTotals[$groupId]['last'] = $kmEnd;
+            }
+        }
+
+        foreach ($groupKmTotals as $groupId => $kmData) {
+            if ($kmData['first'] !== null && $kmData['last'] !== null) {
+                $groupKmTotals[$groupId]['total'] = $kmData['last'] - $kmData['first'];
+            }
+        }
+    }
     $resolveRowTextColor = static function ($value): string {
         if (! is_string($value) || $value === '') {
             return '#111111';
@@ -170,6 +216,10 @@
             ];
         }
         $groupCalculatedDays = $groupFinancialMeta['zile_calculate'] ?? '—';
+        $groupTotalKm = null;
+        if ($showGroupKmTotals && $group && isset($groupKmTotals[$group->id])) {
+            $groupTotalKm = $groupKmTotals[$group->id]['total'];
+        }
 
         $alteTaxe = is_numeric($cursa->alte_taxe) ? (float) $cursa->alte_taxe : null;
         $fuelTax = is_numeric($cursa->fuel_tax) ? (float) $cursa->fuel_tax : null;
@@ -223,6 +273,9 @@
                                 <span>Format: <strong>{{ $groupFormat }}</strong></span>
                             @endunless
                             <span>Factură: <strong>{{ $groupInvoice }}</strong></span>
+                            @if ($showGroupKmTotals)
+                                <span>Total km grup: <strong>{{ $groupTotalKm !== null ? number_format($groupTotalKm, 2) : '—' }}</strong></span>
+                            @endif
                             @if ($groupFinancialMeta)
                                 <span>Sumă încasată: <strong>{{ $groupFinancialMeta['suma_incasata'] ?? '—' }}</strong></span>
                                 <span>Sumă calculată: <strong>{{ $groupFinancialMeta['suma_calculata'] ?? '—' }}</strong></span>
