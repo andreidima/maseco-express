@@ -84,6 +84,14 @@ class ValabilitateCursa extends Model
         return $this->hasMany(ValabilitateCursaImage::class, 'valabilitate_cursa_id');
     }
 
+    /**
+     * Backwards-compatible alias for the images relationship.
+     */
+    public function imagines(): HasMany
+    {
+        return $this->images();
+    }
+
     protected static function booted(): void
     {
         static::saved(static function (ValabilitateCursa $cursa): void {
