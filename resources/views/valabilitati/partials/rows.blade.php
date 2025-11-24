@@ -18,6 +18,7 @@
                     class="btn btn-link p-0 align-baseline text-decoration-none fw-semibold"
                     data-divizie-prices-trigger
                     data-divizie-name="{{ $valabilitate->divizie->nume }}"
+                    data-price-modal-name="{{ $valabilitate->divizie->nume }}"
                     data-fetch-url="{{ route('valabilitati.divizii.show', $valabilitate->divizie) }}"
                     data-update-url="{{ route('valabilitati.divizii.update', $valabilitate->divizie) }}"
                 >
@@ -39,6 +40,21 @@
                 <div class="ms-1">
                     <a href="{{ route('valabilitati.curse.index', $valabilitate) }}" class="flex">
                         <span class="badge bg-info text-dark">Curse</span>
+                    </a>
+                </div>
+                <div class="ms-1">
+                    <a
+                        href="#"
+                        class="flex"
+                        data-valabilitate-prices-trigger
+                        data-price-modal-name="{{ $valabilitate->numar_auto }}"
+                        data-valabilitate-numar-auto="{{ $valabilitate->numar_auto }}"
+                        data-divizie-id="{{ $valabilitate->divizie_id }}"
+                        data-fetch-url="{{ route('valabilitati.prices.show', $valabilitate) }}"
+                        data-update-url="{{ route('valabilitati.prices.update', $valabilitate) }}"
+                        title="Tarife valabilitate"
+                    >
+                        <span class="badge bg-secondary text-white">Tarife valabilitate</span>
                     </a>
                 </div>
                 <div class="ms-1">

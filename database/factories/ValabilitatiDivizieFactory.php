@@ -16,11 +16,12 @@ class ValabilitatiDivizieFactory extends Factory
     {
         return [
             'nume' => fake()->unique()->company(),
-            'pret_km_gol' => fake()->randomFloat(3, 0, 10),
-            'pret_km_plin' => fake()->randomFloat(3, 0, 15),
-            'pret_km_cu_taxa' => fake()->randomFloat(3, 0, 20),
-            'pret_km_bord' => fake()->randomFloat(3, 0, 20),
-            'pret_nr_zile_lucrate' => fake()->randomFloat(3, 0, 30),
+            'flash_pret_km_gol' => fake()->randomFloat(3, 0, 10),
+            'flash_pret_km_plin' => fake()->randomFloat(3, 0, 15),
+            'flash_pret_km_cu_taxa' => fake()->randomFloat(3, 0, 20),
+            'flash_contributie_zilnica' => fake()->randomFloat(3, 0, 20),
+            'timestar_pret_km_bord' => fake()->randomFloat(3, 0, 20),
+            'timestar_pret_nr_zile_lucrate' => fake()->randomFloat(3, 0, 30),
         ];
     }
 }
