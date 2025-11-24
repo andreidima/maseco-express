@@ -32,7 +32,7 @@
                         <div class="card h-100 shadow-sm">
                             <div class="ratio ratio-4x3 bg-light">
                                 <img
-                                    src="{{ route('valabilitati.curse.images.stream', [$valabilitate, $cursa, $imagine]) }}"
+                                    src="{{ \Illuminate\Support\Facades\Storage::url($imagine->path) }}"
                                     alt="{{ $imagine->original_name ?? 'Imagine cursă' }}"
                                     class="img-fluid w-100 h-100 object-fit-cover"
                                 >
@@ -48,7 +48,7 @@
                                 </div>
                                 <div class="mt-auto d-flex justify-content-between align-items-center">
                                     <a
-                                        href="{{ route('valabilitati.curse.images.stream', [$valabilitate, $cursa, $imagine]) }}"
+                                        href="{{ \Illuminate\Support\Facades\Storage::url($imagine->path) }}"
                                         class="btn btn-sm btn-outline-secondary"
                                         target="_blank"
                                         rel="noopener noreferrer"

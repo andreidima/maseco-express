@@ -407,11 +407,6 @@ Route::middleware(['auth'])->group(function () {
             Route::get('valabilitati/{valabilitate}/curse/{cursa}/imagini', [ValabilitateCursaImageController::class, 'index'])
                 ->name('valabilitati.curse.images.index');
             Route::get(
-                'valabilitati/{valabilitate}/curse/{cursa}/imagini/{imagine}/stream',
-                [ValabilitateCursaImageController::class, 'stream']
-            )
-                ->name('valabilitati.curse.images.stream');
-            Route::get(
                 'valabilitati/{valabilitate}/curse/{cursa}/imagini/{imagine}/download',
                 [ValabilitateCursaImageController::class, 'download']
             )
