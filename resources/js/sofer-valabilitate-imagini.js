@@ -23,6 +23,9 @@ if (root) {
 
     const defaultSaveLabel = saveButton.innerHTML;
 
+    let targetWidth = 0;
+    let targetHeight = 0;
+
     const updateContainerSize = () => {
         if (!cropperContainer || !cropperImage) {
             return;
@@ -35,8 +38,8 @@ if (root) {
 
         const targetMaxWidth = Math.min(viewportWidth * 0.9, 850);
         const aspectRatio = naturalHeight / naturalWidth;
-        const targetWidth = targetMaxWidth;
-        const targetHeight = Math.min(targetWidth * aspectRatio, viewportHeight * 0.68);
+        targetWidth = targetMaxWidth;
+        targetHeight = Math.min(targetWidth * aspectRatio, viewportHeight * 0.68);
 
         cropperContainer.style.maxWidth = `${targetMaxWidth}px`;
         cropperContainer.style.height = `${targetHeight}px`;
