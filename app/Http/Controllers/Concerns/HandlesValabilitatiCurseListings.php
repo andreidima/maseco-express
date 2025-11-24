@@ -78,6 +78,7 @@ trait HandlesValabilitatiCurseListings
             'table_html' => view('valabilitati.curse.partials.rows', [
                 'valabilitate' => $valabilitate,
                 'curse' => $curse,
+                'groupFinancials' => $summary['groupFinancials'] ?? collect(),
             ])->render(),
             'modals_html' => view('valabilitati.curse.partials.modals', $this->buildModalViewData(
                 $valabilitate,
@@ -93,6 +94,8 @@ trait HandlesValabilitatiCurseListings
 
     protected function buildSummaryData(Valabilitate $valabilitate, $curse): array
     {
+        $valabilitate->loadMissing(['cursaGrupuri.curse']);
+
         $curseCollection = $this->resolveCurseCollection($curse);
 
         $isFlashDivision = optional($valabilitate->divizie)->id === 1;
@@ -185,30 +188,7 @@ trait HandlesValabilitatiCurseListings
             ? $dataInceput->diffInDays($dataSfarsit) + 1
             : null;
 
-        $groupFinancials = $valabilitate->cursaGrupuri
-            ->map(static function ($grup) {
-                $incasata = $grup->suma_incasata !== null ? (float) $grup->suma_incasata : null;
-                $calculata = $grup->suma_calculata !== null ? (float) $grup->suma_calculata : null;
-                $diferenta = null;
-
-                if ($incasata !== null || $calculata !== null) {
-                    $diferenta = ($incasata ?? 0.0) - ($calculata ?? 0.0);
-                }
-
-                return [
-                    'id' => $grup->getKey(),
-                    'nume' => $grup->nume,
-                    'format' => $grup->format_documente,
-                    'format_label' => $grup->formatDocumenteLabel(),
-                    'suma_incasata' => $incasata,
-                    'suma_calculata' => $calculata,
-                    'diferenta' => $diferenta,
-                    'numar_factura' => $grup->numar_factura,
-                    'data_factura' => $grup->data_factura,
-                    'culoare_hex' => $grup->culoare_hex,
-                ];
-            })
-            ->values();
+        $groupFinancials = $this->buildGroupFinancials($valabilitate);
 
         $groupTotals = [
             'suma_incasata' => $groupFinancials->pluck('suma_incasata')->filter(static fn ($v) => $v !== null)->sum(),
@@ -251,6 +231,72 @@ trait HandlesValabilitatiCurseListings
             'groupFinancials' => $groupFinancials,
             'groupFinancialTotals' => $groupTotals,
         ];
+    }
+
+    protected function buildGroupFinancials(Valabilitate $valabilitate): Collection
+    {
+        return $valabilitate->cursaGrupuri
+            ->map(function ($grup) use ($valabilitate) {
+                $incasata = $grup->suma_incasata !== null ? (float) $grup->suma_incasata : null;
+                $calculata = $this->computeGroupCalculatedAmount($grup, $valabilitate);
+                $diferenta = null;
+
+                if ($incasata !== null || $calculata !== null) {
+                    $diferenta = ($incasata ?? 0.0) - ($calculata ?? 0.0);
+                }
+
+                return [
+                    'id' => $grup->getKey(),
+                    'nume' => $grup->nume,
+                    'format' => $grup->format_documente,
+                    'format_label' => $grup->formatDocumenteLabel(),
+                    'suma_incasata' => $incasata,
+                    'suma_calculata' => $calculata,
+                    'diferenta' => $diferenta,
+                    'numar_factura' => $grup->numar_factura,
+                    'data_factura' => $grup->data_factura,
+                    'culoare_hex' => $grup->culoare_hex,
+                    'zile_calculate' => is_numeric($grup->zile_calculate) ? (int) $grup->zile_calculate : null,
+                ];
+            })
+            ->values();
+    }
+
+    protected function computeGroupCalculatedAmount(ValabilitateCursaGrup $grup, Valabilitate $valabilitate): ?float
+    {
+        $pricePerKm = $valabilitate->timestar_pret_km_bord !== null
+            ? (float) $valabilitate->timestar_pret_km_bord
+            : null;
+        $pricePerDay = $valabilitate->timestar_pret_nr_zile_lucrate !== null
+            ? (float) $valabilitate->timestar_pret_nr_zile_lucrate
+            : null;
+
+        $kmStart = $grup->curse
+            ->pluck('km_bord_incarcare')
+            ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+            ->map(static fn ($value) => (float) $value)
+            ->min();
+
+        $kmEnd = $grup->curse
+            ->pluck('km_bord_descarcare')
+            ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+            ->map(static fn ($value) => (float) $value)
+            ->max();
+
+        $daysWorked = is_numeric($grup->zile_calculate) ? (int) $grup->zile_calculate : null;
+
+        $kmComponent = $kmStart !== null && $kmEnd !== null && $pricePerKm !== null
+            ? round($kmEnd - $kmStart, 2) * $pricePerKm
+            : null;
+        $dayComponent = $daysWorked !== null && $pricePerDay !== null
+            ? $daysWorked * $pricePerDay
+            : null;
+
+        if ($kmComponent === null && $dayComponent === null) {
+            return null;
+        }
+
+        return round(($kmComponent ?? 0) + ($dayComponent ?? 0), 2);
     }
 
     protected function resolveCurseCollection($curse): Collection

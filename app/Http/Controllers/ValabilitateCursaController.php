@@ -47,6 +47,7 @@ class ValabilitateCursaController extends Controller
             'nextPageUrl' => $this->buildNextPageUrl($request, $valabilitate, $curse),
             'backUrl' => ValabilitatiFilterState::route(),
             'summary' => $summary,
+            'groupFinancials' => $summary['groupFinancials'] ?? collect(),
             'modalViewData' => $modalViewData,
             'bulkAssignRoute' => route('valabilitati.curse.bulk-assign', $valabilitate),
         ]);
@@ -66,6 +67,7 @@ class ValabilitateCursaController extends Controller
             'rows_html' => view('valabilitati.curse.partials.rows', [
                 'valabilitate' => $valabilitate,
                 'curse' => $curse,
+                'groupFinancials' => $summary['groupFinancials'] ?? collect(),
             ])->render(),
             'modals_html' => view('valabilitati.curse.partials.modals', $this->buildModalViewData(
                 $valabilitate,

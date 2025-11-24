@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Tara;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
+use App\Models\ValabilitateCursaGrup;
 use App\Models\ValabilitateCursaImage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -236,6 +237,44 @@ class ValabilitateCursaTest extends TestCase
         $response->assertSeeText('10.06.2025 16:20');
         $response->assertSeeText('15400');
         $response->assertSeeText('15900');
+    }
+
+    public function test_index_view_displays_computed_suma_calculata_for_group(): void
+    {
+        $user = $this->createValabilitatiUser();
+        $valabilitate = Valabilitate::factory()->create([
+            'timestar_pret_km_bord' => 1.5,
+            'timestar_pret_nr_zile_lucrate' => 10,
+        ]);
+
+        $grup = ValabilitateCursaGrup::create([
+            'valabilitate_id' => $valabilitate->id,
+            'nume' => 'Test grup',
+            'suma_calculata' => 999.99,
+            'zile_calculate' => 4,
+        ]);
+
+        ValabilitateCursa::factory()->create([
+            'valabilitate_id' => $valabilitate->id,
+            'cursa_grup_id' => $grup->id,
+            'nr_ordine' => 1,
+            'km_bord_incarcare' => 1000,
+            'km_bord_descarcare' => 1100,
+        ]);
+
+        ValabilitateCursa::factory()->create([
+            'valabilitate_id' => $valabilitate->id,
+            'cursa_grup_id' => $grup->id,
+            'nr_ordine' => 2,
+            'km_bord_incarcare' => 1100,
+            'km_bord_descarcare' => 1300,
+        ]);
+
+        $response = $this->actingAs($user)->get(route('valabilitati.curse.index', $valabilitate));
+
+        $response->assertOk();
+        $response->assertSeeText('490.00');
+        $response->assertDontSeeText('999.99');
     }
 
     public function test_index_displays_split_maps_columns_and_values(): void
