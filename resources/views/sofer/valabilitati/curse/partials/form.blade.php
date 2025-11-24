@@ -186,7 +186,6 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div>
                             <p class="fw-semibold mb-0">Încărcări</p>
-                            <small class="text-muted">Adăugați punctele de încărcare în ordinea dorită.</small>
                         </div>
                         <button
                             type="button"
@@ -216,7 +215,6 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div>
                             <p class="fw-semibold mb-0">Descărcări</p>
-                            <small class="text-muted">Adăugați punctele de descărcare în ordinea dorită.</small>
                         </div>
                         <button
                             type="button"
