@@ -9,7 +9,7 @@
             font-family: DejaVu Sans, sans-serif;
             margin: 0;
             padding: 0;
-            background: #f8f9fa;
+            /* background: #f8f9fa; */
         }
 
         .container {
@@ -22,7 +22,8 @@
 
         .image-wrapper img {
             max-width: 100%;
-            height: auto;
+            max-height: 95%;
+            /* height: auto; */
         }
 
         .meta {
@@ -34,9 +35,9 @@
 </head>
 <body>
 <div class="container">
-    <div class="meta">
+    {{-- <div class="meta">
         <div><strong>Imagine:</strong> {{ $imagine->original_name ?? 'Imagine cursă' }}</div>
-    </div>
+    </div> --}}
     <div class="image-wrapper">
         <img src="{{ $imageDataUri }}" alt="Imagine cursă">
     </div>
