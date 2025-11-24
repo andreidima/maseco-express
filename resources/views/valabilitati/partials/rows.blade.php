@@ -43,21 +43,6 @@
                     </a>
                 </div>
                 <div class="ms-1">
-                    <a
-                        href="#"
-                        class="flex"
-                        data-valabilitate-prices-trigger
-                        data-price-modal-name="{{ $valabilitate->numar_auto }}"
-                        data-valabilitate-numar-auto="{{ $valabilitate->numar_auto }}"
-                        data-divizie-id="{{ $valabilitate->divizie_id }}"
-                        data-fetch-url="{{ route('valabilitati.prices.show', $valabilitate) }}"
-                        data-update-url="{{ route('valabilitati.prices.update', $valabilitate) }}"
-                        title="Tarife valabilitate"
-                    >
-                        <span class="badge bg-secondary text-white">Tarife valabilitate</span>
-                    </a>
-                </div>
-                <div class="ms-1">
                     <a href="{{ route('valabilitati.alimentari.index', $valabilitate) }}" class="flex">
                         <span class="badge bg-warning text-dark">Alimentari</span>
                     </a>
@@ -74,6 +59,21 @@
                         title="Modifică valabilitatea"
                     >
                         <span class="badge bg-primary">Modifică</span>
+                    </a>
+                </div>
+                <div class="ms-1">
+                    <a
+                        href="#"
+                        class="flex"
+                        data-valabilitate-prices-trigger
+                        data-price-modal-name="{{ $valabilitate->numar_auto }}"
+                        data-valabilitate-numar-auto="{{ $valabilitate->numar_auto }}"
+                        data-divizie-id="{{ $valabilitate->divizie_id }}"
+                        data-fetch-url="{{ route('valabilitati.prices.show', $valabilitate) }}"
+                        data-update-url="{{ route('valabilitati.prices.update', $valabilitate) }}"
+                        title="Tarife valabilitate"
+                    >
+                        <span class="badge bg-secondary text-white">Tarife valabilitate</span>
                     </a>
                 </div>
                 <div class="ms-1">
