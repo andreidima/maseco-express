@@ -181,7 +181,7 @@
         </div>
 
         <div class="col-12 col-md-6">
-            <label class="form-label small text-uppercase fw-semibold">Ora cursei</label>
+            <label class="form-label small text-uppercase fw-semibold">Data și ora cursei</label>
             <input
                 type="datetime-local"
                 name="data_cursa"

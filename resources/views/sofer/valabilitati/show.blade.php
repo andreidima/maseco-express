@@ -148,67 +148,51 @@
                                                     ->sortBy('position');
                                             @endphp
 
-                                            <div class="row g-2 small text-muted mt-1">
-                                                <div class="col-12 col-sm-6">
-                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Țara încărcării</p>
-                                                    <p class="mb-0">
-                                                        <span class="text-body-secondary">{{ $cursa->incarcareTara?->nume ?? '—' }}</span>
-                                                    </p>
-                                                </div>
-
-                                                <div class="col-12 col-sm-6 text-sm-end">
-                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Țara descărcării</p>
-                                                    <p class="mb-0">
-                                                        <span class="text-body-secondary">{{ $cursa->descarcareTara?->nume ?? '—' }}</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-
-                                            <div class="row g-2 small text-muted mt-1">
+                                            <div class="row g-2 small text-muted">
                                                 <div class="col-12">
-                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Data și ora cursei</p>
-                                                    <p class="mb-0">
-                                                        <span class="text-body-secondary">
-                                                            {{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? '—' }}
-                                                        </span>
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-0">
+                                                        {{ $cursa->incarcareTara?->nume ?? '—' }}
+                                                        ->
+                                                        {{ $cursa->descarcareTara?->nume ?? '—' }}
                                                     </p>
                                                 </div>
                                             </div>
 
                                             <div class="row g-3 small text-muted mt-1">
-                                                <div class="col-12 col-md-6">
-                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Încărcări</p>
-                                                    <ol class="mb-0 ps-3">
+                                                <div class="col-6">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-0">Încărcări</p>
                                                         @forelse ($incarcareStops as $stop)
-                                                            <li class="text-body-secondary">
+                                                                {{ $loop->iteration }}.
                                                                 {{ $stop->localitate }}
-                                                                @if ($stop->cod_postal)
-                                                                    <span class="text-muted">({{ $stop->cod_postal }})</span>
-                                                                @endif
-                                                            </li>
+                                                                <br>
                                                         @empty
-                                                            <li class="text-body-secondary">—</li>
+                                                            —
                                                         @endforelse
-                                                    </ol>
                                                 </div>
 
-                                                <div class="col-12 col-md-6 text-md-end">
-                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Descărcări</p>
-                                                    <ol class="mb-0 ps-3">
+                                                <div class="col-6 text-end">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-0">Descărcări</p>
                                                         @forelse ($descarcareStops as $stop)
-                                                            <li class="text-body-secondary">
+                                                                {{ $loop->iteration }}.
                                                                 {{ $stop->localitate }}
-                                                                @if ($stop->cod_postal)
-                                                                    <span class="text-muted">({{ $stop->cod_postal }})</span>
-                                                                @endif
-                                                            </li>
+                                                                <br>
                                                         @empty
-                                                            <li class="text-body-secondary">—</li>
+                                                            —
                                                         @endforelse
-                                                    </ol>
                                                 </div>
                                             </div>
                                         @endunless
+
+                                            <div class="row g-2 small text-muted mt-1">
+                                                <div class="col-12 d-flex align-items-center">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-0">Data:</p>
+                                                    <p class="mb-0 ms-1">
+                                                        <span class="text-body-secondary small">
+                                                            {{ optional($cursa->data_cursa)->format('d.m.Y H:i') ?? '—' }}
+                                                        </span>
+                                                    </p>
+                                                </div>
+                                            </div>
 
                                         @unless ($isFlashDivizie)
                                             <div class="row g-2 small text-muted mt-2">
