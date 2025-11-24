@@ -87,32 +87,34 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
-        <div class="col-12 col-md-6">
-            <label class="form-label small text-uppercase fw-semibold">Localitate încărcare</label>
-            <input
-                type="text"
-                name="incarcare_localitate"
-                class="form-control form-control-sm @error('incarcare_localitate') is-invalid @enderror"
-                value="{{ $incarcareLocalitate }}"
-                autocomplete="off"
-            >
-            @error('incarcare_localitate')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-        <div class="col-12 col-md-6">
-            <label class="form-label small text-uppercase fw-semibold">Cod poștal încărcare</label>
-            <input
-                type="text"
-                name="incarcare_cod_postal"
-                class="form-control form-control-sm @error('incarcare_cod_postal') is-invalid @enderror"
-                value="{{ $incarcareCodPostal }}"
-                autocomplete="off"
-            >
-            @error('incarcare_cod_postal')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+        @unless ($isFlashDivizie)
+            <div class="col-12 col-md-6">
+                <label class="form-label small text-uppercase fw-semibold">Localitate încărcare</label>
+                <input
+                    type="text"
+                    name="incarcare_localitate"
+                    class="form-control form-control-sm @error('incarcare_localitate') is-invalid @enderror"
+                    value="{{ $incarcareLocalitate }}"
+                    autocomplete="off"
+                >
+                @error('incarcare_localitate')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label small text-uppercase fw-semibold">Cod poștal încărcare</label>
+                <input
+                    type="text"
+                    name="incarcare_cod_postal"
+                    class="form-control form-control-sm @error('incarcare_cod_postal') is-invalid @enderror"
+                    value="{{ $incarcareCodPostal }}"
+                    autocomplete="off"
+                >
+                @error('incarcare_cod_postal')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        @endunless
         <div class="col-12 col-md-6" data-country-field data-country-role="incarcare">
             <label class="form-label small text-uppercase fw-semibold">Țara încărcării</label>
             <input type="hidden" name="incarcare_tara_id" value="{{ $incarcareTaraId ?: '' }}" data-country-hidden>
@@ -131,32 +133,34 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
-        <div class="col-12 col-md-6">
-            <label class="form-label small text-uppercase fw-semibold">Localitate descărcare</label>
-            <input
-                type="text"
-                name="descarcare_localitate"
-                class="form-control form-control-sm @error('descarcare_localitate') is-invalid @enderror"
-                value="{{ $descarcareLocalitate }}"
-                autocomplete="off"
-            >
-            @error('descarcare_localitate')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
-        <div class="col-12 col-md-6">
-            <label class="form-label small text-uppercase fw-semibold">Cod poștal descărcare</label>
-            <input
-                type="text"
-                name="descarcare_cod_postal"
-                class="form-control form-control-sm @error('descarcare_cod_postal') is-invalid @enderror"
-                value="{{ $descarcareCodPostal }}"
-                autocomplete="off"
-            >
-            @error('descarcare_cod_postal')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
+        @unless ($isFlashDivizie)
+            <div class="col-12 col-md-6">
+                <label class="form-label small text-uppercase fw-semibold">Localitate descărcare</label>
+                <input
+                    type="text"
+                    name="descarcare_localitate"
+                    class="form-control form-control-sm @error('descarcare_localitate') is-invalid @enderror"
+                    value="{{ $descarcareLocalitate }}"
+                    autocomplete="off"
+                >
+                @error('descarcare_localitate')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+            <div class="col-12 col-md-6">
+                <label class="form-label small text-uppercase fw-semibold">Cod poștal descărcare</label>
+                <input
+                    type="text"
+                    name="descarcare_cod_postal"
+                    class="form-control form-control-sm @error('descarcare_cod_postal') is-invalid @enderror"
+                    value="{{ $descarcareCodPostal }}"
+                    autocomplete="off"
+                >
+                @error('descarcare_cod_postal')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+            </div>
+        @endunless
         <div class="col-12 col-md-6" data-country-field data-country-role="descarcare">
             <label class="form-label small text-uppercase fw-semibold">Țara descărcării</label>
             <input type="hidden" name="descarcare_tara_id" value="{{ $descarcareTaraId ?: '' }}" data-country-hidden>
@@ -184,9 +188,14 @@
                             <p class="fw-semibold mb-0">Încărcări</p>
                             <small class="text-muted">Adăugați punctele de încărcare în ordinea dorită.</small>
                         </div>
-                        <button type="button" class="btn btn-outline-primary btn-sm" data-stop-add data-stop-target="incarcare">
+                        <button
+                            type="button"
+                            class="btn btn-success btn-sm d-inline-flex align-items-center justify-content-center"
+                            data-stop-add
+                            data-stop-target="incarcare"
+                            aria-label="Adaugă încărcare"
+                        >
                             <i class="fa-solid fa-plus"></i>
-                            <span class="ms-1">Adaugă</span>
                         </button>
                     </div>
                     <div
@@ -209,9 +218,14 @@
                             <p class="fw-semibold mb-0">Descărcări</p>
                             <small class="text-muted">Adăugați punctele de descărcare în ordinea dorită.</small>
                         </div>
-                        <button type="button" class="btn btn-outline-primary btn-sm" data-stop-add data-stop-target="descarcare">
+                        <button
+                            type="button"
+                            class="btn btn-success btn-sm d-inline-flex align-items-center justify-content-center"
+                            data-stop-add
+                            data-stop-target="descarcare"
+                            aria-label="Adaugă descărcare"
+                        >
                             <i class="fa-solid fa-plus"></i>
-                            <span class="ms-1">Adaugă</span>
                         </button>
                     </div>
                     <div
@@ -627,10 +641,17 @@
 
             const buildStopManager = (container) => {
                 const type = container.dataset.stopType || 'incarcare';
-                let stops = parseStops(container.dataset.initialStops).map((stop) => ({
-                    ...stop,
-                    formIndex: stopIndex++,
-                }));
+                let stops = parseStops(container.dataset.initialStops)
+                    .sort((a, b) => {
+                        const positionA = Number.parseInt(a?.position ?? 0, 10) || 0;
+                        const positionB = Number.parseInt(b?.position ?? 0, 10) || 0;
+
+                        return positionA - positionB;
+                    })
+                    .map((stop) => ({
+                        ...stop,
+                        formIndex: stopIndex++,
+                    }));
 
                 const normaliseStops = () => {
                     stops = (stops || [])
@@ -639,11 +660,20 @@
                             type,
                             cod_postal: String(stop.cod_postal ?? ''),
                             localitate: String(stop.localitate ?? ''),
-                            position: Number.parseInt(stop.position ?? index + 1, 10) || index + 1,
+                            position: index + 1,
                             formIndex: typeof stop.formIndex === 'number' ? stop.formIndex : stopIndex++,
-                        }))
-                        .sort((a, b) => a.position - b.position)
-                        .map((stop, index) => ({ ...stop, position: index + 1 }));
+                        }));
+                };
+
+                const moveStop = (fromIndex, toIndex) => {
+                    if (fromIndex === toIndex || toIndex < 0 || toIndex >= stops.length) {
+                        return;
+                    }
+
+                    const [movedStop] = stops.splice(fromIndex, 1);
+                    stops.splice(toIndex, 0, movedStop);
+                    normaliseStops();
+                    render();
                 };
 
                 const render = () => {
@@ -708,27 +738,13 @@
                         moveUp.type = 'button';
                         moveUp.className = 'btn btn-outline-secondary btn-sm';
                         moveUp.textContent = 'Sus';
-                        moveUp.addEventListener('click', () => {
-                            if (index === 0) {
-                                return;
-                            }
-
-                            [stops[index - 1], stops[index]] = [stops[index], stops[index - 1]];
-                            render();
-                        });
+                        moveUp.addEventListener('click', () => moveStop(index, index - 1));
 
                         const moveDown = document.createElement('button');
                         moveDown.type = 'button';
                         moveDown.className = 'btn btn-outline-secondary btn-sm';
                         moveDown.textContent = 'Jos';
-                        moveDown.addEventListener('click', () => {
-                            if (index >= stops.length - 1) {
-                                return;
-                            }
-
-                            [stops[index + 1], stops[index]] = [stops[index], stops[index + 1]];
-                            render();
-                        });
+                        moveDown.addEventListener('click', () => moveStop(index, index + 1));
 
                         const remove = document.createElement('button');
                         remove.type = 'button';
@@ -736,6 +752,7 @@
                         remove.textContent = 'Șterge';
                         remove.addEventListener('click', () => {
                             stops.splice(index, 1);
+                            normaliseStops();
                             render();
                         });
 
@@ -751,9 +768,18 @@
                                 return;
                             }
 
-                            stops[index].position = value;
-                            stops.sort((a, b) => a.position - b.position);
-                            render();
+                            const targetIndex = Math.min(Math.max(value - 1, 0), stops.length - 1);
+                            moveStop(index, targetIndex);
+                        });
+
+                        const postalInput = postalCol.querySelector('input');
+                        postalInput.addEventListener('input', (event) => {
+                            stops[index].cod_postal = event.target.value || '';
+                        });
+
+                        const cityInput = cityCol.querySelector('input');
+                        cityInput.addEventListener('input', (event) => {
+                            stops[index].localitate = event.target.value || '';
                         });
 
                         container.appendChild(wrapper);
