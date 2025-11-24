@@ -22,6 +22,43 @@
 
     $dataCursaValue = old('data_cursa', optional(optional($cursa)->data_cursa)->format('Y-m-d\TH:i'));
     $nrCursa = old('nr_cursa', optional($cursa)->nr_cursa);
+
+    $stops = collect(old('stops') ?? optional($cursa)->stops?->map(function ($stop) {
+        return [
+            'type' => $stop->type,
+            'cod_postal' => $stop->cod_postal,
+            'localitate' => $stop->localitate,
+            'position' => $stop->position,
+        ];
+    }) ?? [])->values();
+
+    $incarcareStops = $stops
+        ->where('type', 'incarcare')
+        ->values()
+        ->map(function ($stop, $index) {
+            return [
+                'type' => 'incarcare',
+                'cod_postal' => $stop['cod_postal'] ?? '',
+                'localitate' => $stop['localitate'] ?? '',
+                'position' => (int) ($stop['position'] ?? ($index + 1)),
+            ];
+        });
+
+    $descarcareStops = $stops
+        ->where('type', 'descarcare')
+        ->values()
+        ->map(function ($stop, $index) {
+            return [
+                'type' => 'descarcare',
+                'cod_postal' => $stop['cod_postal'] ?? '',
+                'localitate' => $stop['localitate'] ?? '',
+                'position' => (int) ($stop['position'] ?? ($index + 1)),
+            ];
+        });
+
+    $stopErrorMessages = collect($errors?->getMessages() ?? [])
+        ->filter(fn ($messages, $key) => str_starts_with($key, 'stops.'))
+        ->flatten();
 @endphp
 
 <form
@@ -138,6 +175,55 @@
                 <div class="invalid-feedback">{{ $message }}</div>
             @enderror
         </div>
+
+        @if ($isFlashDivizie)
+            <div class="col-12">
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <p class="fw-semibold mb-0">Încărcări</p>
+                            <small class="text-muted">Adăugați punctele de încărcare în ordinea dorită.</small>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-stop-add data-stop-target="incarcare">
+                            <i class="fa-solid fa-plus"></i>
+                            <span class="ms-1">Adaugă</span>
+                        </button>
+                    </div>
+                    <div
+                        class="stop-list"
+                        data-stop-manager
+                        data-stop-type="incarcare"
+                        data-initial-stops='@json($incarcareStops)'
+                        data-stop-items
+                    ></div>
+                    @if ($stopErrorMessages->isNotEmpty())
+                        <div class="text-danger small mt-2">{{ $stopErrorMessages->first() }}</div>
+                    @endif
+                </div>
+            </div>
+
+            <div class="col-12 mt-3">
+                <div class="border rounded-3 p-3 bg-light">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <div>
+                            <p class="fw-semibold mb-0">Descărcări</p>
+                            <small class="text-muted">Adăugați punctele de descărcare în ordinea dorită.</small>
+                        </div>
+                        <button type="button" class="btn btn-outline-primary btn-sm" data-stop-add data-stop-target="descarcare">
+                            <i class="fa-solid fa-plus"></i>
+                            <span class="ms-1">Adaugă</span>
+                        </button>
+                    </div>
+                    <div
+                        class="stop-list"
+                        data-stop-manager
+                        data-stop-type="descarcare"
+                        data-initial-stops='@json($descarcareStops)'
+                        data-stop-items
+                    ></div>
+                </div>
+            </div>
+        @endif
         <div class="col-12 col-md-6">
             <label class="form-label small text-uppercase fw-semibold">Ora cursei</label>
             <input
@@ -216,6 +302,29 @@
 
         .country-autocomplete .dropdown-item {
             white-space: normal;
+        }
+
+        .stop-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .stop-item {
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 0.5rem;
+            padding: 0.75rem;
+        }
+
+        .stop-item .form-control-sm {
+            font-size: 0.9rem;
+        }
+
+        .stop-item__actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
         }
     </style>
 @endpush
@@ -498,6 +607,195 @@
             };
 
             form.querySelectorAll('[data-country-field]').forEach((field) => bindCountryField(field));
+
+            const parseStops = (raw) => {
+                if (!raw) {
+                    return [];
+                }
+
+                try {
+                    const parsed = JSON.parse(raw);
+
+                    return Array.isArray(parsed) ? parsed : [];
+                } catch (error) {
+                    return [];
+                }
+            };
+
+            const stopManagers = new Map();
+            let stopIndex = 0;
+
+            const buildStopManager = (container) => {
+                const type = container.dataset.stopType || 'incarcare';
+                let stops = parseStops(container.dataset.initialStops).map((stop) => ({
+                    ...stop,
+                    formIndex: stopIndex++,
+                }));
+
+                const normaliseStops = () => {
+                    stops = (stops || [])
+                        .filter((stop) => stop && typeof stop === 'object')
+                        .map((stop, index) => ({
+                            type,
+                            cod_postal: String(stop.cod_postal ?? ''),
+                            localitate: String(stop.localitate ?? ''),
+                            position: Number.parseInt(stop.position ?? index + 1, 10) || index + 1,
+                            formIndex: typeof stop.formIndex === 'number' ? stop.formIndex : stopIndex++,
+                        }))
+                        .sort((a, b) => a.position - b.position)
+                        .map((stop, index) => ({ ...stop, position: index + 1 }));
+                };
+
+                const render = () => {
+                    normaliseStops();
+                    container.innerHTML = '';
+
+                    stops.forEach((stop, index) => {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'stop-item';
+
+                        const row = document.createElement('div');
+                        row.className = 'row g-2 align-items-end';
+
+                        const orderCol = document.createElement('div');
+                        orderCol.className = 'col-12 col-md-3';
+                        orderCol.innerHTML = `
+                            <label class="form-label small text-uppercase fw-semibold mb-1">Ordine</label>
+                            <input
+                                type="number"
+                                name="stops[${stop.formIndex}][position]"
+                                class="form-control form-control-sm"
+                                value="${stop.position}"
+                                min="1"
+                                step="1"
+                                data-stop-position
+                            >
+                            <input type="hidden" name="stops[${stop.formIndex}][type]" value="${type}">
+                        `;
+
+                        const postalCol = document.createElement('div');
+                        postalCol.className = 'col-12 col-md-3';
+                        postalCol.innerHTML = `
+                            <label class="form-label small text-uppercase fw-semibold mb-1">Cod poștal</label>
+                            <input
+                                type="text"
+                                name="stops[${stop.formIndex}][cod_postal]"
+                                class="form-control form-control-sm"
+                                value="${stop.cod_postal ?? ''}"
+                            >
+                        `;
+
+                        const cityCol = document.createElement('div');
+                        cityCol.className = 'col-12 col-md-6';
+                        cityCol.innerHTML = `
+                            <label class="form-label small text-uppercase fw-semibold mb-1">Localitate</label>
+                            <input
+                                type="text"
+                                name="stops[${stop.formIndex}][localitate]"
+                                class="form-control form-control-sm"
+                                value="${stop.localitate ?? ''}"
+                                required
+                            >
+                        `;
+
+                        row.append(orderCol, postalCol, cityCol);
+                        wrapper.appendChild(row);
+
+                        const actions = document.createElement('div');
+                        actions.className = 'stop-item__actions mt-3';
+
+                        const moveUp = document.createElement('button');
+                        moveUp.type = 'button';
+                        moveUp.className = 'btn btn-outline-secondary btn-sm';
+                        moveUp.textContent = 'Sus';
+                        moveUp.addEventListener('click', () => {
+                            if (index === 0) {
+                                return;
+                            }
+
+                            [stops[index - 1], stops[index]] = [stops[index], stops[index - 1]];
+                            render();
+                        });
+
+                        const moveDown = document.createElement('button');
+                        moveDown.type = 'button';
+                        moveDown.className = 'btn btn-outline-secondary btn-sm';
+                        moveDown.textContent = 'Jos';
+                        moveDown.addEventListener('click', () => {
+                            if (index >= stops.length - 1) {
+                                return;
+                            }
+
+                            [stops[index + 1], stops[index]] = [stops[index], stops[index + 1]];
+                            render();
+                        });
+
+                        const remove = document.createElement('button');
+                        remove.type = 'button';
+                        remove.className = 'btn btn-outline-danger btn-sm';
+                        remove.textContent = 'Șterge';
+                        remove.addEventListener('click', () => {
+                            stops.splice(index, 1);
+                            render();
+                        });
+
+                        actions.append(moveUp, moveDown, remove);
+                        wrapper.appendChild(actions);
+
+                        const positionInput = orderCol.querySelector('[data-stop-position]');
+                        positionInput.addEventListener('change', (event) => {
+                            const value = Number.parseInt(event.target.value, 10);
+
+                            if (Number.isNaN(value) || value < 1) {
+                                event.target.value = String(stop.position);
+                                return;
+                            }
+
+                            stops[index].position = value;
+                            stops.sort((a, b) => a.position - b.position);
+                            render();
+                        });
+
+                        container.appendChild(wrapper);
+                    });
+                };
+
+                const addStop = () => {
+                    stops.push({
+                        type,
+                        cod_postal: '',
+                        localitate: '',
+                        position: stops.length + 1,
+                        formIndex: stopIndex++,
+                    });
+
+                    render();
+                };
+
+                render();
+
+                return { addStop };
+            };
+
+            form.querySelectorAll('[data-stop-manager]').forEach((container) => {
+                const type = container.dataset.stopType || '';
+                if (!type) {
+                    return;
+                }
+
+                stopManagers.set(type, buildStopManager(container));
+            });
+
+            form.querySelectorAll('[data-stop-add]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const type = button.dataset.stopTarget || '';
+                    const manager = stopManagers.get(type);
+
+                    if (manager && typeof manager.addStop === 'function') {
+                        manager.addStop();
+                    }
+                });
+            });
         });
     </script>
 @endpush

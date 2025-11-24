@@ -136,6 +136,51 @@
                                             </div>
                                         </div>
 
+                                        @if ($isFlashDivizie)
+                                            @php
+                                                $incarcareStops = $cursa->stops
+                                                    ->where('type', 'incarcare')
+                                                    ->sortBy('position');
+                                                $descarcareStops = $cursa->stops
+                                                    ->where('type', 'descarcare')
+                                                    ->sortBy('position');
+                                            @endphp
+
+                                            <div class="row g-2 small text-muted mt-2">
+                                                <div class="col-12 col-md-6">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Încărcări (ordonate)</p>
+                                                    <ol class="mb-0 ps-3">
+                                                        @forelse ($incarcareStops as $stop)
+                                                            <li class="text-body-secondary">
+                                                                {{ $stop->localitate }}
+                                                                @if ($stop->cod_postal)
+                                                                    <span class="text-muted">({{ $stop->cod_postal }})</span>
+                                                                @endif
+                                                            </li>
+                                                        @empty
+                                                            <li class="text-body-secondary">—</li>
+                                                        @endforelse
+                                                    </ol>
+                                                </div>
+
+                                                <div class="col-12 col-md-6 text-md-end">
+                                                    <p class="fw-semibold text-uppercase text-dark small mb-1">Descărcări (ordonate)</p>
+                                                    <ol class="mb-0 ps-3">
+                                                        @forelse ($descarcareStops as $stop)
+                                                            <li class="text-body-secondary">
+                                                                {{ $stop->localitate }}
+                                                                @if ($stop->cod_postal)
+                                                                    <span class="text-muted">({{ $stop->cod_postal }})</span>
+                                                                @endif
+                                                            </li>
+                                                        @empty
+                                                            <li class="text-body-secondary">—</li>
+                                                        @endforelse
+                                                    </ol>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         <div class="row g-2 small text-muted mt-2">
                                             <div class="col-12">
                                                 <p class="fw-semibold text-uppercase text-dark small mb-1">Data și ora cursei</p>

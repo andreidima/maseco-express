@@ -9,6 +9,7 @@ use App\Models\ValabilitateCursa;
 use App\Support\Valabilitati\ValabilitateCursaOrderer;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
@@ -25,6 +26,7 @@ class SoferValabilitateCursaController extends Controller
             },
             'curse.incarcareTara',
             'curse.descarcareTara',
+            'curse.stops',
         ]);
 
         return view('sofer.valabilitati.show', [
@@ -56,7 +58,7 @@ class SoferValabilitateCursaController extends Controller
         $valabilitate->loadMissing('divizie');
         $this->ensureCursaBelongsToValabilitate($valabilitate, $cursa);
 
-        $cursa->loadMissing(['incarcareTara', 'descarcareTara']);
+        $cursa->loadMissing(['incarcareTara', 'descarcareTara', 'stops']);
 
         $tari = Tara::query()
             ->orderBy('nume')
@@ -80,7 +82,9 @@ class SoferValabilitateCursaController extends Controller
             $data['nr_ordine'] = $this->resolveNextNrOrdine($valabilitate);
         }
 
-        $valabilitate->curse()->create($data);
+        $cursa = $valabilitate->curse()->create($data);
+
+        $this->syncStopsIfNeeded($request, $valabilitate, $cursa);
 
         return redirect()
             ->route('sofer.valabilitati.show', $valabilitate)
@@ -93,6 +97,8 @@ class SoferValabilitateCursaController extends Controller
         $this->ensureCursaBelongsToValabilitate($valabilitate, $cursa);
 
         $cursa->update($request->validated());
+
+        $this->syncStopsIfNeeded($request, $valabilitate, $cursa);
 
         return redirect()
             ->route('sofer.valabilitati.show', $valabilitate)
@@ -152,6 +158,57 @@ class SoferValabilitateCursaController extends Controller
     private function isFlashDivizie(Valabilitate $valabilitate): bool
     {
         return (int) $valabilitate->divizie_id === 1;
+    }
+
+    private function syncStopsIfNeeded(Request $request, Valabilitate $valabilitate, ValabilitateCursa $cursa): void
+    {
+        if (! $this->isFlashDivizie($valabilitate)) {
+            return;
+        }
+
+        $stops = $this->normalizeStops($request->input('stops', []));
+
+        $cursa->stops()->delete();
+
+        if ($stops->isEmpty()) {
+            return;
+        }
+
+        $cursa->stops()->createMany($stops->toArray());
+    }
+
+    private function normalizeStops(array $stops): Collection
+    {
+        $validStops = collect($stops)
+            ->filter(fn ($stop) => is_array($stop))
+            ->map(function (array $stop): array {
+                return [
+                    'type' => in_array($stop['type'] ?? '', ['incarcare', 'descarcare'], true)
+                        ? $stop['type']
+                        : null,
+                    'cod_postal' => trim((string) ($stop['cod_postal'] ?? '')),
+                    'localitate' => trim((string) ($stop['localitate'] ?? '')),
+                    'position' => (int) ($stop['position'] ?? 0),
+                ];
+            })
+            ->filter(fn (array $stop) => ($stop['type'] ?? null) && ($stop['localitate'] ?? '') !== '');
+
+        return collect(['incarcare', 'descarcare'])
+            ->flatMap(function (string $type) use ($validStops) {
+                return $validStops
+                    ->where('type', $type)
+                    ->sortBy('position')
+                    ->values()
+                    ->map(function (array $stop, int $index) use ($type): array {
+                        return [
+                            'type' => $type,
+                            'cod_postal' => $stop['cod_postal'],
+                            'localitate' => $stop['localitate'],
+                            'position' => $index + 1,
+                        ];
+                    });
+            })
+            ->values();
     }
 
     private function resolveNextNrOrdine(Valabilitate $valabilitate): int
