@@ -7,6 +7,7 @@ use App\Models\Tara;
 use App\Models\User;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
+use App\Models\ValabilitateCursaStop;
 use App\Models\ValabilitatiDivizie;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -229,6 +230,203 @@ class SoferValabilitateCursaTest extends TestCase
             'id' => $onlyCursa->id,
             'nr_ordine' => 1,
         ]);
+    }
+
+    public function test_driver_can_create_flash_cursa_with_ordered_stops(): void
+    {
+        $driver = $this->createSoferUser();
+        $flashDivizie = ValabilitatiDivizie::factory()->create([
+            'id' => 1,
+            'nume' => 'FLASH',
+        ]);
+
+        $valabilitate = Valabilitate::factory()
+            ->for($driver, 'sofer')
+            ->for($flashDivizie, 'divizie')
+            ->create([
+                'data_inceput' => Carbon::today()->subWeek(),
+                'data_sfarsit' => Carbon::today()->addWeek(),
+            ]);
+
+        $response = $this
+            ->actingAs($driver)
+            ->post(route('sofer.valabilitati.curse.store', $valabilitate), [
+                'form_type' => 'create',
+                'incarcare_localitate' => 'Cluj',
+                'descarcare_localitate' => 'Berlin',
+                'data_cursa' => '2025-05-20T08:15',
+                'stops' => [
+                    ['type' => 'incarcare', 'localitate' => 'Punct B', 'cod_postal' => '400222', 'position' => 2],
+                    ['type' => 'incarcare', 'localitate' => 'Punct A', 'cod_postal' => '400111', 'position' => 1],
+                    ['type' => 'descarcare', 'localitate' => 'Punct D', 'cod_postal' => '010222', 'position' => 2],
+                    ['type' => 'descarcare', 'localitate' => 'Punct C', 'cod_postal' => '010111', 'position' => 1],
+                ],
+            ]);
+
+        $response->assertRedirect(route('sofer.valabilitati.show', $valabilitate));
+        $response->assertSessionHasNoErrors();
+
+        $cursa = ValabilitateCursa::first();
+
+        $this->assertDatabaseHas('valabilitate_cursa_stops', [
+            'valabilitate_cursa_id' => $cursa?->id,
+            'type' => 'incarcare',
+            'localitate' => 'Punct A',
+            'position' => 1,
+        ]);
+
+        $this->assertDatabaseHas('valabilitate_cursa_stops', [
+            'valabilitate_cursa_id' => $cursa?->id,
+            'type' => 'descarcare',
+            'localitate' => 'Punct C',
+            'position' => 1,
+        ]);
+    }
+
+    public function test_flash_cursa_stops_are_shown_in_order(): void
+    {
+        $driver = $this->createSoferUser();
+        $flashDivizie = ValabilitatiDivizie::factory()->create([
+            'id' => 1,
+            'nume' => 'FLASH',
+        ]);
+
+        $valabilitate = Valabilitate::factory()
+            ->for($driver, 'sofer')
+            ->for($flashDivizie, 'divizie')
+            ->create([
+                'data_inceput' => Carbon::today()->subWeek(),
+                'data_sfarsit' => Carbon::today()->addWeek(),
+            ]);
+
+        $cursa = ValabilitateCursa::factory()->for($valabilitate)->create();
+
+        ValabilitateCursaStop::factory()->create([
+            'valabilitate_cursa_id' => $cursa->id,
+            'type' => 'incarcare',
+            'localitate' => 'Punct B',
+            'cod_postal' => '400222',
+            'position' => 2,
+        ]);
+
+        ValabilitateCursaStop::factory()->create([
+            'valabilitate_cursa_id' => $cursa->id,
+            'type' => 'incarcare',
+            'localitate' => 'Punct A',
+            'cod_postal' => '400111',
+            'position' => 1,
+        ]);
+
+        ValabilitateCursaStop::factory()->create([
+            'valabilitate_cursa_id' => $cursa->id,
+            'type' => 'descarcare',
+            'localitate' => 'Punct D',
+            'cod_postal' => '010222',
+            'position' => 2,
+        ]);
+
+        ValabilitateCursaStop::factory()->create([
+            'valabilitate_cursa_id' => $cursa->id,
+            'type' => 'descarcare',
+            'localitate' => 'Punct C',
+            'cod_postal' => '010111',
+            'position' => 1,
+        ]);
+
+        $response = $this->actingAs($driver)->get(route('sofer.valabilitati.show', $valabilitate));
+
+        $response->assertOk();
+        $response->assertSeeInOrder(['Punct A', 'Punct B']);
+        $response->assertSeeInOrder(['Punct C', 'Punct D']);
+    }
+
+    public function test_driver_can_update_flash_cursa_stops(): void
+    {
+        $driver = $this->createSoferUser();
+        $flashDivizie = ValabilitatiDivizie::factory()->create([
+            'id' => 1,
+            'nume' => 'FLASH',
+        ]);
+
+        $valabilitate = Valabilitate::factory()
+            ->for($driver, 'sofer')
+            ->for($flashDivizie, 'divizie')
+            ->create([
+                'data_inceput' => Carbon::today()->subWeek(),
+                'data_sfarsit' => Carbon::today()->addWeek(),
+            ]);
+
+        $cursa = ValabilitateCursa::factory()->for($valabilitate)->create([
+            'nr_ordine' => 1,
+        ]);
+
+        ValabilitateCursaStop::factory()->create([
+            'valabilitate_cursa_id' => $cursa->id,
+            'type' => 'incarcare',
+            'localitate' => 'Veche',
+            'position' => 1,
+        ]);
+
+        $response = $this
+            ->actingAs($driver)
+            ->put(route('sofer.valabilitati.curse.update', [$valabilitate, $cursa]), [
+                'form_type' => 'edit',
+                'incarcare_localitate' => 'Cluj',
+                'descarcare_localitate' => 'Berlin',
+                'data_cursa' => '2025-05-21T10:00',
+                'stops' => [
+                    ['type' => 'incarcare', 'localitate' => 'Nouă', 'cod_postal' => null, 'position' => 1],
+                    ['type' => 'descarcare', 'localitate' => 'Berlin', 'cod_postal' => '10115', 'position' => 1],
+                ],
+            ]);
+
+        $response->assertRedirect(route('sofer.valabilitati.show', $valabilitate));
+
+        $this->assertDatabaseMissing('valabilitate_cursa_stops', [
+            'valabilitate_cursa_id' => $cursa->id,
+            'localitate' => 'Veche',
+        ]);
+
+        $this->assertDatabaseHas('valabilitate_cursa_stops', [
+            'valabilitate_cursa_id' => $cursa->id,
+            'type' => 'incarcare',
+            'localitate' => 'Nouă',
+            'position' => 1,
+        ]);
+    }
+
+    public function test_non_flash_cursa_ignores_stop_payload(): void
+    {
+        $driver = $this->createSoferUser();
+        $divizie = ValabilitatiDivizie::factory()->create([
+            'id' => 2,
+            'nume' => 'ALTĂ DIVIZIE',
+        ]);
+
+        $valabilitate = Valabilitate::factory()
+            ->for($driver, 'sofer')
+            ->for($divizie, 'divizie')
+            ->create([
+                'data_inceput' => Carbon::today()->subWeek(),
+                'data_sfarsit' => Carbon::today()->addWeek(),
+            ]);
+
+        $response = $this
+            ->actingAs($driver)
+            ->post(route('sofer.valabilitati.curse.store', $valabilitate), [
+                'form_type' => 'create',
+                'incarcare_localitate' => 'Cluj',
+                'descarcare_localitate' => 'Budapesta',
+                'data_cursa' => '2025-05-21T10:00',
+                'stops' => [
+                    ['type' => 'incarcare', 'localitate' => 'Punct A', 'cod_postal' => '400111', 'position' => 1],
+                ],
+            ]);
+
+        $response->assertRedirect(route('sofer.valabilitati.show', $valabilitate));
+
+        $this->assertDatabaseCount('valabilitati_curse', 1);
+        $this->assertDatabaseCount('valabilitate_cursa_stops', 0);
     }
 
     private function createSoferUser(): User

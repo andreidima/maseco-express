@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use App\Models\ValabilitateCursaImage;
 use App\Models\ValabilitateCursaGrup;
+use App\Models\ValabilitateCursaStop;
 
 class ValabilitateCursa extends Model
 {
@@ -90,6 +91,27 @@ class ValabilitateCursa extends Model
     public function imagines(): HasMany
     {
         return $this->images();
+    }
+
+    public function stops(): HasMany
+    {
+        return $this
+            ->hasMany(ValabilitateCursaStop::class, 'valabilitate_cursa_id')
+            ->orderBy('position');
+    }
+
+    public function incarcareStops(): HasMany
+    {
+        return $this
+            ->stops()
+            ->where('type', 'incarcare');
+    }
+
+    public function descarcareStops(): HasMany
+    {
+        return $this
+            ->stops()
+            ->where('type', 'descarcare');
     }
 
     protected static function booted(): void

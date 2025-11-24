@@ -25,7 +25,7 @@ class SoferValabilitateCursaRequest extends FormRequest
 
     public function rules(): array
     {
-        return [
+        $rules = [
             'nr_ordine' => ['sometimes', 'integer', 'min:1'],
             'nr_cursa' => ['nullable', 'string', 'max:255'],
             'incarcare_localitate' => ['nullable', 'string', 'max:255'],
@@ -39,11 +39,27 @@ class SoferValabilitateCursaRequest extends FormRequest
             'km_bord_incarcare' => ['nullable', 'integer', 'min:0'],
             'km_bord_descarcare' => ['nullable', 'integer', 'min:0'],
         ];
+
+        if ($this->isFlashDivizie()) {
+            $rules = array_merge($rules, [
+                'stops' => ['sometimes', 'array'],
+                'stops.*.type' => ['required_with:stops', 'in:incarcare,descarcare'],
+                'stops.*.cod_postal' => ['nullable', 'string', 'max:255'],
+                'stops.*.localitate' => ['required_with:stops', 'string', 'max:255'],
+                'stops.*.position' => ['nullable', 'integer', 'min:1'],
+            ]);
+        }
+
+        return $rules;
     }
 
     protected function prepareForValidation(): void
     {
         $this->shouldRequireDateTime = $this->determineIfDateTimeIsRequired();
+
+        if (! $this->isFlashDivizie()) {
+            $this->replace($this->except('stops'));
+        }
 
         $dateTimeInput = $this->input('data_cursa');
 
@@ -84,6 +100,17 @@ class SoferValabilitateCursaRequest extends FormRequest
                 $validator->errors()->add('data_cursa', 'Completați data și ora cursei.');
             }
         });
+    }
+
+    private function isFlashDivizie(): bool
+    {
+        $valabilitate = $this->route('valabilitate');
+
+        if (! $valabilitate instanceof Valabilitate) {
+            return false;
+        }
+
+        return (int) $valabilitate->divizie_id === 1;
     }
 
     private function determineIfDateTimeIsRequired(): bool
