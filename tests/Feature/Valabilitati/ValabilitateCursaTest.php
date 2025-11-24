@@ -411,6 +411,7 @@ class ValabilitateCursaTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('preview-image.png', false);
+        $response->assertSee(route('valabilitati.curse.images.stream', [$valabilitate, $cursa, $imagine]), false);
         $response->assertSee(route('valabilitati.curse.images.download', [$valabilitate, $cursa, $imagine]), false);
     }
 

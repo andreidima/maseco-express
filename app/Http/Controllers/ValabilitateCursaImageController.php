@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
 use App\Models\ValabilitateCursaImage;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\PDF;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -22,6 +22,33 @@ class ValabilitateCursaImageController extends Controller
         return view('valabilitati.curse.imagini.index', [
             'valabilitate' => $valabilitate,
             'cursa' => $cursa,
+        ]);
+    }
+
+    public function stream(Valabilitate $valabilitate, ValabilitateCursa $cursa, ValabilitateCursaImage $imagine): StreamedResponse
+    {
+        $this->authorize('view', $valabilitate);
+
+        $this->assertBelongsToValabilitate($valabilitate, $cursa);
+        $this->assertBelongsToCursa($cursa, $imagine);
+
+        abort_if($imagine->trashed(), 404);
+
+        abort_unless(Storage::exists($imagine->path), 404);
+
+        $stream = Storage::readStream($imagine->path);
+        abort_if($stream === false, 404);
+
+        $mime = $imagine->mime_type ?: 'application/octet-stream';
+
+        return response()->stream(function () use ($stream): void {
+            fpassthru($stream);
+        }, 200, [
+            'Content-Type' => $mime,
+            'Content-Length' => (string) $imagine->size_bytes,
+            'Content-Disposition' => 'inline; filename="' . addslashes($imagine->original_name ?? 'imagine') . '"',
+            'Cache-Control' => 'private, max-age=0, no-store, no-cache, must-revalidate',
+            'Pragma' => 'no-cache',
         ]);
     }
 
@@ -46,7 +73,7 @@ class ValabilitateCursaImageController extends Controller
             base64_encode($imageContent)
         );
 
-        $pdf = PDF::loadView('valabilitati.curse.imagini.pdf', [
+        $pdf = Pdf::loadView('valabilitati.curse.imagini.pdf', [
             'imagine' => $imagine,
             'imageDataUri' => $imageDataUri,
         ]);
