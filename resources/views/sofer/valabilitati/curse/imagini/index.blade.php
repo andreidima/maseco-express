@@ -76,7 +76,8 @@
                             <img
                                 src="{{ route('sofer.valabilitati.curse.imagini.stream', [$valabilitate, $cursa, $imagine]) }}"
                                 alt="Imagine cursă"
-                                class="w-100 h-100 cursa-image-thumb"
+                                class="w-100 h-100"
+                                style="object-fit: contain; display: block;"
                             >
                         </div>
                         <div class="card-body d-flex flex-column gap-2">
@@ -137,10 +138,10 @@
                 <h5 class="modal-title" id="cropperModalTitle">Imagine</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
             </div>
-            <div class="modal-body cropper-modal-body">
+            <div class="modal-body">
                 <div
                     id="cropperContainer"
-                    class="cropper-wrapper bg-light rounded mb-3 p-2"
+                    class="cropper-wrapper bg-light rounded mb-3 d-flex justify-content-center align-items-center p-2 overflow-hidden"
                 >
                     <img
                         id="cropperImage"
