@@ -411,6 +411,11 @@ Route::middleware(['auth'])->group(function () {
                 [ValabilitateCursaImageController::class, 'download']
             )
                 ->name('valabilitati.curse.images.download');
+            Route::get(
+                'valabilitati/{valabilitate}/curse/{cursa}/imagini/{imagine}/stream',
+                [ValabilitateCursaImageController::class, 'stream']
+            )
+                ->name('valabilitati.curse.images.stream');
 
             Route::post('valabilitati/{valabilitate}/alimentari', [ValabilitateAlimentareController::class, 'store'])
                 ->name('valabilitati.alimentari.store');
