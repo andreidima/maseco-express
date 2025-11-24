@@ -10,6 +10,7 @@
     $redirectTo = $redirectTo ?? '';
     $isFlashDivision = optional($valabilitate->divizie)->id === 1
         && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
+    $hideFormatColumn = $isFlashDivision || optional($valabilitate->divizie)->id === 3;
     $resolveGroupLabel = static function ($grup) use ($isFlashDivision): string {
         if (! $grup) {
             return '—';
@@ -1344,7 +1345,7 @@
                                     </div>
                                 </div>
                             @else
-                                <div class="col-md-6">
+                                <div class="{{ $hideFormatColumn ? 'col-12' : 'col-md-6' }}">
                                     <label for="group-create-name" class="form-label">Nume grup</label>
                                     <input
                                         type="text"
@@ -1358,24 +1359,26 @@
                                         {{ $isGroupCreateActive ? $errors->first('nume') : '' }}
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <label for="group-create-format" class="form-label">Format documente</label>
-                                    <select
-                                        class="form-select rounded-3 {{ $isGroupCreateActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
-                                        id="group-create-format"
-                                        name="format_documente"
-                                    >
-                                        <option value="" @selected($groupCreateFormat === '')>Fără format</option>
-                                        @foreach ($groupFormatOptions as $value => $label)
-                                            <option value="{{ $value }}" @selected($groupCreateFormat === (string) $value)>
-                                                {{ $label }}
-                                            </option>
-                                        @endforeach
-                                    </select>
-                                    <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
-                                        {{ $isGroupCreateActive ? $errors->first('format_documente') : '' }}
+                                @unless ($hideFormatColumn)
+                                    <div class="col-md-6">
+                                        <label for="group-create-format" class="form-label">Format documente</label>
+                                        <select
+                                            class="form-select rounded-3 {{ $isGroupCreateActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
+                                            id="group-create-format"
+                                            name="format_documente"
+                                        >
+                                            <option value="" @selected($groupCreateFormat === '')>Fără format</option>
+                                            @foreach ($groupFormatOptions as $value => $label)
+                                                <option value="{{ $value }}" @selected($groupCreateFormat === (string) $value)>
+                                                    {{ $label }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                        <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
+                                            {{ $isGroupCreateActive ? $errors->first('format_documente') : '' }}
+                                        </div>
                                     </div>
-                                </div>
+                                @endunless
                             @endif
                             <div class="col-md-6">
                                 <label for="group-create-zile" class="form-label">Zile calculate</label>
@@ -1553,7 +1556,7 @@
                                         </div>
                                     </div>
                                 @else
-                                    <div class="col-md-6">
+                                    <div class="{{ $hideFormatColumn ? 'col-12' : 'col-md-6' }}">
                                         <label for="group-edit-name-{{ $grup->id }}" class="form-label">Nume grup</label>
                                         <input
                                             type="text"
@@ -1567,24 +1570,26 @@
                                             {{ $isGroupEditActive ? $errors->first('nume') : '' }}
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <label for="group-edit-format-{{ $grup->id }}" class="form-label">Format documente</label>
-                                        <select
-                                            class="form-select rounded-3 {{ $isGroupEditActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
-                                            id="group-edit-format-{{ $grup->id }}"
-                                            name="format_documente"
-                                        >
-                                            <option value="" @selected($groupEditFormat === null || $groupEditFormat === '')>Fără format</option>
-                                            @foreach ($groupFormatOptions as $value => $label)
-                                                <option value="{{ $value }}" @selected((string) $groupEditFormat === (string) $value)>
-                                                    {{ $label }}
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
-                                            {{ $isGroupEditActive ? $errors->first('format_documente') : '' }}
+                                    @unless ($hideFormatColumn)
+                                        <div class="col-md-6">
+                                            <label for="group-edit-format-{{ $grup->id }}" class="form-label">Format documente</label>
+                                            <select
+                                                class="form-select rounded-3 {{ $isGroupEditActive && $errors->has('format_documente') ? 'is-invalid' : '' }}"
+                                                id="group-edit-format-{{ $grup->id }}"
+                                                name="format_documente"
+                                            >
+                                                <option value="" @selected($groupEditFormat === null || $groupEditFormat === '')>Fără format</option>
+                                                @foreach ($groupFormatOptions as $value => $label)
+                                                    <option value="{{ $value }}" @selected((string) $groupEditFormat === (string) $value)>
+                                                        {{ $label }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('format_documente') ? 'd-block' : '' }}" data-error-for="format_documente">
+                                                {{ $isGroupEditActive ? $errors->first('format_documente') : '' }}
+                                            </div>
                                         </div>
-                                    </div>
+                                    @endunless
                                 @endif
                                 <div class="col-md-6">
                                     <label for="group-edit-zile-{{ $grup->id }}" class="form-label">Zile calculate</label>

@@ -133,6 +133,7 @@
         $hasGrupuri = $valabilitate->cursaGrupuri->count() > 0;
         $isFlashDivision = optional($valabilitate->divizie)->id === 1
             && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
+        $hideFormatColumn = $isFlashDivision || optional($valabilitate->divizie)->id === 3;
         $tableColumnCount = $isFlashDivision ? 22 : 12;
     @endphp
     <div class="mx-3 px-3 card" style="border-radius: 40px 40px 40px 40px;">
