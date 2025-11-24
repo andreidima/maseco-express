@@ -120,12 +120,11 @@ if (root) {
                     availableHeight / imageData.naturalHeight,
                     1
                 );
+                // Keep the scale uniform so the image never exceeds the container on a single axis.
                 const fallbackRatio = imageData.width / imageData.naturalWidth;
                 const targetRatio = containRatio > 0 ? containRatio : fallbackRatio;
-                const scaledWidth = imageData.naturalWidth * targetRatio;
-                const scaledHeight = imageData.naturalHeight * targetRatio;
-                const finalWidth = Math.min(scaledWidth, availableWidth);
-                const finalHeight = Math.min(scaledHeight, availableHeight);
+                const finalWidth = imageData.naturalWidth * targetRatio;
+                const finalHeight = imageData.naturalHeight * targetRatio;
                 const left = Math.max((containerWidth - finalWidth) / 2, 0) + paddingLeft;
                 const top = Math.max((containerHeight - finalHeight) / 2, 0) + paddingTop;
 
