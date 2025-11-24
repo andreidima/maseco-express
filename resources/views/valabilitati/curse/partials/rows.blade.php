@@ -375,7 +375,7 @@
         {{-- Acțiuni --}}
         <td class="text-end align-middle">
             <div class="d-flex flex-column align-items-end gap-2">
-                <div class="d-flex flex-wrap align-content-start justify-content-end">
+                <div class="d-flex no-wrap align-content-start justify-content-end">
                     <div class="ms-1">
                         <a
                             href="#" data-bs-toggle="modal"
@@ -404,23 +404,24 @@
                             </span>
                         </a>
                     </div>
-                </div>
 
-                @if ($cursa->images->count())
-                    <div class="ms-1 d-flex align-items-center">
-                        <a
-                            href="{{ route('valabilitati.curse.images.index', [$valabilitate, $cursa]) }}"
-                            class="flex"
-                            title="Vezi imaginile cursei"
-                            aria-label="Vezi imaginile cursei"
-                        >
-                            <span class="badge bg-info text-dark d-inline-flex align-items-center justify-content-center" aria-hidden="true">
-                                <i class="fa-solid fa-images"></i>
-                            </span>
-                            <span class="visually-hidden">Imagini cursă</span>
-                        </a>
-                    </div>
-                @endif
+                    @if ($cursa->images->count())
+                        <div class="ms-1 d-flex align-items-center">
+                            <a
+                                href="{{ route('valabilitati.curse.images.index', [$valabilitate, $cursa]) }}"
+                                class="flex"
+                                title="Vezi imaginile cursei"
+                                aria-label="Vezi imaginile cursei"
+                            >
+                                <span class="badge bg-info text-dark d-inline-flex align-items-center justify-content-center" aria-hidden="true">
+                                    <i class="fa-solid fa-images"></i>
+                                </span>
+                                <span class="visually-hidden">Imagini cursă</span>
+                            </a>
+                        </div>
+                    @endif
+
+                </div>
             </div>
         </td>
     </tr>
