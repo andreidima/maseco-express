@@ -267,15 +267,17 @@
                     </div>
                 @else
                     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
-                        <div class="fw-semibold fs-6 text-uppercase">{{ $groupName }}</div>
+                        <div class="d-flex flex-wrap gap-3 fw-semibold fs-6 text-uppercase">
+                            <span>{{ $groupName }}</span>
+                            @if ($showGroupKmTotals && $groupTotalKm)
+                                <span>{{ $groupTotalKm !== null ? number_format($groupTotalKm, 2) : '—' }} km</span>
+                            @endif
+                        </div>
                         <div class="d-flex flex-wrap gap-3 small curse-group-heading__meta">
                             @unless ($hideFormatColumn)
                                 <span>Format: <strong>{{ $groupFormat }}</strong></span>
                             @endunless
                             <span>Factură: <strong>{{ $groupInvoice }}</strong></span>
-                            @if ($showGroupKmTotals)
-                                <span>Total km grup: <strong>{{ $groupTotalKm !== null ? number_format($groupTotalKm, 2) : '—' }}</strong></span>
-                            @endif
                             @if ($groupFinancialMeta)
                                 <span>Sumă încasată: <strong>{{ $groupFinancialMeta['suma_incasata'] ?? '—' }}</strong></span>
                                 <span>Sumă calculată: <strong>{{ $groupFinancialMeta['suma_calculata'] ?? '—' }}</strong></span>
