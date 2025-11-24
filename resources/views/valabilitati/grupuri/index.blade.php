@@ -74,10 +74,15 @@
         };
         $isFlashDivision = optional($valabilitate->divizie)->id === 1
             && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
+        $hideFormatColumn = $isFlashDivision || optional($valabilitate->divizie)->id === 3;
         $hideDifferenceColumn = $isFlashDivision || optional($valabilitate->divizie)->id === 2;
 
         $tableColumnCount = 1; // Index column
-        $tableColumnCount += $isFlashDivision ? 1 : 2; // RR or Grup + Format
+        $tableColumnCount += $isFlashDivision ? 1 : 0; // RR column
+        if (! $isFlashDivision) {
+            $tableColumnCount += 1; // Grup column
+            $tableColumnCount += $hideFormatColumn ? 0 : 1; // Format column
+        }
         $tableColumnCount += 1; // Zile calculate
         $tableColumnCount += 1; // Factură
         $tableColumnCount += $hideDifferenceColumn ? 0 : 1; // Diferență
@@ -153,7 +158,9 @@
                                     <th>RR</th>
                                 @else
                                     <th>Grup</th>
-                                    <th class="curse-nowrap">Format</th>
+                                    @unless ($hideFormatColumn)
+                                        <th class="curse-nowrap">Format</th>
+                                    @endunless
                                 @endif
                                 <th class="text-center curse-nowrap">Zile calculate</th>
                                 <th>Factură</th>
@@ -195,7 +202,9 @@
                                         <td class="fw-semibold">{{ $grup->rr ?? '—' }}</td>
                                     @else
                                         <td class="fw-semibold">{{ $grup->nume ?? '—' }}</td>
-                                        <td class="curse-nowrap">{{ $grup->formatDocumenteLabel() ?: '—' }}</td>
+                                        @unless ($hideFormatColumn)
+                                            <td class="curse-nowrap">{{ $grup->formatDocumenteLabel() ?: '—' }}</td>
+                                        @endunless
                                     @endif
                                     <td class="text-center">{{ $zileCalculate !== null ? $zileCalculate : '—' }}</td>
                                     <td>{{ $facturaLabel }}</td>

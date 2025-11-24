@@ -1,6 +1,7 @@
 @php
     $isFlashDivision = optional($valabilitate->divizie)->id === 1
         && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0;
+    $hideFormatColumn = $isFlashDivision || optional($valabilitate->divizie)->id === 3;
     $tableColumnCount = $isFlashDivision ? 22 : 12;
     $divizie = $valabilitate->divizie;
     $priceKmGol = $divizie && $divizie->pret_km_gol !== null ? (float) $divizie->pret_km_gol : null;
@@ -219,7 +220,9 @@
                     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
                         <div class="fw-semibold fs-6 text-uppercase">{{ $groupName }}</div>
                         <div class="d-flex flex-wrap gap-3 small curse-group-heading__meta">
-                            <span>Format: <strong>{{ $groupFormat }}</strong></span>
+                            @unless ($hideFormatColumn)
+                                <span>Format: <strong>{{ $groupFormat }}</strong></span>
+                            @endunless
                             <span>Factură: <strong>{{ $groupInvoice }}</strong></span>
                             @if ($groupFinancialMeta)
                                 <span>Sumă încasată: <strong>{{ $groupFinancialMeta['suma_incasata'] ?? '—' }}</strong></span>

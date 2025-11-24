@@ -3,6 +3,7 @@
         optional($valabilitate->divizie)->id === 1
         && strcasecmp((string) optional($valabilitate->divizie)->nume, 'FLASH') === 0
     );
+    $hideFormatColumn = $hideFormatColumn ?? ($isFlashDivision || optional($valabilitate->divizie)->id === 3);
 @endphp
 
 <table class="curse-summary-table">
@@ -99,14 +100,17 @@
     @php
         $showGroupSummary = $showGroupSummary ?? request()->routeIs('valabilitati.grupuri.*');
         $groupFinancials = collect($summary['groupFinancials'] ?? []);
+        $groupSummaryColumnCount = $hideFormatColumn ? 5 : 6;
     @endphp
     @if ($showGroupSummary && $groupFinancials->isNotEmpty())
         <tr>
-            <th colspan="6" class="curse-summary-label text-center">Situație pe grupuri</th>
+            <th colspan="{{ $groupSummaryColumnCount }}" class="curse-summary-label text-center">Situație pe grupuri</th>
         </tr>
         <tr>
             <th class="curse-summary-label">Grup</th>
-            <th class="curse-summary-label">Format</th>
+            @unless ($hideFormatColumn)
+                <th class="curse-summary-label">Format</th>
+            @endunless
             <th class="curse-summary-label">Factură</th>
             <th class="text-end curse-summary-label">Sumă încasată</th>
             <th class="text-end curse-summary-label">Sumă calculată</th>
@@ -128,7 +132,9 @@
             @endphp
             <tr style="background-color: {{ $rowColor }}; color: #111;">
                 <td class="fw-semibold">{{ $group['nume'] }}</td>
-                <td>{{ $group['format_label'] ?? '—' }}</td>
+                @unless ($hideFormatColumn)
+                    <td>{{ $group['format_label'] ?? '—' }}</td>
+                @endunless
                 <td>{{ $facturaLabel }}</td>
                 <td class="text-end">{{ $group['suma_incasata'] !== null ? number_format($group['suma_incasata'], 2) : '—' }}</td>
                 <td class="text-end">{{ $group['suma_calculata'] !== null ? number_format($group['suma_calculata'], 2) : '—' }}</td>
@@ -139,7 +145,7 @@
             $groupTotals = $summary['groupFinancialTotals'] ?? [];
         @endphp
         <tr>
-            <th colspan="3" class="text-end curse-summary-label">Total grupuri</th>
+            <th colspan="{{ $hideFormatColumn ? 2 : 3 }}" class="text-end curse-summary-label">Total grupuri</th>
             <th class="text-end">
                 {{ isset($groupTotals['suma_incasata']) ? number_format($groupTotals['suma_incasata'], 2) : '—' }}
             </th>
