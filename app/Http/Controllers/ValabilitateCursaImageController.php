@@ -81,7 +81,15 @@ class ValabilitateCursaImageController extends Controller
 
         $filename = pathinfo($imagine->original_name ?: 'imagine', PATHINFO_FILENAME) . '.pdf';
 
-        return $pdf->download($filename);
+        $pdfContent = $pdf->output();
+
+        return response()->streamDownload(
+            static function () use ($pdfContent): void {
+                echo $pdfContent;
+            },
+            $filename,
+            ['Content-Type' => 'application/pdf']
+        );
     }
 
     private function assertBelongsToValabilitate(Valabilitate $valabilitate, ValabilitateCursa $cursa): void
