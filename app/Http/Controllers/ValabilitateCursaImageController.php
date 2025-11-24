@@ -5,13 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\Valabilitate;
 use App\Models\ValabilitateCursa;
 use App\Models\ValabilitateCursaImage;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\PDF;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ValabilitateCursaImageController extends Controller
 {
+    private const STORAGE_DISK = 'public';
+
     public function index(Valabilitate $valabilitate, ValabilitateCursa $cursa): View
     {
         $this->authorize('view', $valabilitate);
@@ -34,11 +36,11 @@ class ValabilitateCursaImageController extends Controller
 
         abort_if($imagine->trashed(), 404);
 
-        if (! Storage::exists($imagine->path)) {
+        if (! Storage::disk(self::STORAGE_DISK)->exists($imagine->path)) {
             abort(404);
         }
 
-        $imageContent = Storage::get($imagine->path);
+        $imageContent = Storage::disk(self::STORAGE_DISK)->get($imagine->path);
 
         $imageDataUri = sprintf(
             'data:%s;base64,%s',
@@ -46,7 +48,7 @@ class ValabilitateCursaImageController extends Controller
             base64_encode($imageContent)
         );
 
-        $pdf = PDF::loadView('valabilitati.curse.imagini.pdf', [
+        $pdf = Pdf::loadView('valabilitati.curse.imagini.pdf', [
             'imagine' => $imagine,
             'imageDataUri' => $imageDataUri,
         ]);
