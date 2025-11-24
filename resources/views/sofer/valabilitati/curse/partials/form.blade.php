@@ -180,6 +180,19 @@
             @enderror
         </div>
 
+        <div class="col-12 col-md-6">
+            <label class="form-label small text-uppercase fw-semibold">Ora cursei</label>
+            <input
+                type="datetime-local"
+                name="data_cursa"
+                class="form-control form-control-sm @error('data_cursa') is-invalid @enderror"
+                value="{{ $dataCursaValue }}"
+                step="60"
+            >
+            @error('data_cursa')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
         @if ($isFlashDivizie)
             <div class="col-12">
                 <div class="border rounded-3 p-3 bg-light">
@@ -236,19 +249,6 @@
                 </div>
             </div>
         @endif
-        <div class="col-12 col-md-6">
-            <label class="form-label small text-uppercase fw-semibold">Ora cursei</label>
-            <input
-                type="datetime-local"
-                name="data_cursa"
-                class="form-control form-control-sm @error('data_cursa') is-invalid @enderror"
-                value="{{ $dataCursaValue }}"
-                step="60"
-            >
-            @error('data_cursa')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
         @unless ($isFlashDivizie)
         <div class="col-12 col-md-6">
             <label class="form-label small text-uppercase fw-semibold">Km bord încărcare</label>
@@ -685,24 +685,18 @@
                         const row = document.createElement('div');
                         row.className = 'row g-2 align-items-end';
 
-                        const orderCol = document.createElement('div');
-                        orderCol.className = 'col-12 col-md-3';
-                        orderCol.innerHTML = `
-                            <label class="form-label small text-uppercase fw-semibold mb-1">Ordine</label>
-                            <input
-                                type="number"
-                                name="stops[${stop.formIndex}][position]"
-                                class="form-control form-control-sm"
-                                value="${stop.position}"
-                                min="1"
-                                step="1"
-                                data-stop-position
-                            >
-                            <input type="hidden" name="stops[${stop.formIndex}][type]" value="${type}">
-                        `;
+                        const hiddenType = document.createElement('input');
+                        hiddenType.type = 'hidden';
+                        hiddenType.name = `stops[${stop.formIndex}][type]`;
+                        hiddenType.value = type;
+
+                        const hiddenPosition = document.createElement('input');
+                        hiddenPosition.type = 'hidden';
+                        hiddenPosition.name = `stops[${stop.formIndex}][position]`;
+                        hiddenPosition.value = String(stop.position);
 
                         const postalCol = document.createElement('div');
-                        postalCol.className = 'col-12 col-md-3';
+                        postalCol.className = 'col-12 col-sm-5 col-md-4';
                         postalCol.innerHTML = `
                             <label class="form-label small text-uppercase fw-semibold mb-1">Cod poștal</label>
                             <input
@@ -714,7 +708,7 @@
                         `;
 
                         const cityCol = document.createElement('div');
-                        cityCol.className = 'col-12 col-md-6';
+                        cityCol.className = 'col-12 col-sm-7 col-md-8';
                         cityCol.innerHTML = `
                             <label class="form-label small text-uppercase fw-semibold mb-1">Localitate</label>
                             <input
@@ -726,8 +720,8 @@
                             >
                         `;
 
-                        row.append(orderCol, postalCol, cityCol);
-                        wrapper.appendChild(row);
+                        row.append(postalCol, cityCol);
+                        wrapper.append(hiddenType, hiddenPosition, row);
 
                         const actions = document.createElement('div');
                         actions.className = 'stop-item__actions mt-3';
@@ -757,19 +751,6 @@
                         actions.append(moveUp, moveDown, remove);
                         wrapper.appendChild(actions);
 
-                        const positionInput = orderCol.querySelector('[data-stop-position]');
-                        positionInput.addEventListener('change', (event) => {
-                            const value = Number.parseInt(event.target.value, 10);
-
-                            if (Number.isNaN(value) || value < 1) {
-                                event.target.value = String(stop.position);
-                                return;
-                            }
-
-                            const targetIndex = Math.min(Math.max(value - 1, 0), stops.length - 1);
-                            moveStop(index, targetIndex);
-                        });
-
                         const postalInput = postalCol.querySelector('input');
                         postalInput.addEventListener('input', (event) => {
                             stops[index].cod_postal = event.target.value || '';
@@ -779,6 +760,8 @@
                         cityInput.addEventListener('input', (event) => {
                             stops[index].localitate = event.target.value || '';
                         });
+
+                        hiddenPosition.value = String(stop.position);
 
                         container.appendChild(wrapper);
                     });
