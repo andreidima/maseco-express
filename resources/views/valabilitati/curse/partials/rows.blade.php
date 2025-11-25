@@ -98,19 +98,46 @@
     @php
         $dataTransport = $cursa->data_cursa?->format('d.m.Y H:i');
 
-        $incarcareParts = array_filter([
-            $cursa->incarcare_localitate,
-            $cursa->incarcare_cod_postal,
-            $cursa->incarcareTara?->nume,
-        ]);
-        $descarcareParts = array_filter([
-            $cursa->descarcare_localitate,
-            $cursa->descarcare_cod_postal,
-            $cursa->descarcareTara?->nume,
-        ]);
-        $cursaDescriere = (count($incarcareParts) ? implode(', ', $incarcareParts) : '—')
-            . ' → '
-            . (count($descarcareParts) ? implode(', ', $descarcareParts) : '—');
+        $formatStop = static function ($stop): string {
+            return collect([
+                $stop->localitate,
+                $stop->cod_postal,
+            ])
+                ->filter()
+                ->implode(' ');
+        };
+
+        if ($isFlashDivision) {
+            $incarcareStops = ($cursa->incarcareStops ?? collect())->map($formatStop)->filter()->all();
+            $descarcareStops = ($cursa->descarcareStops ?? collect())->map($formatStop)->filter()->all();
+
+            $incarcareDisplay = count($incarcareStops) ? implode(' • ', $incarcareStops) : '—';
+            $descarcareDisplay = count($descarcareStops) ? implode(' • ', $descarcareStops) : '—';
+
+            if ($cursa->incarcareTara?->nume) {
+                $incarcareDisplay .= ' (' . $cursa->incarcareTara->nume . ')';
+            }
+
+            if ($cursa->descarcareTara?->nume) {
+                $descarcareDisplay .= ' (' . $cursa->descarcareTara->nume . ')';
+            }
+
+            $cursaDescriere = $incarcareDisplay . ' → ' . $descarcareDisplay;
+        } else {
+            $incarcareParts = array_filter([
+                $cursa->incarcare_localitate,
+                $cursa->incarcare_cod_postal,
+                $cursa->incarcareTara?->nume,
+            ]);
+            $descarcareParts = array_filter([
+                $cursa->descarcare_localitate,
+                $cursa->descarcare_cod_postal,
+                $cursa->descarcareTara?->nume,
+            ]);
+            $cursaDescriere = (count($incarcareParts) ? implode(', ', $incarcareParts) : '—')
+                . ' → '
+                . (count($descarcareParts) ? implode(', ', $descarcareParts) : '—');
+        }
 
         $kmPlecare = $cursa->km_bord_incarcare !== null && $cursa->km_bord_incarcare !== ''
             ? (float) $cursa->km_bord_incarcare
