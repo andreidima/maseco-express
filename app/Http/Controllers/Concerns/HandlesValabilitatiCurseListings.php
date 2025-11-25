@@ -28,6 +28,8 @@ trait HandlesValabilitatiCurseListings
                 'descarcareTara',
                 'cursaGrup',
                 'images',
+                'incarcareStops',
+                'descarcareStops',
             ])
             ->reorder()
             ->orderBy('nr_ordine')
