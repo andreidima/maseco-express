@@ -20,6 +20,14 @@ use Illuminate\Validation\ValidationException;
 class ValabilitateController extends Controller
 {
     private const PER_PAGE = 20;
+    private const PRICE_FIELDS = [
+        'flash_pret_km_gol',
+        'flash_pret_km_plin',
+        'flash_pret_km_cu_taxa',
+        'flash_contributie_zilnica',
+        'timestar_pret_km_bord',
+        'timestar_pret_nr_zile_lucrate',
+    ];
 
     /**
      * Display a listing of the resource.
@@ -111,6 +119,7 @@ class ValabilitateController extends Controller
 
         $taxeDrum = $validated['taxe_drum'] ?? [];
         $attributes = Arr::except($validated, ['taxe_drum']);
+        $attributes = $this->applyDivizieDefaultPrices($attributes);
 
         $valabilitate = Valabilitate::create($attributes);
 
@@ -433,14 +442,7 @@ class ValabilitateController extends Controller
      */
     private function formatPrices(array $values): array
     {
-        foreach ([
-            'flash_pret_km_gol',
-            'flash_pret_km_plin',
-            'flash_pret_km_cu_taxa',
-            'flash_contributie_zilnica',
-            'timestar_pret_km_bord',
-            'timestar_pret_nr_zile_lucrate',
-        ] as $field) {
+        foreach (self::PRICE_FIELDS as $field) {
             if (! array_key_exists($field, $values)) {
                 continue;
             }
@@ -458,6 +460,44 @@ class ValabilitateController extends Controller
         }
 
         return number_format((float) $value, 3, '.', '');
+    }
+
+    /**
+     * @param array<string, mixed> $attributes
+     *
+     * @return array<string, mixed>
+     */
+    private function applyDivizieDefaultPrices(array $attributes): array
+    {
+        $divizieId = $attributes['divizie_id'] ?? null;
+
+        if (! $divizieId) {
+            return $attributes;
+        }
+
+        $divizie = ValabilitatiDivizie::find($divizieId);
+
+        if (! $divizie) {
+            return $attributes;
+        }
+
+        foreach (self::PRICE_FIELDS as $field) {
+            $currentValue = $attributes[$field] ?? null;
+
+            if ($currentValue !== null) {
+                continue;
+            }
+
+            $divizieValue = $divizie->{$field};
+
+            if ($divizieValue === null) {
+                continue;
+            }
+
+            $attributes[$field] = $this->formatPrice($divizieValue);
+        }
+
+        return $attributes;
     }
 
     /**
