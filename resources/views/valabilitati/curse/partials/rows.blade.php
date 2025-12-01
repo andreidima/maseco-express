@@ -28,13 +28,10 @@
             : collect($curse);
 
         $curseCollection = $curseCollection->values();
+        $previousCursaLastReading = null;
 
         foreach ($curseCollection as $index => $cursaItem) {
             $groupId = $cursaItem->cursa_grup_id;
-
-            if (! $groupId) {
-                continue;
-            }
 
             $kmStart = is_numeric($cursaItem->km_bord_incarcare)
                 ? (float) $cursaItem->km_bord_incarcare
@@ -44,14 +41,21 @@
                 : null;
             $lastReading = $kmEnd ?? $kmStart;
 
+            if (! $groupId) {
+                if ($lastReading !== null) {
+                    $previousCursaLastReading = $lastReading;
+                }
+
+                continue;
+            }
+
             if (! array_key_exists($groupId, $groupKmTotals)) {
                 $groupKmTotals[$groupId] = [
                     'order' => $index,
                     'start' => $kmStart,
                     'last' => $lastReading,
+                    'previous_last' => $previousCursaLastReading,
                 ];
-
-                continue;
             }
 
             if ($kmStart !== null && ($groupKmTotals[$groupId]['start'] === null || $kmStart < $groupKmTotals[$groupId]['start'])) {
@@ -60,6 +64,10 @@
 
             if ($lastReading !== null && ($groupKmTotals[$groupId]['last'] === null || $lastReading > $groupKmTotals[$groupId]['last'])) {
                 $groupKmTotals[$groupId]['last'] = $lastReading;
+            }
+
+            if ($lastReading !== null) {
+                $previousCursaLastReading = $lastReading;
             }
         }
 
@@ -72,7 +80,7 @@
         $previousLast = null;
 
         foreach ($sortedGroupData as $data) {
-            $start = $previousLast ?? ($data['start'] ?? null);
+            $start = $data['previous_last'] ?? $previousLast ?? ($data['start'] ?? null);
             $total = null;
 
             if (($data['last'] ?? null) !== null && $start !== null) {
