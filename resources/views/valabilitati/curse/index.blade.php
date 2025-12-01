@@ -1008,6 +1008,222 @@
                     modalElement.setAttribute('aria-hidden', 'true');
                 };
 
+                const initStopsModals = (root = document) => {
+                    if (!root) {
+                        return;
+                    }
+
+                    const modals = root.querySelectorAll('[data-stops-modal]');
+
+                    modals.forEach(modal => {
+                        if (modal.dataset.stopsBound === 'true') {
+                            return;
+                        }
+
+                        const form = modal.querySelector('[data-stops-form]');
+                        if (!form) {
+                            return;
+                        }
+
+                        let initial = { incarcare: [], descarcare: [] };
+                        const rawStops = modal.dataset.initialStops || '{}';
+                        try {
+                            const parsed = JSON.parse(rawStops);
+                            if (parsed && typeof parsed === 'object') {
+                                initial = parsed;
+                            }
+                        } catch (error) {
+                            initial = { incarcare: [], descarcare: [] };
+                        }
+
+                        const normalizeStop = (type, stop = {}) => ({
+                            type,
+                            cod_postal: typeof stop.cod_postal === 'string' ? stop.cod_postal : '',
+                            localitate: typeof stop.localitate === 'string' ? stop.localitate : '',
+                            tara: typeof stop.tara === 'string' ? stop.tara : '',
+                            position: Number.isInteger(stop.position) ? stop.position : null,
+                        });
+
+                        const state = {
+                            incarcare: Array.isArray(initial.incarcare)
+                                ? initial.incarcare.map(stop => normalizeStop('incarcare', stop))
+                                : [],
+                            descarcare: Array.isArray(initial.descarcare)
+                                ? initial.descarcare.map(stop => normalizeStop('descarcare', stop))
+                                : [],
+                        };
+
+                        const containers = {
+                            incarcare: modal.querySelector('[data-stop-items="incarcare"]'),
+                            descarcare: modal.querySelector('[data-stop-items="descarcare"]'),
+                        };
+                        const emptyLabels = {
+                            incarcare: modal.querySelector('[data-stop-empty="incarcare"]'),
+                            descarcare: modal.querySelector('[data-stop-empty="descarcare"]'),
+                        };
+
+                        const moveStop = (type, index, direction) => {
+                            const list = state[type];
+                            if (!Array.isArray(list)) {
+                                return;
+                            }
+
+                            const targetIndex = index + direction;
+                            if (targetIndex < 0 || targetIndex >= list.length) {
+                                return;
+                            }
+
+                            [list[index], list[targetIndex]] = [list[targetIndex], list[index]];
+                            renderAll();
+                        };
+
+                        const removeStop = (type, index) => {
+                            const list = state[type];
+                            if (!Array.isArray(list)) {
+                                return;
+                            }
+
+                            list.splice(index, 1);
+                            renderAll();
+                        };
+
+                        const buildStopElement = (type, stop, listIndex, globalIndex) => {
+                            const wrapper = document.createElement('div');
+                            wrapper.className = 'border rounded-3 p-2 bg-light';
+                            wrapper.innerHTML = `
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <span class="small text-muted">#${listIndex + 1} ${type === 'incarcare' ? 'Încărcare' : 'Descărcare'}</span>
+                                    <div class="btn-group btn-group-sm">
+                                        <button type="button" class="btn btn-outline-secondary" data-stop-move="up" title="Mută mai sus">
+                                            <i class="fa-solid fa-arrow-up"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" data-stop-move="down" title="Mută mai jos">
+                                            <i class="fa-solid fa-arrow-down"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger" data-stop-remove title="Șterge">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="row g-2">
+                                    <div class="col-12 col-lg-5">
+                                        <label class="form-label small mb-1">Localitate</label>
+                                        <input type="text" class="form-control form-control-sm" data-stop-field="localitate" autocomplete="off">
+                                        <div class="invalid-feedback small" data-stop-feedback="localitate"></div>
+                                    </div>
+                                    <div class="col-6 col-lg-3">
+                                        <label class="form-label small mb-1">Cod poștal</label>
+                                        <input type="text" class="form-control form-control-sm" data-stop-field="cod_postal" autocomplete="off">
+                                        <div class="invalid-feedback small" data-stop-feedback="cod_postal"></div>
+                                    </div>
+                                    <div class="col-6 col-lg-4">
+                                        <label class="form-label small mb-1">Țară</label>
+                                        <input type="text" class="form-control form-control-sm" data-stop-field="tara" autocomplete="off">
+                                        <div class="invalid-feedback small" data-stop-feedback="tara"></div>
+                                    </div>
+                                </div>
+                                <input type="hidden" data-stop-field="type" value="${type}">
+                                <input type="hidden" data-stop-field="position" value="${listIndex + 1}">
+                            `;
+
+                            const localitateInput = wrapper.querySelector('[data-stop-field="localitate"]');
+                            const codPostalInput = wrapper.querySelector('[data-stop-field="cod_postal"]');
+                            const taraInput = wrapper.querySelector('[data-stop-field="tara"]');
+                            const positionInput = wrapper.querySelector('[data-stop-field="position"]');
+                            const typeInput = wrapper.querySelector('[data-stop-field="type"]');
+
+                            localitateInput.value = stop.localitate || '';
+                            codPostalInput.value = stop.cod_postal || '';
+                            taraInput.value = stop.tara || '';
+                            positionInput.value = listIndex + 1;
+                            typeInput.value = type;
+
+                            stop.position = listIndex + 1;
+
+                            localitateInput.addEventListener('input', (event) => {
+                                stop.localitate = event.target.value || '';
+                            });
+                            codPostalInput.addEventListener('input', (event) => {
+                                stop.cod_postal = event.target.value || '';
+                            });
+                            taraInput.addEventListener('input', (event) => {
+                                stop.tara = event.target.value || '';
+                            });
+
+                            const moveUpButton = wrapper.querySelector('[data-stop-move="up"]');
+                            const moveDownButton = wrapper.querySelector('[data-stop-move="down"]');
+                            const removeButton = wrapper.querySelector('[data-stop-remove]');
+
+                            moveUpButton.addEventListener('click', () => moveStop(type, listIndex, -1));
+                            moveDownButton.addEventListener('click', () => moveStop(type, listIndex, 1));
+                            removeButton.addEventListener('click', () => removeStop(type, listIndex));
+
+                            const setFieldNames = () => {
+                                wrapper.querySelectorAll('[data-stop-field]').forEach(input => {
+                                    const field = input.dataset.stopField || '';
+                                    input.name = `stops[${globalIndex}][${field}]`;
+                                });
+
+                                wrapper.querySelectorAll('[data-stop-feedback]').forEach(feedback => {
+                                    const field = feedback.dataset.stopFeedback || '';
+                                    feedback.dataset.errorFor = `stops.${globalIndex}.${field}`;
+                                });
+                            };
+
+                            return { element: wrapper, setFieldNames };
+                        };
+
+                        const renderAll = () => {
+                            let globalIndex = 0;
+                            ['incarcare', 'descarcare'].forEach(type => {
+                                const container = containers[type];
+                                const emptyLabel = emptyLabels[type];
+
+                                if (!container) {
+                                    return;
+                                }
+
+                                container.innerHTML = '';
+
+                                if (!state[type]?.length) {
+                                    if (emptyLabel) {
+                                        emptyLabel.classList.remove('d-none');
+                                    }
+                                    return;
+                                }
+
+                                if (emptyLabel) {
+                                    emptyLabel.classList.add('d-none');
+                                }
+
+                                state[type].forEach((stop, index) => {
+                                    stop.position = index + 1;
+                                    const stopRow = buildStopElement(type, stop, index, globalIndex);
+                                    stopRow.setFieldNames();
+                                    container.appendChild(stopRow.element);
+                                    globalIndex += 1;
+                                });
+                            });
+                        };
+
+                        const addButtons = modal.querySelectorAll('[data-stop-add]');
+                        addButtons.forEach(button => {
+                            button.addEventListener('click', () => {
+                                const type = button.dataset.stopAdd || '';
+                                if (!state[type]) {
+                                    return;
+                                }
+
+                                state[type].push(normalizeStop(type, { position: (state[type].length || 0) + 1 }));
+                                renderAll();
+                            });
+                        });
+
+                        renderAll();
+                        modal.dataset.stopsBound = 'true';
+                    });
+                };
+
                 const showFeedback = (message, type = 'success') => {
                     if (!feedbackContainer) {
                         return;
@@ -1083,9 +1299,27 @@
                         return;
                     }
 
+                    const toBracketName = (field) => {
+                        if (!field.includes('.')) {
+                            return null;
+                        }
+
+                        return field
+                            .replace(/\.(\d+)\./g, '[$1][')
+                            .replace(/\.(\d+)$/g, '[$1]')
+                            .replace(/\.(\w+)$/g, '[$1]');
+                    };
+
                     Object.entries(errors).forEach(([field, messages]) => {
-                        const inputs = form.querySelectorAll(`[name="${field}"]`);
+                        const inputs = Array.from(form.querySelectorAll(`[name="${field}"]`));
                         const proxyInputs = form.querySelectorAll(`[data-error-proxy="${field}"]`);
+                        const bracketName = toBracketName(field);
+
+                        if (bracketName) {
+                            form
+                                .querySelectorAll(`[name="${bracketName}"]`)
+                                .forEach(input => inputs.push(input));
+                        }
 
                         inputs.forEach(input => {
                             input.classList.add('is-invalid');
@@ -1104,7 +1338,9 @@
                             proxy.classList.add('is-invalid');
                         });
 
-                        const feedback = form.querySelector(`[data-error-for="${field}"]`);
+                        const feedback =
+                            form.querySelector(`[data-error-for="${field}"]`)
+                            || (bracketName ? form.querySelector(`[data-error-for="${bracketName}"]`) : null);
                         if (feedback) {
                             const messageText = Array.isArray(messages) ? messages.join(' ') : messages;
                             feedback.textContent = messageText;
@@ -1155,6 +1391,7 @@
                         refreshBulkModalReferences();
                         bindBulkModalEvents();
                         syncBulkGroupOptions();
+                        initStopsModals(modalsContainer);
                     }
 
                     const loadMoreTrigger = document.getElementById('curse-load-more-trigger');
@@ -1164,6 +1401,7 @@
 
                     initCountryInputs();
                     initLoadMore();
+                    initStopsModals();
                     bindBulkCheckboxes();
                     updateBulkAssignUi();
                     clearBulkAssignError();
@@ -1337,6 +1575,7 @@
                                 bindBulkModalEvents();
                                 syncBulkGroupOptions();
                                 initCountryInputs();
+                                initStopsModals(modalsContainer);
                                 if (supportsAjax()) {
                                     attachFormHandlers();
                                 }
@@ -1428,6 +1667,11 @@
                         if (parts.length === 2 && parts[1]) {
                             modalId = `cursaEditModal${parts[1]}`;
                         }
+                    } else if (activeModal.startsWith('stops:')) {
+                        const parts = activeModal.split(':');
+                        if (parts.length === 2 && parts[1]) {
+                            modalId = `cursaStopsModal${parts[1]}`;
+                        }
                     } else if (activeModal === 'group-create') {
                         modalId = 'cursaGroupCreateModal';
                     } else if (activeModal.startsWith('group-edit:')) {
@@ -1447,6 +1691,7 @@
 
                 initCountryInputs();
                 initLoadMore();
+                initStopsModals();
                 initBulkAssignControls();
 
                 if (supportsAjax()) {

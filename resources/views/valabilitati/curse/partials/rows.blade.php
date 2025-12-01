@@ -120,11 +120,13 @@
     };
 
     $groupFinancialsById = collect($groupFinancials ?? [])->keyBy('id');
-@endphp
+    @endphp
 
 @foreach ($curse as $cursa)
     @php
         $dataTransport = $cursa->data_cursa?->format('d.m.Y H:i');
+        $incarcareStopsList = [];
+        $descarcareStopsList = [];
 
         $formatStop = static function ($stop, string $fallbackTara = ''): string {
             $parts = collect([
@@ -145,17 +147,17 @@
         };
 
         if ($isFlashDivision) {
-            $incarcareStops = ($cursa->incarcareStops ?? collect())
+            $incarcareStopsList = ($cursa->incarcareStops ?? collect())
                 ->map(fn ($stop) => $formatStop($stop, $cursa->incarcareTara?->nume ?? ''))
                 ->filter()
                 ->all();
-            $descarcareStops = ($cursa->descarcareStops ?? collect())
+            $descarcareStopsList = ($cursa->descarcareStops ?? collect())
                 ->map(fn ($stop) => $formatStop($stop, $cursa->descarcareTara?->nume ?? ''))
                 ->filter()
                 ->all();
 
-            $incarcareDisplay = count($incarcareStops) ? implode(' • ', $incarcareStops) : '—';
-            $descarcareDisplay = count($descarcareStops) ? implode(' • ', $descarcareStops) : '—';
+            $incarcareDisplay = count($incarcareStopsList) ? implode(' • ', $incarcareStopsList) : '—';
+            $descarcareDisplay = count($descarcareStopsList) ? implode(' • ', $descarcareStopsList) : '—';
 
             $cursaDescriere = $incarcareDisplay . ' → ' . $descarcareDisplay;
         } else {
@@ -409,8 +411,20 @@
         </td>
 
         {{-- Cursa (descriere) --}}
-        <td class="small align-middle">
-            {{ $cursaDescriere }}
+        <td class="small align-middle py-0">
+            @if ($isFlashDivision)
+                <button
+                    type="button"
+                    class="btn btn-link p-0 text-start text-primary text-decoration-none w-100 small lh-1 align-middle"
+                    data-bs-toggle="modal"
+                    data-bs-target="#cursaStopsModal{{ $cursa->id }}"
+                    aria-label="Editează opririle cursei"
+                >
+                    {{ $cursaDescriere }}
+                </button>
+            @else
+                {{ $cursaDescriere }}
+            @endif
         </td>
 
         {{-- Dată transport --}}

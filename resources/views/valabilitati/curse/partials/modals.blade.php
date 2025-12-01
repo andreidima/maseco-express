@@ -1184,6 +1184,105 @@
         </div>
     </div>
 
+    @if ($isFlashDivision)
+        @php
+            $stopsPayload = [
+                'incarcare' => ($cursa->incarcareStops ?? collect())
+                    ->map(fn ($stop) => [
+                        'type' => $stop->type,
+                        'cod_postal' => $stop->cod_postal,
+                        'localitate' => $stop->localitate,
+                        'tara' => $stop->tara,
+                        'position' => $stop->position,
+                    ])
+                    ->values(),
+                'descarcare' => ($cursa->descarcareStops ?? collect())
+                    ->map(fn ($stop) => [
+                        'type' => $stop->type,
+                        'cod_postal' => $stop->cod_postal,
+                        'localitate' => $stop->localitate,
+                        'tara' => $stop->tara,
+                        'position' => $stop->position,
+                    ])
+                    ->values(),
+            ];
+        @endphp
+        <div
+            class="modal fade text-dark"
+            id="cursaStopsModal{{ $cursa->id }}"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="cursaStopsModalLabel{{ $cursa->id }}"
+            aria-hidden="true"
+            data-stops-modal
+            data-initial-stops='@json($stopsPayload)'
+        >
+            <div class="modal-dialog" role="document" style="--bs-modal-width: 820px;">
+                <div class="modal-content">
+                    <div class="modal-header bg-light">
+                        <h5 class="modal-title" id="cursaStopsModalLabel{{ $cursa->id }}">
+                            Încărcări și descărcări – cursa #{{ $cursa->nr_ordine }}
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <form
+                        action="{{ route('valabilitati.curse.update', [$valabilitate, $cursa]) }}"
+                        method="POST"
+                        class="curse-modal-form"
+                        data-stops-form
+                        novalidate
+                    >
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="form_type" value="stops">
+                        <input type="hidden" name="form_id" value="{{ $cursa->id }}">
+                        <div class="modal-body">
+                            <p class="small text-muted mb-3">
+                                Adaugă puncte multiple pentru încărcări și descărcări. Ordinea se poate schimba rapid din săgeți; poți salva chiar și fără opriri definite.
+                            </p>
+                            <div class="row g-3">
+                                <div class="col-12 col-lg-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-semibold">Încărcări</span>
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-success btn-sm"
+                                            data-stop-add="incarcare"
+                                        >
+                                            <i class="fa-solid fa-plus me-1"></i>Adaugă
+                                        </button>
+                                    </div>
+                                    <div class="d-flex flex-column gap-2" data-stop-items="incarcare"></div>
+                                    <div class="text-muted small" data-stop-empty="incarcare">Nicio încărcare definită.</div>
+                                </div>
+                                <div class="col-12 col-lg-6">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-semibold">Descărcări</span>
+                                        <button
+                                            type="button"
+                                            class="btn btn-outline-success btn-sm"
+                                            data-stop-add="descarcare"
+                                        >
+                                            <i class="fa-solid fa-plus me-1"></i>Adaugă
+                                        </button>
+                                    </div>
+                                    <div class="d-flex flex-column gap-2" data-stop-items="descarcare"></div>
+                                    <div class="text-muted small" data-stop-empty="descarcare">Nicio descărcare definită.</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                            <button type="submit" class="btn btn-primary text-white border border-dark rounded-3">
+                                <i class="fa-solid fa-floppy-disk me-1"></i>Salvează opririle
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @if ($hasMultipleCurse)
         <div
             class="modal fade text-dark"

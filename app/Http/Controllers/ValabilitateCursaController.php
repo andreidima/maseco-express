@@ -11,6 +11,7 @@ use App\Support\Valabilitati\ValabilitateCursaOrderer;
 use App\Support\Valabilitati\ValabilitatiCurseFilterState;
 use App\Support\Valabilitati\ValabilitatiFilterState;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -89,7 +90,9 @@ class ValabilitateCursaController extends Controller
             $data['nr_ordine'] = $this->resolveNextNrOrdine($valabilitate);
         }
 
-        $valabilitate->curse()->create($data);
+        $cursa = $valabilitate->curse()->create($data);
+
+        $this->syncStopsIfNeeded($request, $valabilitate, $cursa);
 
         return $this->respondAfterMutation($request, $valabilitate, 'Cursa a fost adăugată cu succes.');
     }
@@ -100,7 +103,10 @@ class ValabilitateCursaController extends Controller
 
         $this->authorize('update', $valabilitate);
 
-        $cursa->update($request->validated());
+        $validated = $request->validated();
+
+        $cursa->update($validated);
+        $this->syncStopsIfNeeded($request, $valabilitate, $cursa);
 
         return $this->respondAfterMutation($request, $valabilitate, 'Cursa a fost actualizată.');
     }
@@ -189,5 +195,64 @@ class ValabilitateCursaController extends Controller
     protected function displayGroupSummaryInResponses(): bool
     {
         return false;
+    }
+
+    private function syncStopsIfNeeded(Request $request, Valabilitate $valabilitate, ValabilitateCursa $cursa): void
+    {
+        if ((int) $valabilitate->divizie_id !== 1) {
+            return;
+        }
+
+        $shouldSyncStops = $request->input('form_type') === 'stops' || $request->has('stops');
+
+        if (! $shouldSyncStops) {
+            return;
+        }
+
+        $stops = $this->normalizeStops($request->input('stops', []));
+
+        $cursa->stops()->delete();
+
+        if ($stops->isEmpty()) {
+            return;
+        }
+
+        $cursa->stops()->createMany($stops->toArray());
+    }
+
+    private function normalizeStops(array $stops): Collection
+    {
+        $validStops = collect($stops)
+            ->filter(fn ($stop) => is_array($stop))
+            ->map(function (array $stop): array {
+                return [
+                    'type' => in_array($stop['type'] ?? '', ['incarcare', 'descarcare'], true)
+                        ? $stop['type']
+                        : null,
+                    'cod_postal' => trim((string) ($stop['cod_postal'] ?? '')),
+                    'tara' => trim((string) ($stop['tara'] ?? '')),
+                    'localitate' => trim((string) ($stop['localitate'] ?? '')),
+                    'position' => (int) ($stop['position'] ?? 0),
+                ];
+            })
+            ->filter(fn (array $stop) => ($stop['type'] ?? null) && ($stop['localitate'] ?? '') !== '');
+
+        return collect(['incarcare', 'descarcare'])
+            ->flatMap(function (string $type) use ($validStops) {
+                return $validStops
+                    ->where('type', $type)
+                    ->sortBy('position')
+                    ->values()
+                    ->map(function (array $stop, int $index) use ($type): array {
+                        return [
+                            'type' => $type,
+                            'cod_postal' => $stop['cod_postal'],
+                            'tara' => $stop['tara'],
+                            'localitate' => $stop['localitate'],
+                            'position' => $index + 1,
+                        ];
+                    });
+            })
+            ->values();
     }
 }
