@@ -20,6 +20,7 @@ class ValabilitateCursaStopFactory extends Factory
             'type' => fake()->randomElement(['incarcare', 'descarcare']),
             'cod_postal' => fake()->postcode(),
             'localitate' => fake()->city(),
+            'tara' => fake()->country(),
             'position' => fake()->numberBetween(1, 10),
         ];
     }

@@ -28,6 +28,7 @@
             'type' => $stop->type,
             'cod_postal' => $stop->cod_postal,
             'localitate' => $stop->localitate,
+            'tara' => $stop->tara,
             'position' => $stop->position,
         ];
     }) ?? [])->values();
@@ -40,6 +41,7 @@
                 'type' => 'incarcare',
                 'cod_postal' => $stop['cod_postal'] ?? '',
                 'localitate' => $stop['localitate'] ?? '',
+                'tara' => $stop['tara'] ?? '',
                 'position' => (int) ($stop['position'] ?? ($index + 1)),
             ];
         });
@@ -52,6 +54,7 @@
                 'type' => 'descarcare',
                 'cod_postal' => $stop['cod_postal'] ?? '',
                 'localitate' => $stop['localitate'] ?? '',
+                'tara' => $stop['tara'] ?? '',
                 'position' => (int) ($stop['position'] ?? ($index + 1)),
             ];
         });
@@ -110,29 +113,31 @@
                     value="{{ $incarcareCodPostal }}"
                     autocomplete="off"
                 >
-                @error('incarcare_cod_postal')
+            @error('incarcare_cod_postal')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+    @endunless
+        @unless ($isFlashDivizie)
+            <div class="col-12 col-md-6" data-country-field data-country-role="incarcare">
+                <label class="form-label small text-uppercase fw-semibold">Țara încărcării</label>
+                <input type="hidden" name="incarcare_tara_id" value="{{ $incarcareTaraId ?: '' }}" data-country-hidden>
+                <div class="country-autocomplete position-relative" data-country-autocomplete>
+                    <input
+                        type="text"
+                        name="incarcare_tara_text"
+                        class="form-control form-control-sm @error('incarcare_tara_id') is-invalid @enderror"
+                        value="{{ $incarcareTaraText }}"
+                        autocomplete="off"
+                        data-country-input
+                    >
+                    <div class="dropdown-menu w-100" data-country-dropdown></div>
+                </div>
+                @error('incarcare_tara_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
         @endunless
-        <div class="col-12 col-md-6" data-country-field data-country-role="incarcare">
-            <label class="form-label small text-uppercase fw-semibold">Țara încărcării</label>
-            <input type="hidden" name="incarcare_tara_id" value="{{ $incarcareTaraId ?: '' }}" data-country-hidden>
-            <div class="country-autocomplete position-relative" data-country-autocomplete>
-                <input
-                    type="text"
-                    name="incarcare_tara_text"
-                    class="form-control form-control-sm @error('incarcare_tara_id') is-invalid @enderror"
-                    value="{{ $incarcareTaraText }}"
-                    autocomplete="off"
-                    data-country-input
-                >
-                <div class="dropdown-menu w-100" data-country-dropdown></div>
-            </div>
-            @error('incarcare_tara_id')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
         @unless ($isFlashDivizie)
             <div class="col-12 col-md-6">
                 <label class="form-label small text-uppercase fw-semibold">Localitate descărcare</label>
@@ -156,29 +161,31 @@
                     value="{{ $descarcareCodPostal }}"
                     autocomplete="off"
                 >
-                @error('descarcare_cod_postal')
+            @error('descarcare_cod_postal')
+                <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+        </div>
+    @endunless
+        @unless ($isFlashDivizie)
+            <div class="col-12 col-md-6" data-country-field data-country-role="descarcare">
+                <label class="form-label small text-uppercase fw-semibold">Țara descărcării</label>
+                <input type="hidden" name="descarcare_tara_id" value="{{ $descarcareTaraId ?: '' }}" data-country-hidden>
+                <div class="country-autocomplete position-relative" data-country-autocomplete>
+                    <input
+                        type="text"
+                        name="descarcare_tara_text"
+                        class="form-control form-control-sm @error('descarcare_tara_id') is-invalid @enderror"
+                        value="{{ $descarcareTaraText }}"
+                        autocomplete="off"
+                        data-country-input
+                    >
+                    <div class="dropdown-menu w-100" data-country-dropdown></div>
+                </div>
+                @error('descarcare_tara_id')
                     <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
             </div>
         @endunless
-        <div class="col-12 col-md-6" data-country-field data-country-role="descarcare">
-            <label class="form-label small text-uppercase fw-semibold">Țara descărcării</label>
-            <input type="hidden" name="descarcare_tara_id" value="{{ $descarcareTaraId ?: '' }}" data-country-hidden>
-            <div class="country-autocomplete position-relative" data-country-autocomplete>
-                <input
-                    type="text"
-                    name="descarcare_tara_text"
-                    class="form-control form-control-sm @error('descarcare_tara_id') is-invalid @enderror"
-                    value="{{ $descarcareTaraText }}"
-                    autocomplete="off"
-                    data-country-input
-                >
-                <div class="dropdown-menu w-100" data-country-dropdown></div>
-            </div>
-            @error('descarcare_tara_id')
-                <div class="invalid-feedback">{{ $message }}</div>
-            @enderror
-        </div>
 
         <div class="col-12 col-md-6">
             <label class="form-label small text-uppercase fw-semibold">Data și ora cursei</label>
@@ -658,6 +665,7 @@
                             type,
                             cod_postal: String(stop.cod_postal ?? ''),
                             localitate: String(stop.localitate ?? ''),
+                            tara: String(stop.tara ?? ''),
                             position: index + 1,
                             formIndex: typeof stop.formIndex === 'number' ? stop.formIndex : stopIndex++,
                         }));
@@ -696,7 +704,7 @@
                         hiddenPosition.value = String(stop.position);
 
                         const postalCol = document.createElement('div');
-                        postalCol.className = 'col-12 col-sm-5 col-md-4';
+                        postalCol.className = 'col-12 col-sm-4 col-md-4';
                         postalCol.innerHTML = `
                             <label class="form-label small text-uppercase fw-semibold mb-1">Cod poștal</label>
                             <input
@@ -708,7 +716,7 @@
                         `;
 
                         const cityCol = document.createElement('div');
-                        cityCol.className = 'col-12 col-sm-7 col-md-8';
+                        cityCol.className = 'col-12 col-sm-4 col-md-4';
                         cityCol.innerHTML = `
                             <label class="form-label small text-uppercase fw-semibold mb-1">Localitate</label>
                             <input
@@ -720,7 +728,19 @@
                             >
                         `;
 
-                        row.append(postalCol, cityCol);
+                        const countryCol = document.createElement('div');
+                        countryCol.className = 'col-12 col-sm-4 col-md-4';
+                        countryCol.innerHTML = `
+                            <label class="form-label small text-uppercase fw-semibold mb-1">Țară</label>
+                            <input
+                                type="text"
+                                name="stops[${stop.formIndex}][tara]"
+                                class="form-control form-control-sm"
+                                value="${stop.tara ?? ''}"
+                            >
+                        `;
+
+                        row.append(postalCol, cityCol, countryCol);
                         wrapper.append(hiddenType, hiddenPosition, row);
 
                         const actions = document.createElement('div');
@@ -761,6 +781,11 @@
                             stops[index].localitate = event.target.value || '';
                         });
 
+                        const countryInput = countryCol.querySelector('input');
+                        countryInput.addEventListener('input', (event) => {
+                            stops[index].tara = event.target.value || '';
+                        });
+
                         hiddenPosition.value = String(stop.position);
 
                         container.appendChild(wrapper);
@@ -772,6 +797,7 @@
                         type,
                         cod_postal: '',
                         localitate: '',
+                        tara: '',
                         position: stops.length + 1,
                         formIndex: stopIndex++,
                     });

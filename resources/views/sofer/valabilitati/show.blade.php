@@ -148,23 +148,19 @@
                                                     ->sortBy('position');
                                             @endphp
 
-                                            <div class="row g-2 small text-muted">
-                                                <div class="col-12">
-                                                    <p class="fw-semibold text-uppercase text-dark small mb-0">
-                                                        {{ $cursa->incarcareTara?->nume ?? '—' }}
-                                                        ->
-                                                        {{ $cursa->descarcareTara?->nume ?? '—' }}
-                                                    </p>
-                                                </div>
-                                            </div>
-
                                             <div class="row g-3 small text-muted mt-1">
                                                 <div class="col-6">
                                                     <p class="fw-semibold text-uppercase text-dark small mb-0">Încărcări</p>
                                                         @forelse ($incarcareStops as $stop)
-                                                                {{ $loop->iteration }}.
-                                                                {{ $stop->localitate }}
-                                                                <br>
+                                                            {{ $loop->iteration }}.
+                                                            {{ $stop->localitate }}
+                                                            @if ($stop->cod_postal)
+                                                                ({{ $stop->cod_postal }})
+                                                            @endif
+                                                            @if ($stop->tara)
+                                                                — {{ $stop->tara }}
+                                                            @endif
+                                                            <br>
                                                         @empty
                                                             —
                                                         @endforelse
@@ -173,9 +169,15 @@
                                                 <div class="col-6 text-end">
                                                     <p class="fw-semibold text-uppercase text-dark small mb-0">Descărcări</p>
                                                         @forelse ($descarcareStops as $stop)
-                                                                {{ $loop->iteration }}.
-                                                                {{ $stop->localitate }}
-                                                                <br>
+                                                            {{ $loop->iteration }}.
+                                                            {{ $stop->localitate }}
+                                                            @if ($stop->cod_postal)
+                                                                ({{ $stop->cod_postal }})
+                                                            @endif
+                                                            @if ($stop->tara)
+                                                                — {{ $stop->tara }}
+                                                            @endif
+                                                            <br>
                                                         @empty
                                                             —
                                                         @endforelse

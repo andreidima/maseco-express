@@ -273,6 +273,28 @@ trait HandlesValabilitatiCurseListings
             ? (float) $valabilitate->timestar_pret_nr_zile_lucrate
             : null;
 
+        $daysWorked = is_numeric($grup->zile_calculate) ? (int) $grup->zile_calculate : null;
+
+        $groupKm = (int) $valabilitate->divizie_id === 3
+            ? $this->resolveTimestarGroupKm($valabilitate, $grup)
+            : $this->resolveGroupKmFromEndpoints($grup);
+
+        $kmComponent = $groupKm !== null && $pricePerKm !== null
+            ? round($groupKm, 2) * $pricePerKm
+            : null;
+        $dayComponent = $daysWorked !== null && $pricePerDay !== null
+            ? $daysWorked * $pricePerDay
+            : null;
+
+        if ($kmComponent === null && $dayComponent === null) {
+            return null;
+        }
+
+        return round(($kmComponent ?? 0) + ($dayComponent ?? 0), 2);
+    }
+
+    private function resolveGroupKmFromEndpoints(ValabilitateCursaGrup $grup): ?float
+    {
         $kmStart = $grup->curse
             ->pluck('km_bord_incarcare')
             ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
@@ -285,20 +307,88 @@ trait HandlesValabilitatiCurseListings
             ->map(static fn ($value) => (float) $value)
             ->max();
 
-        $daysWorked = is_numeric($grup->zile_calculate) ? (int) $grup->zile_calculate : null;
-
-        $kmComponent = $kmStart !== null && $kmEnd !== null && $pricePerKm !== null
-            ? round($kmEnd - $kmStart, 2) * $pricePerKm
-            : null;
-        $dayComponent = $daysWorked !== null && $pricePerDay !== null
-            ? $daysWorked * $pricePerDay
-            : null;
-
-        if ($kmComponent === null && $dayComponent === null) {
+        if ($kmStart === null || $kmEnd === null) {
             return null;
         }
 
-        return round(($kmComponent ?? 0) + ($dayComponent ?? 0), 2);
+        return $kmEnd - $kmStart;
+    }
+
+    private function resolveTimestarGroupKm(Valabilitate $valabilitate, ValabilitateCursaGrup $target): ?float
+    {
+        static $cache = [];
+
+        $cacheKey = spl_object_hash($valabilitate);
+
+        if (! array_key_exists($cacheKey, $cache)) {
+            $groups = $valabilitate->cursaGrupuri ?? collect();
+
+            $groupData = $groups
+                ->map(function ($grup) {
+                    $curse = $grup->curse ?? collect();
+
+                    $startKm = $curse
+                        ->pluck('km_bord_incarcare')
+                        ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+                        ->map(static fn ($value) => (float) $value)
+                        ->min();
+
+                    $endKm = $curse
+                        ->pluck('km_bord_descarcare')
+                        ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+                        ->map(static fn ($value) => (float) $value)
+                        ->max();
+
+                    $fallbackLastKm = $curse
+                        ->pluck('km_bord_incarcare')
+                        ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+                        ->map(static fn ($value) => (float) $value)
+                        ->max();
+
+                    $lastKm = $endKm ?? $fallbackLastKm;
+
+                    $orderKey = $curse
+                        ->pluck('nr_ordine')
+                        ->filter(static fn ($value) => $value !== null && $value !== '' && is_numeric($value))
+                        ->map(static fn ($value) => (int) $value)
+                        ->min();
+
+                    if ($orderKey === null) {
+                        $orderKey = $grup->id ?? PHP_INT_MAX;
+                    }
+
+                    return [
+                        'id' => $grup->getKey(),
+                        'order' => $orderKey,
+                        'start' => $startKm,
+                        'last' => $lastKm,
+                    ];
+                })
+                ->sortBy('order')
+                ->values();
+
+            $previousLast = null;
+            $distances = [];
+
+            foreach ($groupData as $data) {
+                $startKm = $previousLast ?? $data['start'];
+                $distance = null;
+
+                if ($data['last'] !== null && $startKm !== null) {
+                    $distance = $data['last'] - $startKm;
+                }
+
+                $distances[$data['id']] = $distance;
+
+                if ($data['last'] !== null) {
+                    $previousLast = $data['last'];
+                }
+            }
+
+            $cache[$cacheKey] = $distances;
+        }
+
+        return $cache[$cacheKey][$target->getKey()] ?? null;
     }
 
     protected function resolveCurseCollection($curse): Collection

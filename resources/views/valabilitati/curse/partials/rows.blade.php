@@ -27,7 +27,9 @@
             ? $curse->getCollection()
             : collect($curse);
 
-        foreach ($curseCollection as $cursaItem) {
+        $curseCollection = $curseCollection->values();
+
+        foreach ($curseCollection as $index => $cursaItem) {
             $groupId = $cursaItem->cursa_grup_id;
 
             if (! $groupId) {
@@ -40,29 +42,55 @@
             $kmEnd = is_numeric($cursaItem->km_bord_descarcare)
                 ? (float) $cursaItem->km_bord_descarcare
                 : null;
+            $lastReading = $kmEnd ?? $kmStart;
 
             if (! array_key_exists($groupId, $groupKmTotals)) {
                 $groupKmTotals[$groupId] = [
-                    'first' => null,
-                    'last' => null,
-                    'total' => null,
+                    'order' => $index,
+                    'start' => $kmStart,
+                    'last' => $lastReading,
                 ];
+
+                continue;
             }
 
-            if ($kmStart !== null && $groupKmTotals[$groupId]['first'] === null) {
-                $groupKmTotals[$groupId]['first'] = $kmStart;
+            if ($kmStart !== null && ($groupKmTotals[$groupId]['start'] === null || $kmStart < $groupKmTotals[$groupId]['start'])) {
+                $groupKmTotals[$groupId]['start'] = $kmStart;
             }
 
-            if ($kmEnd !== null) {
-                $groupKmTotals[$groupId]['last'] = $kmEnd;
+            if ($lastReading !== null && ($groupKmTotals[$groupId]['last'] === null || $lastReading > $groupKmTotals[$groupId]['last'])) {
+                $groupKmTotals[$groupId]['last'] = $lastReading;
             }
         }
 
-        foreach ($groupKmTotals as $groupId => $kmData) {
-            if ($kmData['first'] !== null && $kmData['last'] !== null) {
-                $groupKmTotals[$groupId]['total'] = $kmData['last'] - $kmData['first'];
+        $sortedGroupData = collect($groupKmTotals)
+            ->map(fn ($data, $id) => array_merge($data, ['id' => $id]))
+            ->sortBy('order')
+            ->values();
+
+        $computedTotals = [];
+        $previousLast = null;
+
+        foreach ($sortedGroupData as $data) {
+            $start = $previousLast ?? ($data['start'] ?? null);
+            $total = null;
+
+            if (($data['last'] ?? null) !== null && $start !== null) {
+                $total = $data['last'] - $start;
+            }
+
+            $computedTotals[$data['id']] = [
+                'start' => $data['start'] ?? null,
+                'last' => $data['last'] ?? null,
+                'total' => $total,
+            ];
+
+            if (($data['last'] ?? null) !== null) {
+                $previousLast = $data['last'];
             }
         }
+
+        $groupKmTotals = $computedTotals;
     }
     $resolveRowTextColor = static function ($value): string {
         if (! is_string($value) || $value === '') {
@@ -98,29 +126,36 @@
     @php
         $dataTransport = $cursa->data_cursa?->format('d.m.Y H:i');
 
-        $formatStop = static function ($stop): string {
-            return collect([
+        $formatStop = static function ($stop, string $fallbackTara = ''): string {
+            $parts = collect([
                 $stop->localitate,
                 $stop->cod_postal,
             ])
                 ->filter()
                 ->implode(' ');
+
+            $tara = $stop->tara ?: $fallbackTara;
+
+            if ($tara) {
+                $parts = trim($parts);
+                $parts = $parts !== '' ? $parts . ' (' . $tara . ')' : $tara;
+            }
+
+            return trim($parts);
         };
 
         if ($isFlashDivision) {
-            $incarcareStops = ($cursa->incarcareStops ?? collect())->map($formatStop)->filter()->all();
-            $descarcareStops = ($cursa->descarcareStops ?? collect())->map($formatStop)->filter()->all();
+            $incarcareStops = ($cursa->incarcareStops ?? collect())
+                ->map(fn ($stop) => $formatStop($stop, $cursa->incarcareTara?->nume ?? ''))
+                ->filter()
+                ->all();
+            $descarcareStops = ($cursa->descarcareStops ?? collect())
+                ->map(fn ($stop) => $formatStop($stop, $cursa->descarcareTara?->nume ?? ''))
+                ->filter()
+                ->all();
 
             $incarcareDisplay = count($incarcareStops) ? implode(' • ', $incarcareStops) : '—';
             $descarcareDisplay = count($descarcareStops) ? implode(' • ', $descarcareStops) : '—';
-
-            if ($cursa->incarcareTara?->nume) {
-                $incarcareDisplay .= ' (' . $cursa->incarcareTara->nume . ')';
-            }
-
-            if ($cursa->descarcareTara?->nume) {
-                $descarcareDisplay .= ' (' . $cursa->descarcareTara->nume . ')';
-            }
 
             $cursaDescriere = $incarcareDisplay . ' → ' . $descarcareDisplay;
         } else {
@@ -299,8 +334,8 @@
                     <div class="d-flex flex-column flex-xl-row justify-content-between gap-3">
                         <div class="d-flex flex-wrap gap-3 fw-semibold fs-6 text-uppercase">
                             <span>{{ $groupName }}</span>
-                            @if ($showGroupKmTotals && $groupTotalKm)
-                                <span>{{ $groupTotalKm !== null ? number_format($groupTotalKm, 2) : '—' }} km</span>
+                            @if ($showGroupKmTotals && $groupTotalKm !== null)
+                                <span>{{ number_format($groupTotalKm, 2) }} km</span>
                             @endif
                         </div>
                         <div class="d-flex flex-wrap gap-3 small curse-group-heading__meta">

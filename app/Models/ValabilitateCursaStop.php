@@ -15,12 +15,14 @@ class ValabilitateCursaStop extends Model
         'type',
         'cod_postal',
         'localitate',
+        'tara',
         'position',
     ];
 
     protected $casts = [
         'valabilitate_cursa_id' => 'integer',
         'position' => 'integer',
+        'tara' => 'string',
     ];
 
     public function cursa(): BelongsTo

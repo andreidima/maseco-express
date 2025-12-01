@@ -187,6 +187,7 @@ class SoferValabilitateCursaController extends Controller
                         ? $stop['type']
                         : null,
                     'cod_postal' => trim((string) ($stop['cod_postal'] ?? '')),
+                    'tara' => trim((string) ($stop['tara'] ?? '')),
                     'localitate' => trim((string) ($stop['localitate'] ?? '')),
                     'position' => (int) ($stop['position'] ?? 0),
                 ];
@@ -203,6 +204,7 @@ class SoferValabilitateCursaController extends Controller
                         return [
                             'type' => $type,
                             'cod_postal' => $stop['cod_postal'],
+                            'tara' => $stop['tara'],
                             'localitate' => $stop['localitate'],
                             'position' => $index + 1,
                         ];
