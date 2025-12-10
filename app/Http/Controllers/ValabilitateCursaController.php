@@ -33,11 +33,12 @@ class ValabilitateCursaController extends Controller
 
         $valabilitate->loadMissing(['sofer', 'taxeDrum', 'cursaGrupuri', 'divizie']);
         $summary = $this->buildSummaryData($valabilitate, $curse);
+        $includeCreateModals = (int) optional($valabilitate->divizie)->id !== 1;
 
         $modalViewData = $this->buildModalViewData(
             $valabilitate,
             $curse,
-            true,
+            $includeCreateModals,
             old('form_type'),
             old('form_id')
         );
@@ -63,6 +64,7 @@ class ValabilitateCursaController extends Controller
         ValabilitatiCurseFilterState::remember($request, $valabilitate, []);
         $valabilitate->loadMissing(['sofer', 'taxeDrum', 'cursaGrupuri', 'divizie']);
         $summary = $this->buildSummaryData($valabilitate, $curse);
+        $includeCreateModals = (int) optional($valabilitate->divizie)->id !== 1;
 
         return response()->json([
             'rows_html' => view('valabilitati.curse.partials.rows', [
@@ -73,10 +75,56 @@ class ValabilitateCursaController extends Controller
             'modals_html' => view('valabilitati.curse.partials.modals', $this->buildModalViewData(
                 $valabilitate,
                 $curse,
-                false
+                $includeCreateModals
             ))->render(),
             'next_url' => $this->buildNextPageUrl($request, $valabilitate, $curse),
             'summary_html' => $this->renderSummaryHtml($valabilitate, $summary),
+        ]);
+    }
+
+    public function create(Valabilitate $valabilitate): View
+    {
+        $this->authorize('update', $valabilitate);
+
+        $valabilitate->loadMissing(['divizie', 'cursaGrupuri']);
+
+        $cursa = new ValabilitateCursa([
+            'valabilitate_id' => $valabilitate->getKey(),
+        ]);
+
+        return view('valabilitati.curse.form', [
+            'valabilitate' => $valabilitate,
+            'cursa' => $cursa,
+            'tari' => $this->loadTari(),
+            'groupFormatOptions' => \App\Models\ValabilitateCursaGrup::documentFormats(),
+            'groupColorOptions' => \App\Models\ValabilitateCursaGrup::colorPalette(),
+            'backUrl' => ValabilitatiCurseFilterState::route($valabilitate),
+            'isFlashDivision' => (int) optional($valabilitate->divizie)->id === 1,
+            'isEdit' => false,
+            'formAction' => route('valabilitati.curse.store', $valabilitate),
+            'redirectTo' => route('valabilitati.curse.index', $valabilitate),
+        ]);
+    }
+
+    public function edit(Valabilitate $valabilitate, ValabilitateCursa $cursa): View
+    {
+        $this->assertBelongsToValabilitate($valabilitate, $cursa);
+        $this->authorize('update', $valabilitate);
+
+        $valabilitate->loadMissing(['divizie', 'cursaGrupuri']);
+        $cursa->loadMissing(['incarcareStops', 'descarcareStops', 'cursaGrup']);
+
+        return view('valabilitati.curse.form', [
+            'valabilitate' => $valabilitate,
+            'cursa' => $cursa,
+            'tari' => $this->loadTari(),
+            'groupFormatOptions' => \App\Models\ValabilitateCursaGrup::documentFormats(),
+            'groupColorOptions' => \App\Models\ValabilitateCursaGrup::colorPalette(),
+            'backUrl' => ValabilitatiCurseFilterState::route($valabilitate),
+            'isFlashDivision' => (int) optional($valabilitate->divizie)->id === 1,
+            'isEdit' => true,
+            'formAction' => route('valabilitati.curse.update', [$valabilitate, $cursa]),
+            'redirectTo' => route('valabilitati.curse.index', $valabilitate),
         ]);
     }
 
@@ -235,7 +283,7 @@ class ValabilitateCursaController extends Controller
                     'position' => (int) ($stop['position'] ?? 0),
                 ];
             })
-            ->filter(fn (array $stop) => ($stop['type'] ?? null) && ($stop['localitate'] ?? '') !== '');
+            ->filter(fn (array $stop) => ($stop['type'] ?? null));
 
         return collect(['incarcare', 'descarcare'])
             ->flatMap(function (string $type) use ($validStops) {

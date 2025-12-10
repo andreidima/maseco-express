@@ -189,7 +189,7 @@
                                     }
                                     $canDelete = ($grup->curse_count ?? 0) === 0;
                                     $zileCalculate = is_numeric($grup->zile_calculate)
-                                        ? (int) $grup->zile_calculate
+                                        ? number_format((float) $grup->zile_calculate, 2, '.', '')
                                         : null;
                                 @endphp
                                 @php

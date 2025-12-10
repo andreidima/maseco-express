@@ -58,7 +58,7 @@ class ValabilitateCursaGrup extends Model
         'data_factura' => 'date',
         'suma_incasata' => 'decimal:2',
         'suma_calculata' => 'decimal:2',
-        'zile_calculate' => 'integer',
+        'zile_calculate' => 'decimal:2',
     ];
 
     public static function colorPalette(): array

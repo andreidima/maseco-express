@@ -75,7 +75,7 @@
     };
 @endphp
 
-@if ($renderCurseModals && ($includeCreate ?? false) === true)
+@if ($renderCurseModals && ($includeCreate ?? false) === true && ! $isFlashDivision)
     <datalist id="valabilitati-curse-tari">
         @foreach ($tariCollection as $tara)
             <option value="{{ $tara->nume }}" data-id="{{ $tara->id }}"></option>
@@ -737,32 +737,33 @@
         $canMoveUp = $hasMultipleCurse && ! $loop->first;
         $canMoveDown = $hasMultipleCurse && ! $loop->last;
     @endphp
-    <div
-        class="modal fade text-dark"
-        id="cursaEditModal{{ $cursa->id }}"
-        tabindex="-1"
-        role="dialog"
-        aria-labelledby="cursaEditModalLabel{{ $cursa->id }}"
-        aria-hidden="true"
-    >
-        <div class="modal-dialog" role="document" style="--bs-modal-width: 750px;">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="cursaEditModalLabel{{ $cursa->id }}">Modifică cursa</h5>
-                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Închide"></button>
-                </div>
-                <form
-                    action="{{ route('valabilitati.curse.update', [$valabilitate, $cursa]) }}"
-                    method="POST"
-                    class="curse-modal-form"
-                    novalidate
-                >
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" name="form_type" value="edit">
-                    <input type="hidden" name="form_id" value="{{ $cursa->id }}">
-                    <div class="modal-body">
-                        <div class="row g-3">
+    @unless ($isFlashDivision)
+        <div
+            class="modal fade text-dark"
+            id="cursaEditModal{{ $cursa->id }}"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="cursaEditModalLabel{{ $cursa->id }}"
+            aria-hidden="true"
+        >
+            <div class="modal-dialog" role="document" style="--bs-modal-width: 750px;">
+                <div class="modal-content">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="cursaEditModalLabel{{ $cursa->id }}">Modifică cursa</h5>
+                        <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Închide"></button>
+                    </div>
+                    <form
+                        action="{{ route('valabilitati.curse.update', [$valabilitate, $cursa]) }}"
+                        method="POST"
+                        class="curse-modal-form"
+                        novalidate
+                    >
+                        @csrf
+                        @method('PUT')
+                        <input type="hidden" name="form_type" value="edit">
+                        <input type="hidden" name="form_id" value="{{ $cursa->id }}">
+                        <div class="modal-body">
+                            <div class="row g-3">
                             <div class="col-md-3">
                                 <label for="{{ $editPrefix }}nr" class="form-label">Număr cursă</label>
                                 <input
@@ -1184,7 +1185,9 @@
         </div>
     </div>
 
-    @if ($isFlashDivision)
+    @endunless
+
+    @if ($isFlashDivision && false)
         @php
             $stopsPayload = [
                 'incarcare' => ($cursa->incarcareStops ?? collect())
@@ -1488,6 +1491,7 @@
                                 <input
                                     type="number"
                                     min="0"
+                                    step="0.01"
                                     id="group-create-zile"
                                     name="zile_calculate"
                                     class="form-control rounded-3 {{ $isGroupCreateActive && $errors->has('zile_calculate') ? 'is-invalid' : '' }}"
@@ -1699,6 +1703,7 @@
                                     <input
                                         type="number"
                                         min="0"
+                                        step="0.01"
                                         id="group-edit-zile-{{ $grup->id }}"
                                         name="zile_calculate"
                                         class="form-control rounded-3 {{ $isGroupEditActive && $errors->has('zile_calculate') ? 'is-invalid' : '' }}"

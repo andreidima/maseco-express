@@ -73,6 +73,7 @@ trait HandlesValabilitatiCurseListings
         $curse = $this->paginateCurse($filtersRequest, $valabilitate, $query);
         $valabilitate->loadMissing(['sofer', 'taxeDrum', 'cursaGrupuri', 'divizie']);
         $summary = $this->buildSummaryData($valabilitate, $curse);
+        $includeCreateModals = (int) optional($valabilitate->divizie)->id !== 1;
 
         return response()->json([
             'message' => $message,
@@ -85,7 +86,7 @@ trait HandlesValabilitatiCurseListings
             'modals_html' => view('valabilitati.curse.partials.modals', $this->buildModalViewData(
                 $valabilitate,
                 $curse,
-                true,
+                $includeCreateModals,
                 old('form_type'),
                 old('form_id')
             ))->render(),
@@ -258,7 +259,7 @@ trait HandlesValabilitatiCurseListings
                     'numar_factura' => $grup->numar_factura,
                     'data_factura' => $grup->data_factura,
                     'culoare_hex' => $grup->culoare_hex,
-                    'zile_calculate' => is_numeric($grup->zile_calculate) ? (int) $grup->zile_calculate : null,
+                    'zile_calculate' => is_numeric($grup->zile_calculate) ? (float) $grup->zile_calculate : null,
                 ];
             })
             ->values();
@@ -273,7 +274,7 @@ trait HandlesValabilitatiCurseListings
             ? (float) $valabilitate->timestar_pret_nr_zile_lucrate
             : null;
 
-        $daysWorked = is_numeric($grup->zile_calculate) ? (int) $grup->zile_calculate : null;
+        $daysWorked = is_numeric($grup->zile_calculate) ? (float) $grup->zile_calculate : null;
 
         $groupKm = (int) $valabilitate->divizie_id === 3
             ? $this->resolveTimestarGroupKm($valabilitate, $grup)
@@ -428,7 +429,7 @@ trait HandlesValabilitatiCurseListings
     protected function resolveListingRedirectUrl(Request $request, Valabilitate $valabilitate): string
     {
         return $this->sanitizeRedirectTarget((string) $request->input('redirect_to'))
-            ?? ValabilitatiCurseFilterState::route($valabilitate);
+            ?? route('valabilitati.curse.index', $valabilitate);
     }
 
     private function sanitizeRedirectTarget(?string $target): ?string

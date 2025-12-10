@@ -136,7 +136,7 @@
         $incarcareStopsList = [];
         $descarcareStopsList = [];
 
-        $formatStop = static function ($stop, string $fallbackTara = ''): string {
+        $formatStop = static function ($stop): string {
             $parts = collect([
                 $stop->localitate,
                 $stop->cod_postal,
@@ -144,7 +144,7 @@
                 ->filter()
                 ->implode(' ');
 
-            $tara = $stop->tara ?: $fallbackTara;
+            $tara = $stop->tara ?: '';
 
             if ($tara) {
                 $parts = trim($parts);
@@ -156,11 +156,11 @@
 
         if ($isFlashDivision) {
             $incarcareStopsList = ($cursa->incarcareStops ?? collect())
-                ->map(fn ($stop) => $formatStop($stop, $cursa->incarcareTara?->nume ?? ''))
+                ->map(fn ($stop) => $formatStop($stop))
                 ->filter()
                 ->all();
             $descarcareStopsList = ($cursa->descarcareStops ?? collect())
-                ->map(fn ($stop) => $formatStop($stop, $cursa->descarcareTara?->nume ?? ''))
+                ->map(fn ($stop) => $formatStop($stop))
                 ->filter()
                 ->all();
 
@@ -278,11 +278,12 @@
             $incasata = $financials['suma_incasata'] ?? ($group->suma_incasata !== null ? (float) $group->suma_incasata : null);
             $calculata = $financials['suma_calculata'] ?? null;
             $diferenta = $financials['diferenta'] ?? null;
-            $zileCalculate = $financials['zile_calculate'] ?? (is_numeric($group->zile_calculate) ? (int) $group->zile_calculate : null);
+            $zileCalculate = $financials['zile_calculate'] ?? (is_numeric($group->zile_calculate) ? (float) $group->zile_calculate : null);
 
             $incasata = $incasata !== null ? number_format((float) $incasata, 2) : null;
             $calculata = $calculata !== null ? number_format((float) $calculata, 2) : null;
             $diferenta = $diferenta !== null ? number_format((float) $diferenta, 2) : null;
+            $zileCalculate = $zileCalculate !== null ? number_format((float) $zileCalculate, 2, '.', '') : null;
             $groupFinancialMeta = [
                 'suma_incasata' => $incasata,
                 'suma_calculata' => $calculata,
@@ -421,15 +422,7 @@
         {{-- Cursa (descriere) --}}
         <td class="small align-middle py-0">
             @if ($isFlashDivision)
-                <button
-                    type="button"
-                    class="btn btn-link p-0 text-start text-primary text-decoration-none w-100 small lh-1 align-middle"
-                    data-bs-toggle="modal"
-                    data-bs-target="#cursaStopsModal{{ $cursa->id }}"
-                    aria-label="Editează opririle cursei"
-                >
-                    {{ $cursaDescriere }}
-                </button>
+                {{ $cursaDescriere }}
             @else
                 {{ $cursaDescriere }}
             @endif
@@ -522,8 +515,12 @@
                 <div class="d-flex no-wrap align-content-start justify-content-end">
                     <div class="ms-1">
                         <a
-                            href="#" data-bs-toggle="modal"
-                            data-bs-target="#cursaEditModal{{ $cursa->id }}"
+                            @if ($isFlashDivision)
+                                href="{{ route('valabilitati.curse.edit', [$valabilitate, $cursa]) }}"
+                            @else
+                                href="#" data-bs-toggle="modal"
+                                data-bs-target="#cursaEditModal{{ $cursa->id }}"
+                            @endif
                             class="flex"
                             title="Modifică cursa"
                             aria-label="Modifică cursa"

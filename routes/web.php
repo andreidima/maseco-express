@@ -390,10 +390,14 @@ Route::middleware(['auth'])->group(function () {
             ->except(['create', 'edit']);
 
         Route::scopeBindings()->group(function () {
+            Route::get('valabilitati/{valabilitate}/curse/create', [ValabilitateCursaController::class, 'create'])
+                ->name('valabilitati.curse.create');
             Route::get('valabilitati/{valabilitate}/curse/paginate', [ValabilitateCursaController::class, 'paginate'])
                 ->name('valabilitati.curse.paginate');
             Route::get('valabilitati/{valabilitate}/curse', [ValabilitateCursaController::class, 'index'])
                 ->name('valabilitati.curse.index');
+            Route::get('valabilitati/{valabilitate}/curse/{cursa}/edit', [ValabilitateCursaController::class, 'edit'])
+                ->name('valabilitati.curse.edit');
             Route::get('valabilitati/{valabilitate}/alimentari', [ValabilitateAlimentareController::class, 'index'])
                 ->name('valabilitati.alimentari.index');
             Route::get('valabilitati/{valabilitate}/grupuri', [ValabilitateCursaGrupController::class, 'index'])
@@ -499,4 +503,3 @@ Route::middleware(['auth'])->group(function () {
         return 'All caches cleared';
     });
 });
-

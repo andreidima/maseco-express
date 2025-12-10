@@ -61,7 +61,7 @@ class ValabilitateCursaRequest extends FormRequest
                 'stops' => ['sometimes', 'array'],
                 'stops.*.type' => ['required_with:stops', 'in:incarcare,descarcare'],
                 'stops.*.cod_postal' => ['nullable', 'string', 'max:255'],
-                'stops.*.localitate' => ['required_with:stops', 'string', 'max:255'],
+                'stops.*.localitate' => ['nullable', 'string', 'max:255'],
                 'stops.*.tara' => ['nullable', 'string', 'max:255'],
                 'stops.*.position' => ['nullable', 'integer', 'min:1'],
             ]);
@@ -113,7 +113,7 @@ class ValabilitateCursaRequest extends FormRequest
         $valabilitate = $this->route('valabilitate');
         $modalKey = $this->determineModalKey();
 
-        $response = redirect($this->resolveRedirectUrl($valabilitate))
+        $response = redirect()->back()
             ->withErrors($validator)
             ->withInput($this->all())
             ->with('curse.modal', $modalKey);

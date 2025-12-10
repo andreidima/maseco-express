@@ -173,14 +173,23 @@
             </div>
             <div class="col-12 col-lg-4 text-lg-end mt-3 mt-lg-0">
                 <div class="d-flex align-items-stretch align-items-lg-end gap-2 flex-wrap justify-content-center justify-content-lg-end">
-                    <button
-                        type="button"
-                        class="btn btn-sm btn-success text-white border border-dark rounded-3"
-                        data-bs-toggle="modal"
-                        data-bs-target="#cursaCreateModal"
-                    >
-                        <i class="fas fa-plus-square text-white me-1"></i>Adaugă cursă
-                    </button>
+                    @if ($isFlashDivision)
+                        <a
+                            href="{{ route('valabilitati.curse.create', $valabilitate) }}"
+                            class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                        >
+                            <i class="fas fa-plus-square text-white me-1"></i>Adaugă cursă
+                        </a>
+                    @else
+                        <button
+                            type="button"
+                            class="btn btn-sm btn-success text-white border border-dark rounded-3"
+                            data-bs-toggle="modal"
+                            data-bs-target="#cursaCreateModal"
+                        >
+                            <i class="fas fa-plus-square text-white me-1"></i>Adaugă cursă
+                        </button>
+                    @endif
                     <button
                         type="button"
                         id="curse-bulk-trigger"
