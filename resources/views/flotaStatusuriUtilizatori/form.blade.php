@@ -31,7 +31,7 @@
                 $selectedBackground = old('culoare_background', $flotaStatusUtilizator->culoare_background);
                 $selectedText = old('culoare_text', $flotaStatusUtilizator->culoare_text);
             @endphp
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-6 mb-4">
                 <label for="culoare_background" class="mb-0 ps-3">Culoare background</label>
                 <select
                     name="culoare_background"
@@ -52,7 +52,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-6 mb-4">
                 <label for="culoare_text" class="mb-0 ps-3">Culoare text</label>
                 <select
                     name="culoare_text"
@@ -73,7 +73,7 @@
                     @endforeach
                 </select>
             </div>
-            <div class="col-lg-3 mb-4">
+            <div class="col-lg-6 mb-4">
                 <label for="ordine_afisare" class="mb-0 ps-3">Ordine afisare</label>
                 <input
                     type="number"
