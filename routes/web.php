@@ -26,6 +26,7 @@ use App\Http\Controllers\IntermediereController;
 use App\Http\Controllers\FlotaStatusController;
 use App\Http\Controllers\FlotaStatusInformatieController;
 use App\Http\Controllers\FlotaStatusCController;
+use App\Http\Controllers\FlotaStatusUtilizatorController;
 use App\Http\Controllers\MasinaValabilitatiController;
 use App\Http\Controllers\Masini\MasinaFisierGeneralController;
 use App\Http\Controllers\Masini\MasiniDocumentController;
@@ -258,6 +259,9 @@ Route::middleware(['auth'])->group(function () {
 
         Route::resource('/flota-statusuri', FlotaStatusController::class)->parameters(['flota-statusuri' => 'flotaStatus']);
         Route::resource('/flota-statusuri-informatii', FlotaStatusInformatieController::class)->parameters(['flota-statusuri-informatii' => 'flotaStatusInformatie']);
+        Route::resource('/flota-statusuri-utilizatori', FlotaStatusUtilizatorController::class)
+            ->parameters(['flota-statusuri-utilizatori' => 'flotaStatusUtilizator'])
+            ->except(['index', 'show']);
 
         Route::resource('flota-statusuri-c', FlotaStatusCController::class)->parameters(['flota-statusuri-c' => 'flotaStatusC']);
 
