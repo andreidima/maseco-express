@@ -34,6 +34,7 @@ use App\Http\Controllers\Masini\MasiniDocumentFisierController;
 use App\Http\Controllers\Masini\MasiniMementoController;
 use App\Http\Controllers\DocumentWordController;
 use App\Http\Controllers\KeyPerformanceIndicatorController;
+use App\Http\Controllers\AcasaWeeklyMarkController;
 use App\Http\Controllers\OfertaCursaController;
 use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorController;
 use App\Http\Controllers\FacturiFurnizori\FacturaFurnizorFisierController;
@@ -133,6 +134,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware('permission:dashboard')->group(function () {
         Route::view('acasa', 'acasa')->name('dashboard');
+        Route::post('acasa/weekly-marks', [AcasaWeeklyMarkController::class, 'upsert'])
+            ->name('acasa.weekly-marks.upsert');
         Route::view('various-tests', 'variousTests');
         Route::view('ajutor-intern/gestionare-utilizatori', 'useri.help.permissionsMatrix')
             ->name('help.user-management');
