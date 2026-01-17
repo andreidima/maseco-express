@@ -30,7 +30,7 @@ class PlataCalupController extends Controller
             'cauta' => $request->string('cauta')->toString() ?: null,
         ];
 
-        $query = PlataCalup::query()->withCount('facturi');
+        $query = PlataCalup::query()->withCount(['facturi', 'fisiere']);
 
         if ($filters['data_plata_de_la']) {
             $query->whereDate('data_plata', '>=', Carbon::parse($filters['data_plata_de_la']));
@@ -383,4 +383,3 @@ class PlataCalupController extends Controller
         return back()->with('status', 'Fisierul a fost sters.');
     }
 }
-

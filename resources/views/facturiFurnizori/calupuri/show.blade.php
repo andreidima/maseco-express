@@ -33,7 +33,7 @@
             </div>
 
             <div class="mb-3">
-                <div class="border border-dark rounded-3 p-3 bg-white">
+                <div class="border border-dark rounded-3 p-3 bg-white" id="calup-fisiere">
                     <h6 class="text-uppercase text-muted">Fișiere PDF atașate</h6>
                     @if ($calup->fisiere->isEmpty())
                         <p class="text-muted mb-0">Nu există fișiere atașate acestui calup.</p>

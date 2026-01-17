@@ -86,6 +86,7 @@
                         <th>Denumire</th>
                         <th>Data plată</th>
                         <th class="text-center">Facturi</th>
+                        <th class="text-center">PDF</th>
                         <th>Observații</th>
                         <th class="text-end">Acțiuni</th>
                     </tr>
@@ -96,6 +97,15 @@
                             <td>{{ $calup->denumire_calup }}</td>
                             <td>{{ $calup->data_plata?->format('d.m.Y') ?: '-' }}</td>
                             <td class="text-center">{{ $calup->facturi_count }}</td>
+                            <td class="text-center">
+                                @if ($calup->fisiere_count ?? 0)
+                                    <a href="{{ route('facturi-furnizori.plati-calupuri.show', $calup) }}#calup-fisiere" class="text-decoration-none">
+                                        <span class="badge bg-secondary text-white">{{ $calup->fisiere_count }} pdf</span>
+                                    </a>
+                                @else
+                                    <span class="text-muted">-</span>
+                                @endif
+                            </td>
                             <td class="text-muted">{{ \Illuminate\Support\Str::limit($calup->observatii, 60) }}</td>
                             <td class="text-end">
                                 <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap">
@@ -110,7 +120,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="text-center text-muted py-4">Nu există calupuri înregistrate.</td>
+                            <td colspan="6" class="text-center text-muted py-4">Nu există calupuri înregistrate.</td>
                         </tr>
                     @endforelse
                 </tbody>
