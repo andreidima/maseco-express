@@ -32,7 +32,22 @@
                             <th class="text-center">Out of EU</th>
                             <th class="text-center">Info</th>
                             <th class="text-center">Abilities</th>
-                            <th class="text-center">Update</th>
+                            <th class="text-center">
+                                <div class="d-flex align-items-center justify-content-center gap-2">
+                                    <span>Update</span>
+                                    <span
+                                        class="text-white-50"
+                                        role="button"
+                                        tabindex="0"
+                                        data-bs-toggle="tooltip"
+                                        data-bs-trigger="hover focus"
+                                        title="Cronometrele se sincronizeaz&#259; automat la ~15 secunde pentru performan&#539;&#259;. Po&#539;i re&icirc;mprosp&#259;ta pagina manual oric&acirc;nd."
+                                        aria-label="Informa&#539;ii despre sincronizarea cronometrelor"
+                                    >
+                                        <i class="fa-solid fa-circle-info"></i>
+                                    </span>
+                                </div>
+                            </th>
                             <th class="text-center">Status of the shipment</th>
                             <th class="text-center">Comanda</th>
                             <th class="text-center">Info II</th>
@@ -513,6 +528,12 @@
 
                 const pollId = setInterval(pollChanges, POLL_MS);
                 pollChanges();
+
+                if (typeof bootstrap !== 'undefined') {
+                    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (element) {
+                        new bootstrap.Tooltip(element);
+                    });
+                }
 
                 window.addEventListener('beforeunload', () => {
                     clearInterval(tickId);
