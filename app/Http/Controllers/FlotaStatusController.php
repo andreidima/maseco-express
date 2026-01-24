@@ -124,6 +124,49 @@ class FlotaStatusController extends Controller
         return back()->with('status', 'Statusul „' . ($flotaStatus->nr_auto ?? '') . '” a fost șters cu succes!');
     }
 
+    public function resetTimer(Request $request, FlotaStatus $flotaStatus)
+    {
+        $expiresAt = Carbon::now()->addMinutes(60);
+        $flotaStatus->update([
+            'update_expires_at' => $expiresAt,
+        ]);
+
+        return response()->json([
+            'id' => $flotaStatus->id,
+            'update_expires_at' => $expiresAt->toIso8601String(),
+            'server_now' => Carbon::now()->toIso8601String(),
+        ]);
+    }
+
+    public function timers(Request $request)
+    {
+        $query = FlotaStatus::query()
+            ->select('id', 'update_expires_at', 'updated_at');
+
+        $since = $request->query('since');
+        if (! empty($since)) {
+            try {
+                $sinceCarbon = Carbon::parse($since);
+                $query->where('updated_at', '>', $sinceCarbon);
+            } catch (\Exception $exception) {
+                // Ignore invalid timestamps and return all timers.
+            }
+        }
+
+        $timers = $query->get()->map(function ($status) {
+            return [
+                'id' => $status->id,
+                'update_expires_at' => $status->update_expires_at?->toIso8601String(),
+                'updated_at' => $status->updated_at?->toIso8601String(),
+            ];
+        });
+
+        return response()->json([
+            'now' => Carbon::now()->toIso8601String(),
+            'timers' => $timers,
+        ]);
+    }
+
     /**
      * Validate the request attributes.
      *

@@ -32,6 +32,7 @@
                             <th class="text-center">Out of EU</th>
                             <th class="text-center">Info</th>
                             <th class="text-center">Abilities</th>
+                            <th class="text-center">Update</th>
                             <th class="text-center">Status of the shipment</th>
                             <th class="text-center">Comanda</th>
                             <th class="text-center">Info II</th>
@@ -64,6 +65,14 @@
                                 </td>
                                 <td class="text-center">
                                     {{ $status->abilities }}
+                                </td>
+                                <td
+                                    class="text-center flota-update-cell is-expired"
+                                    data-flota-timer
+                                    data-id="{{ $status->id }}"
+                                    data-expires-at="{{ $status->update_expires_at?->toIso8601String() ?? '' }}"
+                                >
+                                    <span class="flota-update-label">00:00</span>
                                 </td>
                                 <td class="text-center">
                                     {{ $status->status_of_the_shipment }}
@@ -328,5 +337,189 @@
             </div>
         </div>
     @endforeach
+
+    @push('page-styles')
+        <style>
+            .flota-update-cell {
+                font-weight: 600;
+                letter-spacing: 0.02em;
+                font-variant-numeric: tabular-nums;
+                color: #ffffff !important;
+                cursor: pointer;
+                user-select: none;
+            }
+
+            .flota-update-cell .flota-update-label {
+                color: #ffffff !important;
+            }
+
+            .flota-update-cell.is-active {
+                background-color: #198754;
+            }
+
+            .flota-update-cell.is-expired {
+                background-color: #dc3545;
+            }
+        </style>
+    @endpush
+
+    @push('page-scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const timerCells = Array.from(document.querySelectorAll('[data-flota-timer]'));
+                if (!timerCells.length) {
+                    return;
+                }
+
+                const DURATION_MS = 60 * 60 * 1000;
+                const POLL_MS = 15000;
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') ?? '';
+
+                const timers = new Map();
+
+                const formatTime = (ms) => {
+                    const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+                    const minutes = Math.floor(totalSeconds / 60);
+                    const seconds = totalSeconds % 60;
+                    return String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+                };
+
+                const parseExpiry = (value) => {
+                    if (!value) {
+                        return 0;
+                    }
+                    const parsed = Date.parse(value);
+                    return Number.isNaN(parsed) ? 0 : parsed;
+                };
+
+                const updateEntry = (entry, nowMs) => {
+                    const remainingMs = entry.expiresAtMs ? entry.expiresAtMs - nowMs : 0;
+                    const isExpired = remainingMs <= 0;
+                    entry.labelEl.textContent = formatTime(remainingMs);
+                    entry.el.classList.toggle('is-expired', isExpired);
+                    entry.el.classList.toggle('is-active', !isExpired);
+                };
+
+                const setEntry = (entry, expiresAtMs) => {
+                    entry.expiresAtMs = expiresAtMs;
+                    updateEntry(entry, Date.now());
+                };
+
+                timerCells.forEach((el) => {
+                    const id = Number(el.dataset.id);
+                    if (!id) {
+                        return;
+                    }
+
+                    const labelEl = el.querySelector('.flota-update-label') ?? el;
+                    const entry = {
+                        id,
+                        el,
+                        labelEl,
+                        expiresAtMs: parseExpiry(el.dataset.expiresAt),
+                        isUpdating: false,
+                    };
+
+                    timers.set(id, entry);
+                    updateEntry(entry, Date.now());
+
+                    el.addEventListener('click', () => {
+                        resetTimer(entry);
+                    });
+                });
+
+                let lastSeen = null;
+
+                const resetTimer = async (entry) => {
+                    if (entry.isUpdating) {
+                        return;
+                    }
+
+                    entry.isUpdating = true;
+                    const previous = entry.expiresAtMs;
+                    setEntry(entry, Date.now() + DURATION_MS);
+
+                    try {
+                        const response = await fetch(`/flota-statusuri/${entry.id}/timer-reset`, {
+                            method: 'POST',
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'X-CSRF-TOKEN': csrfToken,
+                            },
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Request failed');
+                        }
+
+                        const data = await response.json();
+                        if (data?.update_expires_at) {
+                            const parsed = Date.parse(data.update_expires_at);
+                            setEntry(entry, Number.isNaN(parsed) ? 0 : parsed);
+                        }
+                        if (data?.server_now) {
+                            lastSeen = data.server_now;
+                        }
+                    } catch (error) {
+                        setEntry(entry, previous || 0);
+                    } finally {
+                        entry.isUpdating = false;
+                    }
+                };
+
+                const pollChanges = async () => {
+                    try {
+                        const params = new URLSearchParams();
+                        if (lastSeen) {
+                            params.set('since', lastSeen);
+                        }
+
+                        const url = `/axios/flota-statusuri-timers${params.toString() ? `?${params.toString()}` : ''}`;
+                        const response = await fetch(url, {
+                            headers: {
+                                'Accept': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest',
+                            },
+                        });
+
+                        if (!response.ok) {
+                            throw new Error('Request failed');
+                        }
+
+                        const data = await response.json();
+                        if (data?.now) {
+                            lastSeen = data.now;
+                        }
+
+                        const payload = Array.isArray(data?.timers) ? data.timers : [];
+                        payload.forEach((timer) => {
+                            const entry = timers.get(Number(timer.id));
+                            if (!entry) {
+                                return;
+                            }
+                            const parsed = timer.update_expires_at ? Date.parse(timer.update_expires_at) : 0;
+                            setEntry(entry, Number.isNaN(parsed) ? 0 : parsed);
+                        });
+                    } catch (error) {
+                        // Keep silent to avoid user noise.
+                    }
+                };
+
+                const tickId = setInterval(() => {
+                    const nowMs = Date.now();
+                    timers.forEach((entry) => updateEntry(entry, nowMs));
+                }, 1000);
+
+                const pollId = setInterval(pollChanges, POLL_MS);
+                pollChanges();
+
+                window.addEventListener('beforeunload', () => {
+                    clearInterval(tickId);
+                    clearInterval(pollId);
+                });
+            });
+        </script>
+    @endpush
 
 @endsection

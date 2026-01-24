@@ -12,6 +12,9 @@ class FlotaStatus extends Model
 
     protected $table = 'flota_statusuri';
     protected $guarded = [];
+    protected $casts = [
+        'update_expires_at' => 'datetime',
+    ];
 
     public function path()
     {

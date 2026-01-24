@@ -261,6 +261,10 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('/intermedieri', IntermediereController::class)->parameters(['intermedieri' => 'intermediere']);
 
         Route::resource('/flota-statusuri', FlotaStatusController::class)->parameters(['flota-statusuri' => 'flotaStatus']);
+        Route::post('/flota-statusuri/{flotaStatus}/timer-reset', [FlotaStatusController::class, 'resetTimer'])
+            ->name('flota-statusuri.timer.reset');
+        Route::get('/axios/flota-statusuri-timers', [FlotaStatusController::class, 'timers'])
+            ->name('flota-statusuri.timers');
         Route::resource('/flota-statusuri-informatii', FlotaStatusInformatieController::class)->parameters(['flota-statusuri-informatii' => 'flotaStatusInformatie']);
         Route::resource('/flota-statusuri-utilizatori', FlotaStatusUtilizatorController::class)
             ->parameters(['flota-statusuri-utilizatori' => 'flotaStatusUtilizator'])
