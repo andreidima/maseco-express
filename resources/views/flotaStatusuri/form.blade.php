@@ -39,15 +39,6 @@
                     required>
             </div>
             <div class="col-lg-4 mb-4">
-                <label for="out_of_eu" class="mb-0 ps-3">Out of EU</label>
-                <input
-                    type="text"
-                    class="form-control bg-white rounded-3 {{ $errors->has('out_of_eu') ? 'is-invalid' : '' }}"
-                    name="out_of_eu"
-                    value="{{ old('out_of_eu', $flotaStatus->out_of_eu) }}"
-                    required>
-            </div>
-            <div class="col-lg-4 mb-4">
                 <label for="info" class="mb-0 ps-3">Info</label>
                 <select name="info" class="form-select bg-white rounded-3 {{ $errors->has('info') ? 'is-invalid' : '' }}">
                     <option value="" selected></option>

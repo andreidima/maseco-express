@@ -126,7 +126,14 @@ class FlotaStatusController extends Controller
 
     public function resetTimer(Request $request, FlotaStatus $flotaStatus)
     {
-        $expiresAt = Carbon::now()->addMinutes(60);
+        $minutes = (int) $request->input('minutes', 60);
+        if ($minutes < 1 || $minutes > 1440) {
+            return response()->json([
+                'message' => 'Valoarea trebuie între 1 și 1440 minute.',
+            ], 422);
+        }
+
+        $expiresAt = Carbon::now()->addMinutes($minutes);
         $flotaStatus->update([
             'update_expires_at' => $expiresAt,
         ]);
