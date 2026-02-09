@@ -30,7 +30,7 @@ class ValabilitateCursaGrupRequest extends FormRequest
             'suma_calculata' => ['nullable', 'numeric', 'min:0'],
             'data_factura' => ['nullable', 'date'],
             'numar_factura' => ['nullable', 'string', 'max:255'],
-            'culoare_hex' => ['nullable', Rule::in(array_keys(ValabilitateCursaGrup::colorPalette()))],
+            'culoare_hex' => ['nullable', 'regex:/^#[0-9A-F]{6}$/i'],
         ];
     }
 
@@ -50,10 +50,34 @@ class ValabilitateCursaGrupRequest extends FormRequest
         $color = $this->input('culoare_hex');
 
         if (is_string($color)) {
-            $color = strtoupper($color);
+            $color = trim($color);
+
+            if ($color === '') {
+                $this->merge([
+                    'culoare_hex' => null,
+                ]);
+
+                return;
+            }
+
+            $normalized = strtoupper(ltrim($color, '#'));
+
+            if (strlen($normalized) === 3 && ctype_xdigit($normalized)) {
+                $normalized = $normalized[0] . $normalized[0]
+                    . $normalized[1] . $normalized[1]
+                    . $normalized[2] . $normalized[2];
+            }
+
+            if (strlen($normalized) === 6 && ctype_xdigit($normalized)) {
+                $this->merge([
+                    'culoare_hex' => '#' . $normalized,
+                ]);
+
+                return;
+            }
 
             $this->merge([
-                'culoare_hex' => $color === '' ? null : $color,
+                'culoare_hex' => $color,
             ]);
         }
     }

@@ -118,6 +118,15 @@
             transition: background-color 0.2s ease-in-out;
         }
 
+        .curse-data-table .text-danger,
+        .curse-data-table .text-success {
+            text-shadow:
+                -1px -1px 0 #ffffff,
+                1px -1px 0 #ffffff,
+                -1px 1px 0 #ffffff,
+                1px 1px 0 #ffffff;
+        }
+
         .curse-nowrap {
             white-space: nowrap;
         }

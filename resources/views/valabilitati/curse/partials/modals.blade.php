@@ -4,7 +4,6 @@
     $tariCollection = collect($tari ?? [])->keyBy('id');
     $grupuri = collect($valabilitate->cursaGrupuri ?? []);
     $groupFormatOptions = $groupFormatOptions ?? [];
-    $groupColorOptions = $groupColorOptions ?? [];
     $renderCurseModals = ($renderCurseModals ?? true) === true;
     $renderGroupModals = ($renderGroupModals ?? true) === true;
     $redirectTo = $redirectTo ?? '';
@@ -36,22 +35,6 @@
         }
 
         return '#' . $value;
-    };
-    $resolveTextColor = static function ($value) use ($normalizeColorHex): string {
-        $hex = $normalizeColorHex($value);
-
-        if ($hex === '') {
-            return '#111111';
-        }
-
-        $r = $g = $b = 0;
-        if (sscanf($hex, '#%02X%02X%02X', $r, $g, $b) !== 3) {
-            return '#111111';
-        }
-
-        $luminance = ($r * 299 + $g * 587 + $b * 114) / 1000;
-
-        return $luminance > 150 ? '#111111' : '#ffffff';
     };
     $resolveTaraName = static function ($id) use ($tariCollection) {
         if ($id === null || $id === '') {
@@ -1563,29 +1546,24 @@
                             <div class="col-md-6">
                                 <label for="group-create-color" class="form-label">Culoare</label>
                                 @php
-                                    $currentCreateColorKey = strtoupper(ltrim((string) $groupCreateColor, '#'));
+                                    $normalizedCreateColor = $normalizeColorHex($groupCreateColor);
                                 @endphp
-                                <select
-                                    class="form-select rounded-3 {{ $isGroupCreateActive && $errors->has('culoare_hex') ? 'is-invalid' : '' }}"
-                                    id="group-create-color"
-                                    name="culoare_hex"
-                                >
-                                    <option value="">Fără culoare</option>
-                                    @foreach ($groupColorOptions as $hex => $label)
-                                        @php
-                                            $normalizedHex = $normalizeColorHex($hex);
-                                            $optionKey = strtoupper(ltrim($normalizedHex, '#'));
-                                            $textColor = $resolveTextColor($normalizedHex);
-                                        @endphp
-                                        <option
-                                            value="{{ $normalizedHex }}"
-                                            style="background-color: {{ $normalizedHex ?: '#ffffff' }}; color: {{ $textColor }};"
-                                            @selected($currentCreateColorKey !== '' && $currentCreateColorKey === $optionKey)
-                                        >
-                                            {{ $label }} ({{ $normalizedHex ?: strtoupper($hex) }})
-                                        </option>
-                                    @endforeach
-                                </select>
+                                <div class="d-flex align-items-center gap-2" data-color-field>
+                                    <input
+                                        type="color"
+                                        class="form-control form-control-color rounded-3 {{ $isGroupCreateActive && $errors->has('culoare_hex') ? 'is-invalid' : '' }}"
+                                        id="group-create-color"
+                                        value="{{ $normalizedCreateColor !== '' ? $normalizedCreateColor : '#ffffff' }}"
+                                        data-color-picker
+                                    >
+                                    <input
+                                        type="hidden"
+                                        id="group-create-color-value"
+                                        name="culoare_hex"
+                                        value="{{ $normalizedCreateColor }}"
+                                        data-color-value
+                                    >
+                                </div>
                                 <div class="invalid-feedback {{ $isGroupCreateActive && $errors->has('culoare_hex') ? 'd-block' : '' }}" data-error-for="culoare_hex">
                                     {{ $isGroupCreateActive ? $errors->first('culoare_hex') : '' }}
                                 </div>
@@ -1775,29 +1753,24 @@
                                 <div class="col-md-6">
                                     <label for="group-edit-color-{{ $grup->id }}" class="form-label">Culoare</label>
                                     @php
-                                        $currentEditColorKey = strtoupper(ltrim((string) $groupEditColor, '#'));
+                                        $normalizedEditColor = $normalizeColorHex($groupEditColor);
                                     @endphp
-                                    <select
-                                        class="form-select rounded-3 {{ $isGroupEditActive && $errors->has('culoare_hex') ? 'is-invalid' : '' }}"
-                                        id="group-edit-color-{{ $grup->id }}"
-                                        name="culoare_hex"
-                                    >
-                                        <option value="" @selected($groupEditColor === null || $groupEditColor === '')>Fără culoare</option>
-                                        @foreach ($groupColorOptions as $hex => $label)
-                                            @php
-                                                $normalizedHex = $normalizeColorHex($hex);
-                                                $optionKey = strtoupper(ltrim($normalizedHex, '#'));
-                                                $textColor = $resolveTextColor($normalizedHex);
-                                            @endphp
-                                            <option
-                                                value="{{ $normalizedHex }}"
-                                                style="background-color: {{ $normalizedHex ?: '#ffffff' }}; color: {{ $textColor }};"
-                                                @selected($currentEditColorKey !== '' && $currentEditColorKey === $optionKey)
-                                            >
-                                                {{ $label }} ({{ $normalizedHex ?: strtoupper($hex) }})
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <div class="d-flex align-items-center gap-2" data-color-field>
+                                        <input
+                                            type="color"
+                                            class="form-control form-control-color rounded-3 {{ $isGroupEditActive && $errors->has('culoare_hex') ? 'is-invalid' : '' }}"
+                                            id="group-edit-color-{{ $grup->id }}"
+                                            value="{{ $normalizedEditColor !== '' ? $normalizedEditColor : '#ffffff' }}"
+                                            data-color-picker
+                                        >
+                                        <input
+                                            type="hidden"
+                                            id="group-edit-color-value-{{ $grup->id }}"
+                                            name="culoare_hex"
+                                            value="{{ $normalizedEditColor }}"
+                                            data-color-value
+                                        >
+                                    </div>
                                     <div class="invalid-feedback {{ $isGroupEditActive && $errors->has('culoare_hex') ? 'd-block' : '' }}" data-error-for="culoare_hex">
                                         {{ $isGroupEditActive ? $errors->first('culoare_hex') : '' }}
                                     </div>
@@ -1853,7 +1826,7 @@
     @endforeach
 @endif
 
-@push('scripts')
+@push('page-scripts')
     <script>
         (() => {
             const syncDateTimeInputs = () => {
@@ -1894,10 +1867,43 @@
                 });
             };
 
+            const initColorPickers = () => {
+                const fields = document.querySelectorAll('[data-color-field]');
+
+                fields.forEach(field => {
+                    const picker = field.querySelector('[data-color-picker]');
+                    const hidden = field.querySelector('[data-color-value]');
+
+                    if (!picker || !hidden) {
+                        return;
+                    }
+
+                    const setHidden = value => {
+                        hidden.value = value;
+                    };
+
+                    const syncFromPicker = () => {
+                        const value = (picker.value || '').toUpperCase();
+                        setHidden(value);
+                    };
+
+                    const initialValue = (hidden.value || '').toUpperCase();
+                    setHidden(initialValue);
+                    picker.value = initialValue || '#ffffff';
+
+                    picker.addEventListener('input', syncFromPicker);
+                    picker.addEventListener('change', syncFromPicker);
+                });
+            };
+
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', syncDateTimeInputs);
+                document.addEventListener('DOMContentLoaded', () => {
+                    syncDateTimeInputs();
+                    initColorPickers();
+                });
             } else {
                 syncDateTimeInputs();
+                initColorPickers();
             }
         })();
     </script>
