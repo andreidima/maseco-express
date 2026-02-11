@@ -353,6 +353,53 @@
         @include('valabilitati.curse.partials.modals', $modalViewData)
     </div>
 
+    <div
+        class="modal fade"
+        id="groupKmInfoModal"
+        tabindex="-1"
+        aria-labelledby="groupKmInfoModalLabel"
+        aria-hidden="true"
+    >
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title" id="groupKmInfoModalLabel">
+                        Cum se calculează km pe grup
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Închide"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-3">
+                        Valoarea „km” din antetul grupului se calculează doar pentru divizia 3 și folosește
+                        valorile afișate în tabelul curent.
+                    </p>
+                    <ol class="mb-3">
+                        <li>
+                            Pentru fiecare cursă din tabel se iau:
+                            `km_bord_incarcare` ca start și `km_bord_descarcare` ca final.
+                            Dacă `km_bord_descarcare` lipsește, se folosește ultimul `km_bord_incarcare`.
+                        </li>
+                        <li>
+                            Pentru grup se determină:
+                            startul minim din grup și „ultimul km” maxim din grup.
+                        </li>
+                        <li>
+                            Dacă există un „ultim km” înaintea grupului (din curse anterioare în listă),
+                            acela devine startul grupului.
+                        </li>
+                        <li>
+                            Totalul afișat = „ultimul km” al grupului minus startul ales.
+                        </li>
+                    </ol>
+                    <p class="text-muted small mb-0">
+                        Notă: ordinea grupurilor și valorile sunt cele din pagina curentă (paginare / încărcare
+                        incrementală), nu din întreaga valabilitate.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     @push('page-scripts')
         <script>
             document.addEventListener('DOMContentLoaded', () => {
@@ -400,6 +447,21 @@
                 };
 
                 const supportsAjax = () => typeof window.fetch === 'function' && typeof window.FormData === 'function';
+                const initTooltips = (root = document) => {
+                    if (!bootstrap || !bootstrap.Tooltip) {
+                        return;
+                    }
+
+                    const elements = (root || document).querySelectorAll('[data-bs-toggle="tooltip"]');
+                    elements.forEach((element) => {
+                        if (element.dataset.bsTooltipInitialized === 'true') {
+                            return;
+                        }
+
+                        bootstrap.Tooltip.getOrCreateInstance(element);
+                        element.dataset.bsTooltipInitialized = 'true';
+                    });
+                };
 
                 const resolveCsrfToken = (() => {
                     let cachedToken = null;
@@ -1427,6 +1489,8 @@
                     if (supportsAjax()) {
                         attachFormHandlers();
                     }
+
+                    initTooltips(tableBody || document);
                 }
 
                 function handleFormSubmit(event) {
@@ -1585,6 +1649,7 @@
                                 appendHtml(tableBody, data.rows_html);
                                 bindBulkCheckboxes();
                                 updateBulkAssignUi();
+                                initTooltips(tableBody);
                             }
 
                             if (data.modals_html && modalsContainer) {
@@ -1711,6 +1776,7 @@
                 initLoadMore();
                 initStopsModals();
                 initBulkAssignControls();
+                initTooltips();
 
                 if (supportsAjax()) {
                     attachFormHandlers();

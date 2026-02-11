@@ -346,7 +346,20 @@
                         <div class="d-flex flex-wrap gap-3 fw-semibold fs-6 text-uppercase">
                             <span>{{ $groupName }}</span>
                             @if ($showGroupKmTotals && $groupTotalKm !== null)
-                                <span>{{ number_format($groupTotalKm, 2) }} km</span>
+                                <span>
+                                    {{ number_format($groupTotalKm, 2) }} km
+                                    <span
+                                        class="ms-1"
+                                        role="button"
+                                        tabindex="0"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#groupKmInfoModal"
+                                        aria-label="Detalii calcul kilometri grup"
+                                        style="cursor: pointer; opacity: 0.85;"
+                                    >
+                                        <i class="fa-solid fa-circle-info text-info"></i>
+                                    </span>
+                                </span>
                             @endif
                         </div>
                         <div class="d-flex flex-wrap gap-3 small curse-group-heading__meta">
