@@ -28,7 +28,7 @@ class FacturaScadentaController extends Controller
             ->when($searchTransportatorContract, function ($query, $searchTransportatorContract) {
                 return $query->where('transportator_contract', 'like', "%{$searchTransportatorContract}%");
             })
-            ->whereDate('data_creare', '>', Carbon::today()->subDays(90))
+            ->whereDate('data_scadenta_plata_transportator', '<=', Carbon::today())
             ->whereNull('data_plata_transportator')
             ->whereNotNull('data_scadenta_plata_transportator')
             ->orderBy('data_scadenta_plata_transportator');
