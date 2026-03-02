@@ -29,26 +29,31 @@
         @endif
     </td>
     <td class="text-muted">{{ \Illuminate\Support\Str::limit($factura->observatii, 60) }}</td>
-    <td class="text-end">
-        <div class="text-end">
+    <td class="text-end text-nowrap">
+        <div class="d-inline-flex align-items-center justify-content-end gap-1 text-nowrap">
             @if ($factura->fisiere_count ?? 0)
                 <a
                     href="{{ route('facturi-furnizori.facturi.show', $factura) }}#factura-fisiere"
-                    class="text-decoration-none me-1"
+                    class="d-inline-flex text-decoration-none"
                 >
-                    <span class="badge bg-secondary text-white">
+                    <span class="badge bg-secondary text-white px-2 py-1">
                         {{ $factura->fisiere_count }} pdf
                     </span>
                 </a>
             @endif
-            <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="flex me-1">
-                <span class="badge bg-success">Vezi</span></a>
-            <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="flex me-1">
-                <span class="badge bg-primary">Editează</span></a>
-            <a href="#" class="flex"
+            <a href="{{ route('facturi-furnizori.facturi.show', $factura) }}" class="d-inline-flex text-decoration-none">
+                <span class="badge bg-success px-2 py-1">Vezi</span>
+            </a>
+            <a href="{{ route('facturi-furnizori.facturi.edit', $factura) }}" class="d-inline-flex text-decoration-none">
+                <span class="badge bg-primary px-2 py-1">Editeaz&#259;</span>
+            </a>
+            <a
+                href="#"
+                class="d-inline-flex text-decoration-none"
                 data-bs-toggle="modal"
-                data-bs-target="#stergeFactura{{ $factura->id }}">
-                <span class="badge bg-danger">Șterge</span>
+                data-bs-target="#stergeFactura{{ $factura->id }}"
+            >
+                <span class="badge bg-danger px-2 py-1">&#536;terge</span>
             </a>
         </div>
     </td>
