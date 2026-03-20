@@ -473,6 +473,9 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('facturi', FacturaFurnizorController::class)
                 ->parameters(['facturi' => 'factura']);
 
+            Route::post('facturi/mutare-calup', [FacturaFurnizorController::class, 'moveToCalup'])
+                ->name('facturi.move-to-calup');
+
             Route::get('facturi/{factura}/fisiere/{fisier}/vizualizeaza', [FacturaFurnizorFisierController::class, 'vizualizeaza'])
                 ->name('facturi.fisiere.vizualizeaza');
 
@@ -490,6 +493,9 @@ Route::middleware(['auth'])->group(function () {
 
             Route::delete('plati-calupuri/{plataCalup}/facturi/{factura}', [PlataCalupController::class, 'detaseazaFactura'])
                 ->name('plati-calupuri.detaseaza-factura');
+
+            Route::post('plati-calupuri/{plataCalup}/facturi/{factura}/muta', [PlataCalupController::class, 'mutaFactura'])
+                ->name('plati-calupuri.muta-factura');
 
             Route::delete('plati-calupuri/{plataCalup}/fisiere/{fisier}', [PlataCalupController::class, 'stergeFisier'])
                 ->name('plati-calupuri.fisiere.destroy');

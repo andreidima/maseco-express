@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\FacturiFurnizori;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FacturiFurnizori\MoveFacturiToCalupRequest;
 use App\Http\Requests\FacturiFurnizori\FacturaFurnizorRequest;
 use App\Models\FacturiFurnizori\FacturaFurnizor;
 use App\Models\FacturiFurnizori\FacturaFurnizorFisier;
+use App\Models\FacturiFurnizori\PlataCalup;
 use App\Models\Service\GestiunePiesa;
 use App\Models\Service\MasinaServiceEntry;
+use App\Services\FacturiFurnizori\PlataCalupService;
 use App\Support\FacturiFurnizori\FacturiIndexFilterState;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -21,6 +24,10 @@ use Carbon\CarbonInterface;
 
 class FacturaFurnizorController extends Controller
 {
+    public function __construct(private PlataCalupService $plataCalupService)
+    {
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -119,6 +126,11 @@ class FacturaFurnizorController extends Controller
             ->orderBy('moneda')
             ->pluck('moneda');
 
+        $calupuriDisponibile = PlataCalup::query()
+            ->orderByDesc('data_plata')
+            ->orderByDesc('created_at')
+            ->get(['id', 'denumire_calup', 'data_plata']);
+
         $neplatiteCount = FacturaFurnizor::query()->whereDoesntHave('calupuri')->count();
 
         FacturiIndexFilterState::remember($request);
@@ -140,8 +152,24 @@ class FacturaFurnizorController extends Controller
             'facturi' => $facturi,
             'filters' => $filters,
             'monede' => $monede,
+            'calupuriDisponibile' => $calupuriDisponibile,
             'neplatiteCount' => $neplatiteCount,
         ]);
+    }
+
+    public function moveToCalup(MoveFacturiToCalupRequest $request)
+    {
+        $calup = PlataCalup::query()->findOrFail($request->validated('plata_calup_id'));
+        $facturi = $request->validated('facturi');
+
+        $this->plataCalupService->moveFacturi($calup, $facturi);
+
+        $count = count($facturi);
+        $message = $count === 1
+            ? 'Factura a fost mutata in calupul selectat.'
+            : 'Facturile selectate au fost mutate in calupul selectat.';
+
+        return $this->redirectToIndexWithFilters()->with('status', $message);
     }
 
     /**

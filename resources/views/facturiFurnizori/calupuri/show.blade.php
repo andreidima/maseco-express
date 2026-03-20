@@ -2,6 +2,8 @@
 
 @php
     $facturiIndexUrl = \App\Support\FacturiFurnizori\FacturiIndexFilterState::route();
+    $oldActionSource = old('action_source');
+    $oldMoveFacturaId = (int) collect(old('facturi', []))->first();
 @endphp
 
 @section('content')
@@ -153,6 +155,14 @@
                                                 @endforeach
                                                 <button
                                                     type="button"
+                                                    class="badge bg-primary text-white border-0 rounded-3 px-3 py-2"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#mutaFacturaModal{{ $factura->id }}"
+                                                >
+                                                    Mută
+                                                </button>
+                                                <button
+                                                    type="button"
                                                     class="badge bg-danger text-white border-0 rounded-3 px-3 py-2"
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#detaseazaFacturaModal{{ $factura->id }}"
@@ -210,6 +220,61 @@
             </div>
 
             @foreach ($facturiCalup as $factura)
+                <div
+                    class="modal fade"
+                    id="mutaFacturaModal{{ $factura->id }}"
+                    tabindex="-1"
+                    aria-labelledby="mutaFacturaModalLabel{{ $factura->id }}"
+                    aria-hidden="true"
+                    @if ($oldActionSource === 'move-single-factura' && $oldMoveFacturaId === (int) $factura->id) data-show-on-load="true" @endif
+                >
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h5 class="modal-title" id="mutaFacturaModalLabel{{ $factura->id }}">
+                                    Mută factura în alt calup
+                                </h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <form action="{{ route('facturi-furnizori.plati-calupuri.muta-factura', [$calup, $factura]) }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="action_source" value="move-single-factura">
+                                <input type="hidden" name="facturi[]" value="{{ $factura->id }}">
+                                <div class="modal-body text-start">
+                                    <p class="mb-3">
+                                        Alege calupul în care vrei să muți factura <strong>{{ $factura->numar_factura }}</strong>
+                                        de la <strong>{{ $factura->denumire_furnizor }}</strong>.
+                                    </p>
+                                    <label for="plata_calup_id_{{ $factura->id }}" class="form-label">Calup destinație</label>
+                                    <select
+                                        name="plata_calup_id"
+                                        id="plata_calup_id_{{ $factura->id }}"
+                                        class="form-select bg-white rounded-3 {{ $oldActionSource === 'move-single-factura' && $oldMoveFacturaId === (int) $factura->id && $errors->has('plata_calup_id') ? 'is-invalid' : '' }}"
+                                        required
+                                    >
+                                        <option value="">Selectează calupul</option>
+                                        @foreach ($calupuriDestinatie as $calupDestinatie)
+                                            <option value="{{ $calupDestinatie->id }}" @selected((string) old('plata_calup_id') === (string) $calupDestinatie->id)>
+                                                {{ $calupDestinatie->denumire_calup }}@if($calupDestinatie->data_plata) — {{ $calupDestinatie->data_plata->format('d.m.Y') }}@endif
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @if ($oldActionSource === 'move-single-factura' && $oldMoveFacturaId === (int) $factura->id && $errors->has('plata_calup_id'))
+                                        <div class="invalid-feedback d-block">{{ $errors->first('plata_calup_id') }}</div>
+                                    @endif
+                                    @if ($calupuriDestinatie->isEmpty())
+                                        <small class="text-muted d-block mt-2">Nu există alt calup disponibil către care să muți factura.</small>
+                                    @endif
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                                    <button type="submit" class="btn btn-primary" @disabled($calupuriDestinatie->isEmpty())>Mută factura</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
                 <div
                     class="modal fade"
                     id="detaseazaFacturaModal{{ $factura->id }}"
@@ -323,6 +388,18 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', () => {
+        const bootstrap = window.bootstrap;
+
+        document.querySelectorAll('[data-show-on-load="true"]').forEach((modalElement) => {
+            if (bootstrap?.Modal) {
+                const instance =
+                    typeof bootstrap.Modal.getOrCreateInstance === 'function'
+                        ? bootstrap.Modal.getOrCreateInstance(modalElement)
+                        : new bootstrap.Modal(modalElement);
+                instance.show();
+            }
+        });
+
         const toggleAll = document.getElementById('attach-toggle-all');
         const counter = document.getElementById('attach-counter');
         const filterFurnizor = document.getElementById('attach-filter-furnizor');
