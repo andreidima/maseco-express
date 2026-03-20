@@ -473,6 +473,9 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('facturi', FacturaFurnizorController::class)
                 ->parameters(['facturi' => 'factura']);
 
+            Route::post('facturi/mutare-calup', [FacturaFurnizorController::class, 'moveToCalup'])
+                ->name('facturi.move-to-calup');
+
             Route::get('facturi/{factura}/fisiere/{fisier}/vizualizeaza', [FacturaFurnizorFisierController::class, 'vizualizeaza'])
                 ->name('facturi.fisiere.vizualizeaza');
 
