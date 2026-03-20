@@ -134,12 +134,14 @@
                 <a class="btn btn-sm btn-success text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.facturi.create') }}" role="button">
                     <i class="fas fa-plus-square text-white me-1"></i>Adaugă factură
                 </a>
-                <button type="button" class="btn btn-sm btn-warning text-dark border border-dark rounded-3" id="prepare-calup">
-                    <i class="fa-solid fa-file-circle-plus me-1"></i>Pregătește calup
-                </button>
-                <button type="button" class="btn btn-sm btn-outline-primary border border-dark rounded-3" id="move-to-existing-calup">
-                    <i class="fa-solid fa-right-left me-1"></i>Mută în calup existent
-                </button>
+                <div class="d-flex flex-wrap justify-content-lg-end gap-2">
+                    <button type="button" class="btn btn-sm btn-warning text-dark border border-dark rounded-3" id="prepare-calup">
+                        <i class="fa-solid fa-file-circle-plus me-1"></i>Pregătește calup
+                    </button>
+                    <button type="button" class="btn btn-sm btn-outline-primary border border-dark rounded-3" id="move-to-existing-calup">
+                        <i class="fa-solid fa-right-left me-1"></i>Mută în calup existent
+                    </button>
+                </div>
                 <a class="btn btn-sm btn-info text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.index') }}" role="button">
                     <i class="fa-solid fa-layer-group text-white me-1"></i>Vezi toate calupurile
                 </a>
