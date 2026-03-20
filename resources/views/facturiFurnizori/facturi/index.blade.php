@@ -3,8 +3,10 @@
 @section('content')
 @php
     $selectedFacturiOld = collect(old('facturi', []))->map(fn ($id) => (int) $id)->all();
+    $oldActionSource = old('action_source');
     $calupErrorFields = ['denumire_calup', 'data_plata', 'observatii', 'fisiere_pdf', 'fisiere_pdf.*', 'facturi', 'facturi.*'];
-    $shouldShowCalupModal = !empty($selectedFacturiOld);
+    $shouldShowCalupModal = !empty($selectedFacturiOld) && $oldActionSource !== 'move-to-calup';
+    $shouldShowMoveCalupModal = !empty($selectedFacturiOld) && $oldActionSource === 'move-to-calup';
 
     foreach ($calupErrorFields as $field) {
         if ($errors->has($field)) {
@@ -135,6 +137,9 @@
                 <button type="button" class="btn btn-sm btn-warning text-dark border border-dark rounded-3" id="prepare-calup">
                     <i class="fa-solid fa-file-circle-plus me-1"></i>Pregătește calup
                 </button>
+                <button type="button" class="btn btn-sm btn-outline-primary border border-dark rounded-3" id="move-to-existing-calup">
+                    <i class="fa-solid fa-right-left me-1"></i>Mută în calup existent
+                </button>
                 <a class="btn btn-sm btn-info text-white border border-dark rounded-3" href="{{ route('facturi-furnizori.plati-calupuri.index') }}" role="button">
                     <i class="fa-solid fa-layer-group text-white me-1"></i>Vezi toate calupurile
                 </a>
@@ -207,6 +212,7 @@
             </div>
             <form action="{{ route('facturi-furnizori.plati-calupuri.store') }}" method="POST" id="calup-form" enctype="multipart/form-data">
                 @csrf
+                <input type="hidden" name="action_source" value="create-calup">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-6 mb-3">
@@ -261,6 +267,52 @@
     </div>
 </div>
 
+<div class="modal fade" id="moveToCalupModal" tabindex="-1" aria-labelledby="moveToCalupModalLabel" aria-hidden="true" @if ($shouldShowMoveCalupModal) data-show-on-load="true" @endif>
+    <div class="modal-dialog modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="moveToCalupModalLabel">Mută <span id="move-calup-selected-count" class="text-white fw-bold">0</span> facturi în calup existent</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('facturi-furnizori.facturi.move-to-calup') }}" method="POST" id="move-to-calup-form">
+                @csrf
+                <input type="hidden" name="action_source" value="move-to-calup">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="plata_calup_id" class="mb-0 ps-2">Calup existent<span class="text-danger">*</span></label>
+                        <select name="plata_calup_id" id="plata_calup_id" class="form-select bg-white rounded-3 {{ $errors->has('plata_calup_id') ? 'is-invalid' : '' }}" required>
+                            <option value="">Selectează calupul</option>
+                            @foreach ($calupuriDisponibile as $calup)
+                                <option value="{{ $calup->id }}" @selected((string) old('plata_calup_id') === (string) $calup->id)>
+                                    {{ $calup->denumire_calup }}@if($calup->data_plata) — {{ $calup->data_plata->format('d.m.Y') }}@endif
+                                </option>
+                            @endforeach
+                        </select>
+                        @if ($errors->has('plata_calup_id'))
+                            <div class="invalid-feedback d-block">{{ $errors->first('plata_calup_id') }}</div>
+                        @endif
+                        @if ($calupuriDisponibile->isEmpty())
+                            <small class="text-muted d-block mt-2">Nu există încă niciun calup creat.</small>
+                        @else
+                            <small class="text-muted d-block mt-2">Facturile selectate vor fi mutate în calupul ales, chiar dacă sunt deja într-un alt calup.</small>
+                        @endif
+                    </div>
+                    <div id="move-calup-form-selected" class="d-none"></div>
+                    @if ($errors->has('facturi'))
+                        <div class="alert alert-danger mb-0">{{ $errors->first('facturi') }}</div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunță</button>
+                    <button type="submit" class="btn btn-primary text-white border border-dark rounded-3" @disabled($calupuriDisponibile->isEmpty())>
+                        <i class="fa-solid fa-right-left me-1"></i>Mută facturile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="calupSelectionWarningModal" tabindex="-1" aria-labelledby="calupSelectionWarningModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -278,15 +330,37 @@
     </div>
 </div>
 
+<div class="modal fade" id="calupNewSelectionWarningModal" tabindex="-1" aria-labelledby="calupNewSelectionWarningModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title text-dark" id="calupNewSelectionWarningModalLabel">Selecție invalidă</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-0">Pentru un calup nou, selectați doar facturi care nu sunt deja într-un alt calup. Pentru cele deja arhivate, folosiți „Mută în calup existent”.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Închide</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @push('page-scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const selectAll = document.getElementById('select-all');
             const prepareButton = document.getElementById('prepare-calup');
+            const moveToCalupButton = document.getElementById('move-to-existing-calup');
             const selectedContainer = document.getElementById('calup-form-selected');
             const selectedCount = document.getElementById('calup-selected-count');
             const calupModalElement = document.getElementById('calupModal');
+            const moveToCalupModalElement = document.getElementById('moveToCalupModal');
+            const moveSelectedContainer = document.getElementById('move-calup-form-selected');
+            const moveSelectedCount = document.getElementById('move-calup-selected-count');
             const selectionWarningModalElement = document.getElementById('calupSelectionWarningModal');
+            const newCalupSelectionWarningModalElement = document.getElementById('calupNewSelectionWarningModal');
             const bootstrap = window.bootstrap;
             const bootstrapModal = bootstrap && bootstrap.Modal ? bootstrap.Modal : null;
             const loadMoreButton = document.getElementById('facturi-load-more');
@@ -338,19 +412,22 @@
                 .filter(checkbox => checkbox.checked)
                 .map(item => item.value);
 
-            const syncSelectedInputs = (selected) => {
-                if (!selectedContainer) {
+            const selectedHasExistingCalup = () => selectableCheckboxes()
+                .some(checkbox => checkbox.checked && checkbox.dataset.hasCalup === 'true');
+
+            const syncSelectedInputs = (selected, container) => {
+                if (!container) {
                     return;
                 }
 
-                selectedContainer.innerHTML = '';
+                container.innerHTML = '';
 
                 selected.forEach(value => {
                     const input = document.createElement('input');
                     input.type = 'hidden';
                     input.name = 'facturi[]';
                     input.value = value;
-                    selectedContainer.appendChild(input);
+                    container.appendChild(input);
                 });
             };
 
@@ -379,8 +456,14 @@
 
             const refreshSelectionState = () => {
                 const selected = collectSelectedValues();
-                syncSelectedInputs(selected);
+                syncSelectedInputs(selected, selectedContainer);
+                syncSelectedInputs(selected, moveSelectedContainer);
                 updateSelectedCounter(selected);
+
+                if (moveSelectedCount) {
+                    moveSelectedCount.textContent = selected.length.toString();
+                }
+
                 return selected;
             };
 
@@ -410,7 +493,27 @@
                         return;
                     }
 
+                    if (selectedHasExistingCalup()) {
+                        event.preventDefault();
+                        showModal(newCalupSelectionWarningModalElement);
+                        return;
+                    }
+
                     showModal(calupModalElement);
+                });
+            }
+
+            if (moveToCalupButton) {
+                moveToCalupButton.addEventListener('click', (event) => {
+                    const selected = refreshSelectionState();
+
+                    if (!selected.length) {
+                        event.preventDefault();
+                        showModal(selectionWarningModalElement, 'Selectați cel puțin o factură.');
+                        return;
+                    }
+
+                    showModal(moveToCalupModalElement);
                 });
             }
 
@@ -418,6 +521,12 @@
                 if (calupModalElement && calupModalElement.dataset.showOnLoad === 'true') {
                     refreshSelectionState();
                     showModal(calupModalElement);
+                    return;
+                }
+
+                if (moveToCalupModalElement && moveToCalupModalElement.dataset.showOnLoad === 'true') {
+                    refreshSelectionState();
+                    showModal(moveToCalupModalElement);
                     return;
                 }
 

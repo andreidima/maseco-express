@@ -1,5 +1,4 @@
 @php
-    $checkboxDisabled = $factura->calupuri->isNotEmpty();
     $shouldCheck = in_array($factura->id, $selectedFacturiOld ?? [], true);
 @endphp
 <tr>
@@ -8,8 +7,8 @@
             type="checkbox"
             class="select-factura"
             value="{{ $factura->id }}"
-            @disabled($checkboxDisabled)
-            @checked(!$checkboxDisabled && $shouldCheck)
+            data-has-calup="{{ $factura->calupuri->isNotEmpty() ? 'true' : 'false' }}"
+            @checked($shouldCheck)
         >
     </td>
     <td>{{ $factura->denumire_furnizor }}</td>
