@@ -4,6 +4,7 @@ namespace App\Http\Controllers\FacturiFurnizori;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FacturiFurnizori\AttachFacturiRequest;
+use App\Http\Requests\FacturiFurnizori\MoveFacturiToCalupRequest;
 use App\Http\Requests\FacturiFurnizori\PlataCalupRequest;
 use App\Models\FacturiFurnizori\FacturaFurnizor;
 use App\Models\FacturiFurnizori\PlataCalup;
@@ -155,12 +156,19 @@ class PlataCalupController extends Controller
             ->orderBy('denumire_furnizor')
             ->get();
 
+        $calupuriDestinatie = PlataCalup::query()
+            ->whereKeyNot($plataCalup->id)
+            ->orderByDesc('data_plata')
+            ->orderByDesc('created_at')
+            ->get(['id', 'denumire_calup', 'data_plata']);
+
         return view('facturiFurnizori.calupuri.show', [
             'calup' => $plataCalup,
             'facturiCalup' => $facturiCalup,
             'totaluriFacturiCalupPeMoneda' => $totaluriFacturiCalupPeMoneda,
             'totaluriFacturiCalupPeFurnizor' => $totaluriFacturiCalupPeFurnizor,
             'facturiDisponibile' => $facturiDisponibile,
+            'calupuriDestinatie' => $calupuriDestinatie,
         ]);
     }
 
@@ -246,6 +254,21 @@ class PlataCalupController extends Controller
         $this->plataCalupService->detachFactura($plataCalup, $factura);
 
         return back()->with('status', 'Factura a fost eliminata din calup.');
+    }
+
+    public function mutaFactura(MoveFacturiToCalupRequest $request, PlataCalup $plataCalup, FacturaFurnizor $factura)
+    {
+        if (! $plataCalup->facturi()->whereKey($factura->id)->exists()) {
+            abort(404);
+        }
+
+        $calupDestinatie = PlataCalup::query()->findOrFail($request->validated('plata_calup_id'));
+
+        $this->plataCalupService->moveFacturi($calupDestinatie, [$factura->id]);
+
+        return redirect()
+            ->route('facturi-furnizori.plati-calupuri.show', $plataCalup)
+            ->with('status', 'Factura a fost mutata in alt calup.');
     }
 
     public function vizualizeazaFisier(PlataCalup $plataCalup, PlataCalupFisier $fisier)
