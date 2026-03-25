@@ -48,7 +48,7 @@
         }
 
         .alimentari-table .actions-column {
-            width: 160px;
+            width: 220px;
             white-space: nowrap;
         }
 
@@ -74,6 +74,15 @@
 
         tr[data-editing="true"] {
             background-color: #fff9e6;
+        }
+
+        tr[data-pending-alimentare-row] {
+            background-color: #eef6ff;
+        }
+
+        .alimentari-paste-hint {
+            color: #6c757d;
+            font-size: 0.85rem;
         }
     </style>
 
@@ -184,6 +193,19 @@
                         </thead>
                     </table>
                 </div>
+                <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-2 mb-2">
+                    <div class="alimentari-paste-hint">
+                        Lipeste mai multe randuri din Excel direct in cele 4 campuri de mai jos, in ordinea:
+                        Data / ora alimentare, Litrii, Pret / litru, Total pret.
+                    </div>
+                    <button
+                        type="button"
+                        class="btn btn-sm btn-primary border border-dark rounded-3 d-none"
+                        data-save-pending-all
+                    >
+                        <i class="fa-solid fa-floppy-disk me-1"></i>Salveaza toate
+                    </button>
+                </div>
                 <div class="table-responsive">
                     <table class="table table-sm alimentari-table align-middle">
                         <thead>
@@ -202,17 +224,16 @@
                             <tr data-new-alimentare-row>
                                 <td>
                                     <input
-                                        type="datetime-local"
+                                        type="text"
                                         name="data_ora_alimentare"
                                         class="form-control form-control-sm"
+                                        placeholder="dd.mm.yyyy hh:mm"
                                     >
                                     <div class="invalid-feedback" data-error-for="data_ora_alimentare"></div>
                                 </td>
                                 <td class="text-end">
                                     <input
-                                        type="number"
-                                        step="0.01"
-                                        min="0"
+                                        type="text"
                                         name="litrii"
                                         class="form-control form-control-sm text-end"
                                         data-decimals="2"
@@ -221,9 +242,7 @@
                                 </td>
                                 <td class="text-end">
                                     <input
-                                        type="number"
-                                        step="0.0001"
-                                        min="0"
+                                        type="text"
                                         name="pret_pe_litru"
                                         class="form-control form-control-sm text-end"
                                         data-decimals="4"
@@ -232,9 +251,7 @@
                                 </td>
                                 <td class="text-end">
                                     <input
-                                        type="number"
-                                        step="0.0001"
-                                        min="0"
+                                        type="text"
                                         name="total_pret"
                                         class="form-control form-control-sm text-end"
                                         data-decimals="4"
@@ -270,10 +287,11 @@
                                         </div>
                                         <div class="alimentare-edit">
                                             <input
-                                                type="datetime-local"
+                                                type="text"
                                                 name="data_ora_alimentare"
                                                 class="form-control form-control-sm"
                                                 value="{{ optional($alimentare->data_ora_alimentare)->format('Y-m-d\\TH:i') }}"
+                                                placeholder="dd.mm.yyyy hh:mm"
                                                 required
                                             >
                                             <div class="invalid-feedback" data-error-for="data_ora_alimentare"></div>
@@ -285,9 +303,7 @@
                                         </div>
                                         <div class="alimentare-edit">
                                             <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
+                                                type="text"
                                                 name="litrii"
                                                 class="form-control form-control-sm text-end"
                                                 value="{{ $formatNumber($alimentare->litrii, 2) }}"
@@ -303,9 +319,7 @@
                                         </div>
                                         <div class="alimentare-edit">
                                             <input
-                                                type="number"
-                                                step="0.0001"
-                                                min="0"
+                                                type="text"
                                                 name="pret_pe_litru"
                                                 class="form-control form-control-sm text-end"
                                                 value="{{ $formatNumber($alimentare->pret_pe_litru, 4) }}"
@@ -321,9 +335,7 @@
                                         </div>
                                         <div class="alimentare-edit">
                                             <input
-                                                type="number"
-                                                step="0.0001"
-                                                min="0"
+                                                type="text"
                                                 name="total_pret"
                                                 class="form-control form-control-sm text-end"
                                                 value="{{ $formatNumber($alimentare->total_pret, 4) }}"
@@ -402,20 +414,19 @@
                                     <div class="col-12 col-lg-3">
                                         <label class="form-label alimentari-form-label" for="data_ora_alimentare">Dată / oră alimentare</label>
                                         <input
-                                            type="datetime-local"
+                                            type="text"
                                             name="data_ora_alimentare"
                                             id="data_ora_alimentare"
                                             class="form-control"
                                             value="{{ old('data_ora_alimentare') }}"
+                                            placeholder="dd.mm.yyyy hh:mm"
                                             required
                                         >
                                     </div>
                                     <div class="col-12 col-lg-3">
                                         <label class="form-label alimentari-form-label" for="litrii">Litrii</label>
                                         <input
-                                            type="number"
-                                            step="0.01"
-                                            min="0"
+                                            type="text"
                                             name="litrii"
                                             id="litrii"
                                             class="form-control"
@@ -426,9 +437,7 @@
                                     <div class="col-12 col-lg-3">
                                         <label class="form-label alimentari-form-label" for="pret_pe_litru">Preț / litru</label>
                                         <input
-                                            type="number"
-                                            step="0.0001"
-                                            min="0"
+                                            type="text"
                                             name="pret_pe_litru"
                                             id="pret_pe_litru"
                                             class="form-control"
@@ -439,9 +448,7 @@
                                     <div class="col-12 col-lg-3">
                                         <label class="form-label alimentari-form-label" for="total_pret">Total preț</label>
                                         <input
-                                            type="number"
-                                            step="0.0001"
-                                            min="0"
+                                            type="text"
                                             name="total_pret"
                                             id="total_pret"
                                             class="form-control"
@@ -499,20 +506,19 @@
                                         <div class="col-12 col-lg-3">
                                             <label class="form-label alimentari-form-label" for="data_ora_alimentare_{{ $alimentare->id }}">Dată / oră alimentare</label>
                                             <input
-                                                type="datetime-local"
+                                                type="text"
                                                 name="data_ora_alimentare"
                                                 id="data_ora_alimentare_{{ $alimentare->id }}"
                                                 class="form-control"
                                                 value="{{ $shouldPrefillFromOld ? old('data_ora_alimentare') : optional($alimentare->data_ora_alimentare)->format('Y-m-d\\TH:i') }}"
+                                                placeholder="dd.mm.yyyy hh:mm"
                                                 required
                                             >
                                         </div>
                                         <div class="col-12 col-lg-3">
                                             <label class="form-label alimentari-form-label" for="litrii_{{ $alimentare->id }}">Litrii</label>
                                             <input
-                                                type="number"
-                                                step="0.01"
-                                                min="0"
+                                                type="text"
                                                 name="litrii"
                                                 id="litrii_{{ $alimentare->id }}"
                                                 class="form-control"
@@ -523,9 +529,7 @@
                                         <div class="col-12 col-lg-3">
                                             <label class="form-label alimentari-form-label" for="pret_pe_litru_{{ $alimentare->id }}">Preț / litru</label>
                                             <input
-                                                type="number"
-                                                step="0.0001"
-                                                min="0"
+                                                type="text"
                                                 name="pret_pe_litru"
                                                 id="pret_pe_litru_{{ $alimentare->id }}"
                                                 class="form-control"
@@ -536,9 +540,7 @@
                                         <div class="col-12 col-lg-3">
                                             <label class="form-label alimentari-form-label" for="total_pret_{{ $alimentare->id }}">Total preț</label>
                                             <input
-                                                type="number"
-                                                step="0.0001"
-                                                min="0"
+                                                type="text"
                                                 name="total_pret"
                                                 id="total_pret_{{ $alimentare->id }}"
                                                 class="form-control"
@@ -576,9 +578,14 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const tableBody = document.querySelector('[data-alimentari-body]');
+            if (!tableBody) {
+                return;
+            }
+
             const rows = Array.from(document.querySelectorAll('[data-alimentare-row]'));
-            const newRow = tableBody ? tableBody.querySelector('[data-new-alimentare-row]') : null;
-            const storeUrl = tableBody ? tableBody.dataset.storeUrl || '' : '';
+            const newRow = tableBody.querySelector('[data-new-alimentare-row]');
+            const storeUrl = tableBody.dataset.storeUrl || '';
+            const saveAllButton = document.querySelector('[data-save-pending-all]');
 
             const csrfToken = document.head.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
             const feedbackContainer = document.getElementById('alimentari-inline-feedback');
@@ -588,6 +595,7 @@
                 totalPret: document.getElementById('alimentari-total-pret'),
                 consum: document.getElementById('alimentari-consum'),
             };
+            const fieldOrder = ['data_ora_alimentare', 'litrii', 'pret_pe_litru', 'total_pret'];
 
             const formatNumber = (value, decimals = 2) => {
                 if (value === null || value === undefined || value === '') {
@@ -637,6 +645,183 @@
                 total_pret: 4,
             };
 
+            const getPendingRows = () => Array.from(tableBody.querySelectorAll('[data-pending-alimentare-row]'));
+            const getSavedRows = () => Array.from(tableBody.querySelectorAll('[data-alimentare-row]'));
+
+            const rowHasValues = (row) => {
+                if (!row) {
+                    return false;
+                }
+
+                return fieldOrder.some(name => {
+                    const input = row.querySelector(`input[name="${name}"]`);
+                    return Boolean(input && String(input.value || '').trim() !== '');
+                });
+            };
+
+            const normalizeDecimalString = (value, decimals = 2) => {
+                if (value === null || value === undefined) {
+                    return '';
+                }
+
+                let normalized = String(value)
+                    .trim()
+                    .replace(/\s+/g, '')
+                    .replace(/\u00A0/g, '');
+
+                if (normalized === '') {
+                    return '';
+                }
+
+                const hasComma = normalized.includes(',');
+                const hasDot = normalized.includes('.');
+
+                if (hasComma && hasDot) {
+                    if (normalized.lastIndexOf(',') > normalized.lastIndexOf('.')) {
+                        normalized = normalized.replace(/\./g, '').replace(',', '.');
+                    } else {
+                        normalized = normalized.replace(/,/g, '');
+                    }
+                } else if (hasComma) {
+                    normalized = normalized.replace(/\./g, '').replace(',', '.');
+                }
+
+                const numberValue = Number(normalized);
+
+                if (Number.isNaN(numberValue)) {
+                    return '';
+                }
+
+                return formatNumber(numberValue, decimals);
+            };
+
+            const normalizeDateTimeValue = (value) => {
+                if (value === null || value === undefined) {
+                    return '';
+                }
+
+                const trimmed = String(value).trim();
+                if (trimmed === '') {
+                    return '';
+                }
+
+                if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(trimmed)) {
+                    return trimmed.slice(0, 16);
+                }
+
+                if (/^\d+(?:[.,]\d+)?$/.test(trimmed)) {
+                    const serial = Number(trimmed.replace(',', '.'));
+
+                    if (!Number.isNaN(serial)) {
+                        const excelEpoch = Date.UTC(1899, 11, 30);
+                        const date = new Date(excelEpoch + (serial * 86400000));
+
+                        if (!Number.isNaN(date.getTime())) {
+                            const year = date.getUTCFullYear();
+                            const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+                            const day = String(date.getUTCDate()).padStart(2, '0');
+                            const hour = String(date.getUTCHours()).padStart(2, '0');
+                            const minute = String(date.getUTCMinutes()).padStart(2, '0');
+
+                            return `${year}-${month}-${day}T${hour}:${minute}`;
+                        }
+                    }
+                }
+
+                const normalized = trimmed
+                    .replace(/\s+/g, ' ')
+                    .replace(/\s*(?:-|–|—|,)\s*(?=\d{1,2}:\d{2}(?::\d{2})?\s*(?:AM|PM)?$)/i, ' ');
+                const match = normalized.match(/^(\d{1,4})[.\-/](\d{1,2})[.\-/](\d{1,4})(?:[ T]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?)?$/i);
+
+                if (!match) {
+                    return '';
+                }
+
+                let year;
+                let month;
+                let day;
+
+                if (String(match[1]).length === 4) {
+                    year = Number(match[1]);
+                    month = Number(match[2]);
+                    day = Number(match[3]);
+                } else {
+                    const first = Number(match[1]);
+                    const second = Number(match[2]);
+                    const meridiem = String(match[7] ?? '').toUpperCase();
+
+                    if (first > 12) {
+                        day = first;
+                        month = second;
+                    } else if (second > 12 || meridiem !== '') {
+                        month = first;
+                        day = second;
+                    } else {
+                        day = first;
+                        month = second;
+                    }
+
+                    year = Number(match[3]);
+                }
+
+                if (!year || !month || !day || month > 12 || day > 31) {
+                    return '';
+                }
+
+                let hour = Number(match[4] ?? '0');
+                const meridiem = String(match[7] ?? '').toUpperCase();
+                if (meridiem === 'PM' && hour < 12) {
+                    hour += 12;
+                } else if (meridiem === 'AM' && hour === 12) {
+                    hour = 0;
+                }
+
+                const minute = String(match[5] ?? '00').padStart(2, '0');
+
+                return `${String(year).padStart(4, '0')}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${minute}`;
+            };
+
+            const normalizeFieldValue = (name, value) => {
+                if (name === 'data_ora_alimentare') {
+                    return String(value ?? '').trim();
+                }
+
+                return normalizeDecimalString(value, fieldDecimals[name] ?? 2);
+            };
+
+            const syncEmptyState = () => {
+                const emptyRow = tableBody.querySelector('[data-empty-row]');
+                const shouldShowEmpty = getSavedRows().length === 0 && getPendingRows().length === 0;
+
+                if (shouldShowEmpty) {
+                    if (!emptyRow) {
+                        const row = document.createElement('tr');
+                        row.dataset.emptyRow = '';
+                        row.innerHTML = '<td colspan="5" class="text-center py-4">Nu exista alimentari salvate.</td>';
+                        tableBody.appendChild(row);
+                    }
+
+                    return;
+                }
+
+                if (emptyRow) {
+                    emptyRow.remove();
+                }
+            };
+
+            const syncSaveAllButton = () => {
+                if (!saveAllButton) {
+                    return;
+                }
+
+                const pendingCount = getPendingRows().length + (rowHasValues(newRow) ? 1 : 0);
+                const isProcessing = saveAllButton.dataset.processing === 'true';
+
+                saveAllButton.classList.toggle('d-none', pendingCount === 0);
+                saveAllButton.disabled = pendingCount === 0 || isProcessing;
+                saveAllButton.innerHTML = `<i class="fa-solid fa-floppy-disk me-1"></i>Salveaza toate${pendingCount > 0 ? ` (${pendingCount})` : ''}`;
+            };
+
             const setEditing = (row, editing) => {
                 row.dataset.editing = editing ? 'true' : 'false';
                 const viewActions = row.querySelector('[data-view-actions]');
@@ -661,7 +846,7 @@
                 Object.entries(assignments).forEach(([name, value]) => {
                     const input = row.querySelector(`input[name="${name}"]`);
                     if (input) {
-                        if (input.type === 'datetime-local') {
+                        if (name === 'data_ora_alimentare') {
                             input.value = value;
                             return;
                         }
@@ -721,6 +906,20 @@
                 }
             };
 
+            const fillRowValues = (row, values = {}) => {
+                fieldOrder.forEach(name => {
+                    const input = row.querySelector(`input[name="${name}"]`);
+                    if (!input) {
+                        return;
+                    }
+
+                    input.value = values[name] ?? '';
+                });
+
+                clearErrors(row);
+                syncSaveAllButton();
+            };
+
             const gatherPayload = (row) => {
                 const dataOraInput = row.querySelector('input[name="data_ora_alimentare"]');
                 const litriiInput = row.querySelector('input[name="litrii"]');
@@ -732,11 +931,11 @@
                         return '';
                     }
                     const decimals = Number(input.dataset.decimals ?? fallbackDecimals);
-                    return formatNumber(input.value, decimals);
+                    return normalizeDecimalString(input.value, decimals);
                 };
 
                 return {
-                    data_ora_alimentare: dataOraInput?.value || '',
+                    data_ora_alimentare: normalizeDateTimeValue(dataOraInput?.value || '') || (dataOraInput?.value || ''),
                     litrii: normalize(litriiInput, fieldDecimals.litrii),
                     pret_pe_litru: normalize(pretInput, fieldDecimals.pret_pe_litru),
                     total_pret: normalize(totalInput, fieldDecimals.total_pret),
@@ -759,6 +958,13 @@
                 });
             };
 
+            const setRowBusy = (row, busy) => {
+                row.classList.toggle('opacity-75', busy);
+                row.querySelectorAll('button, input').forEach(element => {
+                    element.disabled = busy;
+                });
+            };
+
             const saveRow = (row) => {
                 const updateUrl = row.dataset.updateUrl || '';
                 if (!updateUrl) {
@@ -768,8 +974,7 @@
                 clearErrors(row);
                 const payload = gatherPayload(row);
 
-                row.classList.add('opacity-75');
-                row.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                setRowBusy(row, true);
 
                 fetch(updateUrl, {
                     method: 'PUT',
@@ -819,8 +1024,7 @@
                         renderFeedback('Nu am putut salva modificarea. Reîncearcă.', 'danger');
                     })
                     .finally(() => {
-                        row.classList.remove('opacity-75');
-                        row.querySelectorAll('button').forEach(btn => btn.disabled = false);
+                        setRowBusy(row, false);
                     });
             };
 
@@ -865,11 +1069,11 @@
                     });
 
                     input.addEventListener('blur', () => {
-                        if (input.type !== 'number') {
+                        if (input.name === 'data_ora_alimentare') {
                             return;
                         }
                         const decimals = Number(input.dataset.decimals ?? 2);
-                        input.value = formatNumber(input.value, decimals);
+                        input.value = normalizeDecimalString(input.value, decimals);
                     });
                 });
             };
@@ -895,6 +1099,7 @@
                     input.classList.remove('is-invalid');
                 });
                 newRow.querySelectorAll('[data-error-for]').forEach(el => (el.textContent = ''));
+                syncSaveAllButton();
             };
 
             const buildRowElement = (item) => {
@@ -913,12 +1118,12 @@
                     {
                         name: 'data_ora_alimentare',
                         display: item.data_ora_display || '',
-                        inputType: 'datetime-local',
+                        inputType: 'text',
                     },
                     {
                         name: 'litrii',
                         display: formatNumber(item.litrii, fieldDecimals.litrii),
-                        inputType: 'number',
+                        inputType: 'text',
                         step: '0.01',
                         min: '0',
                         decimals: fieldDecimals.litrii,
@@ -926,7 +1131,7 @@
                     {
                         name: 'pret_pe_litru',
                         display: formatNumber(item.pret_pe_litru, fieldDecimals.pret_pe_litru),
-                        inputType: 'number',
+                        inputType: 'text',
                         step: '0.0001',
                         min: '0',
                         decimals: fieldDecimals.pret_pe_litru,
@@ -934,7 +1139,7 @@
                     {
                         name: 'total_pret',
                         display: formatNumber(item.total_pret, fieldDecimals.total_pret),
-                        inputType: 'number',
+                        inputType: 'text',
                         step: '0.0001',
                         min: '0',
                         decimals: fieldDecimals.total_pret,
@@ -1034,10 +1239,347 @@
                 return row;
             };
 
-            const saveNewRow = () => {
-                if (!newRow || !storeUrl) {
+            const getPendingInsertAnchor = () => {
+                const pendingRows = getPendingRows();
+
+                if (pendingRows.length > 0) {
+                    return pendingRows[pendingRows.length - 1].nextSibling;
+                }
+
+                return tableBody.querySelector('[data-alimentare-row], [data-empty-row]');
+            };
+
+            const buildPendingRowElement = (values = {}) => {
+                const row = document.createElement('tr');
+                row.dataset.pendingAlimentareRow = '';
+                row.dataset.observatii = '';
+
+                const cells = [
+                    { name: 'data_ora_alimentare', inputType: 'text' },
+                    { name: 'litrii', inputType: 'text', step: '0.01', min: '0', decimals: fieldDecimals.litrii },
+                    { name: 'pret_pe_litru', inputType: 'text', step: '0.0001', min: '0', decimals: fieldDecimals.pret_pe_litru },
+                    { name: 'total_pret', inputType: 'text', step: '0.0001', min: '0', decimals: fieldDecimals.total_pret },
+                ];
+
+                cells.forEach(({ name, inputType, step, min, decimals }) => {
+                    const td = document.createElement('td');
+                    if (name !== 'data_ora_alimentare') {
+                        td.classList.add('text-end');
+                    }
+
+                    const input = document.createElement('input');
+                    input.type = inputType;
+                    input.name = name;
+                    input.className = 'form-control form-control-sm';
+                    if (name !== 'data_ora_alimentare') {
+                        input.classList.add('text-end');
+                    }
+                    if (step) input.step = step;
+                    if (min) input.min = min;
+                    if (decimals !== undefined) {
+                        input.dataset.decimals = String(decimals);
+                    }
+                    input.value = values[name] ?? '';
+                    td.appendChild(input);
+
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.dataset.errorFor = name;
+                    td.appendChild(feedback);
+
+                    row.appendChild(td);
+                });
+
+                const actionsTd = document.createElement('td');
+                actionsTd.className = 'text-center';
+                const wrapper = document.createElement('div');
+                wrapper.className = 'd-flex justify-content-center flex-wrap alimentari-actions';
+
+                const saveButton = document.createElement('button');
+                saveButton.className = 'btn btn-sm btn-primary border border-dark';
+                saveButton.type = 'button';
+                saveButton.dataset.pendingSave = '';
+                saveButton.innerHTML = '<i class="fa-solid fa-floppy-disk me-1"></i>Salveaza';
+
+                const removeButton = document.createElement('button');
+                removeButton.className = 'btn btn-sm btn-outline-danger border border-dark';
+                removeButton.type = 'button';
+                removeButton.dataset.pendingRemove = '';
+                removeButton.innerHTML = '<i class="fa-solid fa-trash me-1"></i>Elimina';
+
+                wrapper.appendChild(saveButton);
+                wrapper.appendChild(removeButton);
+                actionsTd.appendChild(wrapper);
+                row.appendChild(actionsTd);
+
+                return row;
+            };
+
+            const saveCreateRow = (row, options = {}) => {
+                if (!storeUrl) {
+                    return Promise.resolve(false);
+                }
+
+                clearErrors(row);
+                const payload = gatherPayload(row);
+                setRowBusy(row, true);
+
+                return fetch(storeUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify(payload),
+                })
+                    .then(async response => {
+                        const data = await response.json().catch(() => ({}));
+
+                        if (!response.ok) {
+                            if (response.status === 422) {
+                                showFieldErrors(row, data.errors || {});
+                                return { ok: false };
+                            }
+
+                            throw new Error(data.message || `Eroare (${response.status})`);
+                        }
+
+                        return { ok: true, data };
+                    })
+                    .then(result => {
+                        if (!result.ok) {
+                            if (!options.silentFeedback) {
+                                renderFeedback('Verifica valorile introduse.', 'danger');
+                            }
+
+                            return false;
+                        }
+
+                        const data = result.data;
+
+                        if (data.alimentare) {
+                            const savedRow = buildRowElement(data.alimentare);
+                            attachRowListeners(savedRow);
+
+                            if (options.replaceRow) {
+                                row.replaceWith(savedRow);
+                            } else if (newRow) {
+                                tableBody.insertBefore(savedRow, newRow.nextSibling);
+                            } else {
+                                tableBody.appendChild(savedRow);
+                            }
+                        }
+
+                        if (data.metrics) {
+                            applyMetrics(data.metrics);
+                        }
+
+                        if (options.resetRow) {
+                            resetNewRow();
+                        }
+
+                        syncEmptyState();
+                        syncSaveAllButton();
+
+                        if (!options.silentFeedback) {
+                            renderFeedback(data.message || 'Alimentarea a fost adaugata.');
+                        }
+
+                        return true;
+                    })
+                    .catch(error => {
+                        console.error('Alimentare create error', error);
+
+                        if (!options.silentFeedback) {
+                            renderFeedback('Nu am putut adauga alimentarea. Reincearca.', 'danger');
+                        }
+
+                        return false;
+                    })
+                    .finally(() => {
+                        if (document.body.contains(row)) {
+                            setRowBusy(row, false);
+                        }
+
+                        syncSaveAllButton();
+                    });
+            };
+
+            const saveDraftRow = (row, options = {}) => saveCreateRow(row, {
+                replaceRow: true,
+                silentFeedback: options.silentFeedback ?? false,
+            });
+
+            const attachPendingRowListeners = (row) => {
+                const saveButton = row.querySelector('[data-pending-save]');
+                const removeButton = row.querySelector('[data-pending-remove]');
+
+                if (saveButton) {
+                    saveButton.addEventListener('click', () => saveDraftRow(row));
+                }
+
+                if (removeButton) {
+                    removeButton.addEventListener('click', () => {
+                        row.remove();
+                        syncEmptyState();
+                        syncSaveAllButton();
+                    });
+                }
+
+                row.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('keydown', event => {
+                        if (event.key === 'Enter') {
+                            event.preventDefault();
+                            saveDraftRow(row);
+                        }
+                    });
+
+                    input.addEventListener('blur', () => {
+                        if (input.name === 'data_ora_alimentare') {
+                            return;
+                        }
+
+                        const decimals = Number(input.dataset.decimals ?? 2);
+                        input.value = normalizeDecimalString(input.value, decimals);
+                    });
+                });
+            };
+
+            const parseClipboardRows = (text) => {
+                const normalizedText = String(text ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+                const rows = normalizedText
+                    .split('\n')
+                    .map(line => line.replace(/\t+$/, ''))
+                    .filter(line => line.trim() !== '');
+
+                return rows.map(line => line.split('\t'));
+            };
+
+            const mapClipboardRowToValues = (cells, startIndex = 0) => {
+                const values = {
+                    data_ora_alimentare: '',
+                    litrii: '',
+                    pret_pe_litru: '',
+                    total_pret: '',
+                };
+
+                cells.forEach((cell, index) => {
+                    const fieldName = fieldOrder[startIndex + index];
+                    if (!fieldName) {
+                        return;
+                    }
+
+                    values[fieldName] = normalizeFieldValue(fieldName, cell);
+                });
+
+                return values;
+            };
+
+            const appendDraftRows = (drafts) => {
+                drafts.forEach(values => {
+                    const row = buildPendingRowElement(values);
+                    tableBody.insertBefore(row, getPendingInsertAnchor());
+                    attachPendingRowListeners(row);
+                });
+
+                syncEmptyState();
+                syncSaveAllButton();
+            };
+
+            const handleExcelPaste = (event) => {
+                const target = event.target;
+                if (!target || !fieldOrder.includes(target.name)) {
                     return;
                 }
+
+                const clipboardText = event.clipboardData?.getData('text') ?? '';
+                const parsedRows = parseClipboardRows(clipboardText);
+
+                if (parsedRows.length === 0) {
+                    return;
+                }
+
+                if (parsedRows.length === 1 && parsedRows[0].length <= 1) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                const mappedRows = parsedRows.map(cells => mapClipboardRowToValues(cells, 0));
+
+                fillRowValues(newRow, mappedRows[0] ?? {});
+
+                if (mappedRows.length > 1) {
+                    appendDraftRows(mappedRows.slice(1));
+                } else {
+                    syncEmptyState();
+                    syncSaveAllButton();
+                }
+
+                renderFeedback(`Am pregatit ${mappedRows.length} alimentari pentru verificare.`);
+            };
+
+            const saveAllDraftRows = async () => {
+                if (!saveAllButton) {
+                    return;
+                }
+
+                const draftRows = [];
+
+                if (rowHasValues(newRow)) {
+                    draftRows.push(newRow);
+                }
+
+                draftRows.push(...getPendingRows());
+
+                if (draftRows.length === 0) {
+                    return;
+                }
+
+                saveAllButton.dataset.processing = 'true';
+                syncSaveAllButton();
+
+                let successCount = 0;
+                let failedCount = 0;
+
+                for (const row of draftRows) {
+                    const success = row === newRow
+                        ? await saveCreateRow(newRow, { resetRow: true, silentFeedback: true })
+                        : await saveDraftRow(row, { silentFeedback: true });
+
+                    if (success) {
+                        successCount += 1;
+                    } else {
+                        failedCount += 1;
+                    }
+                }
+
+                delete saveAllButton.dataset.processing;
+                syncEmptyState();
+                syncSaveAllButton();
+
+                if (failedCount === 0) {
+                    renderFeedback(`${successCount} alimentari au fost salvate.`);
+                    return;
+                }
+
+                if (successCount === 0) {
+                    renderFeedback('Nu am putut salva alimentariile pregatite. Verifica randurile marcate.', 'danger');
+                    return;
+                }
+
+                renderFeedback(`${successCount} alimentari salvate, ${failedCount} necesita corectii.`, 'warning');
+            };
+
+            const saveNewRow = () => {
+                if (!newRow) {
+                    return;
+                }
+
+                return saveCreateRow(newRow, { resetRow: true });
 
                 clearErrors(newRow);
                 const payload = gatherPayload(newRow);
@@ -1114,6 +1656,8 @@
                 }
 
                 newRow.querySelectorAll('input').forEach(input => {
+                    input.addEventListener('paste', handleExcelPaste);
+
                     input.addEventListener('keydown', event => {
                         if (event.key === 'Enter') {
                             event.preventDefault();
@@ -1126,14 +1670,23 @@
                     });
 
                     input.addEventListener('blur', () => {
-                        if (input.type !== 'number') {
+                        if (input.name === 'data_ora_alimentare') {
                             return;
                         }
                         const decimals = Number(input.dataset.decimals ?? 2);
-                        input.value = formatNumber(input.value, decimals);
+                        input.value = normalizeDecimalString(input.value, decimals);
                     });
+
+                    input.addEventListener('input', syncSaveAllButton);
                 });
             }
+
+            if (saveAllButton) {
+                saveAllButton.addEventListener('click', saveAllDraftRows);
+            }
+
+            syncEmptyState();
+            syncSaveAllButton();
         });
     </script>
 @endpush

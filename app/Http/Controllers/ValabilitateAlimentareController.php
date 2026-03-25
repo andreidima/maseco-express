@@ -23,6 +23,12 @@ class ValabilitateAlimentareController extends Controller
 
         $valabilitate->loadMissing(['sofer', 'taxeDrum', 'divizie', 'curse']);
         $summary = $this->buildSummaryData($valabilitate, $valabilitate->curse);
+        $summary['kmPlecare'] = $valabilitate->km_plecare !== null
+            ? (float) $valabilitate->km_plecare
+            : null;
+        $summary['kmSosire'] = $valabilitate->km_sosire !== null
+            ? (float) $valabilitate->km_sosire
+            : null;
 
         $alimentariQuery = $valabilitate->alimentari();
 
