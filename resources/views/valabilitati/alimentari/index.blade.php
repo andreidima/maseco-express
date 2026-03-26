@@ -1249,6 +1249,34 @@
                 return tableBody.querySelector('[data-alimentare-row], [data-empty-row]');
             };
 
+            const getSavedInsertAnchor = (dateValue = '', itemId = '') => {
+                const normalizedDate = String(dateValue || '');
+                const normalizedId = Number(itemId || 0);
+
+                for (const savedRow of getSavedRows()) {
+                    const rowDate = String(savedRow.dataset.dataOra || '');
+                    const rowId = Number(savedRow.dataset.alimentareId || 0);
+
+                    if (normalizedDate === '' && rowDate !== '') {
+                        return savedRow;
+                    }
+
+                    if (rowDate === '') {
+                        continue;
+                    }
+
+                    if (normalizedDate < rowDate) {
+                        return savedRow;
+                    }
+
+                    if (normalizedDate === rowDate && normalizedId !== 0 && rowId !== 0 && normalizedId < rowId) {
+                        return savedRow;
+                    }
+                }
+
+                return null;
+            };
+
             const buildPendingRowElement = (values = {}) => {
                 const row = document.createElement('tr');
                 row.dataset.pendingAlimentareRow = '';
@@ -1363,14 +1391,13 @@
                         if (data.alimentare) {
                             const savedRow = buildRowElement(data.alimentare);
                             attachRowListeners(savedRow);
+                            const insertAnchor = getSavedInsertAnchor(data.alimentare.data_ora_alimentare, data.alimentare.id);
 
                             if (options.replaceRow) {
-                                row.replaceWith(savedRow);
-                            } else if (newRow) {
-                                tableBody.insertBefore(savedRow, newRow.nextSibling);
-                            } else {
-                                tableBody.appendChild(savedRow);
+                                row.remove();
                             }
+
+                            tableBody.insertBefore(savedRow, insertAnchor);
                         }
 
                         if (data.metrics) {

@@ -30,7 +30,10 @@ class ValabilitateAlimentareController extends Controller
             ? (float) $valabilitate->km_sosire
             : null;
 
-        $alimentariQuery = $valabilitate->alimentari();
+        $alimentariQuery = $valabilitate->alimentari()
+            ->reorder()
+            ->orderBy('data_ora_alimentare')
+            ->orderBy('id');
 
         $alimentari = (clone $alimentariQuery)
             ->paginate(self::PER_PAGE)
