@@ -8,6 +8,7 @@ use App\Models\Comanda;
 use App\Models\ComandaStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class StatusComandaActualizatDeTransportatorController extends Controller
 {
@@ -51,15 +52,23 @@ class StatusComandaActualizatDeTransportatorController extends Controller
 
             // Se trimite email de notificare cu schimbarea statusului catre Maseco
             $emailTrimis = new \App\Models\MesajTrimisEmail;
-            if (isset($comanda->transportator->email) && ($comanda->transportator->email !== 'adima@validsoftware.ro') && ($comanda->transportator->email !== 'andrei.dima@usm.ro')){
-                // echo 'nu este Andrei';
-                Mail::to('info@masecoexpres.net')->send(new \App\Mail\InformareLaActualizareStatusComanda($comanda));
-                $emailTrimis->email = 'info@masecoexpres.net';
-            } else {
-                // echo 'Este Andrei';
-                Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\InformareLaActualizareStatusComanda($comanda));
-                $emailTrimis->email = 'andrei.dima@usm.ro';
+            try {
+                if (isset($comanda->transportator->email) && ($comanda->transportator->email !== 'adima@validsoftware.ro') && ($comanda->transportator->email !== 'andrei.dima@usm.ro')){
+                    // echo 'nu este Andrei';
+                    Mail::to('info@masecoexpres.net')->send(new \App\Mail\InformareLaActualizareStatusComanda($comanda));
+                    $emailTrimis->email = 'info@masecoexpres.net';
+                } else {
+                    // echo 'Este Andrei';
+                    Mail::to('andrei.dima@usm.ro')->send(new \App\Mail\InformareLaActualizareStatusComanda($comanda));
+                    $emailTrimis->email = 'andrei.dima@usm.ro';
+                }
+            } catch (TransportExceptionInterface $exception) {
+                report($exception);
+
+                return redirect('afisare-status-comanda/' . $modTransmitere . '/' .$cheie_unica)
+                    ->with('error', 'Statusul comenzii a fost salvat, dar emailul de notificare nu a putut fi trimis.');
             }
+
             $emailTrimis->comanda_id = $comanda->id;
             $emailTrimis->firma_id = $comanda->transportator->id ?? '';
             $emailTrimis->categorie = 5;

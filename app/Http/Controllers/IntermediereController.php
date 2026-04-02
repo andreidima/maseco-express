@@ -23,6 +23,7 @@ class IntermediereController extends Controller
         $searchComandaTransportatorContract = $request->searchComandaTransportatorContract;
         $searchUser = $request->searchUser;
         $searchInterval = $request->searchInterval;
+        $searchIntervalRange = $this->parseSearchInterval($searchInterval);
         $searchPredat = $request->searchPredat;
         $searchFacturaMasecoNumar = $request->searchFacturaMasecoNumar;
         $searchCondition = $request->searchCondition;
@@ -42,8 +43,8 @@ class IntermediereController extends Controller
             // }, function ($q) { // return nothing if there is no user selected
             //     return $q->where('id', -1);
             })
-            ->when($searchInterval, function ($query, $searchInterval) {
-                return $query->whereBetween('data_creare', [strtok($searchInterval, ','), strtok( '' )]);
+            ->when($searchIntervalRange, function ($query, $searchIntervalRange) {
+                return $query->whereBetween('data_creare', $searchIntervalRange);
             })
             ->when($searchPredat, function ($query, $searchPredat) {
                 if ($searchPredat == 'DA') {
@@ -99,7 +100,10 @@ class IntermediereController extends Controller
             if (!$searchInterval) {
                 return back()->with('error', 'Trebuie să selectați un interval pentru a putea exporta date.');
             }
-            if (Carbon::parse(strtok($searchInterval, ','))->diffInDays(Carbon::parse(strtok( '' ))) > 101){
+            if (! $searchIntervalRange) {
+                return back()->with('error', 'Trebuie să selectați un interval valid pentru a putea exporta date.');
+            }
+            if (Carbon::parse($searchIntervalRange[0])->diffInDays(Carbon::parse($searchIntervalRange[1])) > 101){
                 return back()->with('error', 'Trebuie să selectați un interval de maxim 100 de zile.');
             }
             $comenzi = $query->get();
@@ -184,6 +188,34 @@ class IntermediereController extends Controller
                 // 'tara_id.required' => 'Câmpul țara este obligatoriu'
             ]
         );
+    }
+
+    protected function parseSearchInterval(?string $searchInterval): ?array
+    {
+        if (! is_string($searchInterval) || trim($searchInterval) === '') {
+            return null;
+        }
+
+        $dates = array_map('trim', explode(',', $searchInterval, 2));
+        $startDate = $dates[0] ?? null;
+        $endDate = $dates[1] ?? $startDate;
+
+        if ($startDate === '' || $endDate === '') {
+            return null;
+        }
+
+        try {
+            $startDate = Carbon::parse($startDate)->toDateString();
+            $endDate = Carbon::parse($endDate)->toDateString();
+        } catch (\Throwable $exception) {
+            return null;
+        }
+
+        if ($startDate > $endDate) {
+            [$startDate, $endDate] = [$endDate, $startDate];
+        }
+
+        return [$startDate, $endDate];
     }
 
     public function schimbaPredatLaContabilitate(Request $request, Comanda $comanda){

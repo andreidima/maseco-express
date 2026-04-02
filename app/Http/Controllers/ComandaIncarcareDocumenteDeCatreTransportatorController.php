@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
 {
@@ -396,8 +397,16 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
 
         $categorieEmail = 'documenteTransport';
 
-        Mail::to($comanda->transportator->email)
-            ->send(new \App\Mail\ComandaTransportatorDocumente($comanda, $tipEmail, $categorieEmail, $mesaj));
+        try {
+            Mail::to($comanda->transportator->email)
+                ->send(new \App\Mail\ComandaTransportatorDocumente($comanda, $tipEmail, $categorieEmail, $mesaj));
+        } catch (TransportExceptionInterface $exception) {
+            report($exception);
+
+            return back()
+                ->withInput()
+                ->with('error', 'Mesajul catre transportator nu a putut fi trimis momentan. Reincercati.');
+        }
 
         $emailTrimis = new ComandaFisierEmail;
         $emailTrimis->comanda_id = $comanda->id;
