@@ -21,4 +21,19 @@ class ComandaFisier extends Model
     {
         return "/comenzi-fisiere/{$this->id}";
     }
+
+    public function getNumeAfisatAttribute(): string
+    {
+        if (filled($this->nume_original)) {
+            return (string) $this->nume_original;
+        }
+
+        $filename = (string) ($this->nume ?? '');
+
+        if (preg_match('/^(?<base>.+)\.(?<extension>[^.]+)(?<suffix>3[0-9a-f]{13})(?<trailingDot>\.?)$/iu', $filename, $matches)) {
+            return $matches['base'] . '_' . $matches['suffix'] . '.' . $matches['extension'];
+        }
+
+        return $filename;
+    }
 }

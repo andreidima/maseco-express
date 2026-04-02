@@ -350,10 +350,10 @@
                                         <div class="border rounded-3 bg-white p-2">
                                             @forelse ($comanda->facturiIncarcateDeTransportator as $fisierFactura)
                                                 <div class="{{ $loop->last ? '' : 'mb-2' }}">
-                                                    <div class="small text-break">{{ $fisierFactura->nume }}</div>
+                                                    <div class="small text-break">{{ $fisierFactura->nume_afisat }}</div>
                                                     <div class="d-flex flex-wrap gap-2 mt-1">
                                                         <a
-                                                            href="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica . '/deschide/' . $fisierFactura->nume) }}"
+                                                            href="{{ route('comanda-incarcare-documente-de-catre-transportator.fisiere.deschide', ['cheie_unica' => $comanda->cheie_unica, 'fisierId' => $fisierFactura->id]) }}"
                                                             target="_blank"
                                                             rel="noopener"
                                                             class="badge bg-primary text-decoration-none"
@@ -361,7 +361,7 @@
                                                             Vezi PDF
                                                         </a>
                                                         <a
-                                                            href="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica . '/descarca/' . $fisierFactura->nume) }}"
+                                                            href="{{ route('comanda-incarcare-documente-de-catre-transportator.fisiere.descarca', ['cheie_unica' => $comanda->cheie_unica, 'fisierId' => $fisierFactura->id]) }}"
                                                             class="badge bg-secondary text-decoration-none"
                                                         >
                                                             Descarcă

@@ -68,35 +68,17 @@
                         <div class="row">
                             @auth
                                 @if ($comanda->transportator_format_documente != '2')
-                                    <div class="col-lg-6 p-2 my-2 rounded-3 text-white border border-white" style="background-color:#7474b6;">
+                                    <div class="col-lg-8 mx-auto p-2 my-2 rounded-3 text-white border border-white" style="background-color:#7474b6;">
                                         <form method="POST" action="{{ url('/comanda-documente-transportator/' . $comanda->cheie_unica) }}" enctype="multipart/form-data">
                                             @csrf
-                                            <input type="hidden" name="este_factura" value="0">
                                             <label for="files" class="mb-0 ps-3">
-                                                Adaugati alte documente (doar in format PDF)
+                                                Adaugati documentele (doar in format PDF)
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <input type="file" name="fisiere[]" class="form-control mb-2 rounded-3" multiple>
                                             <div class="text-center">
                                                 <button class="btn btn-success text-white border border-dark rounded-3 shadow block" type="submit">
-                                                    Salveaza alte documente
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-
-                                    <div class="col-lg-6 p-2 my-2 rounded-3 text-white border border-white" style="background-color:#5a4a9c;">
-                                        <form method="POST" action="{{ url('/comanda-documente-transportator/' . $comanda->cheie_unica) }}" enctype="multipart/form-data">
-                                            @csrf
-                                            <input type="hidden" name="este_factura" value="1">
-                                            <label for="files" class="mb-0 ps-3">
-                                                Adaugati facturile (doar in format PDF)
-                                                <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="file" name="fisiere[]" class="form-control mb-2 rounded-3" multiple>
-                                            <div class="text-center">
-                                                <button class="btn btn-warning text-dark border border-dark rounded-3 shadow block" type="submit">
-                                                    Salveaza facturile
+                                                    Salveaza documentele
                                                 </button>
                                             </div>
                                         </form>
@@ -119,7 +101,7 @@
                                                 <div class="form-control bg-light rounded-3 border-0">
                                                     <strong>{{ intval($comanda->factura_transportator_incarcata ?? 0) === 1 ? 'DA' : 'NU' }}</strong>
                                                     <div class="small text-muted mt-1">
-                                                        Statusul se actualizeaza automat din fisierele incarcate in rubrica de facturi.
+                                                        Statusul se actualizeaza automat din documentele marcate ca factura.
                                                     </div>
                                                 </div>
                                             </div>
@@ -137,35 +119,17 @@
                         <div class="row">
                             @guest
                                 @if ($comanda->transportator_blocare_incarcare_documente != '1')
-                                    <div class="col-lg-6 p-2 my-2 rounded-3 text-white" style="background-color:#7474b6;">
+                                    <div class="col-lg-8 mx-auto p-2 my-2 rounded-3 text-white" style="background-color:#7474b6;">
                                         <form method="POST" action="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica) }}" enctype="multipart/form-data">
                                             @csrf
-                                            <input type="hidden" name="este_factura" value="0">
                                             <label for="files" class="mb-0 ps-3">
-                                                Adaugati alte documente (doar in format PDF)
+                                                Adaugati documentele (doar in format PDF)
                                                 <span class="text-danger">*</span>
                                             </label>
                                             <input type="file" name="fisiere[]" class="form-control mb-2 rounded-3" multiple>
                                             <div class="text-center">
                                                 <button class="btn btn-success text-white border border-dark rounded-3 shadow block" type="submit">
-                                                    Incarca alte documente
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-
-                                    <div class="col-lg-6 p-2 my-2 rounded-3 text-white" style="background-color:#5a4a9c;">
-                                        <form method="POST" action="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica) }}" enctype="multipart/form-data">
-                                            @csrf
-                                            <input type="hidden" name="este_factura" value="1">
-                                            <label for="files" class="mb-0 ps-3">
-                                                Adaugati facturile (doar in format PDF)
-                                                <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="file" name="fisiere[]" class="form-control mb-2 rounded-3" multiple>
-                                            <div class="text-center">
-                                                <button class="btn btn-warning text-dark border border-dark rounded-3 shadow block" type="submit">
-                                                    Incarca facturile
+                                                    Incarca documentele
                                                 </button>
                                             </div>
                                         </form>
@@ -197,14 +161,14 @@
                                             <tbody>
                                                 @foreach ($comanda->fisiereIncarcateDeTransportator as $fisier)
                                                     @php
-                                                        $isViewable = BrowserViewableFile::isViewable($fisier->nume ?? '');
-                                                        $previewUrl = url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica . '/deschide/' . $fisier->nume);
-                                                        $downloadUrl = url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica . '/descarca/' . $fisier->nume);
+                                                        $isViewable = BrowserViewableFile::isViewable($fisier->nume_afisat ?? $fisier->nume ?? '');
+                                                        $previewUrl = route('comanda-incarcare-documente-de-catre-transportator.fisiere.deschide', ['cheie_unica' => $comanda->cheie_unica, 'fisierId' => $fisier->id]);
+                                                        $downloadUrl = route('comanda-incarcare-documente-de-catre-transportator.fisiere.descarca', ['cheie_unica' => $comanda->cheie_unica, 'fisierId' => $fisier->id]);
                                                     @endphp
                                                     <tr>
                                                         <td>{{ $loop->iteration }}</td>
                                                         <td class="text-break">
-                                                            {{ $fisier->nume ?? '' }}
+                                                            {{ $fisier->nume_afisat ?? $fisier->nume ?? '' }}
                                                         </td>
                                                         <td class="text-center align-middle">
                                                             @if ($fisier->este_factura)
@@ -237,8 +201,19 @@
                                                                     </span>
                                                                 </a>
                                                                 @auth
+                                                                    <form method="POST" action="{{ route('comanda-documente-transportator.factura', ['cheie_unica' => $comanda->cheie_unica, 'fisierId' => $fisier->id]) }}">
+                                                                        @csrf
+                                                                        <input type="hidden" name="este_factura" value="{{ $fisier->este_factura ? '0' : '1' }}">
+                                                                        <button type="submit" class="btn btn-link p-0 border-0 text-decoration-none" title="{{ $fisier->este_factura ? 'Scoate documentul din factura' : 'Marcheaza documentul ca factura' }}">
+                                                                            @if ($fisier->este_factura)
+                                                                                <span class="badge bg-warning text-dark">Scoate din factura</span>
+                                                                            @else
+                                                                                <span class="badge bg-info text-dark">Marcheaza factura</span>
+                                                                            @endif
+                                                                        </button>
+                                                                    </form>
                                                                     @if (!$fisier->user_id)
-                                                                        <a href="{{ url('/comanda-documente-transportator/' . $comanda->cheie_unica . '/valideaza-invalideaza/' . $fisier->nume) }}" class="flex">
+                                                                        <a href="{{ route('comanda-documente-transportator.fisiere.valideaza-invalideaza', ['cheie_unica' => $comanda->cheie_unica, 'fisierId' => $fisier->id]) }}" class="flex">
                                                                             @if ($fisier->validat != '1')
                                                                                 <span class="badge bg-primary me-1">Valideaza</span>
                                                                             @else
@@ -396,7 +371,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-danger">
-                    <h5 class="modal-title text-white">Fisier: <b>{{ $fisier->nume }}</b></h5>
+                    <h5 class="modal-title text-white">Fisier: <b>{{ $fisier->nume_afisat ?? $fisier->nume }}</b></h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body" style="text-align:left;">
@@ -404,7 +379,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Renunta</button>
-                    <form method="POST" action="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica . '/sterge/' . $fisier->nume) }}">
+                    <form method="POST" action="{{ route('comanda-incarcare-documente-de-catre-transportator.fisiere.sterge', ['cheie_unica' => $comanda->cheie_unica, 'fisierId' => $fisier->id]) }}">
                         @method('DELETE')
                         @csrf
                         <button type="submit" class="btn btn-danger text-white">

@@ -1,0 +1,47 @@
+<?php
+
+namespace App\Models\FacturiTransportatori;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class PlataCalupFisier extends Model
+{
+    use HasFactory;
+
+    protected $table = 'facturi_transportatori_plati_calupuri_fisiere';
+
+    protected $fillable = [
+        'plata_calup_id',
+        'cale',
+        'nume_original',
+    ];
+
+    public function calup(): BelongsTo
+    {
+        return $this->belongsTo(PlataCalup::class, 'plata_calup_id');
+    }
+
+    public function extension(): ?string
+    {
+        $source = $this->nume_original ?: $this->cale;
+
+        if (! $source) {
+            return null;
+        }
+
+        $extension = pathinfo($source, PATHINFO_EXTENSION);
+
+        if (! $extension) {
+            return null;
+        }
+
+        return strtolower($extension);
+    }
+
+    public function isPreviewable(): bool
+    {
+        return $this->extension() === 'pdf';
+    }
+}

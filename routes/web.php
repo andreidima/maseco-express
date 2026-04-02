@@ -17,6 +17,7 @@ use App\Http\Controllers\FileManagerPersonalizatController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FacturaScadentaController;
 use App\Http\Controllers\FacturaTransportatorController;
+use App\Http\Controllers\FacturiTransportatori\PlataCalupController as FacturaTransportatorPlataCalupController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RaportController;
 use App\Http\Controllers\DiverseTesteController;
@@ -86,6 +87,13 @@ Route::get('/axios/trimitere-cod-autentificare-prin-email', [AxiosController::cl
 // For transporters to upload their documents
 Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'afisareDocumenteIncarcateDejaSiFormular']);
 Route::post('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'salvareDocumente']);
+Route::post('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/factura/{fisierId}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'schimbaMarcajFactura'])->middleware('auth');
+Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/fisiere/{fisierId}/deschide', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierDeschide'])
+    ->name('comanda-incarcare-documente-de-catre-transportator.fisiere.deschide');
+Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/fisiere/{fisierId}/descarca', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierDownload'])
+    ->name('comanda-incarcare-documente-de-catre-transportator.fisiere.descarca');
+Route::delete('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/fisiere/{fisierId}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierSterge'])
+    ->name('comanda-incarcare-documente-de-catre-transportator.fisiere.sterge');
 Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/deschide/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierDeschide']);
 Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/descarca/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierDownload']);
 Route::delete('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/sterge/{numeFisier?}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'fisierSterge']);
@@ -191,6 +199,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/comanda-documente-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'afisareDocumenteIncarcateDejaSiFormular']);
         Route::post('/comanda-informatii-documente-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'salvareInformatiiDocumente']);
         Route::post('/comanda-documente-transportator/{cheie_unica}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'salvareDocumente']);
+        Route::post('/comanda-documente-transportator/{cheie_unica}/factura/{fisierId}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'schimbaMarcajFactura'])
+            ->name('comanda-documente-transportator.factura');
+        Route::get('/comanda-documente-transportator/{cheie_unica}/fisiere/{fisierId}/valideaza-invalideaza', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'validareInvalidareDocumente'])
+            ->name('comanda-documente-transportator.fisiere.valideaza-invalideaza');
         Route::get('/comanda-documente-transportator/{cheie_unica}/valideaza-invalideaza/{numeFisier}', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'validareInvalidareDocumente']);
         Route::get('/comanda-documente-transportator/{cheie_unica}/blocare-deblocare-incarcare-documente', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'blocareDeblocareIncarcareDocumente']);
         Route::post('/comanda-documente-transportator/{cheie_unica}/trimitere-email-catre-transportator-privind-documente-incarcate', [ComandaIncarcareDocumenteDeCatreTransportatorController::class, 'trimitereEmailCatreTransportatorPrivindDocumenteIncarcate']);
@@ -335,7 +347,35 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/facturi-memento/salveaza/comanda/{comanda}', [FacturaController::class, 'storeOrUpdateMementoFactura']);
 
         Route::get('/facturi-scadente', [FacturaScadentaController::class, 'index']);
-        Route::get('/facturi-transportatori', [FacturaTransportatorController::class, 'index'])->name('facturi-transportatori.index');
+
+        Route::prefix('facturi-transportatori')
+            ->name('facturi-transportatori.')
+            ->group(function () {
+                Route::get('', [FacturaTransportatorController::class, 'index'])->name('index');
+                Route::post('mutare-calup', [FacturaTransportatorController::class, 'moveToCalup'])->name('move-to-calup');
+
+                Route::resource('calupuri', FacturaTransportatorPlataCalupController::class)
+                    ->parameters(['calupuri' => 'plataCalup'])
+                    ->except(['create', 'edit']);
+
+                Route::post('calupuri/{plataCalup}/atasare-comenzi', [FacturaTransportatorPlataCalupController::class, 'ataseazaComenzi'])
+                    ->name('calupuri.atasare-comenzi');
+
+                Route::delete('calupuri/{plataCalup}/comenzi/{comanda}', [FacturaTransportatorPlataCalupController::class, 'detaseazaComanda'])
+                    ->name('calupuri.detaseaza-comanda');
+
+                Route::post('calupuri/{plataCalup}/comenzi/{comanda}/muta', [FacturaTransportatorPlataCalupController::class, 'mutaComanda'])
+                    ->name('calupuri.muta-comanda');
+
+                Route::delete('calupuri/{plataCalup}/fisiere/{fisier}', [FacturaTransportatorPlataCalupController::class, 'stergeFisier'])
+                    ->name('calupuri.fisiere.destroy');
+
+                Route::get('calupuri/{plataCalup}/vizualizeaza-fisier/{fisier}', [FacturaTransportatorPlataCalupController::class, 'vizualizeazaFisier'])
+                    ->name('calupuri.vizualizeaza-fisier');
+
+                Route::get('calupuri/{plataCalup}/descarca-fisier/{fisier?}', [FacturaTransportatorPlataCalupController::class, 'descarcaFisier'])
+                    ->name('calupuri.descarca-fisier');
+            });
     });
 
     Route::middleware('permission:gestiune-piese')->group(function () {

@@ -11,6 +11,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
@@ -62,12 +63,6 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
             ->first();
 
         if ($comanda) {
-            $validated = $request->validate([
-                'este_factura' => 'nullable|in:0,1',
-            ]);
-
-            $esteFactura = (int) ($validated['este_factura'] ?? 0);
-
             $request->validate(
                 [
                     'fisiere' => 'required',
@@ -76,7 +71,7 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                         'max:10240',
                         function (string $attribute, mixed $value, Closure $fail) use ($comanda) {
                             foreach ($comanda->fisiereIncarcateDeTransportator as $fisier) {
-                                if ($fisier->nume === $value->getClientOriginalName()) {
+                                if ($fisier->nume_afisat === $value->getClientOriginalName()) {
                                     $fail('Nu puteti incarca de mai multe ori acelasi fisier. Exista deja un fisier incarcat cu denumirea ' . $value->getClientOriginalName());
                                 }
                             }
@@ -90,14 +85,23 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                 ]
             );
 
-            if ($request->file('fisiere')) {
-                foreach ($request->file('fisiere') as $fisierUpload) {
-                    $numeFisier = $fisierUpload->getClientOriginalName();
-                    $cale = 'comenzi/' . $comanda->id . '/fisiereIncarcateDeTransportator/';
+            $fisiereUploadate = $request->file('fisiere', []);
+            $numeDuplicateInCerere = $this->findDuplicateOriginalFilenameInRequest($fisiereUploadate);
 
-                    if (Storage::exists($cale . '/' . $numeFisier)) {
-                        $numeFisier .= uniqid('3');
-                    }
+            if ($numeDuplicateInCerere !== null) {
+                return back()
+                    ->withErrors([
+                        'fisiere' => 'Nu puteti incarca de mai multe ori acelasi fisier in aceeasi comanda. Exista deja un fisier selectat cu denumirea ' . $numeDuplicateInCerere,
+                    ]);
+            }
+
+            if ($fisiereUploadate) {
+                foreach ($fisiereUploadate as $fisierUpload) {
+                    $numeFisier = $this->generateUniqueTransporterStoredFilename(
+                        'comenzi/' . $comanda->id . '/fisiereIncarcateDeTransportator',
+                        $fisierUpload->getClientOriginalName()
+                    );
+                    $cale = 'comenzi/' . $comanda->id . '/fisiereIncarcateDeTransportator/';
 
                     try {
                         Storage::putFileAs($cale, $fisierUpload, $numeFisier);
@@ -107,7 +111,8 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
                         $fisier->categorie = 1;
                         $fisier->cale = $cale;
                         $fisier->nume = $numeFisier;
-                        $fisier->este_factura = $esteFactura;
+                        $fisier->nume_original = $fisierUpload->getClientOriginalName();
+                        $fisier->este_factura = 0;
                         $fisier->user_id = auth()->user()->id ?? null;
                         $fisier->save();
 
@@ -131,58 +136,81 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
             ->with('status', 'Fisierele au fost incarcate si pot fi vizualizate in tabelul de mai jos.');
     }
 
-    public function fisierDeschide($cheie_unica, $numeFisier)
+    public function schimbaMarcajFactura(Request $request, $cheie_unica, $fisierId)
     {
+        if (! auth()->check()) {
+            abort(403);
+        }
+
+        $request->validate([
+            'este_factura' => 'required|in:0,1',
+        ]);
+
         $comanda = Comanda::where('cheie_unica', $cheie_unica)
             ->with('fisiereIncarcateDeTransportator')
             ->first();
 
-        if ($comanda) {
-            foreach ($comanda->fisiereIncarcateDeTransportator as $fisier) {
-                if ($fisier->nume === $numeFisier) {
-                    $path = $fisier->cale . '/' . $fisier->nume;
-
-                    if (! Storage::exists($path)) {
-                        abort(404);
-                    }
-
-                    $mimeType = Storage::mimeType($path) ?? 'application/octet-stream';
-
-                    if (! BrowserViewableFile::isViewable($fisier->nume, $mimeType)) {
-                        return $this->fisierDownload($cheie_unica, $numeFisier);
-                    }
-
-                    return $this->streamStorageFile($path, $fisier->nume, $mimeType);
-                }
-            }
+        if (! $comanda) {
+            abort(404, 'Page not found');
         }
 
-        abort(404, 'Page not found');
+        $fisier = $comanda->fisiereIncarcateDeTransportator
+            ->firstWhere('id', (int) $fisierId);
+
+        if (! $fisier) {
+            return back()->with('error', 'Fisierul selectat nu exista pentru aceasta comanda.');
+        }
+
+        $esteFactura = (int) $request->este_factura;
+        $fisier->este_factura = $esteFactura;
+        $fisier->save();
+
+        $fisierIstoric = new ComandaFisierIstoric;
+        $fisierIstoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+        $fisierIstoric->operare_user_id = auth()->user()->id ?? null;
+        $fisierIstoric->operare_descriere = $esteFactura === 1 ? 'Marcare factura' : 'Demarcare factura';
+        $fisierIstoric->save();
+
+        $comanda->syncFacturaTransportatorIncarcataStatus();
+
+        return back()->with(
+            'status',
+            '"' . $fisier->nume_afisat . '" a fost marcat ' . ($esteFactura === 1 ? 'ca factura' : 'ca document obisnuit') . ' cu succes!'
+        );
     }
 
-    public function fisierDownload($cheie_unica, $numeFisier)
+    public function fisierDeschide($cheie_unica, $fisierIdentifier)
     {
-        $comanda = Comanda::where('cheie_unica', $cheie_unica)
-            ->with('fisiereIncarcateDeTransportator')
-            ->first();
+        $comanda = $this->findComandaByCheieOrFail($cheie_unica);
+        $fisier = $this->findTransporterFileOrFail($comanda, $fisierIdentifier);
+        $path = $fisier->cale . '/' . $fisier->nume;
 
-        if ($comanda) {
-            foreach ($comanda->fisiereIncarcateDeTransportator as $fisier) {
-                if ($fisier->nume === $numeFisier) {
-                    $path = $fisier->cale . '/' . $fisier->nume;
-
-                    if (! Storage::exists($path)) {
-                        abort(404);
-                    }
-
-                    $mimeType = Storage::mimeType($path) ?? 'application/octet-stream';
-
-                    return $this->downloadStorageFile($path, $fisier->nume, $mimeType);
-                }
-            }
+        if (! Storage::exists($path)) {
+            abort(404);
         }
 
-        abort(404, 'Page not found');
+        $mimeType = Storage::mimeType($path) ?? 'application/octet-stream';
+
+        if (! BrowserViewableFile::isViewable($fisier->nume_afisat, $mimeType)) {
+            return $this->fisierDownload($cheie_unica, $fisierIdentifier);
+        }
+
+        return $this->streamStorageFile($path, $fisier->nume_afisat, $mimeType);
+    }
+
+    public function fisierDownload($cheie_unica, $fisierIdentifier)
+    {
+        $comanda = $this->findComandaByCheieOrFail($cheie_unica);
+        $fisier = $this->findTransporterFileOrFail($comanda, $fisierIdentifier);
+        $path = $fisier->cale . '/' . $fisier->nume;
+
+        if (! Storage::exists($path)) {
+            abort(404);
+        }
+
+        $mimeType = Storage::mimeType($path) ?? 'application/octet-stream';
+
+        return $this->downloadStorageFile($path, $fisier->nume_afisat, $mimeType);
     }
 
     protected function streamStorageFile(string $path, string $downloadName, string $mimeType): StreamedResponse
@@ -224,69 +252,65 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
         ]);
     }
 
-    public function fisierSterge($cheie_unica, $numeFisier)
+    public function fisierSterge($cheie_unica, $fisierIdentifier)
     {
-        $comanda = Comanda::where('cheie_unica', $cheie_unica)
-            ->with('fisiereIncarcateDeTransportator')
-            ->first();
+        $comanda = Comanda::where('cheie_unica', $cheie_unica)->first();
 
         if ($comanda) {
-            foreach ($comanda->fisiereIncarcateDeTransportator as $fisier) {
-                if (($fisier->nume === $numeFisier) && ($fisier->validat !== 1)) {
-                    $wasInvoice = (int) $fisier->este_factura === 1;
+            $fisier = $this->findTransporterFile($comanda, $fisierIdentifier);
 
-                    Storage::delete($fisier->cale . '/' . $fisier->nume);
-                    $fisier->delete();
+            if ($fisier && ($fisier->validat !== 1)) {
+                $wasInvoice = (int) $fisier->este_factura === 1;
 
-                    $fisierIstoric = new ComandaFisierIstoric;
-                    $fisierIstoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-                    $fisierIstoric->operare_user_id = auth()->user()->id ?? null;
-                    $fisierIstoric->operare_descriere = 'Stergere';
-                    $fisierIstoric->save();
+                Storage::delete($fisier->cale . '/' . $fisier->nume);
+                $fisier->delete();
 
-                    if (empty($files = Storage::allFiles($fisier->cale))) {
-                        Storage::deleteDirectory($fisier->cale);
+                $fisierIstoric = new ComandaFisierIstoric;
+                $fisierIstoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                $fisierIstoric->operare_user_id = auth()->user()->id ?? null;
+                $fisierIstoric->operare_descriere = 'Stergere';
+                $fisierIstoric->save();
 
-                        if (empty($files = Storage::allFiles(dirname($fisier->cale)))) {
-                            Storage::deleteDirectory(dirname($fisier->cale));
-                        }
+                if (empty($files = Storage::allFiles($fisier->cale))) {
+                    Storage::deleteDirectory($fisier->cale);
+
+                    if (empty($files = Storage::allFiles(dirname($fisier->cale)))) {
+                        Storage::deleteDirectory(dirname($fisier->cale));
                     }
-
-                    if ($wasInvoice) {
-                        $comanda->syncFacturaTransportatorIncarcataStatus();
-                    }
-
-                    return back()->with('status', '"' . $numeFisier . '" a fost sters cu succes!');
                 }
+
+                if ($wasInvoice) {
+                    $comanda->syncFacturaTransportatorIncarcataStatus();
+                }
+
+                return back()->with('status', '"' . $fisier->nume_afisat . '" a fost sters cu succes!');
             }
         }
 
-        return back()->with('error', '"' . $numeFisier . '" nu a putut fi sters!');
+        return back()->with('error', 'Fisierul nu a putut fi sters!');
     }
 
-    public function validareInvalidareDocumente($cheie_unica, $numeFisier)
+    public function validareInvalidareDocumente($cheie_unica, $fisierIdentifier)
     {
-        $comanda = Comanda::where('cheie_unica', $cheie_unica)
-            ->with('fisiereIncarcateDeTransportator')
-            ->first();
+        $comanda = Comanda::where('cheie_unica', $cheie_unica)->first();
 
         if ($comanda) {
-            foreach ($comanda->fisiereIncarcateDeTransportator as $fisier) {
-                if ($fisier->nume === $numeFisier) {
-                    if ($fisier->validat === 1) {
-                        $fisier->update(['validat' => 0]);
-                    } else {
-                        $fisier->update(['validat' => 1]);
-                    }
+            $fisier = $this->findTransporterFile($comanda, $fisierIdentifier);
 
-                    $fisierIstoric = new ComandaFisierIstoric;
-                    $fisierIstoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
-                    $fisierIstoric->operare_user_id = auth()->user()->id ?? null;
-                    $fisierIstoric->operare_descriere = 'Validare / Invalidare';
-                    $fisierIstoric->save();
-
-                    return back()->with('status', '"' . $numeFisier . '" a fost ' . ($fisier->validat == 1 ? 'validat' : 'invalidat') . ' cu succes!');
+            if ($fisier) {
+                if ($fisier->validat === 1) {
+                    $fisier->update(['validat' => 0]);
+                } else {
+                    $fisier->update(['validat' => 1]);
                 }
+
+                $fisierIstoric = new ComandaFisierIstoric;
+                $fisierIstoric->fill($fisier->makeHidden(['created_at', 'updated_at'])->attributesToArray());
+                $fisierIstoric->operare_user_id = auth()->user()->id ?? null;
+                $fisierIstoric->operare_descriere = 'Validare / Invalidare';
+                $fisierIstoric->save();
+
+                return back()->with('status', '"' . $fisier->nume_afisat . '" a fost ' . ($fisier->validat == 1 ? 'validat' : 'invalidat') . ' cu succes!');
             }
         }
 
@@ -392,5 +416,77 @@ class ComandaIncarcareDocumenteDeCatreTransportatorController extends Controller
         }
 
         return redirect('comanda-incarcare-documente-de-catre-transportator/' . $cheieUnica);
+    }
+
+    protected function findComandaByCheieOrFail(string $cheieUnica): Comanda
+    {
+        $comanda = Comanda::where('cheie_unica', $cheieUnica)->first();
+
+        if (! $comanda) {
+            abort(404, 'Page not found');
+        }
+
+        return $comanda;
+    }
+
+    protected function findTransporterFileOrFail(Comanda $comanda, int|string $fisierIdentifier): ComandaFisier
+    {
+        $fisier = $this->findTransporterFile($comanda, $fisierIdentifier);
+
+        if (! $fisier) {
+            abort(404, 'Page not found');
+        }
+
+        return $fisier;
+    }
+
+    protected function findTransporterFile(Comanda $comanda, int|string $fisierIdentifier): ?ComandaFisier
+    {
+        if (ctype_digit((string) $fisierIdentifier)) {
+            $fisier = $comanda->fisiereIncarcateDeTransportator()
+                ->whereKey((int) $fisierIdentifier)
+                ->first();
+
+            if ($fisier) {
+                return $fisier;
+            }
+        }
+
+        return $comanda->fisiereIncarcateDeTransportator()
+            ->where('nume', (string) $fisierIdentifier)
+            ->first();
+    }
+
+    protected function generateUniqueTransporterStoredFilename(string $directory, string $originalName): string
+    {
+        $directory = trim($directory, '/');
+        $extension = pathinfo($originalName, PATHINFO_EXTENSION);
+
+        do {
+            $candidate = (string) Str::uuid();
+
+            if ($extension !== '') {
+                $candidate .= '.' . $extension;
+            }
+        } while (Storage::exists($directory . '/' . $candidate));
+
+        return $candidate;
+    }
+
+    protected function findDuplicateOriginalFilenameInRequest(array $fisiereUploadate): ?string
+    {
+        $fileNames = [];
+
+        foreach ($fisiereUploadate as $fisierUpload) {
+            $fileName = $fisierUpload->getClientOriginalName();
+
+            if (in_array($fileName, $fileNames, true)) {
+                return $fileName;
+            }
+
+            $fileNames[] = $fileName;
+        }
+
+        return null;
     }
 }

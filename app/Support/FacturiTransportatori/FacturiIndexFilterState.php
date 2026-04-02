@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Support\FacturiTransportatori;
+
+use Illuminate\Http\Request;
+
+class FacturiIndexFilterState
+{
+    public const SESSION_KEY = 'facturi_transportatori_filters';
+
+    public static function remember(Request $request): void
+    {
+        $request->session()->put(self::SESSION_KEY, self::extractQuery($request));
+    }
+
+    public static function extractQuery(Request $request): array
+    {
+        return collect($request->query())
+            ->except(['page', 'cursor'])
+            ->toArray();
+    }
+
+    public static function get(): array
+    {
+        return session(self::SESSION_KEY, []);
+    }
+
+    public static function route(): string
+    {
+        return route('facturi-transportatori.index', self::get());
+    }
+}

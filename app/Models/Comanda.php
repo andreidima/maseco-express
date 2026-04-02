@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use App\Models\FacturiTransportatori\PlataCalup as FacturaTransportatorPlataCalup;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -222,12 +223,24 @@ class Comanda extends Model
 
     public function fisiereIncarcateDeTransportator()
     {
-        return $this->fisiere()->where('categorie', '1')->orderBy('nume');
+        return $this->hasMany(ComandaFisier::class, 'comanda_id')
+            ->where('categorie', '1')
+            ->orderByRaw('COALESCE(nume_original, nume)');
     }
 
     public function facturiIncarcateDeTransportator()
     {
         return $this->fisiereIncarcateDeTransportator()->where('este_factura', 1);
+    }
+
+    public function calupuriFacturiTransportatori()
+    {
+        return $this->belongsToMany(
+            FacturaTransportatorPlataCalup::class,
+            'facturi_transportatori_plati_calupuri_comenzi',
+            'comanda_id',
+            'calup_id'
+        )->withTimestamps();
     }
 
     public function fisiereIncarcateDeTransportatorIncaNevalidateDe24Ore()
