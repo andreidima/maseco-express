@@ -65,9 +65,7 @@
                 </div>
             </form>
         </div>
-        <div class="col-lg-3 text-lg-end mt-3 mt-lg-0">
-            @include('partials.operations-navigation')
-        </div>
+        <div class="col-lg-3 text-lg-end mt-3 mt-lg-0"></div>
     </div>
 
     <div class="card-body px-0 py-3">

@@ -154,6 +154,13 @@ class MainNavigation
                 'icon' => 'fa-solid fa-file-invoice',
                 'label' => 'Facturi scadente',
             ],
+            ['type' => 'divider'],
+            [
+                'permission' => 'facturi',
+                'href' => route('facturi-transportatori.index'),
+                'icon' => 'fa-solid fa-file-invoice',
+                'label' => 'Facturi transportatori',
+            ],
         ];
     }
 
@@ -207,13 +214,6 @@ class MainNavigation
                 'href' => '/facturi',
                 'icon' => 'fa-solid fa-file-invoice',
                 'label' => 'Facturi',
-            ],
-            ['type' => 'divider'],
-            [
-                'permission' => 'facturi',
-                'href' => route('facturi-transportatori.index'),
-                'icon' => 'fa-solid fa-file-invoice',
-                'label' => 'Facturi transportatori',
             ],
             ['type' => 'divider'],
             [
