@@ -14,6 +14,10 @@ class ComandaFisierIstoric extends Model
     protected $table = 'comenzi_fisiere_istoric';
     protected $primaryKey = 'id_pk';
     protected $guarded = [];
+    protected $casts = [
+        'validat' => 'integer',
+        'este_factura' => 'integer',
+    ];
 
     public function path()
     {

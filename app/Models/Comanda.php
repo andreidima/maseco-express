@@ -225,6 +225,11 @@ class Comanda extends Model
         return $this->fisiere()->where('categorie', '1')->orderBy('nume');
     }
 
+    public function facturiIncarcateDeTransportator()
+    {
+        return $this->fisiereIncarcateDeTransportator()->where('este_factura', 1);
+    }
+
     public function fisiereIncarcateDeTransportatorIncaNevalidateDe24Ore()
     {
         return $this->fisiereIncarcateDeTransportator()
@@ -255,6 +260,37 @@ class Comanda extends Model
     {
         $lastEmail = $this->ultimulEmailPentruFisiereIncarcateDeTransportator;
         return $lastEmail && $lastEmail->tip == 2;
+    }
+
+    public function syncFacturaTransportatorIncarcataStatus(): void
+    {
+        $hasInvoiceFiles = $this->facturiIncarcateDeTransportator()->exists();
+        $hadInvoiceStatus = (int) $this->factura_transportator_incarcata === 1;
+
+        $this->factura_transportator_incarcata = $hasInvoiceFiles ? 1 : 0;
+
+        if (! $hadInvoiceStatus && $hasInvoiceFiles) {
+            $invoiceDate = $this->data_factura_transportator
+                ? Carbon::parse($this->data_factura_transportator)
+                : Carbon::today();
+
+            if (is_null($this->data_factura_transportator)) {
+                $this->data_factura_transportator = $invoiceDate->toDateString();
+            }
+
+            if (is_null($this->data_scadenta_plata_transportator) && ! is_null($this->transportator_zile_scadente)) {
+                $this->data_scadenta_plata_transportator = $invoiceDate
+                    ->copy()
+                    ->addDays($this->transportator_zile_scadente)
+                    ->toDateString();
+            }
+        }
+
+        if ($this->isDirty('factura_transportator_incarcata')
+            || $this->isDirty('data_factura_transportator')
+            || $this->isDirty('data_scadenta_plata_transportator')) {
+            $this->save();
+        }
     }
 
     // comenzi with ultimaDescarcare > 24h, with no transporter documents added

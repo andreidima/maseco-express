@@ -14,6 +14,7 @@ class ComandaFisier extends Model
 
     protected $casts = [
         'validat'    => 'integer',
+        'este_factura' => 'integer',
     ];
 
     public function path()
