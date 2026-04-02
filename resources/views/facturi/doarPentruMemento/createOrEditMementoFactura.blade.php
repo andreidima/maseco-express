@@ -345,6 +345,36 @@
                                             :latime="{ width: '125px' }"
                                         ></vue-datepicker-next>
                                     </div>
+                                    <div class="col-lg-3 mb-4">
+                                        <label class="mb-0 ps-3">PDF factură</label>
+                                        <div class="border rounded-3 bg-white p-2">
+                                            @forelse ($comanda->facturiIncarcateDeTransportator as $fisierFactura)
+                                                <div class="{{ $loop->last ? '' : 'mb-2' }}">
+                                                    <div class="small text-break">{{ $fisierFactura->nume }}</div>
+                                                    <div class="d-flex flex-wrap gap-2 mt-1">
+                                                        <a
+                                                            href="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica . '/deschide/' . $fisierFactura->nume) }}"
+                                                            target="_blank"
+                                                            rel="noopener"
+                                                            class="badge bg-primary text-decoration-none"
+                                                        >
+                                                            Vezi PDF
+                                                        </a>
+                                                        <a
+                                                            href="{{ url('/comanda-incarcare-documente-de-catre-transportator/' . $comanda->cheie_unica . '/descarca/' . $fisierFactura->nume) }}"
+                                                            class="badge bg-secondary text-decoration-none"
+                                                        >
+                                                            Descarcă
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            @empty
+                                                <div class="small text-muted">
+                                                    Nu există niciun PDF de factură încărcat pentru această comandă.
+                                                </div>
+                                            @endforelse
+                                        </div>
+                                    </div>
                                 </div>
 
                             <div class="col-lg-12 px-4 py-2 mb-0">

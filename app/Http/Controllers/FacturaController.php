@@ -495,7 +495,7 @@ class FacturaController extends Controller
 
         // Added on 14.01.2025 - to set more clients to a command, not just one
 
-        $comanda = Comanda::find($comanda->id);
+        $comanda = Comanda::with('facturiIncarcateDeTransportator')->find($comanda->id);
         $facturi = $comanda->facturi;
         $limbi = Limba::select('id', 'nume')->whereIn('id', [1,2])->get();
         // dd($comanda->clienti, $comanda->facturi, $facturi);

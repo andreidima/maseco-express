@@ -7,6 +7,12 @@
             'permission' => 'facturi-furnizori',
         ],
         [
+            'route' => 'facturi-transportatori.index',
+            'pattern' => 'facturi-transportatori.index',
+            'label' => 'Facturi transportatori',
+            'permission' => 'facturi',
+        ],
+        [
             'route' => 'gestiune-piese.index',
             'pattern' => 'gestiune-piese.*',
             'label' => 'Gestiune piese',

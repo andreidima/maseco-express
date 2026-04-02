@@ -210,6 +210,13 @@ class MainNavigation
             ],
             ['type' => 'divider'],
             [
+                'permission' => 'facturi',
+                'href' => route('facturi-transportatori.index'),
+                'icon' => 'fa-solid fa-file-invoice',
+                'label' => 'Facturi transportatori',
+            ],
+            ['type' => 'divider'],
+            [
                 'permission' => 'facturi-furnizori',
                 'href' => $facturiIndexUrl,
                 'icon' => 'fa-solid fa-file-invoice-dollar',

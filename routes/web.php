@@ -16,6 +16,7 @@ use App\Http\Controllers\MementoController;
 use App\Http\Controllers\FileManagerPersonalizatController;
 use App\Http\Controllers\FacturaController;
 use App\Http\Controllers\FacturaScadentaController;
+use App\Http\Controllers\FacturaTransportatorController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RaportController;
 use App\Http\Controllers\DiverseTesteController;
@@ -334,6 +335,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/facturi-memento/salveaza/comanda/{comanda}', [FacturaController::class, 'storeOrUpdateMementoFactura']);
 
         Route::get('/facturi-scadente', [FacturaScadentaController::class, 'index']);
+        Route::get('/facturi-transportatori', [FacturaTransportatorController::class, 'index'])->name('facturi-transportatori.index');
     });
 
     Route::middleware('permission:gestiune-piese')->group(function () {
