@@ -97,9 +97,9 @@ class FacturaTransportatorController extends Controller
 
         $comenzi = $query
             ->orderByRaw('data_scadenta_plata_transportator IS NULL')
-            ->orderByDesc('data_scadenta_plata_transportator')
+            ->orderBy('data_scadenta_plata_transportator')
             ->orderByRaw('data_factura_transportator IS NULL')
-            ->orderByDesc('data_factura_transportator')
+            ->orderBy('data_factura_transportator')
             ->orderByDesc('id')
             ->simplePaginate(25)
             ->withQueryString();
