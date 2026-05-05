@@ -38,6 +38,7 @@
 <body class="d-flex flex-column h-100">
     @auth
     @php
+        $masecoPresentationMode = session('maseco_presentation_mode', false);
         $impersonationActive = session()->has('impersonated_by');
         $impersonatorName = session('impersonated_by_name');
         $user = auth()->user();
@@ -64,6 +65,18 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
+                @if ($masecoPresentationMode)
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                            <li class="nav-item me-3">
+                                <a class="nav-link active" href="/comenzi" aria-current="page">
+                                    <i class="fa-solid fa-clipboard-list me-1"></i>
+                                    Comenzi
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                @else
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left Side Of Navbar -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
@@ -259,6 +272,7 @@
                         @endguest
                     </ul>
                 </div>
+                @endif
             </div>
         </nav>
     </header>

@@ -38,6 +38,7 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
 
             \App\Http\Middleware\CheckBanned::class, // Andrei
+            \App\Http\Middleware\EnsureMasecoPresentationAccess::class,
         ],
 
         'api' => [

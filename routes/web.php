@@ -6,6 +6,7 @@ use App\Http\Controllers\FirmaController;
 use App\Http\Controllers\CamionController;
 use App\Http\Controllers\LocOperareController;
 use App\Http\Controllers\ComandaController;
+use App\Http\Controllers\ComenziMasecoAccessController;
 use App\Http\Controllers\AxiosController;
 use App\Http\Controllers\MesajTrimisSmsController;
 use App\Http\Controllers\CronJobController;
@@ -104,6 +105,8 @@ Route::get('/comanda-incarcare-documente-de-catre-transportator/{cheie_unica}/me
 Route::get('oferte-curse/{oferta}', [OfertaCursaController::class, 'show'])->name('oferte-curse.show')
      ->whereNumber('oferta'); // Restrict the {oferta} route parameter to numeric IDs, preventing wildcard clashes with other routes, like 'create'
 Route::get('oferte-curse', [OfertaCursaController::class, 'index'])->name('oferte-curse.index');
+
+Route::get('/comenzi-maseco/{token}', ComenziMasecoAccessController::class)->name('comenzi-maseco.access');
 
 Route::redirect('/', '/acasa');
 

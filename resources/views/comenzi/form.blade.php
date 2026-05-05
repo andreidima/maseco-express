@@ -1,5 +1,6 @@
 @csrf
 @php
+    $masecoPresentationMode = session('maseco_presentation_mode', false);
     // echo old('transportator_transportator_id');
     // echo json_encode(old('transportator_transportator_id'));
     // dd(old('incarcari'), old('transportator_contract'), old('client_zile_scadente'));
@@ -134,7 +135,7 @@
                     <div class="input-group-prepend d-flex align-items-center">
                         <div v-if="firmaTransportatorId" class="input-group-text p-2 text-danger" id="firmaTransportatorNume" v-on:click="firmaTransportatorId = null; firmaTransportatorNume = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
-                    <div class="input-group-prepend ms-2 d-flex align-items-center">
+                    <div class="input-group-prepend ms-2 {{ $masecoPresentationMode ? 'd-none' : 'd-flex' }} align-items-center">
                         <button type="submit" ref="submit" formaction="{{ $comanda->path() }}/adauga-resursa/transportator" class="btn btn-success text-white rounded-3 py-0 px-2"
                             style="font-size: 30px; line-height: 1.2;" title="Adaugă transportator nou">+</button>
                     </div>
@@ -425,7 +426,7 @@
                     <div class="input-group-prepend d-flex align-items-center">
                         <div v-if="firmaClientId" class="input-group-text p-2 text-danger" id="firmaClientNume" v-on:click="firmaClientId = null; firmaClientNume = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
-                    <div class="input-group-prepend ms-2 d-flex align-items-center">
+                    <div class="input-group-prepend ms-2 {{ $masecoPresentationMode ? 'd-none' : 'd-flex' }} align-items-center">
                         <button type="submit" ref="submit" formaction="{{ $comanda->path() }}/adauga-resursa/client" class="btn btn-success text-white rounded-3 py-0 px-2"
                             style="font-size: 30px; line-height: 1.2;" title="Adaugă client nou">+</button>
                     </div>
@@ -598,7 +599,7 @@
                             <div class="input-group-prepend d-flex align-items-center">
                                 <div v-if="clientiAtasatiLaComanda[index].id" class="input-group-text p-2 text-danger" id="" v-on:click="clientiAtasatiLaComanda[index].id = null; clientiAtasatiLaComanda[index].nume = ''"><i class="fa-solid fa-xmark"></i></div>
                             </div>
-                            <div class="input-group-prepend ms-2 d-flex align-items-center">
+                            <div class="input-group-prepend ms-2 {{ $masecoPresentationMode ? 'd-none' : 'd-flex' }} align-items-center">
                                 <button type="submit" ref="submit" :formaction="'{{ $comanda->path() }}/adauga-resursa/client/client/' + index" class="btn btn-success text-white rounded-3 py-0 px-2"
                                     style="font-size: 30px; line-height: 1.2;" title="Adaugă client nou">+</button>
                             </div>
@@ -838,7 +839,7 @@
                     <div class="input-group-prepend d-flex align-items-center">
                         <div v-if="camionId" class="input-group-text p-2 text-danger" id="camionNumarInmatriculare" v-on:click="camionId = null; camionNumarInmatriculare = ''; camionTipCamion = ''"><i class="fa-solid fa-xmark"></i></div>
                     </div>
-                    <div class="input-group-prepend ms-2 d-flex align-items-center">
+                    <div class="input-group-prepend ms-2 {{ $masecoPresentationMode ? 'd-none' : 'd-flex' }} align-items-center">
                         <button type="submit" ref="submit" formaction="{{ $comanda->path() }}/adauga-resursa/camion" class="btn btn-success text-white rounded-3 py-0 px-2"
                             style="font-size: 30px; line-height: 1.2;" title="Adaugă camion nou">+</button>
                     </div>
@@ -906,7 +907,7 @@
                                     <div class="input-group-prepend d-flex align-items-center">
                                     </div>
                             </div>
-                            <div class="input-group-prepend ms-2 d-flex align-items-center">
+                            <div class="input-group-prepend ms-2 {{ $masecoPresentationMode ? 'd-none' : 'd-flex' }} align-items-center">
                                 <button type="submit" ref="submit" :formaction="'{{ $comanda->path() }}/adauga-resursa/loc-operare/incarcari/' + index" class="btn btn-success text-white rounded-3 py-0 px-2"
                                     style="font-size: 30px; line-height: 1.2;" title="Adaugă loc operare nou">+</button>
                             </div>
@@ -1074,7 +1075,7 @@
                                     <div class="input-group-prepend d-flex align-items-center">
                                     </div>
                             </div>
-                            <div class="input-group-prepend ms-2 d-flex align-items-center">
+                            <div class="input-group-prepend ms-2 {{ $masecoPresentationMode ? 'd-none' : 'd-flex' }} align-items-center">
                                 <button type="submit" ref="submit" :formaction="'{{ $comanda->path() }}/adauga-resursa/loc-operare/descarcari/' + index" class="btn btn-success text-white rounded-3 py-0 px-2"
                                     style="font-size: 30px; line-height: 1.2;" title="Adaugă loc operare nou">+</button>
                             </div>

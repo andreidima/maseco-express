@@ -1,3 +1,7 @@
+@php
+    $masecoPresentationMode = session('maseco_presentation_mode', false);
+@endphp
+
 <script type="application/javascript">
     firmeTransportatori = {!! json_encode($firmeTransportatori ?? "") !!}
     firmaTransportatorIdVechi = {!! json_encode($searchTransportatorId ?? "") !!}
@@ -281,6 +285,7 @@
                                                 </span>
                                             </a>
                                         </div>
+                                        @unless ($masecoPresentationMode)
                                         <div class="">
                                             <a
                                                 href="#"
@@ -295,6 +300,7 @@
                                                 </span>
                                             </a>
                                         </div>
+                                        @endunless
                                     </div>
                                     <div class="d-flex justify-content-center">
                                         <!-- Second row: Debit note-related buttons in red -->
@@ -306,6 +312,7 @@
                                                 </span>
                                             </a>
                                         </div>
+                                        @unless ($masecoPresentationMode)
                                         <div class="">
                                             <a
                                                 href="#"
@@ -320,6 +327,7 @@
                                                 </span>
                                             </a>
                                         </div>
+                                        @endunless
                                     </div>
                                 </td>
 
@@ -399,17 +407,20 @@
                                         </div>
                                     </div>
                                     <div class="d-flex justify-content-end">
-                                        <div class="mb-1 me-1">
-                                            <a href="/facturi-memento/deschide/comanda/{{ $comanda->id }}" class="flex">
-                                                <span class="badge bg-warning text-dark">Fact.</span>
-                                            </a>
-                                        </div>
+                                        @unless ($masecoPresentationMode)
+                                            <div class="mb-1 me-1">
+                                                <a href="/facturi-memento/deschide/comanda/{{ $comanda->id }}" class="flex">
+                                                    <span class="badge bg-warning text-dark">Fact.</span>
+                                                </a>
+                                            </div>
+                                        @endunless
                                         <div class="mb-1 me-1">
                                             <a href="{{ $comanda->path() }}/export-excel" class="flex">
                                                 <span class="badge bg-success">Xls</span>
                                             </a>
                                         </div>
                                     </div>
+                                    @unless ($masecoPresentationMode)
                                     <div class="d-flex justify-content-end">
                                         <div class="mb-1 me-1">
                                             <a href="{{ url('/comanda-documente-transportator/' . $comanda->cheie_unica) }}" class="flex" title="Documente transportator">
@@ -422,6 +433,7 @@
                                             </a>
                                         </div>
                                     </div>
+                                    @endunless
                                 </td>
                             </tr>
 
@@ -602,9 +614,10 @@
         </div>
     </div>
 
-    {{-- Modalele pentru trimitere comanda catre transportator --}}
-    <div id="disableButton1">
-        @foreach ($comenzi as $comanda)
+    @unless ($masecoPresentationMode)
+        {{-- Modalele pentru trimitere comanda catre transportator --}}
+        <div id="disableButton1">
+            @foreach ($comenzi as $comanda)
             <div class="modal fade text-dark" id="trimiteCatreTransportator{{ $comanda->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -631,12 +644,12 @@
                     </div>
                 </div>
             </div>
-        @endforeach
-    </div>
+            @endforeach
+        </div>
 
-    {{-- Modalele pentru trimitere debit note catre transportator --}}
-    <div id="disableButton2">
-        @foreach ($comenzi as $comanda)
+        {{-- Modalele pentru trimitere debit note catre transportator --}}
+        <div id="disableButton2">
+            @foreach ($comenzi as $comanda)
             <div class="modal fade text-dark" id="trimiteDebitNoteCatreTransportator{{ $comanda->id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -663,8 +676,9 @@
                     </div>
                 </div>
             </div>
-        @endforeach
-    </div>
+            @endforeach
+        </div>
+    @endunless
 
     {{-- Modalele pentru stergere comanda --}}
     @foreach ($comenzi as $comanda)

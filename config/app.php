@@ -58,6 +58,10 @@ return [
 
     'asset_url' => env('ASSET_URL', '/'),
 
+    'maseco_comenzi_token' => env('MASECO_COMENZI_TOKEN'),
+
+    'maseco_comenzi_user_id' => env('MASECO_COMENZI_USER_ID'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone
